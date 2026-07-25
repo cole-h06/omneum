@@ -212,8 +212,6 @@ Computes structural credibility over an assertion graph.
       "attribute_id": "attr_93e4f7...",
       "claim_id": "clm_f72d10...",
       "support": 0.83,
-      "independent_support_count": 3,
-      "dependent_support_count": 0,
       "is_attribute_max_support": true,
       "conflicting_claims": [
         {
@@ -226,8 +224,6 @@ Computes structural credibility over an assertion graph.
       "attribute_id": "attr_93e4f7...",
       "claim_id": "clm_51d8ab...",
       "support": 0.17,
-      "independent_support_count": 1,
-      "dependent_support_count": 0,
       "is_attribute_max_support": false,
       "conflicting_claims": [
         {
@@ -235,23 +231,6 @@ Computes structural credibility over an assertion graph.
           "support": 0.83
         }
       ]
-    }
-  ],
-  "source_dependencies": [
-    {
-      "source_a": "src_7d9a4e...",
-      "source_b": "src_b28491...",
-      "shared_claim_count": 1
-    },
-    {
-      "source_a": "src_7d9a4e...",
-      "source_b": "src_e46ab2...",
-      "shared_claim_count": 1
-    },
-    {
-      "source_a": "src_b28491...",
-      "source_b": "src_e46ab2...",
-      "shared_claim_count": 1
     }
   ],
   "metadata": {
@@ -270,7 +249,6 @@ Computes structural credibility over an assertion graph.
 | `summary` | object | Statistics describing the submitted graph. |
 | `source_credibility` | array | Credibility scores for each source. |
 | `claim_support` | array | Support information for each claim, including competing claims within the same attribute group. |
-| `source_dependencies` | array | Shared-claim relationships between pairs of sources. |
 | `metadata` | object | Information about the completed inference run. |
 
 ### summary
@@ -295,18 +273,8 @@ Computes structural credibility over an assertion graph.
 | `attribute_id` | string | Opaque identifier grouping competing claims describing the same attribute. |
 | `claim_id` | string | Opaque identifier representing the claim. |
 | `support` | number | Computed support score. |
-| `independent_support_count` | integer | Number of independent supporting sources. |
-| `dependent_support_count` | integer | Number of dependent supporting sources. |
 | `is_attribute_max_support` | boolean | Indicates whether the claim has the highest support among competing claims for the same attribute. |
 | `conflicting_claims` | array | Competing claims and their corresponding support scores. |
-
-### source_dependencies
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `source_a` | string | First source identifier. |
-| `source_b` | string | Second source identifier. |
-| `shared_claim_count` | integer | Number of claims asserted by both sources. |
 
 ### metadata
 
@@ -344,8 +312,6 @@ Returns structural information associated with a claim.
   "attribute_id": "attr_93e4f7...",
   "claim_id": "clm_f72d10...",
   "support": 0.83,
-  "independent_support_count": 3,
-  "dependent_support_count": 0,
   "is_attribute_max_support": true,
   "supporting_sources": [
     {
@@ -377,8 +343,6 @@ Returns structural information associated with a claim.
 | `attribute_id` | string | Opaque identifier grouping competing claims describing the same attribute. |
 | `claim_id` | string | Opaque claim identifier. |
 | `support` | number | Computed support score. |
-| `independent_support_count` | integer | Number of independent supporting sources. |
-| `dependent_support_count` | integer | Number of dependent supporting sources. |
 | `is_attribute_max_support` | boolean | Indicates whether the claim has the highest support among competing claims for the same attribute. |
 | `supporting_sources` | array | Sources asserting the claim and their credibility scores. |
 | `conflicting_claims` | array | Competing claims and their corresponding support scores. |

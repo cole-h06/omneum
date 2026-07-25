@@ -1,0 +1,32 @@
+{
+    "id": "gpt-5.6-sol",
+    "object": "model",
+    "provider": "OpenAI",
+    "capabilities": {
+      "text_input": true,
+      "text_output": true,
+      "image_input": true,
+      "streaming": true,
+      "function_calling": true,
+      "structured_outputs": true,
+      "web_search": true,
+      "file_search": true
+    },
+    "api": {
+      "recommended_endpoint": "/v1/responses"
+    },
+    "limits": {
+      "context_window_tokens": 1050000,
+      "max_output_tokens": 128000
+    },
+    "reasoning": {
+      "supported_levels": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    }
+  }

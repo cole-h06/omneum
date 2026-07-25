@@ -45,13 +45,21 @@ Create a client and construct a credibility graph using your application data. O
 Python
 
 ```python
+from verity import CredibilityGraph
 from verity import VerityClient
 
 client = VerityClient(
     endpoint="https://verity.example.com"
 )
 
-graph = ...
+graph = CredibilityGraph()
+
+graph.add(
+    source="docs.anthropic.com",
+    entity="messages_api",
+    attribute="supports_streaming",
+    value=True
+)
 
 result = client.infer_credibility(graph)
 ```
@@ -59,10 +67,22 @@ result = client.infer_credibility(graph)
 JavaScript
 
 ```javascript
-import { VerityClient } from "@verity/sdk";
+import {
+    CredibilityGraph,
+    VerityClient
+} from "@verity/sdk";
 
 const client = new VerityClient({
     endpoint: "https://verity.example.com"
+});
+
+const graph = new CredibilityGraph();
+
+graph.add({
+    source: "docs.anthropic.com",
+    entity: "messages_api",
+    attribute: "supports_streaming",
+    value: true
 });
 
 const result =
