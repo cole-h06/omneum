@@ -1,0 +1,18 @@
+[package]
+name = "verity_oprf"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[lib]
+name = "verity_oprf"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.26", features = ["extension-module"] }
+
+voprf = { version = "0.5", features = [
+    "ristretto255-ciphersuite"
+] }
+
+rand = "0.8"
