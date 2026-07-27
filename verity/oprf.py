@@ -5,6 +5,7 @@ from typing import Protocol, runtime_checkable
 
 
 CIPHERSUITE = "ristretto255-SHA512"
+MAX_INPUT_LENGTH = 65_534
 OUTPUT_LENGTH = 64
 
 
@@ -90,6 +91,7 @@ class NativeOPRFBackend:
             input_data,
             name="input_data",
         )
+        _require_input_length(input_data)
 
         try:
             blinded_element, client_state = self._native.blind(
@@ -150,6 +152,7 @@ class NativeOPRFBackend:
             input_data,
             name="input_data",
         )
+        _require_input_length(input_data)
         _require_nonempty_bytes(
             client_state,
             name="client_state",
@@ -271,3 +274,13 @@ def _require_nonempty_bytes(
         )
 
     return value
+
+
+def _require_input_length(
+    input_data: bytes,
+) -> None:
+    if len(input_data) > MAX_INPUT_LENGTH:
+        raise ValueError(
+            "input_data must be at most "
+            f"{MAX_INPUT_LENGTH} bytes."
+        )

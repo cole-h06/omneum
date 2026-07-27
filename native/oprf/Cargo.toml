@@ -9,7 +9,7 @@ name = "verity_oprf"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.26", features = ["extension-module"] }
+pyo3 = { version = "0.29", features = ["extension-module"] }
 
 voprf = { version = "0.5", features = [
     "ristretto255-ciphersuite"
