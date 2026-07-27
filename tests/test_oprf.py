@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from hypothesis import given, settings, strategies as st
 
 from verity.oprf import (
     OPRFClient,
@@ -15,6 +16,33 @@ SERVER_KEY = b"\x01" + b"\x00" * 31
 SCALAR_ORDER = bytes.fromhex(
     "edd3f55c1a631258d69cf7a2def9de14"
     "00000000000000000000000000000010"
+)
+SCALAR_ORDER_VALUE = int.from_bytes(SCALAR_ORDER, "little")
+INPUTS = st.binary(min_size=1, max_size=128)
+KEYS = st.integers(
+    min_value=1,
+    max_value=SCALAR_ORDER_VALUE - 1,
+).map(lambda value: value.to_bytes(32, "little"))
+INPUT_PAIRS = st.binary(max_size=127).map(
+    lambda value: (value + b"\x00", value + b"\x01")
+)
+KEY_PAIRS = st.integers(
+    min_value=1,
+    max_value=SCALAR_ORDER_VALUE - 2,
+).flatmap(
+    lambda first: st.integers(
+        min_value=first + 1,
+        max_value=SCALAR_ORDER_VALUE - 1,
+    ).map(
+        lambda second: (
+            first.to_bytes(32, "little"),
+            second.to_bytes(32, "little"),
+        )
+    )
+)
+INVALID_ENCODINGS = st.one_of(
+    st.binary(max_size=31),
+    st.binary(min_size=33, max_size=64),
 )
 
 
@@ -247,3 +275,177 @@ def test_input_too_long() -> None:
             client_state=blind_result.client_state,
             evaluated_element=b"\x01" * 32,
         )
+
+
+@settings(max_examples=25)
+@given(input_data=INPUTS, server_key=KEYS)
+def test_round_trip_property(
+    input_data: bytes,
+    server_key: bytes,
+) -> None:
+    client = OPRFClient()
+    server = OPRFServer(server_key)
+    first_blind = client.blind(input_data)
+    first_evaluation = server.evaluate(
+        first_blind.blinded_element
+    )
+    first_output = client.finalize(
+        input_data=input_data,
+        client_state=first_blind.client_state,
+        evaluated_element=first_evaluation,
+    )
+    second_blind = client.blind(input_data)
+    second_evaluation = server.evaluate(
+        second_blind.blinded_element
+    )
+    second_output = client.finalize(
+        input_data=input_data,
+        client_state=second_blind.client_state,
+        evaluated_element=second_evaluation,
+    )
+
+    assert len(first_output) == 64
+    assert len(second_output) == 64
+    assert first_output == second_output
+    assert first_blind.blinded_element != second_blind.blinded_element
+
+
+@settings(max_examples=25)
+@given(
+    inputs=INPUT_PAIRS,
+    server_key=KEYS,
+)
+def test_input_changes_output(
+    inputs: tuple[bytes, bytes],
+    server_key: bytes,
+) -> None:
+    client = OPRFClient()
+    server = OPRFServer(server_key)
+    first_input, second_input = inputs
+    first_blind = client.blind(first_input)
+    first_evaluation = server.evaluate(
+        first_blind.blinded_element
+    )
+    first_output = client.finalize(
+        input_data=first_input,
+        client_state=first_blind.client_state,
+        evaluated_element=first_evaluation,
+    )
+    second_blind = client.blind(second_input)
+    second_evaluation = server.evaluate(
+        second_blind.blinded_element
+    )
+    second_output = client.finalize(
+        input_data=second_input,
+        client_state=second_blind.client_state,
+        evaluated_element=second_evaluation,
+    )
+
+    assert first_output != second_output
+
+
+@settings(max_examples=25)
+@given(
+    server_keys=KEY_PAIRS,
+    input_data=INPUTS,
+)
+def test_key_changes_output(
+    server_keys: tuple[bytes, bytes],
+    input_data: bytes,
+) -> None:
+    client = OPRFClient()
+    first_server = OPRFServer(server_keys[0])
+    second_server = OPRFServer(server_keys[1])
+    first_blind = client.blind(input_data)
+    first_evaluation = first_server.evaluate(
+        first_blind.blinded_element
+    )
+    first_output = client.finalize(
+        input_data=input_data,
+        client_state=first_blind.client_state,
+        evaluated_element=first_evaluation,
+    )
+    second_blind = client.blind(input_data)
+    second_evaluation = second_server.evaluate(
+        second_blind.blinded_element
+    )
+    second_output = client.finalize(
+        input_data=input_data,
+        client_state=second_blind.client_state,
+        evaluated_element=second_evaluation,
+    )
+
+    assert first_output != second_output
+
+
+@settings(max_examples=50)
+@given(value=INVALID_ENCODINGS)
+def test_invalid_lengths(value: bytes) -> None:
+    client = OPRFClient()
+    server = OPRFServer(SERVER_KEY)
+    blind_result = client.blind(INPUT_DATA)
+    evaluated_element = server.evaluate(
+        blind_result.blinded_element
+    )
+    error = ValueError if not value else OPRFProtocolError
+
+    if value:
+        invalid_server = OPRFServer(value)
+
+        with pytest.raises(OPRFProtocolError):
+            invalid_server.evaluate(
+                blind_result.blinded_element
+            )
+    else:
+        with pytest.raises(ValueError):
+            OPRFServer(value)
+
+    with pytest.raises(error):
+        server.evaluate(value)
+
+    with pytest.raises(error):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=value,
+            evaluated_element=evaluated_element,
+        )
+
+    with pytest.raises(error):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluated_element=value,
+        )
+
+
+@settings(max_examples=100)
+@given(element=st.binary(min_size=32, max_size=32))
+def test_blinded_element_deserialization(element: bytes) -> None:
+    server = OPRFServer(SERVER_KEY)
+
+    try:
+        evaluated_element = server.evaluate(element)
+    except OPRFProtocolError:
+        return
+
+    assert isinstance(evaluated_element, bytes)
+    assert len(evaluated_element) == 32
+
+
+@settings(max_examples=100)
+@given(element=st.binary(min_size=32, max_size=32))
+def test_evaluated_element_deserialization(element: bytes) -> None:
+    client = OPRFClient()
+    blind_result = client.blind(INPUT_DATA)
+
+    try:
+        output = client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluated_element=element,
+        )
+    except OPRFProtocolError:
+        return
+
+    assert isinstance(output, bytes)
+    assert len(output) == 64
