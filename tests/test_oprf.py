@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from server.oprf import (
+from verity.oprf import (
     OPRFClient,
     OPRFProtocolError,
     OPRFServer,
