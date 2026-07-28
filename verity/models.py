@@ -115,3 +115,9 @@ class PingResponse(BaseModel):
 
     protocol_version: str
     algorithm_version: str
+    deployment_id: str
+    voprf_key_version: int
+    voprf_mode: str
+    voprf_ciphersuite: str
+    linkage_encoding_version: int
+    configuration_fingerprint: str

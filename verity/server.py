@@ -7,6 +7,7 @@ Application entry point for the Verity MCP server.
 import logging
 import sys
 
+from verity.config import load_deployment_state
 from verity.transport.mcp import create_server
 
 
@@ -24,11 +25,11 @@ def main() -> None:
     Initialize and start the Verity MCP server over stdio.
     """
 
-    logger.info("Starting Verity MCP server over stdio...")
-
-    server = create_server()
+    state = load_deployment_state()
+    server = create_server(state)
 
     try:
+        logger.info("Starting Verity MCP server over stdio...")
         server.run()
 
     except KeyboardInterrupt:
