@@ -1,7 +1,8 @@
 use bolero::check;
 
 use super::{
-    ELEMENT_LENGTH, MAX_INPUT_LENGTH, evaluate_inner, finalize_inner, require_input_length,
+    ELEMENT_LENGTH, MAX_INPUT_LENGTH, OprfError, blind_inner, evaluate_inner, finalize_inner,
+    require_input_length,
 };
 
 const BLINDED_ELEMENT: [u8; ELEMENT_LENGTH] = [
@@ -20,6 +21,15 @@ const SERVER_KEY: [u8; ELEMENT_LENGTH] = [
     0x5e, 0xbc, 0xea, 0x5e, 0xe3, 0x70, 0x23, 0xcc, 0xb9, 0xfc, 0x2d, 0x20, 0x19, 0xf9, 0xd7, 0x73,
     0x7b, 0xe8, 0x55, 0x91, 0xae, 0x86, 0x52, 0xff, 0xa9, 0xef, 0x0f, 0x4d, 0x37, 0x06, 0x3b, 0x0e,
 ];
+
+#[test]
+fn empty_input() {
+    assert!(matches!(blind_inner(&[]), Err(OprfError::InputEmpty)));
+    assert!(matches!(
+        finalize_inner(&[], &CLIENT_STATE, &EVALUATED_ELEMENT),
+        Err(OprfError::InputEmpty)
+    ));
+}
 
 #[test]
 fn fuzz_evaluate() {
@@ -76,7 +86,7 @@ fn fuzz_input_length() {
 
         assert_eq!(
             require_input_length(&input_data).is_ok(),
-            input_data.len() <= MAX_INPUT_LENGTH
+            !input_data.is_empty() && input_data.len() <= MAX_INPUT_LENGTH
         );
     });
 }

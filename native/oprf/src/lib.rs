@@ -12,6 +12,7 @@ const MAX_INPUT_LENGTH: usize = 65_534;
 
 enum OprfError {
     InvalidLength { name: &'static str, length: usize },
+    InputEmpty,
     InputTooLong(usize),
     Blind(VoprfError),
     ServerKey(VoprfError),
@@ -30,6 +31,7 @@ impl fmt::Display for OprfError {
                     "{name} must be {ELEMENT_LENGTH} bytes; received {length}"
                 )
             }
+            Self::InputEmpty => write!(formatter, "RFC 9497 private input must not be empty"),
             Self::InputTooLong(length) => write!(
                 formatter,
                 "RFC 9497 private input must be at most {MAX_INPUT_LENGTH} bytes; received {length}"
@@ -68,6 +70,10 @@ fn require_element_length(value: &[u8], name: &'static str) -> Result<(), OprfEr
 }
 
 fn require_input_length(input_data: &[u8]) -> Result<(), OprfError> {
+    if input_data.is_empty() {
+        return Err(OprfError::InputEmpty);
+    }
+
     if input_data.len() > MAX_INPUT_LENGTH {
         return Err(OprfError::InputTooLong(input_data.len()));
     }

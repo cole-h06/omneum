@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
 
 CIPHERSUITE = "ristretto255-SHA512"
+_ELEMENT_LENGTH = 32
 MAX_INPUT_LENGTH = 65_534
 OUTPUT_LENGTH = 64
 
@@ -32,7 +33,7 @@ class BlindResult:
     """
 
     blinded_element: bytes
-    client_state: bytes
+    client_state: bytes = field(repr=False)
 
 
 @runtime_checkable
@@ -202,7 +203,25 @@ class OPRFClient:
         self,
         input_data: bytes,
     ) -> BlindResult:
-        return self._backend.blind(input_data)
+        _require_nonempty_bytes(
+            input_data,
+            name="input_data",
+        )
+        _require_input_length(input_data)
+        result = self._backend.blind(input_data)
+
+        _require_protocol_length(
+            result.blinded_element,
+            name="blinded_element",
+            length=_ELEMENT_LENGTH,
+        )
+        _require_protocol_length(
+            result.client_state,
+            name="client_state",
+            length=_ELEMENT_LENGTH,
+        )
+
+        return result
 
     def finalize(
         self,
@@ -211,11 +230,34 @@ class OPRFClient:
         client_state: bytes,
         evaluated_element: bytes,
     ) -> bytes:
-        return self._backend.finalize(
+        _require_nonempty_bytes(
+            input_data,
+            name="input_data",
+        )
+        _require_input_length(input_data)
+        _require_value_length(
+            client_state,
+            name="client_state",
+            length=_ELEMENT_LENGTH,
+        )
+        _require_value_length(
+            evaluated_element,
+            name="evaluated_element",
+            length=_ELEMENT_LENGTH,
+        )
+        output = self._backend.finalize(
             input_data,
             client_state,
             evaluated_element,
         )
+
+        _require_protocol_length(
+            output,
+            name="output",
+            length=OUTPUT_LENGTH,
+        )
+
+        return output
 
 
 class OPRFServer:
@@ -238,10 +280,23 @@ class OPRFServer:
         self,
         blinded_element: bytes,
     ) -> bytes:
-        return self._backend.evaluate(
+        _require_value_length(
+            blinded_element,
+            name="blinded_element",
+            length=_ELEMENT_LENGTH,
+        )
+        evaluated_element = self._backend.evaluate(
             self._server_key,
             blinded_element,
         )
+
+        _require_protocol_length(
+            evaluated_element,
+            name="evaluated_element",
+            length=_ELEMENT_LENGTH,
+        )
+
+        return evaluated_element
 
 
 def _require_bytes(
@@ -284,3 +339,43 @@ def _require_input_length(
             "input_data must be at most "
             f"{MAX_INPUT_LENGTH} bytes."
         )
+
+
+def _require_value_length(
+    value: object,
+    *,
+    name: str,
+    length: int,
+) -> bytes:
+    value = _require_bytes(
+        value,
+        name=name,
+    )
+
+    if len(value) != length:
+        raise ValueError(
+            f"{name} must be {length} bytes; "
+            f"received {len(value)}."
+        )
+
+    return value
+
+
+def _require_protocol_length(
+    value: object,
+    *,
+    name: str,
+    length: int,
+) -> bytes:
+    value = _require_bytes(
+        value,
+        name=name,
+    )
+
+    if len(value) != length:
+        raise OPRFProtocolError(
+            f"{name} must be {length} bytes; "
+            f"received {len(value)}."
+        )
+
+    return value

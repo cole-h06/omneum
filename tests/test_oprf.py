@@ -4,6 +4,7 @@ import pytest
 from hypothesis import given, settings, strategies as st
 
 from verity.oprf import (
+    BlindResult,
     OPRFClient,
     OPRFProtocolError,
     OPRFServer,
@@ -44,6 +45,40 @@ INVALID_ENCODINGS = st.one_of(
     st.binary(max_size=31),
     st.binary(min_size=33, max_size=64),
 )
+
+
+class FakeBackend:
+    def __init__(
+        self,
+        *,
+        blind_result: BlindResult | None = None,
+        evaluated_element: bytes = b"e" * 32,
+        output: bytes = b"o" * 64,
+    ) -> None:
+        self.blind_result = blind_result or BlindResult(
+            blinded_element=b"b" * 32,
+            client_state=b"s" * 32,
+        )
+        self.evaluated_element = evaluated_element
+        self.output = output
+
+    def blind(self, input_data: bytes) -> BlindResult:
+        return self.blind_result
+
+    def evaluate(
+        self,
+        server_key: bytes,
+        blinded_element: bytes,
+    ) -> bytes:
+        return self.evaluated_element
+
+    def finalize(
+        self,
+        input_data: bytes,
+        client_state: bytes,
+        evaluated_element: bytes,
+    ) -> bytes:
+        return self.output
 
 
 def test_round_trip() -> None:
@@ -119,7 +154,116 @@ def test_invalid_blinded_element() -> None:
     server = OPRFServer(SERVER_KEY)
 
     with pytest.raises(OPRFProtocolError):
-        server.evaluate(b"malformed")
+        server.evaluate(b"\x00" * 32)
+
+
+def test_blind_result_repr() -> None:
+    result = BlindResult(
+        blinded_element=b"visible blinded element",
+        client_state=b"private client state",
+    )
+
+    assert b"private client state".decode() not in repr(result)
+    assert b"private client state".decode() not in str(result)
+    assert "visible blinded element" in repr(result)
+    assert "visible blinded element" in str(result)
+
+
+def test_custom_backend() -> None:
+    backend = FakeBackend()
+    client = OPRFClient(backend)
+    server = OPRFServer(SERVER_KEY, backend)
+    blind_result = client.blind(INPUT_DATA)
+    evaluated_element = server.evaluate(
+        blind_result.blinded_element
+    )
+    output = client.finalize(
+        input_data=INPUT_DATA,
+        client_state=blind_result.client_state,
+        evaluated_element=evaluated_element,
+    )
+
+    assert len(blind_result.blinded_element) == 32
+    assert len(blind_result.client_state) == 32
+    assert len(evaluated_element) == 32
+    assert len(output) == 64
+
+
+@pytest.mark.parametrize("length", [31, 33])
+@pytest.mark.parametrize(
+    "name",
+    ["blinded_element", "client_state"],
+)
+def test_invalid_blind_result(
+    length: int,
+    name: str,
+) -> None:
+    values = {
+        "blinded_element": b"b" * 32,
+        "client_state": b"s" * 32,
+    }
+    values[name] = b"x" * length
+    backend = FakeBackend(
+        blind_result=BlindResult(**values),
+    )
+
+    with pytest.raises(OPRFProtocolError):
+        OPRFClient(backend).blind(INPUT_DATA)
+
+
+@pytest.mark.parametrize("length", [31, 33])
+def test_invalid_blinded_element_length(length: int) -> None:
+    server = OPRFServer(SERVER_KEY, FakeBackend())
+
+    with pytest.raises(ValueError):
+        server.evaluate(b"x" * length)
+
+
+@pytest.mark.parametrize("length", [31, 33])
+def test_invalid_evaluation_result(length: int) -> None:
+    server = OPRFServer(
+        SERVER_KEY,
+        FakeBackend(evaluated_element=b"x" * length),
+    )
+
+    with pytest.raises(OPRFProtocolError):
+        server.evaluate(b"b" * 32)
+
+
+@pytest.mark.parametrize("length", [31, 33])
+@pytest.mark.parametrize(
+    "name",
+    ["client_state", "evaluated_element"],
+)
+def test_invalid_finalize_value(
+    length: int,
+    name: str,
+) -> None:
+    values = {
+        "client_state": b"s" * 32,
+        "evaluated_element": b"e" * 32,
+    }
+    values[name] = b"x" * length
+
+    with pytest.raises(ValueError):
+        OPRFClient(FakeBackend()).finalize(
+            input_data=INPUT_DATA,
+            **values,
+        )
+
+
+@pytest.mark.parametrize("length", [63, 65])
+def test_invalid_finalize_result(length: int) -> None:
+    client = OPRFClient(
+        FakeBackend(output=b"x" * length),
+    )
+
+    with pytest.raises(OPRFProtocolError):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=b"s" * 32,
+            evaluated_element=b"e" * 32,
+        )
 
 
 def test_rfc_vector() -> None:
@@ -191,7 +335,9 @@ def test_invalid_blinded_encodings() -> None:
     )
 
     for element in invalid_elements:
-        with pytest.raises(OPRFProtocolError):
+        error = ValueError if len(element) != 32 else OPRFProtocolError
+
+        with pytest.raises(error):
             server.evaluate(element)
 
 
@@ -211,7 +357,13 @@ def test_invalid_client_state() -> None:
     )
 
     for client_state in invalid_states:
-        with pytest.raises(OPRFProtocolError):
+        error = (
+            ValueError
+            if len(client_state) != 32
+            else OPRFProtocolError
+        )
+
+        with pytest.raises(error):
             client.finalize(
                 input_data=INPUT_DATA,
                 client_state=client_state,
@@ -234,7 +386,9 @@ def test_invalid_evaluated_encodings() -> None:
     )
 
     for element in invalid_elements:
-        with pytest.raises(OPRFProtocolError):
+        error = ValueError if len(element) != 32 else OPRFProtocolError
+
+        with pytest.raises(error):
             client.finalize(
                 input_data=INPUT_DATA,
                 client_state=blind_result.client_state,
@@ -387,8 +541,6 @@ def test_invalid_lengths(value: bytes) -> None:
     evaluated_element = server.evaluate(
         blind_result.blinded_element
     )
-    error = ValueError if not value else OPRFProtocolError
-
     if value:
         invalid_server = OPRFServer(value)
 
@@ -400,17 +552,17 @@ def test_invalid_lengths(value: bytes) -> None:
         with pytest.raises(ValueError):
             OPRFServer(value)
 
-    with pytest.raises(error):
+    with pytest.raises(ValueError):
         server.evaluate(value)
 
-    with pytest.raises(error):
+    with pytest.raises(ValueError):
         client.finalize(
             input_data=INPUT_DATA,
             client_state=value,
             evaluated_element=evaluated_element,
         )
 
-    with pytest.raises(error):
+    with pytest.raises(ValueError):
         client.finalize(
             input_data=INPUT_DATA,
             client_state=blind_result.client_state,
