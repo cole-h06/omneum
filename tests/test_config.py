@@ -39,7 +39,7 @@ def provisioning(
     private_key_file.write_bytes(private_key)
     if public_key is None:
         public_key = VOPRFServer(
-            private_key
+            private_key_file
         ).public_key
     return {
         "VERITY_DEPLOYMENT_ID": DEPLOYMENT_ID,
@@ -62,7 +62,13 @@ def test_load_config(tmp_path: Path) -> None:
     assert len(state.configuration_fingerprint) == 64
     assert (
         state.voprf_server.public_key
-        == VOPRFServer(PRIVATE_KEY).public_key
+        == VOPRFServer(
+            Path(
+                environ[
+                    "VERITY_VOPRF_PRIVATE_KEY_FILE"
+                ]
+            )
+        ).public_key
     )
 
 
@@ -74,9 +80,9 @@ def test_stable_server(
     server_type = config_module.VOPRFServer
 
     def create_voprf_server(
-        private_key: bytes,
+        private_key_file: Path,
     ) -> VOPRFServer:
-        server = server_type(private_key)
+        server = server_type(private_key_file)
         servers.append(server)
         return server
 
@@ -371,8 +377,12 @@ def test_private_key_directory(tmp_path: Path) -> None:
 
 
 def test_key_mismatch(tmp_path: Path) -> None:
-    public_key = VOPRFServer(
+    other_key_file = tmp_path / "other.key"
+    other_key_file.write_bytes(
         b"\x02" + b"\x00" * 31
+    )
+    public_key = VOPRFServer(
+        other_key_file
     ).public_key
     environ = provisioning(
         tmp_path / "voprf.key",

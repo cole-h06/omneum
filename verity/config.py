@@ -89,13 +89,11 @@ def load_deployment_state(
             _required(values, _PRIVATE_KEY_FILE)
         ),
     )
-    private_key = _read_private_key(
-        config.voprf_private_key_file
-    )
-
     try:
         VOPRFClient(config.voprf_public_key)
-        server = VOPRFServer(private_key)
+        server = VOPRFServer(
+            config.voprf_private_key_file
+        )
     except OPRFError:
         raise ConfigurationError(
             "VOPRF key material is invalid."
@@ -210,24 +208,6 @@ def _decode_public_key(value: str) -> bytes:
             "VOPRF public key must be 32 bytes."
         )
     return decoded
-
-
-def _read_private_key(path: Path) -> bytes:
-    try:
-        if not path.is_file():
-            raise OSError
-        with path.open("rb") as secret_file:
-            private_key = secret_file.read(33)
-    except OSError:
-        raise ConfigurationError(
-            "Unable to read VOPRF private key file."
-        ) from None
-
-    if len(private_key) != 32:
-        raise ConfigurationError(
-            "VOPRF private key file must contain 32 bytes."
-        )
-    return private_key
 
 
 def _fingerprint(config: DeploymentConfig) -> str:

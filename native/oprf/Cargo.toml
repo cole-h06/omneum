@@ -20,6 +20,10 @@ voprf = { version = "0.5", features = [
 ] }
 
 rand = "0.8"
+zeroize = "1.9"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [dev-dependencies]
 bolero = "0.13.4"

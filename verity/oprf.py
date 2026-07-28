@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 
@@ -37,6 +38,19 @@ class VOPRFEvaluation:
 
 
 @runtime_checkable
+class VOPRFServerContext(Protocol):
+    @property
+    def public_key(self) -> bytes:
+        ...
+
+    def evaluate(
+        self,
+        blinded_element: bytes,
+    ) -> VOPRFEvaluation:
+        ...
+
+
+@runtime_checkable
 class VOPRFBackend(Protocol):
     def blind(
         self,
@@ -44,23 +58,16 @@ class VOPRFBackend(Protocol):
     ) -> VOPRFBlindResult:
         ...
 
-    def derive_public_key(
+    def load_server(
         self,
-        server_key: bytes,
-    ) -> bytes:
+        private_key_file: str,
+    ) -> VOPRFServerContext:
         ...
 
     def validate_public_key(
         self,
         server_public_key: bytes,
     ) -> None:
-        ...
-
-    def evaluate(
-        self,
-        server_key: bytes,
-        blinded_element: bytes,
-    ) -> VOPRFEvaluation:
         ...
 
     def finalize(
@@ -110,28 +117,20 @@ class NativeVOPRFBackend:
             ),
         )
 
-    def derive_public_key(
+    def load_server(
         self,
-        server_key: bytes,
-    ) -> bytes:
-        _require_nonempty_bytes(
-            server_key,
-            name="server_key",
-        )
-
+        private_key_file: str,
+    ) -> VOPRFServerContext:
         try:
-            public_key = self._native.derive_public_key(
-                server_key
+            context = self._native._VOPRFServerContext(
+                private_key_file
             )
         except Exception as exc:
             raise OPRFProtocolError(
-                "RFC 9497 VOPRF public-key derivation failed."
+                "RFC 9497 VOPRF server initialization failed."
             ) from exc
 
-        return _require_bytes(
-            public_key,
-            name="server_public_key",
-        )
+        return NativeVOPRFServerContext(context)
 
     def validate_public_key(
         self,
@@ -145,41 +144,6 @@ class NativeVOPRFBackend:
             raise OPRFProtocolError(
                 "Malformed RFC 9497 VOPRF public key."
             ) from exc
-
-    def evaluate(
-        self,
-        server_key: bytes,
-        blinded_element: bytes,
-    ) -> VOPRFEvaluation:
-        _require_nonempty_bytes(
-            server_key,
-            name="server_key",
-        )
-        _require_nonempty_bytes(
-            blinded_element,
-            name="blinded_element",
-        )
-
-        try:
-            evaluated_element, proof = self._native.evaluate(
-                server_key,
-                blinded_element,
-            )
-        except Exception as exc:
-            raise OPRFProtocolError(
-                "RFC 9497 VOPRF server evaluation failed."
-            ) from exc
-
-        return VOPRFEvaluation(
-            evaluated_element=_require_bytes(
-                evaluated_element,
-                name="evaluated_element",
-            ),
-            proof=_require_bytes(
-                proof,
-                name="proof",
-            ),
-        )
 
     def finalize(
         self,
@@ -219,6 +183,42 @@ class NativeVOPRFBackend:
         return _require_bytes(
             output,
             name="output",
+        )
+
+
+class NativeVOPRFServerContext:
+    def __init__(self, context: object) -> None:
+        self._context = context
+
+    @property
+    def public_key(self) -> bytes:
+        return _require_bytes(
+            self._context.public_key,
+            name="server_public_key",
+        )
+
+    def evaluate(
+        self,
+        blinded_element: bytes,
+    ) -> VOPRFEvaluation:
+        try:
+            evaluated_element, proof = (
+                self._context.evaluate(blinded_element)
+            )
+        except Exception as exc:
+            raise OPRFProtocolError(
+                "RFC 9497 VOPRF server evaluation failed."
+            ) from exc
+
+        return VOPRFEvaluation(
+            evaluated_element=_require_bytes(
+                evaluated_element,
+                name="evaluated_element",
+            ),
+            proof=_require_bytes(
+                proof,
+                name="proof",
+            ),
         )
 
 
@@ -302,18 +302,18 @@ class VOPRFClient:
 class VOPRFServer:
     def __init__(
         self,
-        server_key: bytes,
+        private_key_file: str | Path,
         backend: VOPRFBackend | None = None,
     ) -> None:
-        self._server_key = _require_value_length(
-            server_key,
-            name="server_key",
-            length=ELEMENT_LENGTH,
+        private_key_file = _require_path(
+            private_key_file,
+            name="private_key_file",
         )
         self._backend = backend or NativeVOPRFBackend()
-        self._public_key = self._backend.derive_public_key(
-            self._server_key
+        self._context = self._backend.load_server(
+            private_key_file
         )
+        self._public_key = self._context.public_key
         _require_protocol_length(
             self._public_key,
             name="server_public_key",
@@ -333,8 +333,7 @@ class VOPRFServer:
             name="blinded_element",
             length=ELEMENT_LENGTH,
         )
-        evaluation = self._backend.evaluate(
-            self._server_key,
+        evaluation = self._context.evaluate(
             blinded_element,
         )
         if type(evaluation) is not VOPRFEvaluation:
@@ -365,6 +364,18 @@ def _require_bytes(
             f"{type(value).__name__}."
         )
     return value
+
+
+def _require_path(
+    value: object,
+    *,
+    name: str,
+) -> str:
+    if not isinstance(value, (str, Path)):
+        raise TypeError(
+            f"{name} must be a filesystem path."
+        )
+    return str(value)
 
 
 def _require_nonempty_bytes(

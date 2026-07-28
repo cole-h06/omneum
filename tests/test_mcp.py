@@ -28,7 +28,9 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 def provisioning(tmp_path: Path) -> dict[str, str]:
     private_key_file = tmp_path / "voprf.key"
     private_key_file.write_bytes(PRIVATE_KEY)
-    public_key = VOPRFServer(PRIVATE_KEY).public_key
+    public_key = VOPRFServer(
+        private_key_file
+    ).public_key
     encoded_public_key = base64.urlsafe_b64encode(
         public_key
     ).rstrip(b"=").decode("ascii")

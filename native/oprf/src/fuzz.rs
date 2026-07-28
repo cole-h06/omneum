@@ -1,9 +1,12 @@
 use bolero::check;
+use std::io::Cursor;
+use voprf::{Group, Ristretto255, VoprfServer};
+use zeroize::ZeroizeOnDrop;
 
 use super::{
     CLIENT_STATE_LENGTH, ELEMENT_LENGTH, MAX_INPUT_LENGTH, OUTPUT_LENGTH, OprfError, blind_inner,
-    derive_public_key_inner, evaluate_inner, finalize_inner, require_input_length,
-    validate_generated_blind,
+    derive_public_key_inner, evaluate_inner, evaluate_with_server, finalize_inner,
+    require_input_length, server_from_key, server_from_reader, validate_generated_blind,
 };
 
 const SERVER_KEY: [u8; ELEMENT_LENGTH] = [
@@ -18,6 +21,13 @@ fn valid_round() -> (Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>) {
         panic!("valid evaluation failed");
     };
     (client_state, evaluated_element, proof, blinded_element)
+}
+
+fn valid_server() -> VoprfServer<Ristretto255> {
+    let Ok(server) = server_from_key(&SERVER_KEY) else {
+        panic!("valid server failed");
+    };
+    server
 }
 
 fn decode(value: &str) -> Vec<u8> {
@@ -77,6 +87,28 @@ fn generated_blind_guard() {
 }
 
 #[test]
+fn server_traits() {
+    fn assert_send_sync<T: Send + Sync>() {}
+    fn assert_zeroize_on_drop<T: ZeroizeOnDrop>() {}
+
+    assert_send_sync::<VoprfServer<Ristretto255>>();
+    assert_zeroize_on_drop::<VoprfServer<Ristretto255>>();
+}
+
+#[test]
+fn key_reader() {
+    assert!(matches!(
+        server_from_reader(Cursor::new([1_u8; ELEMENT_LENGTH - 1])),
+        Err(OprfError::KeyFileLength)
+    ));
+    assert!(server_from_reader(Cursor::new(SERVER_KEY)).is_ok());
+    assert!(matches!(
+        server_from_reader(Cursor::new([1_u8; ELEMENT_LENGTH + 1])),
+        Err(OprfError::KeyFileLength)
+    ));
+}
+
+#[test]
 fn rfc_9497_vector() {
     let server_key = decode("e6f73f344b79b379f1a0dd37e07ff62e38d9f71345ce62ae3a9bc60b04ccd909");
     let public_key = decode("c803e2cc6b05fc15064549b5920659ca4a77b2cca6f04f6b357009335476ad4e");
@@ -124,18 +156,31 @@ fn rfc_9497_vector() {
 #[test]
 fn fuzz_evaluate() {
     check!().for_each(|data: &[u8]| {
-        let (_, _, _, blinded_element) = valid_round();
-        let (selector, value) = data.split_first().unwrap_or((&0, &[]));
-        let value = &value[..value.len().min(64)];
-        let result = if selector % 2 == 0 {
-            evaluate_inner(&SERVER_KEY, value)
-        } else {
-            evaluate_inner(value, &blinded_element)
-        };
+        let server = valid_server();
+        let value = &data[..data.len().min(64)];
+        let result = evaluate_with_server(&server, value);
 
         if let Ok((evaluated_element, proof)) = result {
             assert_eq!(evaluated_element.len(), ELEMENT_LENGTH);
             assert_eq!(proof.len(), 64);
+        }
+    });
+}
+
+#[test]
+fn fuzz_server_key() {
+    check!().for_each(|data: &[u8]| {
+        let value = &data[..data.len().min(64)];
+        let result = server_from_reader(Cursor::new(value));
+
+        if let Ok(server) = result {
+            assert_eq!(
+                <Ristretto255 as voprf::CipherSuite>::Group::serialize_elem(
+                    server.get_public_key()
+                )
+                .len(),
+                ELEMENT_LENGTH
+            );
         }
     });
 }

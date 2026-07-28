@@ -1,6 +1,15 @@
 from __future__ import annotations
 
+import copy
+import os
+import pickle
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
 import pytest
+import verity_oprf
 from hypothesis import given, settings, strategies as st
 
 from verity.oprf import (
@@ -78,11 +87,11 @@ class FakeBackend:
     ) -> VOPRFBlindResult:
         return self.blind_result
 
-    def derive_public_key(
+    def load_server(
         self,
-        server_key: bytes,
-    ) -> bytes:
-        return self.public_key
+        private_key_file: str,
+    ) -> FakeBackend:
+        return self
 
     def validate_public_key(
         self,
@@ -92,7 +101,6 @@ class FakeBackend:
 
     def evaluate(
         self,
-        server_key: bytes,
         blinded_element: bytes,
     ) -> VOPRFEvaluation:
         return self.evaluation
@@ -107,6 +115,15 @@ class FakeBackend:
         return self.output
 
 
+def make_server(
+    server_key: bytes = SERVER_KEY,
+) -> VOPRFServer:
+    with tempfile.TemporaryDirectory() as directory:
+        private_key_file = Path(directory) / "voprf.key"
+        private_key_file.write_bytes(server_key)
+        return VOPRFServer(private_key_file)
+
+
 def make_round(
     server_key: bytes = SERVER_KEY,
 ) -> tuple[
@@ -115,7 +132,7 @@ def make_round(
     VOPRFBlindResult,
     VOPRFEvaluation,
 ]:
-    server = VOPRFServer(server_key)
+    server = make_server(server_key)
     client = VOPRFClient(server.public_key)
     blind_result = client.blind(INPUT_DATA)
     evaluation = server.evaluate(
@@ -141,7 +158,7 @@ def test_round_trip() -> None:
 
 
 def test_repeated_input() -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
     client = VOPRFClient(server.public_key)
 
     first_blind = client.blind(INPUT_DATA)
@@ -169,6 +186,65 @@ def test_repeated_input() -> None:
     )
     assert first_evaluation.proof != second_evaluation.proof
     assert first_output == second_output
+
+
+def test_server_context(tmp_path: Path) -> None:
+    private_key_file = tmp_path / "private-value.key"
+    private_key_file.write_bytes(SERVER_KEY)
+    context = verity_oprf._VOPRFServerContext(
+        str(private_key_file)
+    )
+
+    assert len(context.public_key) == 32
+    assert repr(context) == (
+        "<verity_oprf._VOPRFServerContext>"
+    )
+    assert str(private_key_file) not in repr(context)
+    assert SERVER_KEY.hex() not in repr(context)
+    assert not hasattr(context, "__dict__")
+    assert not hasattr(context, "private_key")
+    assert not hasattr(verity_oprf, "derive_public_key")
+    assert not hasattr(verity_oprf, "evaluate")
+
+    with pytest.raises(TypeError):
+        copy.copy(context)
+    with pytest.raises(TypeError):
+        copy.deepcopy(context)
+    with pytest.raises(TypeError):
+        pickle.dumps(context)
+    with pytest.raises(AttributeError):
+        context.public_key = b"x" * 32
+    with pytest.raises(AttributeError):
+        context.private_key = SERVER_KEY
+
+
+def test_server_rejects_key_bytes() -> None:
+    with pytest.raises(TypeError):
+        VOPRFServer(SERVER_KEY)
+
+
+@pytest.mark.skipif(
+    not hasattr(os, "mkfifo"),
+    reason="FIFOs are not supported",
+)
+def test_fifo_key_file(tmp_path: Path) -> None:
+    fifo = tmp_path / "voprf.key"
+    os.mkfifo(fifo)
+    code = (
+        "import sys, verity_oprf; "
+        "verity_oprf._VOPRFServerContext(sys.argv[1])"
+    )
+
+    result = subprocess.run(
+        [sys.executable, "-c", code, str(fifo)],
+        capture_output=True,
+        text=True,
+        timeout=2,
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert str(fifo) not in result.stderr
 
 
 def test_blind_result_repr() -> None:
@@ -225,7 +301,7 @@ def test_invalid_evaluation_result(
             proof,
         )
     )
-    server = VOPRFServer(SERVER_KEY, backend)
+    server = VOPRFServer("unused", backend)
 
     with pytest.raises(OPRFProtocolError):
         server.evaluate(b"b" * 32)
@@ -238,7 +314,7 @@ def test_invalid_derived_public_key(length: int) -> None:
     )
 
     with pytest.raises(OPRFProtocolError):
-        VOPRFServer(SERVER_KEY, backend)
+        VOPRFServer("unused", backend)
 
 
 @pytest.mark.parametrize("length", [63, 65])
@@ -261,7 +337,7 @@ def test_invalid_output(length: int) -> None:
 
 @pytest.mark.parametrize("length", [31, 33])
 def test_invalid_blinded_element(length: int) -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
 
     with pytest.raises(ValueError):
         server.evaluate(b"x" * length)
@@ -340,7 +416,7 @@ def test_invalid_public_key(public_key: bytes) -> None:
 )
 def test_invalid_server_key(server_key: bytes) -> None:
     with pytest.raises(OPRFProtocolError):
-        VOPRFServer(server_key)
+        make_server(server_key)
 
 
 @pytest.mark.parametrize(
@@ -391,7 +467,7 @@ def test_malformed_proof(proof: bytes) -> None:
 
 def test_wrong_public_key() -> None:
     client, _, blind_result, evaluation = make_round()
-    other_server = VOPRFServer(
+    other_server = make_server(
         b"\x02" + b"\x00" * 31
     )
     other_client = VOPRFClient(other_server.public_key)
@@ -408,8 +484,8 @@ def test_wrong_public_key() -> None:
 
 
 def test_other_server_evaluation() -> None:
-    server = VOPRFServer(SERVER_KEY)
-    other_server = VOPRFServer(
+    server = make_server()
+    other_server = make_server(
         b"\x02" + b"\x00" * 31
     )
     client = VOPRFClient(server.public_key)
@@ -474,7 +550,7 @@ def test_modified_proof() -> None:
 
 
 def test_mismatched_evaluation_proof() -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
     client = VOPRFClient(server.public_key)
     first = client.blind(INPUT_DATA)
     second = client.blind(INPUT_DATA)
@@ -537,7 +613,7 @@ def test_rfc_9497_vector() -> None:
         "a4d8527693914139caee5bd03903af43"
         "a491351d23b430948dd50cde10d32b3c"
     )
-    server = VOPRFServer(server_key)
+    server = make_server(server_key)
     client = VOPRFClient(public_key)
 
     assert server.public_key == public_key
@@ -560,7 +636,7 @@ def test_rfc_9497_vector() -> None:
 
 
 def test_input_limit() -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
     client = VOPRFClient(server.public_key)
     input_data = b"a" * 65_534
     blind_result = client.blind(input_data)
@@ -582,7 +658,7 @@ def test_input_limit() -> None:
 
 @pytest.mark.parametrize("input_data", [b"", bytearray(b"x")])
 def test_invalid_input(input_data: object) -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
     client = VOPRFClient(server.public_key)
 
     with pytest.raises((TypeError, ValueError)):
@@ -595,7 +671,7 @@ def test_round_trip_property(
     input_data: bytes,
     server_key: bytes,
 ) -> None:
-    server = VOPRFServer(server_key)
+    server = make_server(server_key)
     client = VOPRFClient(server.public_key)
     first = client.blind(input_data)
     first_evaluation = server.evaluate(
@@ -626,7 +702,7 @@ def test_round_trip_property(
 def test_input_changes_output(
     inputs: tuple[bytes, bytes],
 ) -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
     client = VOPRFClient(server.public_key)
     outputs = []
 
@@ -654,7 +730,7 @@ def test_key_changes_output(
     outputs = []
 
     for server_key in server_keys:
-        server = VOPRFServer(server_key)
+        server = make_server(server_key)
         client = VOPRFClient(server.public_key)
         blind_result = client.blind(INPUT_DATA)
         evaluation = server.evaluate(
@@ -682,7 +758,7 @@ def test_invalid_lengths_property(
 ) -> None:
     backend = FakeBackend()
     client = VOPRFClient(b"p" * 32, backend)
-    server = VOPRFServer(SERVER_KEY, backend)
+    server = VOPRFServer("unused", backend)
     evaluation = VOPRFEvaluation(
         b"e" * 32,
         b"r" * 64,
@@ -760,7 +836,7 @@ def test_checked_values_property(
 def test_checked_blinded_element(
     blinded_element: bytes,
 ) -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
 
     try:
         evaluation = server.evaluate(

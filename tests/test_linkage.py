@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import tempfile
 from enum import IntEnum
 from pathlib import Path
 
@@ -38,6 +39,13 @@ VECTOR_PATH = (
 )
 # Scalar 1 encoded as a fixed test key. Never use in production.
 SERVER_KEY = b"\x01" + b"\x00" * 31
+
+
+def make_server() -> VOPRFServer:
+    with tempfile.TemporaryDirectory() as directory:
+        private_key_file = Path(directory) / "voprf.key"
+        private_key_file.write_bytes(SERVER_KEY)
+        return VOPRFServer(private_key_file)
 
 
 class OtherPurpose(IntEnum):
@@ -411,7 +419,7 @@ def test_finalize_signature() -> None:
 
 
 def test_round_trip() -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
     client = LinkageClient(
         VOPRFClient(server.public_key)
     )
@@ -445,7 +453,7 @@ def test_round_trip() -> None:
 
 
 def test_purpose_changes_output() -> None:
-    server = VOPRFServer(SERVER_KEY)
+    server = make_server()
     client = VOPRFClient(server.public_key)
     payload = b'{"value":true}'
     outputs = []

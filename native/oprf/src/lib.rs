@@ -1,12 +1,15 @@
 use std::fmt;
+use std::fs::{File, OpenOptions};
+use std::io::{self, Read};
 
-use pyo3::exceptions::PyValueError;
+use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
 use rand::rngs::OsRng;
 use voprf::{
     BlindedElement, Error as VoprfError, EvaluationElement, Group, Proof, Ristretto255,
     VoprfClient, VoprfServer,
 };
+use zeroize::Zeroizing;
 
 const ELEMENT_LENGTH: usize = 32;
 const CLIENT_STATE_LENGTH: usize = 64;
@@ -24,6 +27,8 @@ enum OprfError {
     InputTooLong(usize),
     Blind(VoprfError),
     BlindIdentity(VoprfError),
+    KeyFile,
+    KeyFileLength,
     ServerKey(VoprfError),
     BlindedElement(VoprfError),
     ClientState(VoprfError),
@@ -54,6 +59,13 @@ impl fmt::Display for OprfError {
             }
             Self::BlindIdentity(error) => {
                 write!(formatter, "RFC 9497 VOPRF client blinding failed: {error}")
+            }
+            Self::KeyFile => write!(formatter, "Unable to read VOPRF private key file"),
+            Self::KeyFileLength => {
+                write!(
+                    formatter,
+                    "VOPRF private key file must contain exactly 32 bytes"
+                )
             }
             Self::ServerKey(error) => {
                 write!(formatter, "Invalid RFC 9497 VOPRF server key: {error}")
@@ -139,6 +151,54 @@ fn server_from_key(server_key: &[u8]) -> Result<VoprfServer<Ristretto255>, OprfE
     VoprfServer::<Ristretto255>::new_with_key(server_key).map_err(OprfError::ServerKey)
 }
 
+fn server_from_reader(mut reader: impl Read) -> Result<VoprfServer<Ristretto255>, OprfError> {
+    let mut server_key = Zeroizing::new([0_u8; ELEMENT_LENGTH + 1]);
+    reader
+        .read_exact(&mut server_key[..ELEMENT_LENGTH])
+        .map_err(|error| match error.kind() {
+            io::ErrorKind::UnexpectedEof => OprfError::KeyFileLength,
+            _ => OprfError::KeyFile,
+        })?;
+
+    match reader.read_exact(&mut server_key[ELEMENT_LENGTH..]) {
+        Ok(()) => return Err(OprfError::KeyFileLength),
+        Err(error) if error.kind() == io::ErrorKind::UnexpectedEof => {}
+        Err(_) => return Err(OprfError::KeyFile),
+    }
+
+    server_from_key(&server_key[..ELEMENT_LENGTH])
+}
+
+#[cfg(unix)]
+fn open_key_file(path: &str) -> Result<File, OprfError> {
+    use std::os::unix::fs::OpenOptionsExt;
+
+    OpenOptions::new()
+        .read(true)
+        .custom_flags(libc::O_NONBLOCK)
+        .open(path)
+        .map_err(|_| OprfError::KeyFile)
+}
+
+#[cfg(not(unix))]
+fn open_key_file(path: &str) -> Result<File, OprfError> {
+    OpenOptions::new()
+        .read(true)
+        .open(path)
+        .map_err(|_| OprfError::KeyFile)
+}
+
+fn server_from_file(path: &str) -> Result<VoprfServer<Ristretto255>, OprfError> {
+    let file = open_key_file(path)?;
+    let metadata = file.metadata().map_err(|_| OprfError::KeyFile)?;
+    if !metadata.is_file() {
+        return Err(OprfError::KeyFile);
+    }
+
+    server_from_reader(file)
+}
+
+#[cfg(test)]
 fn derive_public_key_inner(server_key: &[u8]) -> Result<Vec<u8>, OprfError> {
     let server = server_from_key(server_key)?;
 
@@ -159,8 +219,8 @@ fn validate_public_key_inner(server_public_key: &[u8]) -> Result<(), OprfError> 
     Ok(())
 }
 
-fn evaluate_inner(
-    server_key: &[u8],
+fn evaluate_with_server(
+    server: &VoprfServer<Ristretto255>,
     blinded_element: &[u8],
 ) -> Result<(Vec<u8>, Vec<u8>), OprfError> {
     require_length(
@@ -169,7 +229,6 @@ fn evaluate_inner(
         ELEMENT_LENGTH,
     )?;
 
-    let server = server_from_key(server_key)?;
     let blinded_element = BlindedElement::<Ristretto255>::deserialize(blinded_element)
         .map_err(OprfError::BlindedElement)?;
     let result = server.blind_evaluate(&mut OsRng, &blinded_element);
@@ -178,6 +237,15 @@ fn evaluate_inner(
         result.message.serialize().to_vec(),
         result.proof.serialize().to_vec(),
     ))
+}
+
+#[cfg(test)]
+fn evaluate_inner(
+    server_key: &[u8],
+    blinded_element: &[u8],
+) -> Result<(Vec<u8>, Vec<u8>), OprfError> {
+    let server = server_from_key(server_key)?;
+    evaluate_with_server(&server, blinded_element)
 }
 
 fn finalize_inner(
@@ -224,20 +292,63 @@ fn blind(input_data: &[u8]) -> PyResult<(Vec<u8>, Vec<u8>)> {
     blind_inner(input_data).map_err(|error| PyValueError::new_err(error.to_string()))
 }
 
-#[pyfunction]
-fn derive_public_key(server_key: &[u8]) -> PyResult<Vec<u8>> {
-    derive_public_key_inner(server_key).map_err(|error| PyValueError::new_err(error.to_string()))
+#[pyclass(frozen, module = "verity_oprf", name = "_VOPRFServerContext")]
+struct PyVoprfServerContext {
+    server: VoprfServer<Ristretto255>,
+}
+
+#[pymethods]
+impl PyVoprfServerContext {
+    #[new]
+    fn new(private_key_file: &str) -> PyResult<Self> {
+        let server = server_from_file(private_key_file)
+            .map_err(|error| PyValueError::new_err(error.to_string()))?;
+        Ok(Self { server })
+    }
+
+    #[getter]
+    fn public_key(&self) -> Vec<u8> {
+        <Ristretto255 as voprf::CipherSuite>::Group::serialize_elem(self.server.get_public_key())
+            .to_vec()
+    }
+
+    fn evaluate(&self, blinded_element: &[u8]) -> PyResult<(Vec<u8>, Vec<u8>)> {
+        evaluate_with_server(&self.server, blinded_element)
+            .map_err(|error| PyValueError::new_err(error.to_string()))
+    }
+
+    fn __repr__(&self) -> &'static str {
+        "<verity_oprf._VOPRFServerContext>"
+    }
+
+    fn __copy__(&self) -> PyResult<()> {
+        Err(PyTypeError::new_err(
+            "VOPRF server contexts cannot be copied",
+        ))
+    }
+
+    fn __deepcopy__(&self, _memo: &Bound<'_, PyAny>) -> PyResult<()> {
+        Err(PyTypeError::new_err(
+            "VOPRF server contexts cannot be copied",
+        ))
+    }
+
+    fn __reduce__(&self) -> PyResult<()> {
+        Err(PyTypeError::new_err(
+            "VOPRF server contexts cannot be pickled",
+        ))
+    }
+
+    fn __reduce_ex__(&self, _protocol: i32) -> PyResult<()> {
+        Err(PyTypeError::new_err(
+            "VOPRF server contexts cannot be pickled",
+        ))
+    }
 }
 
 #[pyfunction]
 fn validate_public_key(server_public_key: &[u8]) -> PyResult<()> {
     validate_public_key_inner(server_public_key)
-        .map_err(|error| PyValueError::new_err(error.to_string()))
-}
-
-#[pyfunction]
-fn evaluate(server_key: &[u8], blinded_element: &[u8]) -> PyResult<(Vec<u8>, Vec<u8>)> {
-    evaluate_inner(server_key, blinded_element)
         .map_err(|error| PyValueError::new_err(error.to_string()))
 }
 
@@ -262,10 +373,9 @@ fn finalize(
 #[pymodule]
 fn verity_oprf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(blind, m)?)?;
-    m.add_function(wrap_pyfunction!(derive_public_key, m)?)?;
     m.add_function(wrap_pyfunction!(validate_public_key, m)?)?;
-    m.add_function(wrap_pyfunction!(evaluate, m)?)?;
     m.add_function(wrap_pyfunction!(finalize, m)?)?;
+    m.add_class::<PyVoprfServerContext>()?;
 
     Ok(())
 }

@@ -704,9 +704,11 @@ name = "verity_oprf"
 version = "0.1.0"
 dependencies = [
  "bolero",
+ "libc",
  "pyo3",
  "rand 0.8.7",
  "voprf",
+ "zeroize",
 ]
 
 [[package]]
