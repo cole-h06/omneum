@@ -5,7 +5,9 @@ from typing import Protocol, runtime_checkable
 
 
 CIPHERSUITE = "ristretto255-SHA512"
-_ELEMENT_LENGTH = 32
+ELEMENT_LENGTH = 32
+CLIENT_STATE_LENGTH = 64
+PROOF_LENGTH = 64
 MAX_INPUT_LENGTH = 65_534
 OUTPUT_LENGTH = 64
 
@@ -23,57 +25,55 @@ class OPRFProtocolError(OPRFError):
 
 
 @dataclass(frozen=True, slots=True)
-class BlindResult:
-    """
-    Output of the client blinding operation.
-
-    `blinded_element` is safe to send to the deployment.
-    `client_state` is private and MUST remain on the client until
-    finalization.
-    """
-
+class VOPRFBlindResult:
     blinded_element: bytes
     client_state: bytes = field(repr=False)
 
 
-@runtime_checkable
-class OPRFBackend(Protocol):
-    """
-    Internal backend contract for RFC 9497 base-mode OPRF using
-    ristretto255-SHA512.
-    """
+@dataclass(frozen=True, slots=True)
+class VOPRFEvaluation:
+    evaluated_element: bytes
+    proof: bytes
 
+
+@runtime_checkable
+class VOPRFBackend(Protocol):
     def blind(
         self,
         input_data: bytes,
-    ) -> BlindResult:
+    ) -> VOPRFBlindResult:
+        ...
+
+    def derive_public_key(
+        self,
+        server_key: bytes,
+    ) -> bytes:
+        ...
+
+    def validate_public_key(
+        self,
+        server_public_key: bytes,
+    ) -> None:
         ...
 
     def evaluate(
         self,
         server_key: bytes,
         blinded_element: bytes,
-    ) -> bytes:
+    ) -> VOPRFEvaluation:
         ...
 
     def finalize(
         self,
         input_data: bytes,
         client_state: bytes,
-        evaluated_element: bytes,
+        evaluation: VOPRFEvaluation,
+        server_public_key: bytes,
     ) -> bytes:
         ...
 
 
-class NativeOPRFBackend:
-    """
-    Adapter around Verity's native RFC 9497 implementation.
-
-    The native module should wrap an RFC 9497-compatible implementation
-    (e.g. the Rust `voprf` crate). Cryptographic operations should not be
-    reimplemented in ordinary Python.
-    """
-
+class NativeVOPRFBackend:
     def __init__(self) -> None:
         try:
             import verity_oprf
@@ -87,12 +87,8 @@ class NativeOPRFBackend:
     def blind(
         self,
         input_data: bytes,
-    ) -> BlindResult:
-        _require_nonempty_bytes(
-            input_data,
-            name="input_data",
-        )
-        _require_input_length(input_data)
+    ) -> VOPRFBlindResult:
+        _require_input(input_data)
 
         try:
             blinded_element, client_state = self._native.blind(
@@ -100,10 +96,10 @@ class NativeOPRFBackend:
             )
         except Exception as exc:
             raise OPRFProtocolError(
-                "RFC 9497 client blinding failed."
+                "RFC 9497 VOPRF client blinding failed."
             ) from exc
 
-        return BlindResult(
+        return VOPRFBlindResult(
             blinded_element=_require_bytes(
                 blinded_element,
                 name="blinded_element",
@@ -114,11 +110,47 @@ class NativeOPRFBackend:
             ),
         )
 
+    def derive_public_key(
+        self,
+        server_key: bytes,
+    ) -> bytes:
+        _require_nonempty_bytes(
+            server_key,
+            name="server_key",
+        )
+
+        try:
+            public_key = self._native.derive_public_key(
+                server_key
+            )
+        except Exception as exc:
+            raise OPRFProtocolError(
+                "RFC 9497 VOPRF public-key derivation failed."
+            ) from exc
+
+        return _require_bytes(
+            public_key,
+            name="server_public_key",
+        )
+
+    def validate_public_key(
+        self,
+        server_public_key: bytes,
+    ) -> None:
+        try:
+            self._native.validate_public_key(
+                server_public_key
+            )
+        except Exception as exc:
+            raise OPRFProtocolError(
+                "Malformed RFC 9497 VOPRF public key."
+            ) from exc
+
     def evaluate(
         self,
         server_key: bytes,
         blinded_element: bytes,
-    ) -> bytes:
+    ) -> VOPRFEvaluation:
         _require_nonempty_bytes(
             server_key,
             name="server_key",
@@ -129,96 +161,99 @@ class NativeOPRFBackend:
         )
 
         try:
-            evaluated_element = self._native.evaluate(
+            evaluated_element, proof = self._native.evaluate(
                 server_key,
                 blinded_element,
             )
         except Exception as exc:
             raise OPRFProtocolError(
-                "RFC 9497 server evaluation failed."
+                "RFC 9497 VOPRF server evaluation failed."
             ) from exc
 
-        return _require_bytes(
-            evaluated_element,
-            name="evaluated_element",
+        return VOPRFEvaluation(
+            evaluated_element=_require_bytes(
+                evaluated_element,
+                name="evaluated_element",
+            ),
+            proof=_require_bytes(
+                proof,
+                name="proof",
+            ),
         )
 
     def finalize(
         self,
         input_data: bytes,
         client_state: bytes,
-        evaluated_element: bytes,
+        evaluation: VOPRFEvaluation,
+        server_public_key: bytes,
     ) -> bytes:
-        _require_nonempty_bytes(
-            input_data,
-            name="input_data",
-        )
-        _require_input_length(input_data)
-        _require_nonempty_bytes(
-            client_state,
-            name="client_state",
-        )
-        _require_nonempty_bytes(
-            evaluated_element,
-            name="evaluated_element",
-        )
+        _require_input(input_data)
 
         try:
             output = self._native.finalize(
                 input_data,
                 client_state,
-                evaluated_element,
+                evaluation.evaluated_element,
+                evaluation.proof,
+                server_public_key,
             )
         except Exception as exc:
-            raise OPRFProtocolError(
-                "RFC 9497 client finalization failed."
-            ) from exc
+            message = str(exc)
+            if "Malformed RFC 9497 VOPRF proof" in message:
+                public_message = "Malformed RFC 9497 VOPRF proof."
+            elif "Malformed RFC 9497 VOPRF public key" in message:
+                public_message = (
+                    "Malformed RFC 9497 VOPRF public key."
+                )
+            elif "proof failed to verify" in message:
+                public_message = (
+                    "RFC 9497 VOPRF proof verification failed."
+                )
+            else:
+                public_message = (
+                    "RFC 9497 VOPRF client finalization failed."
+                )
+            raise OPRFProtocolError(public_message) from exc
 
-        output = _require_bytes(
+        return _require_bytes(
             output,
             name="output",
         )
 
-        if len(output) != OUTPUT_LENGTH:
-            raise OPRFProtocolError(
-                "RFC 9497 ristretto255-SHA512 output must be "
-                f"{OUTPUT_LENGTH} bytes; received {len(output)}."
-            )
 
-        return output
-
-
-class OPRFClient:
-    """
-    Client-side RFC 9497 base-mode OPRF operations.
-    """
-
+class VOPRFClient:
     def __init__(
         self,
-        backend: OPRFBackend | None = None,
+        server_public_key: bytes,
+        backend: VOPRFBackend | None = None,
     ) -> None:
-        self._backend = backend or NativeOPRFBackend()
+        self._server_public_key = _require_value_length(
+            server_public_key,
+            name="server_public_key",
+            length=ELEMENT_LENGTH,
+        )
+        self._backend = backend or NativeVOPRFBackend()
+        self._backend.validate_public_key(
+            self._server_public_key
+        )
 
     def blind(
         self,
         input_data: bytes,
-    ) -> BlindResult:
-        _require_nonempty_bytes(
-            input_data,
-            name="input_data",
-        )
-        _require_input_length(input_data)
+    ) -> VOPRFBlindResult:
+        _require_input(input_data)
         result = self._backend.blind(input_data)
 
         _require_protocol_length(
             result.blinded_element,
             name="blinded_element",
-            length=_ELEMENT_LENGTH,
+            length=ELEMENT_LENGTH,
         )
         _require_protocol_length(
             result.client_state,
             name="client_state",
-            length=_ELEMENT_LENGTH,
+            length=CLIENT_STATE_LENGTH,
         )
 
         return result
@@ -228,75 +263,95 @@ class OPRFClient:
         *,
         input_data: bytes,
         client_state: bytes,
-        evaluated_element: bytes,
+        evaluation: VOPRFEvaluation,
     ) -> bytes:
-        _require_nonempty_bytes(
-            input_data,
-            name="input_data",
-        )
-        _require_input_length(input_data)
+        _require_input(input_data)
         _require_value_length(
             client_state,
             name="client_state",
-            length=_ELEMENT_LENGTH,
+            length=CLIENT_STATE_LENGTH,
+        )
+        if type(evaluation) is not VOPRFEvaluation:
+            raise TypeError(
+                "evaluation must be a VOPRFEvaluation."
+            )
+        _require_value_length(
+            evaluation.evaluated_element,
+            name="evaluated_element",
+            length=ELEMENT_LENGTH,
         )
         _require_value_length(
-            evaluated_element,
-            name="evaluated_element",
-            length=_ELEMENT_LENGTH,
+            evaluation.proof,
+            name="proof",
+            length=PROOF_LENGTH,
         )
         output = self._backend.finalize(
             input_data,
             client_state,
-            evaluated_element,
+            evaluation,
+            self._server_public_key,
         )
-
         _require_protocol_length(
             output,
             name="output",
             length=OUTPUT_LENGTH,
         )
-
         return output
 
 
-class OPRFServer:
-    """
-    Deployment-side RFC 9497 base-mode OPRF evaluator.
-    """
-
+class VOPRFServer:
     def __init__(
         self,
         server_key: bytes,
-        backend: OPRFBackend | None = None,
+        backend: VOPRFBackend | None = None,
     ) -> None:
-        self._server_key = _require_nonempty_bytes(
+        self._server_key = _require_value_length(
             server_key,
             name="server_key",
+            length=ELEMENT_LENGTH,
         )
-        self._backend = backend or NativeOPRFBackend()
+        self._backend = backend or NativeVOPRFBackend()
+        self._public_key = self._backend.derive_public_key(
+            self._server_key
+        )
+        _require_protocol_length(
+            self._public_key,
+            name="server_public_key",
+            length=ELEMENT_LENGTH,
+        )
+
+    @property
+    def public_key(self) -> bytes:
+        return self._public_key
 
     def evaluate(
         self,
         blinded_element: bytes,
-    ) -> bytes:
+    ) -> VOPRFEvaluation:
         _require_value_length(
             blinded_element,
             name="blinded_element",
-            length=_ELEMENT_LENGTH,
+            length=ELEMENT_LENGTH,
         )
-        evaluated_element = self._backend.evaluate(
+        evaluation = self._backend.evaluate(
             self._server_key,
             blinded_element,
         )
-
+        if type(evaluation) is not VOPRFEvaluation:
+            raise OPRFProtocolError(
+                "backend evaluation must be a VOPRFEvaluation."
+            )
         _require_protocol_length(
-            evaluated_element,
+            evaluation.evaluated_element,
             name="evaluated_element",
-            length=_ELEMENT_LENGTH,
+            length=ELEMENT_LENGTH,
         )
-
-        return evaluated_element
+        _require_protocol_length(
+            evaluation.proof,
+            name="proof",
+            length=PROOF_LENGTH,
+        )
+        return evaluation
 
 
 def _require_bytes(
@@ -309,7 +364,6 @@ def _require_bytes(
             f"{name} must be bytes, received "
             f"{type(value).__name__}."
         )
-
     return value
 
 
@@ -322,23 +376,24 @@ def _require_nonempty_bytes(
         value,
         name=name,
     )
-
     if not value:
         raise ValueError(
             f"{name} must not be empty."
         )
-
     return value
 
 
-def _require_input_length(
-    input_data: bytes,
-) -> None:
+def _require_input(input_data: object) -> bytes:
+    input_data = _require_nonempty_bytes(
+        input_data,
+        name="input_data",
+    )
     if len(input_data) > MAX_INPUT_LENGTH:
         raise ValueError(
             "input_data must be at most "
             f"{MAX_INPUT_LENGTH} bytes."
         )
+    return input_data
 
 
 def _require_value_length(
@@ -351,13 +406,11 @@ def _require_value_length(
         value,
         name=name,
     )
-
     if len(value) != length:
         raise ValueError(
             f"{name} must be {length} bytes; "
             f"received {len(value)}."
         )
-
     return value
 
 
@@ -371,11 +424,9 @@ def _require_protocol_length(
         value,
         name=name,
     )
-
     if len(value) != length:
         raise OPRFProtocolError(
             f"{name} must be {length} bytes; "
             f"received {len(value)}."
         )
-
     return value

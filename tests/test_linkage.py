@@ -18,9 +18,10 @@ from verity.linkage import (
     encode_linkage_input,
 )
 from verity.oprf import (
-    BlindResult,
-    OPRFClient,
-    OPRFServer,
+    VOPRFBlindResult,
+    VOPRFClient,
+    VOPRFEvaluation,
+    VOPRFServer,
 )
 from verity.serialization import (
     MAX_LINKAGE_PAYLOAD_SIZE,
@@ -47,17 +48,17 @@ class RecordingClient:
     def __init__(self) -> None:
         self.blinded_inputs: list[bytes] = []
         self.finalized: list[
-            tuple[bytes, bytes, bytes]
+            tuple[bytes, bytes, VOPRFEvaluation]
         ] = []
 
     def blind(
         self,
         input_data: bytes,
-    ) -> BlindResult:
+    ) -> VOPRFBlindResult:
         self.blinded_inputs.append(input_data)
-        return BlindResult(
+        return VOPRFBlindResult(
             blinded_element=b"b" * 32,
-            client_state=b"s" * 32,
+            client_state=b"s" * 64,
         )
 
     def finalize(
@@ -65,13 +66,13 @@ class RecordingClient:
         *,
         input_data: bytes,
         client_state: bytes,
-        evaluated_element: bytes,
+        evaluation: VOPRFEvaluation,
     ) -> bytes:
         self.finalized.append(
             (
                 input_data,
                 client_state,
-                evaluated_element,
+                evaluation,
             )
         )
         return b"o" * 64
@@ -377,19 +378,22 @@ def test_finalize() -> None:
         "status",
         True,
     )
-    evaluated_element = b"e" * 32
+    evaluation = VOPRFEvaluation(
+        evaluated_element=b"e" * 32,
+        proof=b"p" * 64,
+    )
 
     output = client.finalize(
         result,
-        evaluated_element,
+        evaluation,
     )
 
     assert output == b"o" * 64
     assert recording.finalized == [
         (
             recording.blinded_inputs[0],
-            b"s" * 32,
-            evaluated_element,
+            b"s" * 64,
+            evaluation,
         )
     ]
 
@@ -402,13 +406,15 @@ def test_finalize_signature() -> None:
     assert tuple(parameters) == (
         "self",
         "result",
-        "evaluated_element",
+        "evaluation",
     )
 
 
 def test_round_trip() -> None:
-    client = LinkageClient()
-    server = OPRFServer(SERVER_KEY)
+    server = VOPRFServer(SERVER_KEY)
+    client = LinkageClient(
+        VOPRFClient(server.public_key)
+    )
 
     first = client.blind_source(
         "web_publisher",
@@ -439,8 +445,8 @@ def test_round_trip() -> None:
 
 
 def test_purpose_changes_output() -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
+    server = VOPRFServer(SERVER_KEY)
+    client = VOPRFClient(server.public_key)
     payload = b'{"value":true}'
     outputs = []
 
@@ -457,7 +463,7 @@ def test_purpose_changes_output() -> None:
             client.finalize(
                 input_data=encoded,
                 client_state=result.client_state,
-                evaluated_element=evaluated,
+                evaluation=evaluated,
             )
         )
 

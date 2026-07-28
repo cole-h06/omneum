@@ -4,10 +4,11 @@ import pytest
 from hypothesis import given, settings, strategies as st
 
 from verity.oprf import (
-    BlindResult,
-    OPRFClient,
     OPRFProtocolError,
-    OPRFServer,
+    VOPRFBlindResult,
+    VOPRFClient,
+    VOPRFEvaluation,
+    VOPRFServer,
 )
 
 
@@ -41,9 +42,13 @@ KEY_PAIRS = st.integers(
         )
     )
 )
-INVALID_ENCODINGS = st.one_of(
+INVALID_ELEMENTS = st.one_of(
     st.binary(max_size=31),
     st.binary(min_size=33, max_size=64),
+)
+INVALID_WIDE_VALUES = st.one_of(
+    st.binary(max_size=63),
+    st.binary(min_size=65, max_size=96),
 )
 
 
@@ -51,62 +56,93 @@ class FakeBackend:
     def __init__(
         self,
         *,
-        blind_result: BlindResult | None = None,
-        evaluated_element: bytes = b"e" * 32,
+        blind_result: VOPRFBlindResult | None = None,
+        evaluation: VOPRFEvaluation | None = None,
+        public_key: bytes = b"p" * 32,
         output: bytes = b"o" * 64,
     ) -> None:
-        self.blind_result = blind_result or BlindResult(
+        self.blind_result = blind_result or VOPRFBlindResult(
             blinded_element=b"b" * 32,
-            client_state=b"s" * 32,
+            client_state=b"s" * 64,
         )
-        self.evaluated_element = evaluated_element
+        self.evaluation = evaluation or VOPRFEvaluation(
+            evaluated_element=b"e" * 32,
+            proof=b"r" * 64,
+        )
+        self.public_key = public_key
         self.output = output
 
-    def blind(self, input_data: bytes) -> BlindResult:
+    def blind(
+        self,
+        input_data: bytes,
+    ) -> VOPRFBlindResult:
         return self.blind_result
+
+    def derive_public_key(
+        self,
+        server_key: bytes,
+    ) -> bytes:
+        return self.public_key
+
+    def validate_public_key(
+        self,
+        server_public_key: bytes,
+    ) -> None:
+        return None
 
     def evaluate(
         self,
         server_key: bytes,
         blinded_element: bytes,
-    ) -> bytes:
-        return self.evaluated_element
+    ) -> VOPRFEvaluation:
+        return self.evaluation
 
     def finalize(
         self,
         input_data: bytes,
         client_state: bytes,
-        evaluated_element: bytes,
+        evaluation: VOPRFEvaluation,
+        server_public_key: bytes,
     ) -> bytes:
         return self.output
 
 
-def test_round_trip() -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
+def make_round(
+    server_key: bytes = SERVER_KEY,
+) -> tuple[
+    VOPRFClient,
+    VOPRFServer,
+    VOPRFBlindResult,
+    VOPRFEvaluation,
+]:
+    server = VOPRFServer(server_key)
+    client = VOPRFClient(server.public_key)
     blind_result = client.blind(INPUT_DATA)
-    evaluated_element = server.evaluate(
+    evaluation = server.evaluate(
         blind_result.blinded_element
     )
+    return client, server, blind_result, evaluation
+
+
+def test_round_trip() -> None:
+    client, server, blind_result, evaluation = make_round()
     output = client.finalize(
         input_data=INPUT_DATA,
         client_state=blind_result.client_state,
-        evaluated_element=evaluated_element,
+        evaluation=evaluation,
     )
 
-    assert isinstance(blind_result.blinded_element, bytes)
+    assert len(server.public_key) == 32
     assert len(blind_result.blinded_element) == 32
-    assert isinstance(blind_result.client_state, bytes)
-    assert len(blind_result.client_state) == 32
-    assert isinstance(evaluated_element, bytes)
-    assert len(evaluated_element) == 32
-    assert isinstance(output, bytes)
+    assert len(blind_result.client_state) == 64
+    assert len(evaluation.evaluated_element) == 32
+    assert len(evaluation.proof) == 64
     assert len(output) == 64
 
 
 def test_repeated_input() -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
+    server = VOPRFServer(SERVER_KEY)
+    client = VOPRFClient(server.public_key)
 
     first_blind = client.blind(INPUT_DATA)
     first_evaluation = server.evaluate(
@@ -115,7 +151,7 @@ def test_repeated_input() -> None:
     first_output = client.finalize(
         input_data=INPUT_DATA,
         client_state=first_blind.client_state,
-        evaluated_element=first_evaluation,
+        evaluation=first_evaluation,
     )
 
     second_blind = client.blind(INPUT_DATA)
@@ -125,310 +161,432 @@ def test_repeated_input() -> None:
     second_output = client.finalize(
         input_data=INPUT_DATA,
         client_state=second_blind.client_state,
-        evaluated_element=second_evaluation,
+        evaluation=second_evaluation,
     )
 
-    assert isinstance(first_blind.blinded_element, bytes)
-    assert len(first_blind.blinded_element) == 32
-    assert isinstance(first_blind.client_state, bytes)
-    assert len(first_blind.client_state) == 32
-    assert isinstance(first_evaluation, bytes)
-    assert len(first_evaluation) == 32
-    assert isinstance(first_output, bytes)
-    assert len(first_output) == 64
-
-    assert isinstance(second_blind.blinded_element, bytes)
-    assert len(second_blind.blinded_element) == 32
-    assert isinstance(second_blind.client_state, bytes)
-    assert len(second_blind.client_state) == 32
-    assert isinstance(second_evaluation, bytes)
-    assert len(second_evaluation) == 32
-    assert isinstance(second_output, bytes)
-    assert len(second_output) == 64
-
-    assert first_blind.blinded_element != second_blind.blinded_element
+    assert first_blind.blinded_element != (
+        second_blind.blinded_element
+    )
+    assert first_evaluation.proof != second_evaluation.proof
     assert first_output == second_output
 
 
-def test_invalid_blinded_element() -> None:
-    server = OPRFServer(SERVER_KEY)
-
-    with pytest.raises(OPRFProtocolError):
-        server.evaluate(b"\x00" * 32)
-
-
 def test_blind_result_repr() -> None:
-    result = BlindResult(
+    result = VOPRFBlindResult(
         blinded_element=b"visible blinded element",
         client_state=b"private client state",
     )
 
-    assert b"private client state".decode() not in repr(result)
-    assert b"private client state".decode() not in str(result)
+    assert "private client state" not in repr(result)
+    assert "private client state" not in str(result)
     assert "visible blinded element" in repr(result)
     assert "visible blinded element" in str(result)
 
 
-def test_custom_backend() -> None:
-    backend = FakeBackend()
-    client = OPRFClient(backend)
-    server = OPRFServer(SERVER_KEY, backend)
-    blind_result = client.blind(INPUT_DATA)
-    evaluated_element = server.evaluate(
-        blind_result.blinded_element
-    )
-    output = client.finalize(
-        input_data=INPUT_DATA,
-        client_state=blind_result.client_state,
-        evaluated_element=evaluated_element,
-    )
-
-    assert len(blind_result.blinded_element) == 32
-    assert len(blind_result.client_state) == 32
-    assert len(evaluated_element) == 32
-    assert len(output) == 64
-
-
+@pytest.mark.parametrize("field", ["element", "state"])
 @pytest.mark.parametrize("length", [31, 33])
-@pytest.mark.parametrize(
-    "name",
-    ["blinded_element", "client_state"],
-)
 def test_invalid_blind_result(
+    field: str,
     length: int,
-    name: str,
 ) -> None:
-    values = {
-        "blinded_element": b"b" * 32,
-        "client_state": b"s" * 32,
-    }
-    values[name] = b"x" * length
+    element = b"b" * 32
+    state = b"s" * 64
+    if field == "element":
+        element = b"x" * length
+    else:
+        state = b"x" * (63 if length == 31 else 65)
     backend = FakeBackend(
-        blind_result=BlindResult(**values),
+        blind_result=VOPRFBlindResult(
+            element,
+            state,
+        )
     )
+    client = VOPRFClient(b"p" * 32, backend)
 
     with pytest.raises(OPRFProtocolError):
-        OPRFClient(backend).blind(INPUT_DATA)
+        client.blind(INPUT_DATA)
 
 
+@pytest.mark.parametrize("field", ["element", "proof"])
 @pytest.mark.parametrize("length", [31, 33])
-def test_invalid_blinded_element_length(length: int) -> None:
-    server = OPRFServer(SERVER_KEY, FakeBackend())
-
-    with pytest.raises(ValueError):
-        server.evaluate(b"x" * length)
-
-
-@pytest.mark.parametrize("length", [31, 33])
-def test_invalid_evaluation_result(length: int) -> None:
-    server = OPRFServer(
-        SERVER_KEY,
-        FakeBackend(evaluated_element=b"x" * length),
+def test_invalid_evaluation_result(
+    field: str,
+    length: int,
+) -> None:
+    element = b"e" * 32
+    proof = b"p" * 64
+    if field == "element":
+        element = b"x" * length
+    else:
+        proof = b"x" * (63 if length == 31 else 65)
+    backend = FakeBackend(
+        evaluation=VOPRFEvaluation(
+            element,
+            proof,
+        )
     )
+    server = VOPRFServer(SERVER_KEY, backend)
 
     with pytest.raises(OPRFProtocolError):
         server.evaluate(b"b" * 32)
 
 
 @pytest.mark.parametrize("length", [31, 33])
-@pytest.mark.parametrize(
-    "name",
-    ["client_state", "evaluated_element"],
-)
-def test_invalid_finalize_value(
-    length: int,
-    name: str,
-) -> None:
-    values = {
-        "client_state": b"s" * 32,
-        "evaluated_element": b"e" * 32,
-    }
-    values[name] = b"x" * length
+def test_invalid_derived_public_key(length: int) -> None:
+    backend = FakeBackend(
+        public_key=b"x" * length
+    )
+
+    with pytest.raises(OPRFProtocolError):
+        VOPRFServer(SERVER_KEY, backend)
+
+
+@pytest.mark.parametrize("length", [63, 65])
+def test_invalid_output(length: int) -> None:
+    backend = FakeBackend(
+        output=b"x" * length
+    )
+    client = VOPRFClient(b"p" * 32, backend)
+
+    with pytest.raises(OPRFProtocolError):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=b"s" * 64,
+            evaluation=VOPRFEvaluation(
+                b"e" * 32,
+                b"p" * 64,
+            ),
+        )
+
+
+@pytest.mark.parametrize("length", [31, 33])
+def test_invalid_blinded_element(length: int) -> None:
+    server = VOPRFServer(SERVER_KEY)
 
     with pytest.raises(ValueError):
-        OPRFClient(FakeBackend()).finalize(
+        server.evaluate(b"x" * length)
+
+
+@pytest.mark.parametrize("length", [63, 65])
+def test_invalid_client_state(length: int) -> None:
+    client, _, _, evaluation = make_round()
+
+    with pytest.raises(ValueError):
+        client.finalize(
             input_data=INPUT_DATA,
-            **values,
+            client_state=b"x" * length,
+            evaluation=evaluation,
+        )
+
+
+@pytest.mark.parametrize("length", [31, 33])
+def test_invalid_evaluated_element(length: int) -> None:
+    client, _, blind_result, evaluation = make_round()
+
+    with pytest.raises(ValueError):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluation=VOPRFEvaluation(
+                b"x" * length,
+                evaluation.proof,
+            ),
         )
 
 
 @pytest.mark.parametrize("length", [63, 65])
-def test_invalid_finalize_result(length: int) -> None:
-    client = OPRFClient(
-        FakeBackend(output=b"x" * length),
+def test_invalid_proof(length: int) -> None:
+    client, _, blind_result, evaluation = make_round()
+
+    with pytest.raises(ValueError):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluation=VOPRFEvaluation(
+                evaluation.evaluated_element,
+                b"x" * length,
+            ),
+        )
+
+
+@pytest.mark.parametrize("length", [31, 33])
+def test_invalid_public_key_length(length: int) -> None:
+    with pytest.raises(ValueError):
+        VOPRFClient(b"x" * length)
+
+
+@pytest.mark.parametrize(
+    "public_key",
+    [
+        b"\x00" * 32,
+        b"\xff" * 32,
+    ],
+)
+def test_invalid_public_key(public_key: bytes) -> None:
+    with pytest.raises(
+        OPRFProtocolError,
+        match="Malformed RFC 9497 VOPRF public key",
+    ):
+        VOPRFClient(public_key)
+
+
+@pytest.mark.parametrize(
+    "server_key",
+    [
+        b"\x00" * 32,
+        SCALAR_ORDER,
+        b"\xff" * 32,
+    ],
+)
+def test_invalid_server_key(server_key: bytes) -> None:
+    with pytest.raises(OPRFProtocolError):
+        VOPRFServer(server_key)
+
+
+@pytest.mark.parametrize(
+    "scalar",
+    [
+        b"\x00" * 32,
+        SCALAR_ORDER,
+    ],
+)
+def test_malformed_client_state(scalar: bytes) -> None:
+    client, _, blind_result, evaluation = make_round()
+    client_state = (
+        scalar + blind_result.client_state[32:]
     )
 
     with pytest.raises(OPRFProtocolError):
         client.finalize(
             input_data=INPUT_DATA,
-            client_state=b"s" * 32,
-            evaluated_element=b"e" * 32,
+            client_state=client_state,
+            evaluation=evaluation,
         )
 
 
-def test_rfc_vector() -> None:
-    # RFC 9497 Appendix A.1.1, test vector 1.
-    input_data = bytes.fromhex("00")
-    server_key = bytes.fromhex(
-        "5ebcea5ee37023ccb9fc2d2019f9d773"
-        "7be85591ae8652ffa9ef0f4d37063b0e"
+@pytest.mark.parametrize(
+    "proof",
+    [
+        b"\x00" * 64,
+        SCALAR_ORDER + b"\x01" + b"\x00" * 31,
+        b"\x01" + b"\x00" * 31 + SCALAR_ORDER,
+    ],
+)
+def test_malformed_proof(proof: bytes) -> None:
+    client, _, blind_result, evaluation = make_round()
+
+    with pytest.raises(
+        OPRFProtocolError,
+        match="Malformed RFC 9497 VOPRF proof",
+    ):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluation=VOPRFEvaluation(
+                evaluation.evaluated_element,
+                proof,
+            ),
+        )
+
+
+def test_wrong_public_key() -> None:
+    client, _, blind_result, evaluation = make_round()
+    other_server = VOPRFServer(
+        b"\x02" + b"\x00" * 31
     )
-    client_state = bytes.fromhex(
-        "64d37aed22a27f5191de1c1d69fadb89"
-        "9d8862b58eb4220029e036ec4c1f6706"
+    other_client = VOPRFClient(other_server.public_key)
+
+    with pytest.raises(
+        OPRFProtocolError,
+        match="proof verification failed",
+    ):
+        other_client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluation=evaluation,
+        )
+
+
+def test_other_server_evaluation() -> None:
+    server = VOPRFServer(SERVER_KEY)
+    other_server = VOPRFServer(
+        b"\x02" + b"\x00" * 31
+    )
+    client = VOPRFClient(server.public_key)
+    blind_result = client.blind(INPUT_DATA)
+    evaluation = other_server.evaluate(
+        blind_result.blinded_element
+    )
+
+    with pytest.raises(
+        OPRFProtocolError,
+        match="proof verification failed",
+    ):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluation=evaluation,
+        )
+
+
+def test_malformed_evaluated_element() -> None:
+    client, _, blind_result, evaluation = make_round()
+
+    with pytest.raises(
+        OPRFProtocolError,
+        match=(
+            "^RFC 9497 VOPRF client finalization "
+            "failed\\.$"
+        ),
+    ):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluation=VOPRFEvaluation(
+                b"\x00" * 32,
+                evaluation.proof,
+            ),
+        )
+
+
+def test_modified_proof() -> None:
+    client, _, blind_result, evaluation = make_round()
+    proof = (
+        bytes([evaluation.proof[0] ^ 1])
+        + evaluation.proof[1:]
+    )
+
+    with pytest.raises(
+        OPRFProtocolError,
+        match=(
+            "^RFC 9497 VOPRF proof verification "
+            "failed\\.$"
+        ),
+    ):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=blind_result.client_state,
+            evaluation=VOPRFEvaluation(
+                evaluation.evaluated_element,
+                proof,
+            ),
+        )
+
+
+def test_mismatched_evaluation_proof() -> None:
+    server = VOPRFServer(SERVER_KEY)
+    client = VOPRFClient(server.public_key)
+    first = client.blind(INPUT_DATA)
+    second = client.blind(INPUT_DATA)
+    evaluation = server.evaluate(
+        first.blinded_element
+    )
+    other_evaluation = server.evaluate(
+        second.blinded_element
+    )
+
+    with pytest.raises(
+        OPRFProtocolError,
+        match=(
+            "^RFC 9497 VOPRF proof verification "
+            "failed\\.$"
+        ),
+    ):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=second.client_state,
+            evaluation=VOPRFEvaluation(
+                other_evaluation.evaluated_element,
+                evaluation.proof,
+            ),
+        )
+
+
+def test_rfc_9497_vector() -> None:
+    server_key = bytes.fromhex(
+        "e6f73f344b79b379f1a0dd37e07ff62e"
+        "38d9f71345ce62ae3a9bc60b04ccd909"
+    )
+    public_key = bytes.fromhex(
+        "c803e2cc6b05fc15064549b5920659ca"
+        "4a77b2cca6f04f6b357009335476ad4e"
+    )
+    blind = bytes.fromhex(
+        "64d37aed22a27f5191de1c1d69fadb899"
+        "d8862b58eb4220029e036ec4c1f6706"
     )
     blinded_element = bytes.fromhex(
-        "609a0ae68c15a3cf6903766461307e5c"
-        "8bb2f95e7e6550e1ffa2dc99e412803c"
+        "863f330cc1a1259ed5a5998a23acfd37"
+        "fb4351a793a5b3c090b642ddc439b945"
     )
-    expected_evaluation = bytes.fromhex(
-        "7ec6578ae5120958eb2db1745758ff37"
-        "9e77cb64fe77b0b2d8cc917ea0869c7e"
+    evaluation = VOPRFEvaluation(
+        evaluated_element=bytes.fromhex(
+            "aa8fa048764d5623868679402ff6108d"
+            "2521884fa138cd7f9c7669a9a014267e"
+        ),
+        proof=bytes.fromhex(
+            "ddef93772692e535d1a53903db243673"
+            "55cc2cc78de93b3be5a8ffcc6985dd06"
+            "6d4346421d17bf5117a2a1ff0fcb2a75"
+            "9f58a539dfbe857a40bce4cf49ec600d"
+        ),
     )
-    expected_output = bytes.fromhex(
-        "527759c3d9366f277d8c6020418d96bb"
-        "393ba2afb20ff90df23fb7708264e2f3"
-        "ab9135e3bd69955851de4b1f9fe8a097"
-        "3396719b7912ba9ee8aa7d0b5e24bcf6"
+    expected = bytes.fromhex(
+        "b58cfbe118e0cb94d79b5fd6a6dafb98"
+        "764dff49c14e1770b566e42402da1a7d"
+        "a4d8527693914139caee5bd03903af43"
+        "a491351d23b430948dd50cde10d32b3c"
     )
-    client = OPRFClient()
-    server = OPRFServer(server_key)
+    server = VOPRFServer(server_key)
+    client = VOPRFClient(public_key)
 
-    evaluated_element = server.evaluate(blinded_element)
-    output = client.finalize(
-        input_data=input_data,
-        client_state=client_state,
-        evaluated_element=evaluated_element,
+    assert server.public_key == public_key
+    assert client.finalize(
+        input_data=b"\x00",
+        client_state=blind + blinded_element,
+        evaluation=evaluation,
+    ) == expected
+
+    generated = server.evaluate(blinded_element)
+    assert (
+        generated.evaluated_element
+        == evaluation.evaluated_element
     )
-
-    assert evaluated_element == expected_evaluation
-    assert output == expected_output
-
-
-def test_invalid_server_key() -> None:
-    client = OPRFClient()
-    blinded_element = client.blind(INPUT_DATA).blinded_element
-    invalid_keys = (
-        SERVER_KEY[:31],
-        b"\xff" * 33,
-        SERVER_KEY + b"\x00",
-        b"\x00" * 32,
-        SCALAR_ORDER,
-    )
-
-    for server_key in invalid_keys:
-        server = OPRFServer(server_key)
-
-        with pytest.raises(OPRFProtocolError):
-            server.evaluate(blinded_element)
-
-
-def test_invalid_blinded_encodings() -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
-    blinded_element = client.blind(INPUT_DATA).blinded_element
-    invalid_elements = (
-        blinded_element[:31],
-        b"\xff" * 33,
-        blinded_element + b"\x00",
-        b"\x00" * 32,
-    )
-
-    for element in invalid_elements:
-        error = ValueError if len(element) != 32 else OPRFProtocolError
-
-        with pytest.raises(error):
-            server.evaluate(element)
-
-
-def test_invalid_client_state() -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
-    blind_result = client.blind(INPUT_DATA)
-    evaluated_element = server.evaluate(
-        blind_result.blinded_element
-    )
-    invalid_states = (
-        blind_result.client_state[:31],
-        b"\xff" * 33,
-        blind_result.client_state + b"\x00",
-        b"\x00" * 32,
-        SCALAR_ORDER,
-    )
-
-    for client_state in invalid_states:
-        error = (
-            ValueError
-            if len(client_state) != 32
-            else OPRFProtocolError
-        )
-
-        with pytest.raises(error):
-            client.finalize(
-                input_data=INPUT_DATA,
-                client_state=client_state,
-                evaluated_element=evaluated_element,
-            )
-
-
-def test_invalid_evaluated_encodings() -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
-    blind_result = client.blind(INPUT_DATA)
-    evaluated_element = server.evaluate(
-        blind_result.blinded_element
-    )
-    invalid_elements = (
-        evaluated_element[:31],
-        b"\xff" * 33,
-        evaluated_element + b"\x00",
-        b"\x00" * 32,
-    )
-
-    for element in invalid_elements:
-        error = ValueError if len(element) != 32 else OPRFProtocolError
-
-        with pytest.raises(error):
-            client.finalize(
-                input_data=INPUT_DATA,
-                client_state=blind_result.client_state,
-                evaluated_element=element,
-            )
+    assert client.finalize(
+        input_data=b"\x00",
+        client_state=blind + blinded_element,
+        evaluation=generated,
+    ) == expected
 
 
 def test_input_limit() -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
+    server = VOPRFServer(SERVER_KEY)
+    client = VOPRFClient(server.public_key)
     input_data = b"a" * 65_534
     blind_result = client.blind(input_data)
-    evaluated_element = server.evaluate(
+    evaluation = server.evaluate(
         blind_result.blinded_element
     )
 
-    output = client.finalize(
-        input_data=input_data,
-        client_state=blind_result.client_state,
-        evaluated_element=evaluated_element,
-    )
-
-    assert len(output) == 64
-
-
-def test_input_too_long() -> None:
-    client = OPRFClient()
-    input_data = b"a" * 65_535
-
-    with pytest.raises(ValueError):
-        client.blind(input_data)
-
-    blind_result = client.blind(INPUT_DATA)
-
-    with pytest.raises(ValueError):
+    assert len(
         client.finalize(
             input_data=input_data,
             client_state=blind_result.client_state,
-            evaluated_element=b"\x01" * 32,
+            evaluation=evaluation,
         )
+    ) == 64
+
+    with pytest.raises(ValueError):
+        client.blind(input_data + b"a")
+
+
+@pytest.mark.parametrize("input_data", [b"", bytearray(b"x")])
+def test_invalid_input(input_data: object) -> None:
+    server = VOPRFServer(SERVER_KEY)
+    client = VOPRFClient(server.public_key)
+
+    with pytest.raises((TypeError, ValueError)):
+        client.blind(input_data)
 
 
 @settings(max_examples=25)
@@ -437,167 +595,179 @@ def test_round_trip_property(
     input_data: bytes,
     server_key: bytes,
 ) -> None:
-    client = OPRFClient()
-    server = OPRFServer(server_key)
-    first_blind = client.blind(input_data)
+    server = VOPRFServer(server_key)
+    client = VOPRFClient(server.public_key)
+    first = client.blind(input_data)
     first_evaluation = server.evaluate(
-        first_blind.blinded_element
+        first.blinded_element
     )
     first_output = client.finalize(
         input_data=input_data,
-        client_state=first_blind.client_state,
-        evaluated_element=first_evaluation,
+        client_state=first.client_state,
+        evaluation=first_evaluation,
     )
-    second_blind = client.blind(input_data)
+    second = client.blind(input_data)
     second_evaluation = server.evaluate(
-        second_blind.blinded_element
+        second.blinded_element
     )
     second_output = client.finalize(
         input_data=input_data,
-        client_state=second_blind.client_state,
-        evaluated_element=second_evaluation,
+        client_state=second.client_state,
+        evaluation=second_evaluation,
     )
 
-    assert len(first_output) == 64
-    assert len(second_output) == 64
+    assert first.blinded_element != second.blinded_element
+    assert first_evaluation.proof != second_evaluation.proof
     assert first_output == second_output
-    assert first_blind.blinded_element != second_blind.blinded_element
 
 
 @settings(max_examples=25)
-@given(
-    inputs=INPUT_PAIRS,
-    server_key=KEYS,
-)
+@given(inputs=INPUT_PAIRS)
 def test_input_changes_output(
     inputs: tuple[bytes, bytes],
-    server_key: bytes,
 ) -> None:
-    client = OPRFClient()
-    server = OPRFServer(server_key)
-    first_input, second_input = inputs
-    first_blind = client.blind(first_input)
-    first_evaluation = server.evaluate(
-        first_blind.blinded_element
-    )
-    first_output = client.finalize(
-        input_data=first_input,
-        client_state=first_blind.client_state,
-        evaluated_element=first_evaluation,
-    )
-    second_blind = client.blind(second_input)
-    second_evaluation = server.evaluate(
-        second_blind.blinded_element
-    )
-    second_output = client.finalize(
-        input_data=second_input,
-        client_state=second_blind.client_state,
-        evaluated_element=second_evaluation,
-    )
+    server = VOPRFServer(SERVER_KEY)
+    client = VOPRFClient(server.public_key)
+    outputs = []
 
-    assert first_output != second_output
+    for input_data in inputs:
+        blind_result = client.blind(input_data)
+        evaluation = server.evaluate(
+            blind_result.blinded_element
+        )
+        outputs.append(
+            client.finalize(
+                input_data=input_data,
+                client_state=blind_result.client_state,
+                evaluation=evaluation,
+            )
+        )
+
+    assert outputs[0] != outputs[1]
+
+
+@settings(max_examples=25)
+@given(server_keys=KEY_PAIRS)
+def test_key_changes_output(
+    server_keys: tuple[bytes, bytes],
+) -> None:
+    outputs = []
+
+    for server_key in server_keys:
+        server = VOPRFServer(server_key)
+        client = VOPRFClient(server.public_key)
+        blind_result = client.blind(INPUT_DATA)
+        evaluation = server.evaluate(
+            blind_result.blinded_element
+        )
+        outputs.append(
+            client.finalize(
+                input_data=INPUT_DATA,
+                client_state=blind_result.client_state,
+                evaluation=evaluation,
+            )
+        )
+
+    assert outputs[0] != outputs[1]
 
 
 @settings(max_examples=25)
 @given(
-    server_keys=KEY_PAIRS,
-    input_data=INPUTS,
+    element=INVALID_ELEMENTS,
+    wide_value=INVALID_WIDE_VALUES,
 )
-def test_key_changes_output(
-    server_keys: tuple[bytes, bytes],
-    input_data: bytes,
+def test_invalid_lengths_property(
+    element: bytes,
+    wide_value: bytes,
 ) -> None:
-    client = OPRFClient()
-    first_server = OPRFServer(server_keys[0])
-    second_server = OPRFServer(server_keys[1])
-    first_blind = client.blind(input_data)
-    first_evaluation = first_server.evaluate(
-        first_blind.blinded_element
+    backend = FakeBackend()
+    client = VOPRFClient(b"p" * 32, backend)
+    server = VOPRFServer(SERVER_KEY, backend)
+    evaluation = VOPRFEvaluation(
+        b"e" * 32,
+        b"r" * 64,
     )
-    first_output = client.finalize(
-        input_data=input_data,
-        client_state=first_blind.client_state,
-        evaluated_element=first_evaluation,
-    )
-    second_blind = client.blind(input_data)
-    second_evaluation = second_server.evaluate(
-        second_blind.blinded_element
-    )
-    second_output = client.finalize(
-        input_data=input_data,
-        client_state=second_blind.client_state,
-        evaluated_element=second_evaluation,
-    )
-
-    assert first_output != second_output
-
-
-@settings(max_examples=50)
-@given(value=INVALID_ENCODINGS)
-def test_invalid_lengths(value: bytes) -> None:
-    client = OPRFClient()
-    server = OPRFServer(SERVER_KEY)
-    blind_result = client.blind(INPUT_DATA)
-    evaluated_element = server.evaluate(
-        blind_result.blinded_element
-    )
-    if value:
-        invalid_server = OPRFServer(value)
-
-        with pytest.raises(OPRFProtocolError):
-            invalid_server.evaluate(
-                blind_result.blinded_element
-            )
-    else:
-        with pytest.raises(ValueError):
-            OPRFServer(value)
 
     with pytest.raises(ValueError):
-        server.evaluate(value)
-
+        server.evaluate(element)
+    with pytest.raises(ValueError):
+        VOPRFClient(element, backend)
     with pytest.raises(ValueError):
         client.finalize(
             input_data=INPUT_DATA,
-            client_state=value,
-            evaluated_element=evaluated_element,
+            client_state=wide_value,
+            evaluation=evaluation,
         )
-
     with pytest.raises(ValueError):
         client.finalize(
             input_data=INPUT_DATA,
-            client_state=blind_result.client_state,
-            evaluated_element=value,
+            client_state=b"s" * 64,
+            evaluation=VOPRFEvaluation(
+                element,
+                b"r" * 64,
+            ),
+        )
+    with pytest.raises(ValueError):
+        client.finalize(
+            input_data=INPUT_DATA,
+            client_state=b"s" * 64,
+            evaluation=VOPRFEvaluation(
+                b"e" * 32,
+                wide_value,
+            ),
         )
 
 
-@settings(max_examples=100)
-@given(element=st.binary(min_size=32, max_size=32))
-def test_blinded_element_deserialization(element: bytes) -> None:
-    server = OPRFServer(SERVER_KEY)
-
-    try:
-        evaluated_element = server.evaluate(element)
-    except OPRFProtocolError:
-        return
-
-    assert isinstance(evaluated_element, bytes)
-    assert len(evaluated_element) == 32
-
-
-@settings(max_examples=100)
-@given(element=st.binary(min_size=32, max_size=32))
-def test_evaluated_element_deserialization(element: bytes) -> None:
-    client = OPRFClient()
-    blind_result = client.blind(INPUT_DATA)
+@settings(max_examples=25)
+@given(
+    evaluated_element=st.binary(
+        min_size=32,
+        max_size=32,
+    ),
+    proof=st.binary(
+        min_size=64,
+        max_size=64,
+    ),
+)
+def test_checked_values_property(
+    evaluated_element: bytes,
+    proof: bytes,
+) -> None:
+    client, _, blind_result, _ = make_round()
 
     try:
         output = client.finalize(
             input_data=INPUT_DATA,
             client_state=blind_result.client_state,
-            evaluated_element=element,
+            evaluation=VOPRFEvaluation(
+                evaluated_element,
+                proof,
+            ),
         )
     except OPRFProtocolError:
         return
 
-    assert isinstance(output, bytes)
     assert len(output) == 64
+
+
+@settings(max_examples=25)
+@given(
+    blinded_element=st.binary(
+        min_size=32,
+        max_size=32,
+    )
+)
+def test_checked_blinded_element(
+    blinded_element: bytes,
+) -> None:
+    server = VOPRFServer(SERVER_KEY)
+
+    try:
+        evaluation = server.evaluate(
+            blinded_element
+        )
+    except OPRFProtocolError:
+        return
+
+    assert len(evaluation.evaluated_element) == 32
+    assert len(evaluation.proof) == 64

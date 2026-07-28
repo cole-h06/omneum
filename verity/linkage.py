@@ -4,7 +4,11 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import Any
 
-from .oprf import OPRFClient
+from .oprf import (
+    VOPRFBlindResult,
+    VOPRFClient,
+    VOPRFEvaluation,
+)
 from .serialization import (
     MAX_LINKAGE_PAYLOAD_SIZE,
     serialize_attribute,
@@ -94,9 +98,9 @@ def encode_linkage_input(
 class LinkageClient:
     def __init__(
         self,
-        client: OPRFClient | None = None,
+        client: VOPRFClient,
     ) -> None:
-        self._client = client or OPRFClient()
+        self._client = client
 
     def blind_source(
         self,
@@ -149,7 +153,7 @@ class LinkageClient:
     def finalize(
         self,
         result: LinkageBlindResult,
-        evaluated_element: bytes,
+        evaluation: VOPRFEvaluation,
     ) -> bytes:
         if type(result) is not LinkageBlindResult:
             raise TypeError(
@@ -159,7 +163,7 @@ class LinkageClient:
         return self._client.finalize(
             input_data=result._encoded_input,
             client_state=result._client_state,
-            evaluated_element=evaluated_element,
+            evaluation=evaluation,
         )
 
     def _blind(
@@ -172,7 +176,9 @@ class LinkageClient:
             purpose,
             ENCODING_VERSION,
         )
-        result = self._client.blind(encoded_input)
+        result: VOPRFBlindResult = self._client.blind(
+            encoded_input
+        )
 
         return LinkageBlindResult(
             blinded_element=result.blinded_element,
