@@ -312,8 +312,9 @@ impl PyVoprfServerContext {
             .to_vec()
     }
 
-    fn evaluate(&self, blinded_element: &[u8]) -> PyResult<(Vec<u8>, Vec<u8>)> {
-        evaluate_with_server(&self.server, blinded_element)
+    fn evaluate(&self, py: Python<'_>, blinded_element: &[u8]) -> PyResult<(Vec<u8>, Vec<u8>)> {
+        let blinded_element = blinded_element.to_vec();
+        py.detach(move || evaluate_with_server(&self.server, &blinded_element))
             .map_err(|error| PyValueError::new_err(error.to_string()))
     }
 

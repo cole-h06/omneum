@@ -6,6 +6,7 @@ import pickle
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -13,6 +14,7 @@ import verity_oprf
 from hypothesis import given, settings, strategies as st
 
 from verity.oprf import (
+    InvalidBlindedElementError,
     OPRFProtocolError,
     VOPRFBlindResult,
     VOPRFClient,
@@ -188,6 +190,44 @@ def test_repeated_input() -> None:
     assert first_output == second_output
 
 
+def test_concurrent_server_context() -> None:
+    server = make_server()
+    client = VOPRFClient(server.public_key)
+    inputs = [
+        f"concurrent-{index}".encode("ascii")
+        for index in range(16)
+    ]
+    blinds = [
+        client.blind(input_data)
+        for input_data in inputs
+    ]
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        evaluations = list(
+            executor.map(
+                server.evaluate,
+                [
+                    blind.blinded_element
+                    for blind in blinds
+                ],
+            )
+        )
+
+    for input_data, blind, evaluation in zip(
+        inputs,
+        blinds,
+        evaluations,
+        strict=True,
+    ):
+        assert len(
+            client.finalize(
+                input_data=input_data,
+                client_state=blind.client_state,
+                evaluation=evaluation,
+            )
+        ) == 64
+
+
 def test_server_context(tmp_path: Path) -> None:
     private_key_file = tmp_path / "private-value.key"
     private_key_file.write_bytes(SERVER_KEY)
@@ -341,6 +381,22 @@ def test_invalid_blinded_element(length: int) -> None:
 
     with pytest.raises(ValueError):
         server.evaluate(b"x" * length)
+
+
+@pytest.mark.parametrize(
+    "blinded_element",
+    [
+        b"\x00" * 32,
+        b"\xff" * 32,
+    ],
+)
+def test_malformed_blinded_element(
+    blinded_element: bytes,
+) -> None:
+    server = make_server()
+
+    with pytest.raises(InvalidBlindedElementError):
+        server.evaluate(blinded_element)
 
 
 @pytest.mark.parametrize("length", [63, 65])

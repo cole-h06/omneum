@@ -25,6 +25,10 @@ class OPRFProtocolError(OPRFError):
     """Raised when an OPRF message is invalid or evaluation fails."""
 
 
+class InvalidBlindedElementError(OPRFProtocolError):
+    """Raised when a blinded element is not a valid protocol element."""
+
+
 @dataclass(frozen=True, slots=True)
 class VOPRFBlindResult:
     blinded_element: bytes
@@ -206,6 +210,13 @@ class NativeVOPRFServerContext:
                 self._context.evaluate(blinded_element)
             )
         except Exception as exc:
+            if (
+                "Malformed RFC 9497 VOPRF blinded element"
+                in str(exc)
+            ):
+                raise InvalidBlindedElementError(
+                    "Malformed RFC 9497 VOPRF blinded element."
+                ) from exc
             raise OPRFProtocolError(
                 "RFC 9497 VOPRF server evaluation failed."
             ) from exc
