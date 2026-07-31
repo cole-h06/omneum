@@ -25,11 +25,19 @@ ALGORITHM_VERSION = "verity-v1"
 VOPRF_MODE = "voprf"
 MIN_KEY_VERSION = 1
 MAX_KEY_VERSION = 2**32 - 1
+DEFAULT_MAX_CONCURRENCY = 1
+MIN_MAX_CONCURRENCY = 1
+MAX_MAX_CONCURRENCY = 64
+DEFAULT_EVALUATION_TIMEOUT_MS = 1_000
+MIN_EVALUATION_TIMEOUT_MS = 1
+MAX_EVALUATION_TIMEOUT_MS = 60_000
 
 _DEPLOYMENT_ID = "VERITY_DEPLOYMENT_ID"
 _KEY_VERSION = "VERITY_VOPRF_KEY_VERSION"
 _PUBLIC_KEY = "VERITY_VOPRF_PUBLIC_KEY"
 _PRIVATE_KEY_FILE = "VERITY_VOPRF_PRIVATE_KEY_FILE"
+_MAX_CONCURRENCY = "VERITY_VOPRF_MAX_CONCURRENCY"
+_EVALUATION_TIMEOUT_MS = "VERITY_VOPRF_EVALUATION_TIMEOUT_MS"
 _BASE64URL = re.compile(r"[A-Za-z0-9_-]+")
 _FINGERPRINT_LABEL = b"VERITY-VOPRF-CONFIG\x00"
 
@@ -44,6 +52,10 @@ class DeploymentConfig:
     voprf_key_version: int
     voprf_public_key: bytes = field(repr=False)
     voprf_private_key_file: Path = field(repr=False)
+    voprf_max_concurrency: int = DEFAULT_MAX_CONCURRENCY
+    voprf_evaluation_timeout_ms: int = (
+        DEFAULT_EVALUATION_TIMEOUT_MS
+    )
 
     def __post_init__(self) -> None:
         _validate_deployment_id(self.deployment_id)
@@ -63,6 +75,18 @@ class DeploymentConfig:
             raise ConfigurationError(
                 "VOPRF private key file must be a path."
             )
+        _validate_bounded_integer(
+            self.voprf_max_concurrency,
+            name="VOPRF maximum concurrency",
+            minimum=MIN_MAX_CONCURRENCY,
+            maximum=MAX_MAX_CONCURRENCY,
+        )
+        _validate_bounded_integer(
+            self.voprf_evaluation_timeout_ms,
+            name="VOPRF evaluation timeout",
+            minimum=MIN_EVALUATION_TIMEOUT_MS,
+            maximum=MAX_EVALUATION_TIMEOUT_MS,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +95,10 @@ class DeploymentState:
     voprf_key_version: int
     configuration_fingerprint: str
     voprf_server: VOPRFServer = field(repr=False)
+    voprf_max_concurrency: int = DEFAULT_MAX_CONCURRENCY
+    voprf_evaluation_timeout_ms: int = (
+        DEFAULT_EVALUATION_TIMEOUT_MS
+    )
 
 
 def load_deployment_state(
@@ -87,6 +115,20 @@ def load_deployment_state(
         ),
         voprf_private_key_file=Path(
             _required(values, _PRIVATE_KEY_FILE)
+        ),
+        voprf_max_concurrency=_optional_bounded_integer(
+            values,
+            name=_MAX_CONCURRENCY,
+            default=DEFAULT_MAX_CONCURRENCY,
+            minimum=MIN_MAX_CONCURRENCY,
+            maximum=MAX_MAX_CONCURRENCY,
+        ),
+        voprf_evaluation_timeout_ms=_optional_bounded_integer(
+            values,
+            name=_EVALUATION_TIMEOUT_MS,
+            default=DEFAULT_EVALUATION_TIMEOUT_MS,
+            minimum=MIN_EVALUATION_TIMEOUT_MS,
+            maximum=MAX_EVALUATION_TIMEOUT_MS,
         ),
     )
     try:
@@ -112,6 +154,10 @@ def load_deployment_state(
         voprf_key_version=config.voprf_key_version,
         configuration_fingerprint=_fingerprint(config),
         voprf_server=server,
+        voprf_max_concurrency=config.voprf_max_concurrency,
+        voprf_evaluation_timeout_ms=(
+            config.voprf_evaluation_timeout_ms
+        ),
     )
 
 
@@ -161,6 +207,53 @@ def _validate_key_version(version: object) -> None:
         raise ConfigurationError(
             "VOPRF key version is out of range."
         )
+
+
+def _validate_bounded_integer(
+    value: object,
+    *,
+    name: str,
+    minimum: int,
+    maximum: int,
+) -> None:
+    if type(value) is not int:
+        raise ConfigurationError(
+            f"{name} must be an integer."
+        )
+    if not minimum <= value <= maximum:
+        raise ConfigurationError(
+            f"{name} is out of range."
+        )
+
+
+def _optional_bounded_integer(
+    environ: Mapping[str, str],
+    *,
+    name: str,
+    default: int,
+    minimum: int,
+    maximum: int,
+) -> int:
+    value = environ.get(name)
+    if value is None:
+        return default
+    if (
+        not value
+        or not value.isascii()
+        or not value.isdecimal()
+        or (len(value) > 1 and value.startswith("0"))
+    ):
+        raise ConfigurationError(
+            f"{name} must be a canonical integer."
+        )
+    parsed = int(value)
+    _validate_bounded_integer(
+        parsed,
+        name=name,
+        minimum=minimum,
+        maximum=maximum,
+    )
+    return parsed
 
 
 def _parse_key_version(value: str) -> int:

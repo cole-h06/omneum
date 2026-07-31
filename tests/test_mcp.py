@@ -15,7 +15,11 @@ from mcp import (
 
 import verity.server as server_module
 from verity.config import ConfigurationError
-from verity.oprf import VOPRFServer
+from verity.oprf import (
+    VOPRFClient,
+    VOPRFEvaluation,
+    VOPRFServer,
+)
 
 
 DEPLOYMENT_ID = (
@@ -48,11 +52,12 @@ def provisioning(tmp_path: Path) -> dict[str, str]:
 def test_ping(tmp_path: Path) -> None:
     async def call_ping():
         root = Path(__file__).parents[1]
+        environment = provisioning(tmp_path)
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
             args=["-m", "verity.server"],
             cwd=root,
-            env=provisioning(tmp_path),
+            env=environment,
         )
 
         async with stdio_client(parameters) as (
@@ -66,9 +71,29 @@ def test_ping(tmp_path: Path) -> None:
                 await session.initialize()
 
                 tools = await session.list_tools()
-                assert "ping" in {
-                    tool.name
+                listed_tools = {
+                    tool.name: tool
                     for tool in tools.tools
+                }
+                assert "ping" in listed_tools
+                assert "evaluate_voprf" in listed_tools
+                evaluate_schema = listed_tools[
+                    "evaluate_voprf"
+                ].inputSchema
+                assert (
+                    evaluate_schema["additionalProperties"]
+                    is False
+                )
+                assert set(
+                    evaluate_schema["required"]
+                ) == {
+                    "protocol_version",
+                    "deployment_id",
+                    "voprf_key_version",
+                    "voprf_mode",
+                    "voprf_ciphersuite",
+                    "linkage_encoding_version",
+                    "blinded_element",
                 }
 
                 result = await session.call_tool("ping")
@@ -94,6 +119,145 @@ def test_ping(tmp_path: Path) -> None:
                     content["configuration_fingerprint"]
                 ) == 64
                 assert "voprf_public_key" not in content
+
+                public_key = base64.urlsafe_b64decode(
+                    environment[
+                        "VERITY_VOPRF_PUBLIC_KEY"
+                    ]
+                    + "="
+                )
+                client = VOPRFClient(public_key)
+                input_data = b"stdio evaluation"
+                blind = client.blind(input_data)
+                blinded_element = (
+                    base64.urlsafe_b64encode(
+                        blind.blinded_element
+                    )
+                    .rstrip(b"=")
+                    .decode("ascii")
+                )
+                arguments = {
+                    "protocol_version": "v1",
+                    "deployment_id": DEPLOYMENT_ID,
+                    "voprf_key_version": 1,
+                    "voprf_mode": "voprf",
+                    "voprf_ciphersuite": (
+                        "ristretto255-SHA512"
+                    ),
+                    "linkage_encoding_version": 1,
+                    "blinded_element": blinded_element,
+                }
+                evaluated = await session.call_tool(
+                    "evaluate_voprf",
+                    arguments,
+                )
+                assert not evaluated.isError
+                evaluation_content = (
+                    evaluated.structuredContent
+                )
+                assert evaluation_content is not None
+                assert "server_public_key" not in (
+                    evaluation_content
+                )
+                assert "client_state" not in evaluation_content
+                evaluation = VOPRFEvaluation(
+                    evaluated_element=(
+                        base64.urlsafe_b64decode(
+                            evaluation_content[
+                                "evaluated_element"
+                            ]
+                            + "="
+                        )
+                    ),
+                    proof=base64.urlsafe_b64decode(
+                        evaluation_content["proof"] + "=="
+                    ),
+                )
+                output = client.finalize(
+                    input_data=input_data,
+                    client_state=blind.client_state,
+                    evaluation=evaluation,
+                )
+                assert len(output) == 64
+
+                repeated = await session.call_tool(
+                    "evaluate_voprf",
+                    arguments,
+                )
+                assert not repeated.isError
+                repeated_content = repeated.structuredContent
+                assert repeated_content is not None
+                repeated_evaluation = VOPRFEvaluation(
+                    evaluated_element=(
+                        base64.urlsafe_b64decode(
+                            repeated_content[
+                                "evaluated_element"
+                            ]
+                            + "="
+                        )
+                    ),
+                    proof=base64.urlsafe_b64decode(
+                        repeated_content["proof"] + "=="
+                    ),
+                )
+                assert client.finalize(
+                    input_data=input_data,
+                    client_state=blind.client_state,
+                    evaluation=repeated_evaluation,
+                ) == output
+
+                invalid = await session.call_tool(
+                    "evaluate_voprf",
+                    {
+                        **arguments,
+                        "unknown": "value",
+                    },
+                )
+                assert invalid.isError
+                assert invalid.structuredContent == {
+                    "message": "Request validation failed.",
+                    "verity_code": "invalid_request",
+                }
+
+                for malformed in (
+                    {
+                        key: value
+                        for key, value in arguments.items()
+                        if key != "protocol_version"
+                    },
+                    {
+                        **arguments,
+                        "voprf_key_version": True,
+                    },
+                ):
+                    invalid = await session.call_tool(
+                        "evaluate_voprf",
+                        malformed,
+                    )
+                    assert invalid.isError
+                    assert invalid.structuredContent == {
+                        "message": (
+                            "Request validation failed."
+                        ),
+                        "verity_code": "invalid_request",
+                    }
+
+                mismatch = await session.call_tool(
+                    "evaluate_voprf",
+                    {
+                        **arguments,
+                        "voprf_key_version": 2,
+                    },
+                )
+                assert mismatch.isError
+                assert mismatch.structuredContent == {
+                    "message": (
+                        "The VOPRF key version does not match."
+                    ),
+                    "verity_code": (
+                        "voprf_key_version_mismatch"
+                    ),
+                }
 
     asyncio.run(call_ping())
 

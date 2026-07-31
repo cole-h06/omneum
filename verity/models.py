@@ -1,4 +1,81 @@
-from pydantic import BaseModel, Field
+import uuid
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+)
+
+
+class EvaluateVOPRFRequest(BaseModel):
+    """Single-element RFC 9497 VOPRF evaluation request."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        strict=True,
+    )
+
+    protocol_version: str
+    deployment_id: str
+    voprf_key_version: int = Field(
+        ge=1,
+        le=2**32 - 1,
+    )
+    voprf_mode: str
+    voprf_ciphersuite: str
+    linkage_encoding_version: int
+    blinded_element: str
+
+    @field_validator("deployment_id")
+    @classmethod
+    def validate_deployment_id(cls, value: str) -> str:
+        prefix = "urn:uuid:"
+        if not value.startswith(prefix):
+            raise ValueError(
+                "deployment_id must be a canonical UUID URN"
+            )
+        try:
+            parsed = uuid.UUID(value[len(prefix):])
+        except ValueError:
+            raise ValueError(
+                "deployment_id must be a canonical UUID URN"
+            ) from None
+        if value != f"{prefix}{parsed}":
+            raise ValueError(
+                "deployment_id must be a canonical UUID URN"
+            )
+        return value
+
+
+class EvaluateVOPRFResponse(BaseModel):
+    """Single-element RFC 9497 VOPRF evaluation response."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        strict=True,
+    )
+
+    protocol_version: str
+    deployment_id: str
+    voprf_key_version: int
+    voprf_mode: str
+    voprf_ciphersuite: str
+    linkage_encoding_version: int
+    evaluated_element: str
+    proof: str
+
+
+class VerityErrorResponse(BaseModel):
+    """Stable structured tool failure."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        strict=True,
+    )
+
+    message: str
+    verity_code: str
 
 
 # Request Models

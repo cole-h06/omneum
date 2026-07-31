@@ -8,7 +8,13 @@ import pytest
 
 import verity.config as config_module
 from verity.config import (
+    DEFAULT_EVALUATION_TIMEOUT_MS,
+    DEFAULT_MAX_CONCURRENCY,
+    MAX_EVALUATION_TIMEOUT_MS,
     MAX_KEY_VERSION,
+    MAX_MAX_CONCURRENCY,
+    MIN_EVALUATION_TIMEOUT_MS,
+    MIN_MAX_CONCURRENCY,
     ConfigurationError,
     DeploymentConfig,
     load_deployment_state,
@@ -61,6 +67,14 @@ def test_load_config(tmp_path: Path) -> None:
     assert state.voprf_key_version == 1
     assert len(state.configuration_fingerprint) == 64
     assert (
+        state.voprf_max_concurrency
+        == DEFAULT_MAX_CONCURRENCY
+    )
+    assert (
+        state.voprf_evaluation_timeout_ms
+        == DEFAULT_EVALUATION_TIMEOUT_MS
+    )
+    assert (
         state.voprf_server.public_key
         == VOPRFServer(
             Path(
@@ -70,6 +84,66 @@ def test_load_config(tmp_path: Path) -> None:
             )
         ).public_key
     )
+
+
+@pytest.mark.parametrize(
+    ("name", "minimum", "maximum", "attribute"),
+    [
+        (
+            "VERITY_VOPRF_MAX_CONCURRENCY",
+            MIN_MAX_CONCURRENCY,
+            MAX_MAX_CONCURRENCY,
+            "voprf_max_concurrency",
+        ),
+        (
+            "VERITY_VOPRF_EVALUATION_TIMEOUT_MS",
+            MIN_EVALUATION_TIMEOUT_MS,
+            MAX_EVALUATION_TIMEOUT_MS,
+            "voprf_evaluation_timeout_ms",
+        ),
+    ],
+)
+def test_resource_control_boundaries(
+    tmp_path: Path,
+    name: str,
+    minimum: int,
+    maximum: int,
+    attribute: str,
+) -> None:
+    for value in (minimum, maximum):
+        environ = provisioning(
+            tmp_path / f"{name}-{value}.key"
+        )
+        environ[name] = str(value)
+        state = load_deployment_state(environ)
+        assert getattr(state, attribute) == value
+
+
+@pytest.mark.parametrize(
+    ("name", "values"),
+    [
+        (
+            "VERITY_VOPRF_MAX_CONCURRENCY",
+            ("", "0", "65", "-1", "01", "1.0", "True"),
+        ),
+        (
+            "VERITY_VOPRF_EVALUATION_TIMEOUT_MS",
+            ("", "0", "60001", "-1", "01", "1.0", "True"),
+        ),
+    ],
+)
+def test_invalid_resource_controls(
+    tmp_path: Path,
+    name: str,
+    values: tuple[str, ...],
+) -> None:
+    for value in values:
+        environ = provisioning(
+            tmp_path / f"{name}-{len(value)}.key"
+        )
+        environ[name] = value
+        with pytest.raises(ConfigurationError):
+            load_deployment_state(environ)
 
 
 def test_stable_server(
