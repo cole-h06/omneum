@@ -1,371 +1,399 @@
-# API Reference
+# Verity API Reference
 
-The Verity API computes structural credibility over assertion graphs composed of opaque source, attribute, and claim linkage identifiers.
+The Verity API defines the version-1 tool schemas used by clients and
+deployments. The schemas are transport-independent. The reference
+implementation uses the Model Context Protocol (MCP).
 
-The specific request and response schemas exposed by Verity deployments are defined in this document. API behavior, including versioning, identifiers, errors, and tool interfaces, are also defined.
+Related specifications:
 
-The API is transport-independent. The reference implementation is exposed over the [Model Context Protocol (MCP)](https://modelcontextprotocol.io), but the schemas defined in this document may be used by any compliant deployment.
+- [`protocol.md`](protocol.md) defines protocol roles, trust, token identity,
+  replay, and key lifecycle.
+- [`canonicalization.md`](canonicalization.md) defines canonical payloads and
+  linkage input encoding.
+- [`sdk.md`](sdk.md) defines client behavior.
+- [`../docs/architecture.md`](../docs/architecture.md) describes the current
+  implementation architecture.
 
-To see related specifications, visit:
+## 1. Status
 
-- **[`protocol.md`](protocol.md)** — The communication contract between clients and Verity deployments. Defines the JSON-RPC protocol and request/response formats.
-- **[`architecture.md`](architecture.md)** — Describes the high-level system architecture and component interactions.
-- **[`canonicalization.md`](canonicalization.md)** — Deterministic normalization rules. Specifies how semantically equivalent assertions produce the same graph representation before inference.
-- **[`sdk.md`](sdk.md)** — Client integration guides for constructing graphs, linkage token generation, submitting requests from supported languages.
-- **[`mcp.md`](mcp.md)** — The MCP binding for the Verity Protocol.
-
----
-
-# Versioning
-
-The API distinguishes between protocol versions and algorithm versions.
-
-| Property | Description |
+| Tool | Status |
 | --- | --- |
-| `protocol_version` | The API contract a deployment implements. |
-| `algorithm_version` | The credibility inference implementation used to produce results. |
+| `ping` | Implemented |
+| `evaluate_voprf` | Specified, not implemented |
+| `infer_credibility` | Non-normative version-1 draft, not implemented |
+| `trace_claim` | Deferred; no version-1 interface |
 
-Protocol versions define the behavior and structure of the API.
+This document is the intended version-1 contract except where a section is
+explicitly marked non-normative. A specified schema is not a claim that the
+corresponding tool is currently registered.
 
-Algorithm versions define the inference implementation. They may change independently of the protocol version, provided the API remains backward compatible.
+## 2. Versions
 
-```json
-{
-  "protocol_version": "v1",
-  "algorithm_version": "verity-v1"
-}
-```
-
----
-
-# Authentication
-
-Authentication requirements are deployment-specific.
-
-Self-hosted deployments MAY expose unauthenticated interfaces.
-
-Hosted deployments MAY require authentication before processing requests.
-
----
-
-# Errors
-
-Protocol-level failures are returned as JSON-RPC 2.0 error objects.
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "error": {
-    "code": -32602,
-    "message": "The submitted assertion graph is invalid.",
-    "data": {
-      "verity_code": "INVALID_GRAPH",
-      "details": {}
-    }
-  }
-}
-```
-
-| Property | Type | Description |
+| Property | Version-1 value | Description |
 | --- | --- | --- |
-| `error.code` | integer | Standard JSON-RPC error code. |
-| `error.message` | string | Human-readable error description. |
-| `error.data` | object | Verity-specific error information. |
-| `error.data.verity_code` | string | Machine-readable Verity error code. |
-| `error.data.details` | object | Additional error details. |
+| `protocol_version` | `"v1"` | Tool request and response contract |
+| `algorithm_version` | `"verity-v1"` | Credibility-inference implementation |
+| `voprf_mode` | `"voprf"` | RFC 9497 VOPRF mode |
+| `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF ciphersuite |
+| `voprf_key_version` | `1..2^32-1` | Active deployment key |
+| `linkage_encoding_version` | `1` | Linkage input encoding |
 
-## Error Codes
+Booleans are not integers for version fields.
 
-| Code | Description |
+## 3. Binary Encoding
+
+All protocol byte strings MUST use strict unpadded base64url:
+
+- only `A-Z`, `a-z`, `0-9`, `-`, and `_` are permitted;
+- `=` padding and whitespace are forbidden;
+- alternate encodings are forbidden; and
+- decoding and canonical re-encoding MUST reproduce the input exactly.
+
+| Value | Bytes | Encoded characters |
+| --- | ---: | ---: |
+| Blinded element | 32 | 43 |
+| Evaluated element | 32 | 43 |
+| VOPRF public key | 32 | 43 |
+| Proof | 64 | 86 |
+| Linkage token | 64 | 86 |
+
+`source_id`, `attribute_id`, and `claim_id` are unpadded base64url encodings of
+64-byte linkage tokens. They have no textual prefixes.
+
+## 4. Authentication and Permissions
+
+Local stdio deployments MAY rely on the OS and process boundary.
+
+Remote transports MUST authenticate callers and authorize each operation.
+Evaluation and inference are separate permissions. A caller authorized for one
+MUST NOT be assumed to be authorized for the other.
+
+Request metadata does not authenticate a caller. Matching a deployment ID or
+key version proves only that a request names the active configuration.
+
+Clients authenticate the expected VOPRF public key through out-of-band
+configuration as described in `protocol.md`. The evaluation endpoint and
+`ping` response do not provision that trust.
+
+## 5. Errors
+
+Verity failures carry a stable `verity_code`. The MCP binding MAY represent the
+failure as a JSON-RPC error or a tool execution error according to the SDK in
+use. Exact numeric JSON-RPC mappings will be fixed with the MCP implementation;
+clients MUST use `verity_code`, not a numeric transport code, to classify
+Verity failures.
+
+An error has this logical shape:
+
+```json
+{
+  "message": "Request validation failed.",
+  "verity_code": "invalid_request"
+}
+```
+
+Errors MUST NOT include private keys, private-key paths, public keys, canonical
+private inputs, client state, blinded elements, evaluation elements, proofs,
+tokens, decoded protocol values, or OS error text.
+
+### 5.1 Error Codes
+
+| Code | Meaning |
 | --- | --- |
-| `INVALID_REQUEST` | The request does not conform to the required schema. |
-| `INVALID_GRAPH` | The submitted assertion graph is malformed or cannot be processed. |
-| `UNKNOWN_CLAIM` | The requested claim is not available to the deployment. |
-| `UNSUPPORTED_PROTOCOL_VERSION` | The requested protocol version is not supported. |
-| `INFERENCE_FAILURE` | The inference run could not be completed. |
+| `request_too_large` | The transport request exceeds the configured bound. |
+| `invalid_request` | A field is missing, extra, wrongly typed, or noncanonical. |
+| `authentication_required` | A remote caller was not authenticated. |
+| `permission_denied` | The caller lacks permission for the requested tool. |
+| `unsupported_protocol_version` | The protocol version is unsupported. |
+| `deployment_mismatch` | The request names another deployment. |
+| `voprf_key_version_mismatch` | The request does not name the one active key. |
+| `unsupported_voprf_mode` | The VOPRF mode is unsupported. |
+| `unsupported_voprf_ciphersuite` | The ciphersuite is unsupported. |
+| `unsupported_linkage_encoding_version` | The linkage encoding is unsupported. |
+| `invalid_blinded_element` | The blinded element is malformed or invalid. |
+| `invalid_graph` | An inference graph is malformed. |
+| `rate_limited` | A caller exceeded an evaluation rate limit. |
+| `server_busy` | Concurrency or queue capacity is exhausted. |
+| `request_timeout` | Processing exceeded its deadline. |
+| `evaluation_failed` | Evaluation failed without a safe client-visible detail. |
+| `inference_failed` | Inference could not be completed. |
+| `internal_error` | An unexpected server failure occurred. |
 
----
+Unknown, stale, retired, and future key versions all produce
+`voprf_key_version_mismatch`. Version 1 does not expose a key inventory.
 
-# Tools
+Invalid base64url, wrong decoded length, noncanonical group encoding, and the
+identity element all produce `invalid_blinded_element`.
 
-The API defines the following tools.
+## 6. Validation Order
 
-| Tool | Description |
-| --- | --- |
-| `ping` | Returns information about the deployment. |
-| `infer_credibility` | Computes structural credibility over an assertion graph. |
-| `trace_claim` | Returns structural information associated with a claim. |
+A deployment MUST process `evaluate_voprf` in this order:
 
----
+1. enforce the transport request-size limit;
+2. parse the MCP or JSON-RPC envelope;
+3. authenticate a remote caller;
+4. authorize VOPRF evaluation;
+5. validate required fields, types, and the absence of unknown fields;
+6. validate canonical metadata and numeric ranges;
+7. compare metadata with the active deployment;
+8. strictly decode `blinded_element`;
+9. require exactly 32 decoded bytes;
+10. perform checked group-element deserialization;
+11. evaluate and generate a proof;
+12. validate native result sizes; and
+13. return canonical unpadded base64url.
 
-# ping
+A gross transport-size failure may occur before authentication. A remote caller
+MUST otherwise be authenticated and authorized before detailed deployment or
+cryptographic validation failures are disclosed.
 
-Returns information about the deployment.
+The client validation order is defined in `sdk.md`.
 
-## Request
+## 7. `ping`
+
+Status: **implemented**.
+
+### 7.1 Request
 
 ```json
 {}
 ```
 
-## Request Body
+Unknown request fields MUST be rejected.
 
-The `ping` tool does not accept any request properties.
-
-## Response
+### 7.2 Response
 
 ```json
 {
   "status": "ok",
   "protocol_version": "v1",
-  "algorithm_version": "verity-v1"
+  "algorithm_version": "verity-v1",
+  "deployment_id": "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741",
+  "voprf_key_version": 1,
+  "voprf_mode": "voprf",
+  "voprf_ciphersuite": "ristretto255-SHA512",
+  "linkage_encoding_version": 1,
+  "configuration_fingerprint": "5b8742c8a3338fd212f3be06635d185bf8804301b2ea12945ba1dd0e1969e82a"
 }
 ```
 
-## Response Body
-
 | Property | Type | Description |
 | --- | --- | --- |
-| `status` | string | Deployment status. |
-| `protocol_version` | string | Protocol version a deployment implements. |
-| `algorithm_version` | string | Inference implementation a deployment implements. |
+| `status` | string | Deployment status; version 1 returns `"ok"`. |
+| `protocol_version` | string | Implemented protocol contract. |
+| `algorithm_version` | string | Configured inference algorithm. |
+| `deployment_id` | string | Canonical lowercase UUID URN. |
+| `voprf_key_version` | integer | Active VOPRF key version. |
+| `voprf_mode` | string | Active RFC 9497 mode. |
+| `voprf_ciphersuite` | string | Active VOPRF ciphersuite. |
+| `linkage_encoding_version` | integer | Active linkage encoding. |
+| `configuration_fingerprint` | string | Lowercase hexadecimal SHA-256 diagnostic. |
 
----
+The fingerprint is computed over:
 
-# infer_credibility
+```text
+"VERITY-VOPRF-CONFIG\x00"
+|| field(deployment_id as ASCII)
+|| field(voprf_key_version as 4-byte unsigned big-endian)
+|| field(voprf_mode as ASCII)
+|| field(voprf_ciphersuite as ASCII)
+|| field(linkage_encoding_version as 2-byte unsigned big-endian)
+|| field(server_public_key)
+```
 
-Computes structural credibility over an assertion graph.
+Each `field(value)` is the two-byte unsigned big-endian byte length followed by
+the exact value bytes.
 
-## Request
+The fingerprint is diagnostic only. It may detect replica disagreement, but it
+MUST NOT establish public-key trust, caller authentication, or authorization.
+The public key itself is not returned by `ping`.
+
+## 8. `evaluate_voprf`
+
+Status: **specified, not implemented**.
+
+Version 1 evaluates exactly one blinded element per call.
+
+### 8.1 Request
 
 ```json
 {
+  "protocol_version": "v1",
+  "deployment_id": "urn:uuid:01234567-89ab-cdef-0123-456789abcdef",
+  "voprf_key_version": 1,
+  "voprf_mode": "voprf",
+  "voprf_ciphersuite": "ristretto255-SHA512",
+  "linkage_encoding_version": 1,
+  "blinded_element": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
+}
+```
+
+The binary strings in this section illustrate wire encoding and lengths; they
+are not cryptographic test vectors.
+
+| Property | Type | Requirement |
+| --- | --- | --- |
+| `protocol_version` | string | Exactly `"v1"`. |
+| `deployment_id` | string | Canonical lowercase UUID URN. |
+| `voprf_key_version` | integer | `1..2^32-1`, equal to the active version. |
+| `voprf_mode` | string | Exactly `"voprf"`. |
+| `voprf_ciphersuite` | string | Exactly `"ristretto255-SHA512"`. |
+| `linkage_encoding_version` | integer | Exactly `1`. |
+| `blinded_element` | string | Strict base64url decoding to exactly 32 bytes. |
+
+Unknown request fields MUST be rejected.
+
+The request MUST NOT contain the private input, linkage purpose, client state,
+VOPRF public key, private key, or finalized token. Linkage purpose is already
+bound inside the blinded input and is not visible to the evaluator.
+
+### 8.2 Response
+
+```json
+{
+  "protocol_version": "v1",
+  "deployment_id": "urn:uuid:01234567-89ab-cdef-0123-456789abcdef",
+  "voprf_key_version": 1,
+  "voprf_mode": "voprf",
+  "voprf_ciphersuite": "ristretto255-SHA512",
+  "linkage_encoding_version": 1,
+  "evaluated_element": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8",
+  "proof": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-Pw"
+}
+```
+
+| Property | Type | Requirement |
+| --- | --- | --- |
+| `protocol_version` | string | Server protocol version. |
+| `deployment_id` | string | Server deployment ID. |
+| `voprf_key_version` | integer | Server active key version. |
+| `voprf_mode` | string | Server VOPRF mode. |
+| `voprf_ciphersuite` | string | Server ciphersuite. |
+| `linkage_encoding_version` | integer | Server linkage encoding. |
+| `evaluated_element` | string | Strict base64url decoding to exactly 32 bytes. |
+| `proof` | string | Strict base64url decoding to exactly 64 bytes. |
+
+The server MUST return its active metadata. The client MUST compare every field
+with its pinned request context before proof verification.
+
+The response MUST NOT include the public key. The client verifies the proof
+with its authenticated, pinned public key.
+
+### 8.3 Replay
+
+Clients MAY retry the same blinded request after an uncertain transport
+failure. The server stores no request state. Each successful call uses fresh
+proof randomness, so proofs may differ while valid responses still finalize to
+the same token.
+
+## 9. `infer_credibility`
+
+Status: **non-normative version-1 draft, not implemented**.
+
+This section records the current direction for the version-1 inference
+milestone. It is not a conformance contract. Exact request and response
+validation, graph and resource limits, telemetry semantics, result ordering,
+and the response contract will be finalized during that milestone.
+
+The complete assertion graph is supplied in each request. The self-hosted
+server does not persist graph state.
+
+### 9.1 Request
+
+```json
+{
+  "protocol_version": "v1",
+  "deployment_id": "urn:uuid:01234567-89ab-cdef-0123-456789abcdef",
+  "voprf_key_version": 1,
+  "voprf_mode": "voprf",
+  "voprf_ciphersuite": "ristretto255-SHA512",
+  "linkage_encoding_version": 1,
   "assertions": [
     {
-      "source_id": "src_7d9a4e...",
-      "attribute_id": "attr_93e4f7...",
-      "claim_id": "clm_f72d10..."
-    },
-    {
-      "source_id": "src_b28491...",
-      "attribute_id": "attr_93e4f7...",
-      "claim_id": "clm_f72d10..."
-    },
-    {
-      "source_id": "src_91c8fd...",
-      "attribute_id": "attr_93e4f7...",
-      "claim_id": "clm_51d8ab..."
-    },
-    {
-      "source_id": "src_e46ab2...",
-      "attribute_id": "attr_93e4f7...",
-      "claim_id": "clm_f72d10..."
+      "source_id": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ",
+      "attribute_id": "YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYg",
+      "claim_id": "Y2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjYw"
     }
   ]
 }
 ```
 
-## Request Body
+The draft uses request-level metadata for every token and does not mix token
+identity metadata.
 
-| Property | Type | Description |
+| Assertion field | Purpose | Requirement |
 | --- | --- | --- |
-| `assertions` | array | Collection of protocol assertions. |
+| `source_id` | source | Strict base64url decoding to 64 bytes |
+| `attribute_id` | attribute | Strict base64url decoding to 64 bytes |
+| `claim_id` | claim | Strict base64url decoding to 64 bytes |
 
-### assertions
+Exact request and assertion validation remains to be finalized.
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `source_id` | string | Opaque source identifier. |
-| `attribute_id` | string | Opaque identifier grouping competing claims describing the same attribute. |
-| `claim_id` | string | Opaque claim identifier. |
+### 9.2 Response
 
-## Response
+The illustrative draft response retains the existing graph telemetry:
 
 ```json
 {
   "summary": {
-    "source_count": 4,
-    "claim_count": 2,
-    "assertion_count": 4
+    "source_count": 1,
+    "claim_count": 1,
+    "assertion_count": 1
   },
   "source_credibility": [
     {
-      "source_id": "src_7d9a4e...",
-      "credibility": 0.29
-    },
-    {
-      "source_id": "src_b28491...",
-      "credibility": 0.27
-    },
-    {
-      "source_id": "src_91c8fd...",
-      "credibility": 0.17
-    },
-    {
-      "source_id": "src_e46ab2...",
-      "credibility": 0.27
+      "source_id": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ",
+      "credibility": 1.0
     }
   ],
   "claim_support": [
     {
-      "attribute_id": "attr_93e4f7...",
-      "claim_id": "clm_f72d10...",
-      "support": 0.83,
+      "attribute_id": "YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYg",
+      "claim_id": "Y2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjYw",
+      "support": 1.0,
       "is_attribute_max_support": true,
-      "conflicting_claims": [
-        {
-          "claim_id": "clm_51d8ab...",
-          "support": 0.17
-        }
-      ]
-    },
-    {
-      "attribute_id": "attr_93e4f7...",
-      "claim_id": "clm_51d8ab...",
-      "support": 0.17,
-      "is_attribute_max_support": false,
-      "conflicting_claims": [
-        {
-          "claim_id": "clm_f72d10...",
-          "support": 0.83
-        }
-      ]
+      "conflicting_claims": []
     }
   ],
   "metadata": {
     "algorithm_version": "verity-v1",
-    "iterations": 37,
+    "iterations": 1,
     "converged": true,
-    "computation_time_ms": 8
+    "computation_time_ms": 1
   }
 }
 ```
 
-## Response Body
+| Response field | Description |
+| --- | --- |
+| `summary` | Counts of unique sources, claims, and assertions. |
+| `source_credibility` | Credibility score for each source. |
+| `claim_support` | Support and conflict information for each claim. |
+| `metadata` | Algorithm version and execution telemetry. |
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `summary` | object | Statistics describing the submitted graph. |
-| `source_credibility` | array | Credibility scores for each source. |
-| `claim_support` | array | Support information for each claim, including competing claims within the same attribute group. |
-| `metadata` | object | Information about the completed inference run. |
+Inference authorization is separate from VOPRF evaluation authorization.
+Nothing in this draft section establishes version-1 inference conformance.
 
-### summary
+## 10. Resource Controls
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `source_count` | integer | Number of unique sources. |
-| `claim_count` | integer | Number of unique claims. |
-| `assertion_count` | integer | Number of processed assertions. |
+Every `evaluate_voprf` deployment MUST configure:
 
-### source_credibility
+- a maximum transport request size;
+- a maximum number of concurrent evaluations;
+- a bounded queue or immediate overload rejection;
+- an evaluation deadline;
+- a global evaluation rate or capacity limit; and
+- for remote transport, a per-caller rate limit.
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `source_id` | string | Opaque source identifier. |
-| `credibility` | number | Computed credibility score. |
+These numeric values are deployment-configurable and do not affect
+interoperability. Cryptographic sizes, strict base64url lengths, single-element
+evaluation, canonicalization limits, and linkage input limits are fixed
+protocol requirements.
 
-### claim_support
+## 11. MCP Binding
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `attribute_id` | string | Opaque identifier grouping competing claims describing the same attribute. |
-| `claim_id` | string | Opaque identifier representing the claim. |
-| `support` | number | Computed support score. |
-| `is_attribute_max_support` | boolean | Indicates whether the claim has the highest support among competing claims for the same attribute. |
-| `conflicting_claims` | array | Competing claims and their corresponding support scores. |
-
-### metadata
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `algorithm_version` | string | Inference implementation version. |
-| `iterations` | integer | Number of inference iterations. |
-| `converged` | boolean | Identifies if convergence was reached. |
-| `computation_time_ms` | integer | Total execution time (milliseconds). |
-
----
-
-# trace_claim
-
-Returns structural information associated with a claim.
-
-## Request
-
-```json
-{
-  "claim_id": "clm_f72d10..."
-}
-```
-
-## Request Body
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `claim_id` | string | Opaque claim identifier. |
-
-## Response
-
-```json
-{
-  "attribute_id": "attr_93e4f7...",
-  "claim_id": "clm_f72d10...",
-  "support": 0.83,
-  "is_attribute_max_support": true,
-  "supporting_sources": [
-    {
-      "source_id": "src_7d9a4e...",
-      "credibility": 0.29
-    },
-    {
-      "source_id": "src_b28491...",
-      "credibility": 0.27
-    },
-    {
-      "source_id": "src_e46ab2...",
-      "credibility": 0.27
-    }
-  ],
-  "conflicting_claims": [
-    {
-      "claim_id": "clm_51d8ab...",
-      "support": 0.17
-    }
-  ]
-}
-```
-
-## Response Body
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `attribute_id` | string | Opaque identifier grouping competing claims describing the same attribute. |
-| `claim_id` | string | Opaque claim identifier. |
-| `support` | number | Computed support score. |
-| `is_attribute_max_support` | boolean | Indicates whether the claim has the highest support among competing claims for the same attribute. |
-| `supporting_sources` | array | Sources asserting the claim and their credibility scores. |
-| `conflicting_claims` | array | Competing claims and their corresponding support scores. |
-
-### supporting_sources
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `source_id` | string | Opaque source identifier. |
-| `credibility` | number | Computed credibility score. |
-
-### conflicting_claims
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `claim_id` | string | Opaque claim identifier. |
-| `support` | number | Computed support score. |
-
----
-
-# MCP Transport Example
-
-Example of an `infer_credibility` request transported over the Model Context Protocol (MCP):
+An MCP client invokes a tool through the transport's standard `tools/call`
+operation. For example, once implemented:
 
 ```json
 {
@@ -373,45 +401,20 @@ Example of an `infer_credibility` request transported over the Model Context Pro
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "infer_credibility",
+    "name": "evaluate_voprf",
     "arguments": {
-      "assertions": [
-        {
-          "source_id": "src_7d9a4e...",
-          "attribute_id": "attr_93e4f7...",
-          "claim_id": "clm_f72d10..."
-        },
-        {
-          "source_id": "src_b28491...",
-          "attribute_id": "attr_93e4f7...",
-          "claim_id": "clm_f72d10..."
-        },
-        {
-          "source_id": "src_91c8fd...",
-          "attribute_id": "attr_93e4f7...",
-          "claim_id": "clm_51d8ab..."
-        },
-        {
-          "source_id": "src_e46ab2...",
-          "attribute_id": "attr_93e4f7...",
-          "claim_id": "clm_f72d10..."
-        }
-      ]
+      "protocol_version": "v1",
+      "deployment_id": "urn:uuid:01234567-89ab-cdef-0123-456789abcdef",
+      "voprf_key_version": 1,
+      "voprf_mode": "voprf",
+      "voprf_ciphersuite": "ristretto255-SHA512",
+      "linkage_encoding_version": 1,
+      "blinded_element": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
     }
   }
 }
 ```
 
-A successful response returns the tool result in the `result` field.
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "result": {
-    "...": "..."
-  }
-}
-```
-
-Transport-specific behavior, including request identifiers, notifications, and error handling, is defined in `mcp.md`.
+Request identifiers, initialization, cancellation, and transport framing follow
+the MCP specification. The Verity validation and error requirements in this
+document apply inside that binding.

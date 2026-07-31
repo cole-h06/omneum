@@ -1,267 +1,310 @@
-# Verity SDK
+# Verity SDK Guide
 
-Build applications that communicate with Verity deployments using the official Verity SDKs.
+This document defines the responsibilities of a version-1 Verity client. It is
+an intended SDK contract, not an installation guide for packages that have not
+been released.
 
-This guide covers installation, configuration, architecture, and how to integrate the Verity SDK into your application. The SDK handles canonicalization, linkage token generation, protocol communication, and interpretation of deterministic credibility telemetry so you can focus on building your application.
+## 1. Status
 
----
+The repository currently implements:
 
-# Installation
+- strict fixed-schema RFC 8785 linkage serialization;
+- version-1 linkage domain encoding;
+- RFC 9497 VOPRF client operations;
+- proof verification against a configured public key; and
+- purpose-specific source, attribute, and claim blinding.
 
-Choose the SDK that matches your application.
+The repository does not yet provide:
 
-## Python
+- an `evaluate_voprf` MCP client flow;
+- a complete high-level `VerityClient`;
+- an implemented `infer_credibility` client flow;
+- an official JavaScript or TypeScript SDK;
+- automatic local token metadata storage; or
+- response rendering and natural-language explanations.
 
-```bash
-pip install verity
-```
+Those absent capabilities MUST NOT be presented as currently available.
 
-## JavaScript / TypeScript
+## 2. Client Configuration
 
-```bash
-npm install @verity/sdk
-```
-
----
-
-# Configuration
-
-The Verity SDK communicates with deployments implementing the Verity Protocol.
-
-## Self-Hosted Deployment
-
-```python
-client = VerityClient(
-    endpoint="https://verity.example.com"
-)
-```
-
----
-
-# Quick Start
-
-Create a client and construct a credibility graph using your application data. Once completed, you can submit it for inference.
-
-Python
-
-```python
-from verity import CredibilityGraph
-from verity import VerityClient
-
-client = VerityClient(
-    endpoint="https://verity.example.com"
-)
-
-graph = CredibilityGraph()
-
-graph.add(
-    source="docs.anthropic.com",
-    entity="messages_api",
-    attribute="supports_streaming",
-    value=True
-)
-
-result = client.infer_credibility(graph)
-```
-
-JavaScript
-
-```javascript
-import {
-    CredibilityGraph,
-    VerityClient
-} from "@verity/sdk";
-
-const client = new VerityClient({
-    endpoint: "https://verity.example.com"
-});
-
-const graph = new CredibilityGraph();
-
-graph.add({
-    source: "docs.anthropic.com",
-    entity: "messages_api",
-    attribute: "supports_streaming",
-    value: true
-});
-
-const result =
-    await client.inferCredibility(graph);
-```
-
----
-
-## Why the SDK?
-
-If your application already runs inside an MCP-compatible environment, you can communicate directly with a Verity MCP server using your existing MCP client.
-
-The Verity SDK is intended for applications that communicate directly with Verity deployments. It automates canonicalization, linkage token generation, protocol communication, and response rendering.
-
----
-
-# What the SDK Does
-
-The SDK automatically:
-
-- Canonicalizes your application data.
-- Generates deterministic linkage identifiers.
-- Maintains a local metadata registry.
-- Constructs Verity Protocol requests.
-- Communicates with Verity deployments.
-- Resolves linkage identifiers returned by the deployment.
-- Optionally renders deterministic credibility explanations.
-
----
-
-# Architecture
-
-The Verity SDK performs all content-sensitive operations locally before communicating with a Verity deployment.
-
-Your application never sends its original sources, entities, attributes, or values to the deployment. Instead, the SDK canonicalizes your data, generates deterministic linkage identifiers, maintains a local metadata registry, and exchanges only opaque identifiers with the deployment.
-
-The deployment returns deterministic credibility telemetry, which the SDK can optionally combine with your original application data to produce explanations.
-
----
-
-# Canonicalization
-
-Provide ordinary application data to the SDK.
-
-```python
-{
-    "source": "docs.anthropic.com",
-    "entity": "messages_api",
-    "attribute": "supports_streaming",
-    "value": True
-}
-```
-
-The SDK automatically canonicalizes your data according to the Verity Canonicalization Specification before generating linkage identifiers.
-
----
-
-# Linkage Token Generation
-
-After canonicalization, the SDK generates deterministic linkage identifiers.
-
-| Canonical Representation | Linkage Identifier |
-|---------------------------|--------------------|
-| Canonical Source | `source_id` |
-| Canonical `(Entity, Attribute)` | `attribute_id` |
-| Canonical `(Entity, Attribute, Value)` | `claim_id` |
-
-Only these linkage identifiers are transmitted to the Verity deployment.
-
----
-
-# Local Metadata Registry
-
-The SDK maintains a local registry that maps linkage identifiers back to your original application data.
-
-For example,
+A client requires authenticated out-of-band configuration containing:
 
 ```text
-clm_f72d10...
-
-        │
-        ▼
-
-messages_api.supports_streaming = true
+deployment_id
+voprf_key_version
+voprf_mode
+voprf_ciphersuite
+linkage_encoding_version
+server_public_key
 ```
 
-The local metadata registry never leaves your application.
+Version-1 values are:
 
----
-
-# Making Requests
-
-Once your graph has been constructed, submit it using the SDK.
-
-```python
-result = client.infer_credibility(graph)
+```text
+voprf_mode = "voprf"
+voprf_ciphersuite = "ristretto255-SHA512"
+linkage_encoding_version = 1
 ```
 
-The SDK handles request construction, serialization, transmission, and response parsing automatically.
+`deployment_id` is a canonical lowercase UUID URN. `voprf_key_version` is an
+integer from 1 through `2^32-1`. The public key is exactly 32 bytes and is
+represented in configuration as strict unpadded base64url.
 
----
+The client MUST authenticate this configuration independently of the
+evaluation endpoint. Suitable provisioning may use an operator-managed
+configuration system or another authenticated distribution channel. Retrieving
+a key from the evaluator itself is insufficient because a substituted
+evaluator could return its own key.
 
-# Understanding Responses
+The `ping` fingerprint is diagnostic only and MUST NOT be used as public-key
+authentication or trust on first use.
 
-Verity deployments return deterministic credibility telemetry describing the structure of the credibility graph.
+Remote caller credentials are separate from the VOPRF public-key pin:
 
-Example
+- caller authentication proves who may invoke a deployment;
+- authorization grants evaluation or inference permission; and
+- the pinned VOPRF public key lets the client verify the evaluation proof.
+
+Metadata equality is not authentication.
+
+## 3. Client Processing
+
+A version-1 client performs:
+
+```text
+application value
+    -> semantic canonicalization
+    -> strict fixed-schema RFC 8785 serialization
+    -> Verity domain-separated linkage input
+    -> randomized VOPRF blind
+    -> evaluate_voprf request
+    -> metadata and encoding validation
+    -> VOPRF proof verification
+    -> finalization
+    -> unpadded base64url token
+```
+
+Content-sensitive operations remain on the client. An evaluation request
+contains only a blinded group element and non-secret deployment metadata.
+
+The deployment can still observe caller identity, timing, request size, and
+volume. An inference request also reveals equality and topology among the
+opaque tokens it contains.
+
+## 4. Canonicalization and Serialization
+
+Callers currently canonicalize values before invoking strict serialization.
+Serialization does not normalize whitespace, case, Unicode, object keys,
+numbers, or values.
+
+The client MUST use the fixed schemas in `canonicalization.md`:
+
+- source: `kind`, `identifier`;
+- attribute: `entity_namespace`, `entity`, `attribute`;
+- claim: `entity_namespace`, `entity`, `attribute`, `value`.
+
+The client MUST NOT construct an arbitrary object and label it as one of these
+purposes. The serializer constructs the schema so additional keys cannot be
+injected.
+
+Independent SDK implementations MUST reproduce the exact RFC 8785 bytes and
+linkage input vectors in the repository.
+
+## 5. Blinding
+
+The client applies the correct purpose automatically:
+
+| Value | Purpose |
+| --- | --- |
+| Source | `0x01` |
+| Attribute | `0x02` |
+| Claim | `0x03` |
+
+The client MUST blind the complete 17-byte-header-plus-payload input with
+cryptographically secure randomness.
+
+Blinding produces:
+
+```text
+blinded_element[32]
+client_state[64]
+```
+
+The blinded element is public protocol material. Client state is private and:
+
+- MUST remain local;
+- MUST NOT be included in requests, errors, logs, or representations;
+- MUST be paired with the corresponding encoded input; and
+- MUST be used only through an API that preserves that pairing.
+
+Version 1 does not require one-time state enforcement. Reuse or mismatching of
+valid state is not an authentication mechanism and must not be treated as one.
+
+## 6. Evaluation Request
+
+Status: **specified, not implemented**.
+
+The client sends exactly one blinded element:
 
 ```json
 {
-  "claim_support": [
-    {
-      "attribute_id": "attr_93e4f7...",
-      "claim_id": "clm_f72d10...",
-      "support": 0.83,
-      "independent_support_count": 3,
-      "dependent_support_count": 0,
-      "is_attribute_max_support": true,
-      "conflicting_claims": [
-        {
-          "claim_id": "clm_51d8ab...",
-          "support": 0.17
-        }
-      ]
-    }
-  ]
+  "protocol_version": "v1",
+  "deployment_id": "urn:uuid:01234567-89ab-cdef-0123-456789abcdef",
+  "voprf_key_version": 1,
+  "voprf_mode": "voprf",
+  "voprf_ciphersuite": "ristretto255-SHA512",
+  "linkage_encoding_version": 1,
+  "blinded_element": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
 }
 ```
 
-These signals describe graph topology only. The deployment never has access to your application's original content.
+The binary value above illustrates wire encoding and length; it is not a
+cryptographic test vector.
 
----
+`blinded_element` is strict unpadded base64url and decodes to exactly 32 bytes.
+The client sends no purpose field because purpose is cryptographically bound
+inside the blinded linkage input.
 
-# Rendering Credibility Signals
+For remote transport, the client also supplies the transport-specific caller
+credential. Credentials are not part of the tool arguments above.
 
-Because the SDK maintains the local metadata registry, it can combine returned telemetry with your original application data to explain results.
+## 7. Response Validation and Finalization
 
-Example
+The client MUST process an evaluation response in this order:
+
+1. validate the response object, required fields, types, and absence of unknown
+   fields;
+2. validate canonical deployment and version metadata;
+3. compare every metadata field with the pinned request context;
+4. strictly decode the evaluated element and proof;
+5. require a 32-byte evaluated element and 64-byte proof;
+6. perform checked deserialization;
+7. verify the proof against the authenticated, pinned public key;
+8. finalize with the exact encoded input and client state captured by the
+   corresponding blind; and
+9. require a 64-byte output.
+
+The client MUST fail closed on a deployment, key-version, mode, ciphersuite, or
+linkage-encoding mismatch. It MUST NOT attempt proof verification under a key
+returned by the evaluation endpoint.
+
+Proof verification failure covers wrong-key evaluations, modified responses,
+and proofs replayed across incompatible blinded requests.
+
+The finalized output is encoded as 86-character unpadded base64url with no
+textual prefix.
+
+## 8. Retry Behavior
+
+The client MAY retry the same blinded request after an uncertain transport
+failure. The evaluator is stateless and uses fresh proof randomness on every
+successful evaluation, so repeated valid responses may not be byte-for-byte
+identical.
+
+The client MUST validate and verify any response it uses. It MUST NOT assume
+that an evaluation response is valid merely because it arrived over an
+authenticated transport.
+
+Retry count, backoff, and timeout values are deployment or application
+configuration. Clients SHOULD honor explicit throttling and overload errors.
+
+## 9. Token Storage
+
+A client or application retaining tokens MUST store their complete identity:
 
 ```text
-Revenue: $94M
-
-Credibility: 0.91
-
-✓ Supported by 4 independent sources.
-
-✓ Highest-supported competing value.
+(
+    deployment_id,
+    voprf_key_version,
+    voprf_mode,
+    voprf_ciphersuite,
+    linkage_encoding_version,
+    purpose,
+    token,
+)
 ```
 
-Or,
+Purpose is source, attribute, or claim. The token is the 64-byte output,
+represented on the wire as unpadded base64url.
 
-```text
-Vendor API <-> Internal SQL
+Tokens with different identity metadata MUST NOT be compared as if they shared
+one linkage space. `protocol_version` and credibility `algorithm_version` are
+not part of token identity.
 
-Independence: 0.24
+Applications MAY maintain a local mapping from tokens to their original
+content. Such a registry is application state, is not sent to the deployment,
+and is not currently supplied by a complete Verity SDK.
 
-! High assertion overlap detected.
+## 10. Assertion Construction
+
+Protocol assertions retain these field names:
+
+```json
+{
+  "source_id": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ",
+  "attribute_id": "YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYg",
+  "claim_id": "Y2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjYw"
+}
 ```
 
-These explanations are generated entirely within the SDK. Verity deployments never generate natural-language explanations and never receive the underlying application data.
+Each field is an unpadded base64url linkage token:
 
----
+- `source_id` has source purpose;
+- `attribute_id` has attribute purpose; and
+- `claim_id` has claim purpose.
 
-# Agent Integrations
+An inference request has one request-level token context. It MUST NOT mix
+deployments, key versions, VOPRF modes, ciphersuites, or linkage encoding
+versions.
 
-The SDK can be integrated into existing AI frameworks, such as:
+## 11. Credibility Inference
 
-- LangGraph
-- CrewAI
-- Microsoft Agent Framework
-- Mastra
-- LlamaIndex
+`infer_credibility` is a non-normative version-1 draft and is not implemented.
 
-Applications running inside MCP-compatible environments can integrate directly with the Verity MCP server. 
+The current draft anticipates that the client will submit the complete
+assertion graph required for one inference run. The self-hosted deployment
+remains stateless and does not persist that graph.
 
-Applications outside the MCP ecosystem can use the Verity SDK to communicate directly with Verity deployments.
+The illustrative draft response includes source credibility, claim support,
+conflicting claims, and algorithm telemetry. Exact validation, graph and
+resource limits, telemetry semantics, result ordering, and the response
+contract will be finalized during the inference milestone. Nothing in this
+draft defines SDK inference conformance. A future high-level SDK may combine
+opaque identifiers with application-local metadata, but the deployment does
+not receive the original content and does not generate natural-language
+explanations.
 
----
+`trace_claim` is deferred and has no version-1 SDK interface.
 
-# API Reference
+## 12. Key Rotation
 
-The following sections describe the SDK interfaces available for each supported programming language.
+Version 1 supports one active key without overlap. An SDK does not select
+between multiple accepted server keys.
+
+A coordinated cutover provisions a strictly greater key version and new
+authenticated public-key pin, prevents mixed-key replicas from sharing an
+endpoint, and switches the server and clients as one operational change.
+
+Old stored tokens remain associated with their old token identity. Version 1
+does not require the evaluator to continue serving the old key.
+
+Overlapping-key rotation is deferred.
+
+## 13. Language Interoperability
+
+Python, JavaScript, and other future SDKs must agree on:
+
+- semantic canonicalization rules;
+- RFC 8785 serialized bytes;
+- UTF-16 object-key ordering required by RFC 8785;
+- safe-integer and finite-float constraints;
+- the 17-byte linkage header;
+- unsigned big-endian version and length fields;
+- purpose tags;
+- strict unpadded base64url;
+- request metadata validation; and
+- token identity.
+
+Language-neutral serialization and linkage vectors are the interoperability
+source of truth. An official SDK must pass them before claiming version-1
+conformance.

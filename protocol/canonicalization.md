@@ -1,375 +1,181 @@
-# Verity Canonicalization Specification
+# Verity Canonicalization and Linkage Encoding
 
 ## 1. Introduction
 
-The Verity Canonicalization Specification defines a set of deterministic rules for sources, claims, and assertions before applications construct a graph. It specifies how data is normalized into a canonical representation before deterministic linkage tokens are generated. This enables applications to exchange opaque identifiers while preserving a consistent graph structure across independent implementations.
+This document defines the version-1 transformation from application values to
+the deterministic bytes blinded by the Verity VOPRF client.
 
-## 2. Design Goals
+The transformation has three distinct stages:
 
-The Verity Canonicalization Specification is designed to produce consistent graph structures across independent implementations. To achieve this, it follows these design goals:
+1. semantic canonicalization by the caller;
+2. strict fixed-schema RFC 8785 serialization; and
+3. versioned, purpose-separated binary linkage encoding.
 
-- **Deterministic** — Semantically equivalent input should always produce an identical representation.
-- **Domain-Agnostic** - The specification operates the same regardless of an application's underlying data.
-- **Language-Independent** — Compliant implementations produce identical results regardless of the programming language used.
-- **Versioned** - The specification can evolve without breaking existing implementations.
-  
-## 3. Source Canonicalization
+Serialization does not perform semantic normalization. A caller MUST supply
+values in their intended canonical representation before serialization.
 
-### 3.1 Source Identifiers
+## 2. Requirement Language
 
-A source refers to the origin asserting one or more claims.
+The key words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY**
+are to be interpreted as described in RFC 2119 and RFC 8174.
 
-An application MUST define the source type before invoking the Verity SDK. The SDK MUST NOT infer the source type based on the source identifier provided.
+## 3. Status
 
-Supported source types include:
+The repository implements:
 
-- `web_publisher`
-- `web_document`
-- `internal_resource`
-- `internal_service`
-- `database`
-- `package`
+- `web_publisher` and `web_document` source canonicalization;
+- the `service` entity namespace;
+- attribute and value canonicalization;
+- strict source, attribute, and claim serializers;
+- the linkage encoding in this document; and
+- language-neutral serialization and linkage vectors.
 
-### 3.2 Normalization Rules
+The source kinds with version-1 interoperable canonicalization rules are:
 
-For `web_publisher` sources, the SDK MUST:
+- `web_publisher`;
+- `web_document`.
 
-- Make the domain name lowercase.
-- Strip a trailing DNS dot from the domain name.
-- Transform internationalized domain names using Unicode Technical Standard #46 (UTS #46) Nontransitional Processing      before converting them to their IDNA2008 ASCII representation.
-- Permit an empty path or the root path (/).
-- Reject identifiers containing any other path, query, or fragment information.
+The following source-kind names are reserved and deferred:
 
-For `web_document` sources, the SDK MUST:
+- `internal_resource`;
+- `internal_service`;
+- `database`; and
+- `package`.
 
-- Make the URI scheme and host lowercase.
-- Strip default ports.
-- Strip URI fragments.
-- Keep paths and query parameters intact.
-- Normalize the URI according to RFC 3986.
+The reserved kinds have no version-1 interoperable canonicalization rules.
+Clients MUST NOT claim version-1 conformance for them. Only source kinds with
+canonicalization rules specified in this document may claim conformance.
 
-For all source types, the SDK MUST reject identifiers that cannot be deterministically normalized.
+## 4. Semantic Canonicalization
 
-### 3.3 Examples
+Canonicalization is content-sensitive client behavior. A deployment does not
+receive or canonicalize the original values.
 
-Input
+### 4.1 Sources
+
+A source consists of a source kind and identifier. The client MUST know the
+source kind and MUST NOT infer it from the identifier.
+
+#### `web_publisher`
+
+A client MUST:
+
+- accept a hostname or URI whose path is empty or `/`;
+- reject any other path, query, or fragment;
+- lowercase the hostname;
+- remove one trailing DNS dot; and
+- apply UTS #46 nontransitional processing and emit the IDNA2008 ASCII form.
+
+Example:
 
 ```text
-https://docs.anthropic.com/
+https://Docs.Anthropic.com/
+    -> docs.anthropic.com
 ```
 
-Canonical
+#### `web_document`
 
-```text
-docs.anthropic.com
-```
+A client MUST:
 
----
+- require a URI scheme and host;
+- lowercase the scheme and host;
+- apply UTS #46 nontransitional processing and emit the IDNA2008 ASCII host;
+- remove port 80 for HTTP and port 443 for HTTPS;
+- remove the fragment;
+- retain the normalized path and query; and
+- use `/` when the path is empty.
 
-Input
+Example:
 
 ```text
 HTTPS://Example.com:443/docs/api#section
+    -> https://example.com/docs/api
 ```
 
-Canonical
+The precise URI normalization behavior must remain covered by cross-language
+vectors before another SDK claims interoperability.
+
+### 4.2 Entity Namespaces
+
+An entity namespace determines how an entity identifier is interpreted. A
+client MUST supply the namespace explicitly and MUST NOT infer
+namespace-specific behavior.
+
+The implemented `service` namespace:
+
+- requires a string;
+- applies Unicode NFC;
+- removes surrounding whitespace;
+- rejects an empty result; and
+- lowercases the result.
+
+Example:
 
 ```text
-https://example.com/docs/api
+entity_namespace = service
+entity = " Payment_Service "
+    -> "payment_service"
 ```
 
----
+Additional namespaces require named canonicalization profiles and
+cross-language vectors.
 
-Input
+### 4.3 Attributes
+
+An attribute:
+
+- is a string;
+- has surrounding whitespace removed;
+- rejects an empty result;
+- collapses each run of whitespace to one space;
+- is lowercased; and
+- replaces spaces with underscores.
+
+Example:
 
 ```text
-Confluence:Page:184920
+" Supports  Streaming "
+    -> "supports_streaming"
 ```
 
-Canonical
-
-```text
-confluence:page:184920
-```
-
----
-
-Input
-
-```text
-internal-wiki
-```
-
-Result
-
-```text
-Rejected
-```
-
-Reason
-
-```text
-The identifier cannot be deterministically normalized.
-```
-
-## 4. Claim Canonicalization
-
-### 4.1 Entity
-
-An entity represents the subject of one or more claims.
-
-The SDK MUST:
-
-- Accept structured entity identifiers only.
-- Preserve the semantic identity provided by the client.
-- Normalize Unicode strings using Unicode Normalization Form C (NFC).
-- Trim surrounding whitespace.
-- Lowercase the entity only when explicitly specified by the identifier namespace.
-- Reject entity identifiers that cannot be deterministically normalized into a unique canonical representation.
-
-Examples:
-
-Input
-
-```text
-Python
-```
-
-Canonical
-
-```text
-python
-```
-
----
-
-Input
-
-```text
- payment_service
-```
-
-Canonical
-
-```text
-payment_service
-```
-
-### 4.2 Attribute
-
-An attribute represents the property of an entity.
-
-The SDK MUST:
-
-- Lowercase the attribute.
-- Trim surrounding whitespace.
-- Collapse repeated whitespace.
-- Replace spaces with underscores.
-- Preserve numeric characters.
-- Preserve existing snake_case identifiers.
-- Reject empty attributes.
-
-Examples:
-
-Input
-
-```text
-Supports Streaming
-```
-
-Canonical
-
-```text
-supports_streaming
-```
-
----
-
-Input
-
-```text
-Retry Policy
-```
-
-Canonical
-
-```text
-retry_policy
-```
-
----
-
-Input
-
-```text
-Latency MS
-```
-
-Canonical
-
-```text
-latency_ms
-```
-
-### 4.3 Value
-
-Values are canonicalized based on the underlying data type.
-
-The SDK MUST:
-
-- Normalize boolean values.
-- Normalize numeric representations.
-- Trim surrounding whitespace for string values.
-- Preserve the semantic meaning of the string value.
-
-Examples:
-
-Input
-
-```text
-TRUE
-```
-
-Canonical
-
-```text
-true
-```
-
----
-
-Input
-
-```text
-0042
-```
-
-Canonical
-
-```text
-42
-```
-
----
-
-Input
-
-```text
-4.500
-```
-
-Canonical
-
-```text
-4.5
-```
-  
-### 4.4 Units
-
-Unit normalization is outside the scope of this specification.
-
-Clients are responsible for converting measurements into deterministic units before invoking the Verity SDK.
-
-## 5. Assertion Construction
+### 4.4 Values
+
+Canonical claim values may be:
+
+- null;
+- booleans;
+- safe integers;
+- finite IEEE-754 binary64 numbers;
+- Unicode strings;
+- arrays; and
+- objects with string keys.
+
+Caller canonicalization currently:
+
+- preserves null and booleans;
+- preserves integers;
+- rejects NaN and infinities;
+- maps positive and negative numeric zero to the same zero value;
+- applies NFC and trims strings;
+- rejects empty strings;
+- recursively canonicalizes arrays;
+- applies NFC and trims object keys; and
+- rejects empty or duplicate canonical object keys.
+
+Unit conversion and domain-specific value equivalence are outside this
+specification. Applications must choose deterministic units before
+canonicalization.
+
+Normalization is not idempotently repeated during serialization. The
+serializer validates and encodes the values it receives exactly.
+
+## 5. Fixed Linkage Payloads
+
+Callers MUST use one of three fixed schemas. They MUST NOT add fields.
 
 ### 5.1 Source
 
-Each assertion MUST reference exactly one canonical source.
-
-The source MUST satisfy the requirements specified in Section 3.
-
-### 5.2 Claim
-
-Each assertion MUST reference exactly one canonical claim.
-
-The claim MUST satisfy the requirements specified in Section 4.
-
-### 5.3 Assertion
-
-An assertion refers to the relationship between one canonical source and one canonical claim.
-
-The SDK MUST:
-
-- Construct assertions using only canonical sources and canonical claims.
-- Preserve the direction of the relationship from source to claim.
-- Reject assertions that include non-canonical sources or claims.
-- Reject duplicate assertions within the submitted graph.
-
-### 5.4 Linkage Token Generation
-
-The SDK MUST construct protocol assertions using these linkage tokens.
-
-The SDK MUST:
-
-- Generate a `source_id` from the canonical source representation.
-- Generate an `attribute_id` from the canonical `(entity, attribute)` representation.
-- Generate a `claim_id` from the canonical `(entity, attribute, value)` representation.
-- Produce identical linkage tokens for semantically equivalent canonical representations.
-- Produce different linkage tokens whenever the canonical representations differ.
-
-The underlying canonical source, entity, attribute, and value MUST NOT be transmitted to the Verity deployment.
-
-After canonicalization, the SDK MUST generate deterministic linkage tokens for the canonical source and canonical claim representations.
-
-Examples:
-
-```text
-Source:
-docs.anthropic.com
-
-Claim:
-(messages_api, supports_streaming, true)
-
-Assertion:
-docs.anthropic.com -> (messages_api, supports_streaming, true)
-```
-
----
-
-```text
-Submitted Graph Update
-
-docs.anthropic.com -> (messages_api, supports_streaming, true)
-
-docs.anthropic.com -> (messages_api, supports_streaming, true)
-
-Result:
-Rejected
-
-Reason:
-Duplicate assertion within the submitted graph.
-```
-
----
-
-```text
-Source:
-HTTPS://Docs.Anthropic.com/
-
-Claim:
-(Messages API, Supports Streaming, TRUE)
-
-Result:
-Rejected
-
-Reason:
-Assertions MUST reference canonical sources and canonical claims.
-```
-
-## 6. Canonical Forms
-
-Prior to generating linkage tokens, canonical sources, claims, and assertions MUST be serialized into deterministic JSON using the JSON Canonicalization Scheme as described in RFC 8785.
-
-The serialized representation MUST be consistent across compliant implementations.
-
-### 6.1 Canonical Source
-
-Canonical source format MUST include:
-
-- Source type
-- Canonical identifier
-
-Example
+Logical field order is not significant because RFC 8785 orders object keys:
 
 ```json
 {
@@ -378,123 +184,218 @@ Example
 }
 ```
 
-### 6.2 Canonical Claim
+The schema contains exactly:
 
-Canonical claim format MUST include:
-
-- Entity
-- Attribute
-- Value
-
-Example
-
-```json
-{
-  "entity": "messages_api",
-  "attribute": "supports_streaming",
-  "value": true
-}
+```text
+kind
+identifier
 ```
 
-### 6.3 Canonical Assertion
-
-Canonical assertion format MUST include:
-
-- Canonical source
-- Canonical claim
-
-Example
+### 5.2 Attribute
 
 ```json
 {
-  "source": {
-    "kind": "web_publisher",
-    "identifier": "docs.anthropic.com"
-  },
-  "claim": {
-    "entity": "messages_api",
-    "attribute": "supports_streaming",
-    "value": true
-  }
-}
-```
-
-### 6.4 Linkage Tokens
-
-The canonical representations defined in this section are intermediate forms used to derive deterministic linkage tokens.
-
-These linkage tokens are the identifiers exchanged between clients and Verity deployments.
-
-The Verity Protocol uses three linkage identifiers:
-
-- `source_id`
-- `attribute_id`
-- `claim_id`
-
-The `attribute_id` MUST be derived from the canonical `(entity, attribute)` representation.
-
-The `claim_id` MUST be derived from the canonical `(entity, attribute, value)` representation.
-
-Implementations MAY use any deterministic linkage algorithm, provided identical canonical representations always produce identical linkage tokens.
-
-Example
-
-Canonical source
-
-```json
-{
-  "kind": "web_publisher",
-  "identifier": "docs.anthropic.com"
-}
-```
-
-Canonical attribute
-
-```json
-{
+  "entity_namespace": "service",
   "entity": "messages_api",
   "attribute": "supports_streaming"
 }
 ```
 
-Canonical claim
+The schema contains exactly:
+
+```text
+entity_namespace
+entity
+attribute
+```
+
+### 5.3 Claim
 
 ```json
 {
+  "entity_namespace": "service",
   "entity": "messages_api",
   "attribute": "supports_streaming",
   "value": true
 }
 ```
 
-Generated linkage tokens
+The schema contains exactly:
 
 ```text
-source_id      -> src_7d9a4e...
-attribute_id   -> attr_93e4f7...
-claim_id       -> clm_f72d10...
+entity_namespace
+entity
+attribute
+value
 ```
 
-Protocol assertion
+There is no linkage payload for a complete assertion. An assertion is
+constructed later from independently derived source, attribute, and claim
+tokens.
 
-```json
-{
-  "source_id": "src_7d9a4e...",
-  "attribute_id": "attr_93e4f7...",
-  "claim_id": "clm_f72d10..."
-}
+## 6. Strict RFC 8785 Serialization
+
+The fixed payload MUST be serialized using RFC 8785. Implementations MUST
+produce identical UTF-8 bytes across supported languages.
+
+The version-1 value model is restricted as follows:
+
+- integers range from `-(2^53 - 1)` through `2^53 - 1`;
+- floats are finite IEEE-754 binary64 values;
+- `1` and `1.0` intentionally serialize identically;
+- positive and negative zero intentionally serialize identically;
+- object keys are strings;
+- strings contain no lone Unicode surrogate;
+- maximum nesting depth is 32;
+- maximum total value nodes is 4,096; and
+- maximum serialized linkage payload is 65,517 bytes.
+
+RFC 8785 determines number formatting, UTF-8 encoding, escaping, and UTF-16
+object-key ordering. Implementations MUST NOT substitute ordinary sorted JSON.
+
+The serializer MUST reject:
+
+- integers outside the safe range;
+- NaN and infinities;
+- lone surrogates;
+- unsupported language-specific types;
+- non-string object keys;
+- excessive depth;
+- more than 4,096 value nodes; and
+- payloads longer than 65,517 bytes.
+
+The serializer MUST NOT normalize NFC, whitespace, case, keys, numbers, or
+values. Different already-canonical representations remain different inputs
+unless RFC 8785 itself assigns them identical bytes.
+
+## 7. Linkage Input Encoding
+
+The exact version-1 binary grammar is:
+
+```text
+linkage_input =
+    protocol_label       12 bytes
+    encoding_version      2 bytes
+    purpose               1 byte
+    payload_length        2 bytes
+    canonical_payload     payload_length bytes
 ```
 
-## 7. Versioning
+Fields:
 
-The Verity Canonicalization Specification is versioned. Any modifications that affect canonicalization behavior MUST be introduced through a new specification version.
+| Field | Encoding |
+| --- | --- |
+| `protocol_label` | Exact bytes `VERITY-OPRF\x00` |
+| `encoding_version` | Unsigned 16-bit big-endian integer, value `1` |
+| `purpose` | One-byte purpose tag |
+| `payload_length` | Unsigned 16-bit big-endian byte length |
+| `canonical_payload` | Exact RFC 8785 UTF-8 bytes |
 
-Implementations SHOULD expose the version of the specification they implement.
+The header is exactly 17 bytes. Version `0` and purpose `0` are reserved.
 
-## 8. Conformance
+Purpose tags are:
 
-The normative keywords MUST, MUST NOT, REQUIRED, SHOULD, SHOULD NOT, RECOMMENDED, MAY, and OPTIONAL in this specification are to be interpreted as defined in RFC 2119 and RFC 8174.
+| Purpose | Tag |
+| --- | ---: |
+| Source | `0x01` |
+| Attribute | `0x02` |
+| Claim | `0x03` |
 
-An implementation is in compliance with this specification if it satisfies all normative requirements defined in this document.
+The encoder MUST:
 
-Implementations MAY provide additional functionality, provided it does not alter the canonical representation produced by this specification.
+- accept the canonical payload as exact bytes;
+- reject an empty payload;
+- reject a payload longer than 65,517 bytes;
+- reject unknown or reserved versions and purposes;
+- use unsigned big-endian integers;
+- preserve the payload bytes without reinterpretation; and
+- produce a complete input no longer than 65,534 bytes.
+
+The label, explicit fields, fixed widths, and payload length make the encoding
+prefix-free and independent of locale or platform conventions.
+
+Changing the purpose or encoding version deliberately changes the VOPRF input
+and finalized output.
+
+### 7.1 Header Example
+
+For a source payload of three bytes `61 62 63`, the complete input is:
+
+```text
+56 45 52 49 54 59 2d 4f 50 52 46 00
+00 01
+01
+00 03
+61 62 63
+```
+
+For the same payload as an attribute, byte 14 is `02`. As a claim, it is `03`.
+
+## 8. VOPRF Linkage
+
+Version 1 uses only RFC 9497 VOPRF mode with the ristretto255-SHA512
+ciphersuite. Implementations MUST NOT substitute another protocol mode or
+deterministic linkage algorithm.
+
+The client blinds the complete linkage input. It retains that exact input and
+the corresponding private client state. After receiving an evaluated element
+and proof, it verifies the proof against its authenticated public-key pin and
+finalizes with the retained input and state.
+
+Independent rounds for identical inputs use different randomized blinded
+elements and may receive different randomized proofs. Successful finalization
+produces the same 64-byte token under the same active key.
+
+Source, attribute, and claim purposes occupy distinct linkage domains even when
+their canonical payload bytes are identical.
+
+## 9. Protocol Identifiers
+
+Protocol assertions retain:
+
+```text
+source_id
+attribute_id
+claim_id
+```
+
+Each field contains an unpadded base64url encoding of a 64-byte finalized token
+without a textual prefix.
+
+The fields imply purpose:
+
+- `source_id` is a source-purpose token;
+- `attribute_id` is an attribute-purpose token; and
+- `claim_id` is a claim-purpose token.
+
+Token identity also includes deployment ID, key version, mode, ciphersuite, and
+linkage encoding version as defined in `protocol.md`.
+
+## 10. Versioning and Compatibility
+
+Any change that alters the strict canonical payload bytes or the binary linkage
+encoding requires a new linkage encoding version.
+
+A new VOPRF key uses a new key version, not a new linkage encoding version.
+A new MCP request contract uses a new protocol version. A change to credibility
+inference uses a new algorithm version.
+
+Version 1 does not mix linkage or key versions within one request. Stored tokens
+must retain their complete token identity for as long as they remain in use.
+
+## 11. Conformance
+
+A serializer or SDK claiming version-1 conformance MUST pass the
+language-neutral canonical serialization and linkage input vectors.
+
+Conformance requires agreement on:
+
+- semantic canonicalization profiles actually claimed by that SDK;
+- supported value types and bounds;
+- exact RFC 8785 bytes;
+- exact header bytes and lengths;
+- purpose tags; and
+- strict unpadded base64url token encoding.
+
+Support for an undefined source kind or entity namespace is not interoperable
+unless a deterministic profile and shared test vectors are added.

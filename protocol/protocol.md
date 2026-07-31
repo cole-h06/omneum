@@ -2,231 +2,370 @@
 
 ## 1. Introduction
 
-The Verity Protocol defines the interoperability contract between clients and Verity deployments.
+The Verity Protocol defines the interoperability contract between clients and
+Verity deployments. It describes how clients transform canonical structured
+values into privacy-preserving linkage tokens and submit assertion graphs for
+credibility inference.
 
-The protocol defines the method for how structured assertions are represented and transformed into privacy-preserving identifiers. Identifiers are transmitted and processed to produce deterministic credibility signals.
+The protocol does not define how applications extract structured assertions
+from unstructured data. It also does not require a particular implementation
+of the credibility algorithm beyond the versioned behavior exposed by the API.
 
-The protocol does not define the method for extracting structured assertions from unstructured data, nor does it prescribe a specific credibility inference algorithm. Those implementation details are outside the scope of this specification.
-
----
+This document specifies the intended version-1 contract. Features are marked as
+implemented, specified but not implemented, or deferred where appropriate.
 
 ## 2. Requirement Language
 
-The key words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY** in this document are to be interpreted as described in RFC 2119.
+The key words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY**
+are to be interpreted as described in RFC 2119 and RFC 8174.
 
----
+## 3. Status
 
-## 3. Core Concepts
+Version 1 has the following implementation status:
 
-A **Source** represents an independent origin that asserts one or more claims.
+| Capability | Status |
+| --- | --- |
+| Deployment provisioning and `ping` | Implemented |
+| Canonical linkage serialization and domain encoding | Implemented |
+| RFC 9497 VOPRF client and server primitives | Implemented |
+| `evaluate_voprf` MCP tool | Specified, not implemented |
+| `infer_credibility` MCP tool | Non-normative version-1 draft, not implemented |
+| `trace_claim` | Deferred |
+| Overlapping-key rotation | Deferred |
+| Remote transport profile | Deferred |
+| Verity Cloud and multi-tenancy | Out of scope |
 
-Examples could include websites, databases, organizations, documents, APIs, or other identifiable publishers.
+## 4. Core Concepts
 
----
+A **Source** is an independent origin that asserts one or more claims.
 
-### Assertion
+An **Attribute** identifies a property of an entity within an entity namespace.
+It groups claims that describe competing values for that property.
 
-An **Assertion** is the relationship between a source and a claim.
+A **Claim** is a canonical entity, attribute, and value tuple.
 
-Assertions are the fundamental edges of the Verity credibility graph.
+An **Assertion** is a directed relationship from one source to one claim.
+Assertions are the edges of the Verity credibility graph.
 
----
+A **Client** performs content-sensitive processing locally, constructs protocol
+requests, and verifies VOPRF evaluations.
 
-### Claim
+A **Deployment** evaluates blinded inputs and, when inference is implemented,
+operates on opaque linkage tokens.
 
-A **Claim** represents a canonical statement describing a piece of structured information.
+## 5. Design Principles
 
-Multiple independent sources may assert the same claim.
+### 5.1 Content Blindness
 
----
+Clients MUST NOT send canonical source, entity, attribute, or claim content in
+evaluation or inference requests. Deployments operate on blinded elements or
+opaque linkage tokens.
 
-### Client
+VOPRF limits what an evaluator learns from an individual evaluation. It does
+not hide traffic metadata, request timing, caller identity, request volume, or
+the graph structure submitted for inference.
 
-A **Client** is software responsible for constructing protocol-compliant requests.
+### 5.2 Deterministic Linkage
 
----
+Independent valid VOPRF rounds over the same encoded input and active
+deployment key produce the same finalized token, even though client blinds and
+server proofs are randomized.
 
-## 4. Design Principles
+Tokens MUST be compared only when their complete token identity matches.
 
-### Domain Agnostic
+### 5.3 Stateless Evaluation
 
-The protocol does not depend on any particular application domain.
+The self-hosted version-1 evaluator is stateless. It retains one active VOPRF
+server context but does not retain requests, blinded elements, client state,
+proofs, finalized tokens, replay nonces, or assertion graphs between calls.
 
-Clients MAY submit assertions describing any type of structured information.
+### 5.4 Domain Separation
 
----
+Source, attribute, and claim inputs use distinct linkage purposes. The same
+canonical payload used for different purposes MUST produce different linkage
+inputs and finalized tokens.
 
-### Deterministic
+## 6. Version Dimensions
 
-Equivalent canonical assertions MUST produce equivalent linkage identifiers.
+Version 1 separates values that evolve for different reasons:
 
-Given an identical graph state, a deployment MUST produce deterministic inference results.
+| Field | Version-1 value | Meaning |
+| --- | --- | --- |
+| `protocol_version` | `"v1"` | MCP request and response contract |
+| `algorithm_version` | `"verity-v1"` | Credibility-inference algorithm |
+| `voprf_mode` | `"voprf"` | RFC 9497 protocol mode |
+| `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF group and hash suite |
+| `voprf_key_version` | integer `1..2^32-1` | Deployment VOPRF key |
+| `linkage_encoding_version` | integer `1` | Verity linkage input encoding |
 
----
+`algorithm_version` applies to inference, not VOPRF evaluation.
 
-### Content Blind
+Changing the protocol version alone does not change token identity. Changing
+the deployment, VOPRF key, mode, ciphersuite, linkage encoding version, purpose,
+or finalized output does.
 
-Verity deployments operate exclusively on opaque identifiers.
+## 7. Client Processing
 
-Deployments MUST NOT require semantic interpretation of the underlying content.
+A conforming client performs the following steps:
 
----
-
-### Privacy Preserving
-
-Clients are responsible for transforming canonical assertions into privacy-preserving linkage identifiers prior to transmission.
-
-Deployments operate exclusively on those identifiers.
-
----
-
-### Deployment Independent
-
-The protocol supports both persistent and ephemeral deployments.
-
-Persistence behavior is determined by the deployment implementation rather than the protocol itself.
-
----
-
-## 5. Protocol Roles
-
-### Client Responsibilities
-
-A conforming client MUST:
-
-- Extract structured assertions from local data.
-- Canonicalize assertions according to the Verity Canonicalization Specification.
-- Generate claim linkage identifiers.
-- Generate attribute linkage identifiers.
-- Construct protocol-compliant assertion messages.
-- Submit requests to a Verity deployment.
-
-A client MUST NOT require a deployment to perform semantic extraction, canonicalization, or fuzzy matching.
-
----
-
-### Deployment Responsibilities
-
-A conforming deployment MUST:
-
-- Validate incoming protocol messages.
-- Treat all linkage identifiers as opaque values.
-- Resolve linkage identifiers within the local graph state.
-- Perform credibility inference.
-- Return protocol-compliant responses.
-
-A deployment MUST NOT require raw assertion content in order to execute inference.
-
----
-
-## 6. Processing Model
-
-The protocol follows the following conceptual workflow.
-
-```
-Client
-
-    Structured Extraction
-            │
-            ▼
-     Canonicalization
-            │
-            ▼
-   Linkage Generation
-            │
-            ▼
-  Protocol Message Construction
-            │
-            ▼
-     Request Submission
-
-────────────────────────────────────────
-
-Verity Deployment
-
-      Message Validation
-            │
-            ▼
-     Identifier Resolution
-            │
-            ▼
-      Graph Integration
-            │
-            ▼
-    Credibility Inference
-            │
-            ▼
-      Response Generation
+```text
+structured extraction
+    -> semantic canonicalization
+    -> strict RFC 8785 fixed-schema serialization
+    -> Verity linkage domain encoding
+    -> VOPRF blinding
+    -> server evaluation and proof generation
+    -> response metadata validation
+    -> proof verification with the pinned public key
+    -> VOPRF finalization
+    -> assertion message construction
 ```
 
-This workflow describes the logical stages of the protocol.
+The client MUST:
 
-Implementations MAY optimize or reorder internal processing provided externally observable protocol behavior remains unchanged.
+- canonicalize values before strict serialization;
+- use the fixed source, attribute, and claim schemas;
+- apply the correct linkage purpose;
+- use cryptographically secure randomness when blinding;
+- retain the encoded input and client state for the corresponding blind;
+- validate evaluation response metadata;
+- verify the proof using its authenticated, pinned public key;
+- finalize with the exact encoded input and state captured during blinding; and
+- encode finalized tokens as strict unpadded base64url.
 
----
+The client MUST NOT ask the deployment to perform semantic canonicalization,
+fuzzy matching, or content extraction.
 
-## 7. Protocol Requirements
+## 8. VOPRF Trust
 
-A conforming implementation MUST satisfy the following requirements.
+### 8.1 Caller Authentication and Authorization
 
-### Canonicalization
+Caller authentication protects the deployment from unauthorized callers.
+Authorization determines which operations an authenticated caller may perform.
 
-Clients MUST canonicalize assertions before generating linkage identifiers.
+Local stdio deployments MAY rely on the OS user, process-launch, filesystem,
+and IPC boundary.
 
-Equivalent canonical assertions MUST generate equivalent identifiers.
+Remote transports MUST authenticate callers and MUST authorize VOPRF evaluation
+separately from credibility inference. Permission to evaluate does not imply
+permission to infer, and permission to infer does not imply permission to
+evaluate.
 
----
+Request metadata is validation input. It does not authenticate the caller.
 
-### Linkage Identifiers
+### 8.2 VOPRF Public-Key Authentication
 
-Clients MUST generate linkage identifiers according to the Verity Canonicalization Specification.
+VOPRF public-key authentication protects the client from a substituted,
+misconfigured, or wrong evaluator key.
 
-Deployments MUST treat linkage identifiers as opaque identifiers.
+Before evaluation, a client MUST obtain this tuple through authenticated
+out-of-band configuration:
 
-Deployments MUST NOT infer or depend upon their underlying contents.
+```text
+deployment_id
+voprf_key_version
+voprf_mode
+voprf_ciphersuite
+linkage_encoding_version
+server_public_key
+```
 
----
+The client MUST pin that tuple. It MUST NOT establish trust by retrieving the
+public key solely from the evaluation endpoint. TLS authenticates a transport
+endpoint but does not prove that the endpoint loaded the expected VOPRF key.
 
-### Assertions
+The diagnostic fingerprint returned by `ping` MUST NOT be used to provision or
+authenticate the public key.
 
-Every protocol assertion MUST contain:
+Caller authentication and VOPRF public-key authentication are separate
+mechanisms. A deployment may correctly authenticate a caller while using the
+wrong VOPRF key, and a client may possess the correct VOPRF public key while
+lacking permission to call the deployment.
 
-- a source identifier
-- an attribute linkage identifier
-- a claim linkage identifier
+## 9. VOPRF Flow
 
-The exact message format is defined by `api.md`.
+Version 1 uses only RFC 9497 VOPRF mode with the ristretto255-SHA512
+ciphersuite. Other RFC 9497 modes are not supported.
 
----
+The client blinds the complete domain-separated linkage input:
 
-### Inference
+```text
+blind(input) -> blinded_element[32], client_state[64]
+```
 
-Deployments MUST produce deterministic credibility results for an identical graph state.
+The server evaluates the checked blinded element and generates a fresh proof:
 
-The protocol does not prescribe any particular inference algorithm.
+```text
+evaluate(blinded_element[32])
+    -> evaluated_element[32], proof[64]
+```
 
----
+The client validates response metadata, checks all encodings, verifies the
+proof against its pinned 32-byte public key, and finalizes:
 
-### Responses
+```text
+finalize(
+    input,
+    client_state[64],
+    evaluated_element[32],
+    proof[64],
+    server_public_key[32],
+) -> token[64]
+```
 
-Deployments MUST return responses conforming to the protocol response schema defined in `api.md`.
+The client uses fresh secure randomness for each blind. The server uses fresh
+secure randomness for each proof. The evaluator never receives the private
+input or client state, and the client never receives the server private key.
 
----
+The exact linkage encoding is defined in `canonicalization.md`. The MCP
+evaluation schema is defined in `api.md`.
 
-## 8. Compatibility
+## 10. Assertions and Token Identity
 
-Future protocol versions MAY introduce additional optional fields without breaking existing implementations.
+Every inference assertion contains:
 
-Inference algorithms MAY evolve independently of the protocol provided they continue to satisfy the guarantees defined by this specification.
+- `source_id`;
+- `attribute_id`; and
+- `claim_id`.
 
-Changes that modify protocol message formats or required behavior constitute a new protocol version.
+Each value is a 64-byte linkage token encoded as unpadded base64url without a
+textual prefix.
 
----
+A persisted linkage token is identified by:
 
-## 9. Security Considerations
+```text
+(
+    deployment_id,
+    voprf_key_version,
+    voprf_mode,
+    voprf_ciphersuite,
+    linkage_encoding_version,
+    purpose,
+    token,
+)
+```
 
-The Verity Protocol is designed to minimize disclosure of underlying assertion content by operating on privacy-preserving linkage identifiers.
+Purpose is `source`, `attribute`, or `claim`. Although purpose and linkage
+encoding version are cryptographically bound into the VOPRF input, they remain
+explicit persisted metadata so applications can interpret stored tokens.
 
-Implementations remain responsible for transport security, authentication, authorization, access control, and cryptographic key management.
+`protocol_version` is not part of token identity. `algorithm_version` is not
+part of token identity.
 
-These concerns are outside the scope of this specification.
+Tokens with different identity metadata MUST NOT be compared as members of the
+same linkage space. A single request MUST NOT mix deployment IDs, VOPRF key
+versions, VOPRF modes, ciphersuites, or linkage encoding versions.
+
+## 11. Replay and Retry
+
+Clients MAY retry the same blinded evaluation request after an uncertain
+transport failure. The server maintains no replay database or per-request
+state. A repeated evaluation may contain a different randomized proof while
+remaining valid and producing the same finalized token.
+
+Replay prevention is not a VOPRF correctness requirement. Authentication,
+authorization, rate limiting, concurrency bounds, and deadlines mitigate
+abusive replay.
+
+Client state is local to the blind operation. A client MUST pair an evaluation
+with the exact encoded input and client state that produced its blinded
+element.
+
+## 12. Key Lifecycle
+
+Version 1 supports exactly one active VOPRF key for a deployment. It does not
+support an overlap in which old and new keys are evaluated concurrently.
+Overlapping-key rotation is deferred.
+
+Startup MUST require a configured deployment ID, key version, public-key pin,
+and private-key file. A deployment MUST NOT generate a key during startup.
+Startup MUST fail before serving when the configured public key does not match
+the private key or when key material is invalid.
+
+All replicas serving one deployment MUST use the same deployment ID, key
+version, mode, ciphersuite, linkage encoding version, and key pair. A
+misconfigured replica MUST fail startup or be removed before it receives
+requests. Operators SHOULD compare the `ping` configuration fingerprint across
+replicas as a diagnostic check, but that fingerprint does not establish trust.
+
+A version-1 rotation is a coordinated single-key cutover:
+
+1. provision a new key and authenticated client pin;
+2. assign a strictly greater key version;
+3. prevent mixed old-key and new-key replicas from serving the same endpoint;
+4. activate the new server fleet and client configuration as one operational
+   change; and
+5. retain complete token identity metadata for any stored old tokens.
+
+The server rejects every key version other than its one active version.
+Unknown, stale, retired, and future versions are indistinguishable at the API
+boundary.
+
+Version 1 has no persistent rollback floor. Rollback protection depends on
+authenticated configuration management and deployment controls.
+
+## 13. Inference
+
+`infer_credibility` is a non-normative version-1 draft and is not implemented.
+
+The current draft anticipates that the client will submit an assertion graph
+containing opaque linkage tokens and one request-level token context. Exact
+validation, graph and resource limits, telemetry semantics, result ordering,
+and the response contract will be finalized during the inference milestone.
+The draft does not establish inference conformance.
+
+The self-hosted server remains stateless: the complete graph required for an
+inference run is supplied in that request and is not persisted by the protocol.
+
+`trace_claim` is deferred. Version 1 defines no normative trace interface.
+
+## 14. Resource Controls
+
+Every deployment exposing `evaluate_voprf` MUST enforce:
+
+- a bounded transport request size;
+- bounded evaluation concurrency;
+- a bounded pending queue or immediate overload rejection;
+- an evaluation deadline;
+- a global evaluation rate or capacity limit;
+- fixed-size decoding before native evaluation; and
+- secret-free failure responses.
+
+Remote deployments MUST additionally enforce per-caller rate limits after
+authentication. Local stdio deployments MAY omit identity-based rate limiting
+when the OS/process boundary admits only one trusted caller.
+
+The numeric request-size, concurrency, queue, deadline, and rate limits are
+deployment-configurable. Cryptographic sizes, one-element evaluation, linkage
+payload limits, and canonicalization bounds are protocol constants.
+
+## 15. Security Considerations
+
+VOPRF does not replace authenticated transport, caller authorization, secure
+private-key storage, process isolation, rate limiting, or operational
+monitoring.
+
+Errors, logs, diagnostics, and representations of failures MUST NOT expose
+protocol values or secrets, including private keys, private-key paths, client
+state, canonical private inputs, blinded elements, evaluation elements, proofs,
+finalized tokens, or decoded protocol values.
+
+Successful `evaluate_voprf` responses necessarily contain the evaluated
+element and proof. Successful inference responses may contain linkage
+identifiers.
+
+Metadata mismatch detection is not authentication. Proof verification
+authenticates an evaluation relative to the already authenticated public key;
+it does not establish who called the server or whether that caller was
+authorized.
+
+## 16. Compatibility
+
+Changes to request or response structure require a new protocol version.
+Changes that alter canonical serialized bytes or domain encoding require a new
+linkage encoding version. Key rotation uses a new VOPRF key version. Changes to
+credibility inference use a new algorithm version.
+
+Older token identity metadata must remain available for as long as old tokens
+are retained. Version 1 does not require an evaluator to continue serving old
+keys.
