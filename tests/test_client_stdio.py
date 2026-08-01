@@ -15,7 +15,7 @@ DEPLOYMENT_ID = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"
 PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 
-def test_sdk_end_to_end_over_real_stdio(tmp_path: Path) -> None:
+def test_stdio_client(tmp_path: Path) -> None:
     async def run() -> None:
         root = Path(__file__).parents[1]
         private_key_file = tmp_path / "voprf.key"
@@ -47,10 +47,16 @@ def test_sdk_end_to_end_over_real_stdio(tmp_path: Path) -> None:
         )
         async with open_stdio_client(config, parameters) as client:
             first = await client.link_claim(
-                "service", " Example ", " Display Name ", " Alice "
+                "service",
+                " Example ",
+                " Display Name ",
+                " Alice ",
             )
             second = await client.link_claim(
-                "service", "example", "display_name", "Alice"
+                "service",
+                "example",
+                "display_name",
+                "Alice",
             )
             assert len(first.value) == 64
             assert first.value == second.value

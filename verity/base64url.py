@@ -17,7 +17,11 @@ def encode_unpadded(
     _validate_expected_length(expected_length)
     if type(value) is not bytes or len(value) != expected_length:
         raise ValueError("protocol value has an invalid length")
-    return base64.urlsafe_b64encode(value).rstrip(b"=").decode("ascii")
+    return (
+        base64.urlsafe_b64encode(value)
+        .rstrip(b"=")
+        .decode("ascii")
+    )
 
 
 def decode_unpadded(
@@ -28,7 +32,9 @@ def decode_unpadded(
     """Decode canonical, unpadded base64url of one exact byte length."""
     _validate_expected_length(expected_length)
     encoded_length = len(
-        base64.urlsafe_b64encode(b"\x00" * expected_length).rstrip(b"=")
+        base64.urlsafe_b64encode(
+            b"\x00" * expected_length
+        ).rstrip(b"=")
     )
     if (
         type(value) is not str

@@ -27,7 +27,7 @@ DEPLOYMENT_ID = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"
 PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 
-def test_package_root_all_surface() -> None:
+def test_package_exports() -> None:
     assert verity.__all__ == [
         "CredibilityGraph",
         "EvaluationRejectedError",
@@ -43,13 +43,13 @@ def test_package_root_all_surface() -> None:
     ]
 
 
-def server(tmp_path: Path) -> VOPRFServer:
+def make_server(tmp_path: Path) -> VOPRFServer:
     key = tmp_path / "voprf.key"
     key.write_bytes(PRIVATE_KEY)
     return VOPRFServer(key)
 
 
-def config(oprf_server: VOPRFServer) -> VerityClientConfig:
+def make_config(oprf_server: VOPRFServer) -> VerityClientConfig:
     return VerityClientConfig(
         deployment_id=DEPLOYMENT_ID,
         voprf_key_version=1,
@@ -66,17 +66,25 @@ class LocalEvaluator:
         self.requests: list[EvaluateVOPRFRequest] = []
 
     async def evaluate_voprf(
-        self, request: EvaluateVOPRFRequest
+        self,
+        request: EvaluateVOPRFRequest,
     ) -> CallToolResult:
         self.requests.append(request)
         evaluation = self.server.evaluate(
-            decode_unpadded(request.blinded_element, expected_length=32)
+            decode_unpadded(
+                request.blinded_element,
+                expected_length=32,
+            )
         )
-        return success(
+        return success_result(
             evaluated_element=encode_unpadded(
-                evaluation.evaluated_element, expected_length=32
+                evaluation.evaluated_element,
+                expected_length=32,
             ),
-            proof=encode_unpadded(evaluation.proof, expected_length=64),
+            proof=encode_unpadded(
+                evaluation.proof,
+                expected_length=64,
+            ),
         )
 
 
@@ -85,12 +93,13 @@ class FixedEvaluator:
         self.result = result
 
     async def evaluate_voprf(
-        self, request: EvaluateVOPRFRequest
+        self,
+        request: EvaluateVOPRFRequest,
     ) -> CallToolResult:
         return self.result
 
 
-def success(**changes: object) -> CallToolResult:
+def success_result(**changes: object) -> CallToolResult:
     content: dict[str, object] = {
         "protocol_version": "v1",
         "deployment_id": DEPLOYMENT_ID,
@@ -98,33 +107,59 @@ def success(**changes: object) -> CallToolResult:
         "voprf_mode": "voprf",
         "voprf_ciphersuite": "ristretto255-SHA512",
         "linkage_encoding_version": 1,
-        "evaluated_element": encode_unpadded(b"e" * 32, expected_length=32),
-        "proof": encode_unpadded(b"p" * 64, expected_length=64),
+        "evaluated_element": encode_unpadded(
+            b"e" * 32,
+            expected_length=32,
+        ),
+        "proof": encode_unpadded(
+            b"p" * 64,
+            expected_length=64,
+        ),
     }
     content.update(changes)
-    return CallToolResult(content=[], structuredContent=content, isError=False)
+    return CallToolResult(
+        content=[],
+        structuredContent=content,
+        isError=False,
+    )
 
 
-def failure(content: object) -> CallToolResult:
-    return CallToolResult(content=[], structuredContent=content, isError=True)
+def error_result(content: object) -> CallToolResult:
+    return CallToolResult(
+        content=[],
+        structuredContent=content,
+        isError=True,
+    )
 
 
-def test_all_linkage_methods_share_verified_flow(tmp_path: Path) -> None:
+def test_linkage(tmp_path: Path) -> None:
     async def run() -> None:
-        oprf_server = server(tmp_path)
+        oprf_server = make_server(tmp_path)
         evaluator = LocalEvaluator(oprf_server)
-        client = VerityClient(config(oprf_server), evaluator)
+        client = VerityClient(
+            make_config(oprf_server),
+            evaluator,
+        )
         source = await client.link_source(
-            "web_publisher", " https://Example.COM./ "
+            "web_publisher",
+            " https://Example.COM./ ",
         )
         attribute = await client.link_attribute(
-            "service", " Example ", " Display Name "
+            "service",
+            " Example ",
+            " Display Name ",
         )
         claim = await client.link_claim(
-            "service", " Example ", " Display Name ", " Alice "
+            "service",
+            " Example ",
+            " Display Name ",
+            " Alice ",
         )
         repeated = await client.link_claim(
-            "service", "example", "display_name", "Alice"
+            "service",
+            "example",
+            "display_name",
+            "Alice",
         )
         assert source.value != attribute.value != claim.value
         assert claim.value == repeated.value
@@ -165,16 +200,21 @@ def test_all_linkage_methods_share_verified_flow(tmp_path: Path) -> None:
         {"proof": "invalid"},
     ],
 )
-def test_response_mismatch_or_malformed_is_rejected(
-    tmp_path: Path, changes: dict[str, object]
+def test_invalid_response(
+    tmp_path: Path,
+    changes: dict[str, object],
 ) -> None:
     async def run() -> None:
-        oprf_server = server(tmp_path)
+        oprf_server = make_server(tmp_path)
         client = VerityClient(
-            config(oprf_server), FixedEvaluator(success(**changes))
+            make_config(oprf_server),
+            FixedEvaluator(success_result(**changes)),
         )
         with pytest.raises(EvaluationResponseError):
-            await client.link_source("web_publisher", "https://example.com")
+            await client.link_source(
+                "web_publisher",
+                "https://example.com",
+            )
 
     asyncio.run(run())
 
@@ -188,29 +228,43 @@ def test_response_mismatch_or_malformed_is_rejected(
         {"message": "secret", "verity_code": "server_busy", "extra": True},
     ],
 )
-def test_malformed_or_unknown_errors_are_response_errors(
-    tmp_path: Path, content: object
+def test_invalid_error(
+    tmp_path: Path,
+    content: object,
 ) -> None:
     async def run() -> None:
-        oprf_server = server(tmp_path)
+        oprf_server = make_server(tmp_path)
         client = VerityClient(
-            config(oprf_server), FixedEvaluator(failure(content))
+            make_config(oprf_server),
+            FixedEvaluator(error_result(content)),
         )
         with pytest.raises(EvaluationResponseError):
-            await client.link_source("web_publisher", "https://example.com")
+            await client.link_source(
+                "web_publisher",
+                "https://example.com",
+            )
 
     asyncio.run(run())
 
 
-def test_valid_error_uses_fixed_text(tmp_path: Path) -> None:
+def test_rejected_error(tmp_path: Path) -> None:
     async def run() -> None:
-        oprf_server = server(tmp_path)
-        result = failure(
-            {"message": "arbitrary secret", "verity_code": "server_busy"}
+        oprf_server = make_server(tmp_path)
+        result = error_result(
+            {
+                "message": "arbitrary secret",
+                "verity_code": "server_busy",
+            }
         )
-        client = VerityClient(config(oprf_server), FixedEvaluator(result))
+        client = VerityClient(
+            make_config(oprf_server),
+            FixedEvaluator(result),
+        )
         with pytest.raises(EvaluationRejectedError) as caught:
-            await client.link_source("web_publisher", "https://example.com")
+            await client.link_source(
+                "web_publisher",
+                "https://example.com",
+            )
         assert str(caught.value) == "VOPRF evaluation was rejected."
         assert caught.value.verity_code == "server_busy"
         assert "secret" not in repr(caught.value)
@@ -218,22 +272,32 @@ def test_valid_error_uses_fixed_text(tmp_path: Path) -> None:
     asyncio.run(run())
 
 
-def test_invalid_proof_is_verification_error(tmp_path: Path) -> None:
+def test_invalid_proof(tmp_path: Path) -> None:
     async def run() -> None:
-        oprf_server = server(tmp_path)
-        client = VerityClient(config(oprf_server), FixedEvaluator(success()))
+        oprf_server = make_server(tmp_path)
+        client = VerityClient(
+            make_config(oprf_server),
+            FixedEvaluator(success_result()),
+        )
         with pytest.raises(EvaluationVerificationError):
-            await client.link_source("web_publisher", "https://example.com")
+            await client.link_source(
+                "web_publisher",
+                "https://example.com",
+            )
 
     asyncio.run(run())
 
 
-def test_mcp_adapter_preserves_cancellation_and_uncertainty() -> None:
+def test_adapter_errors() -> None:
     class Session:
         def __init__(self, failure: BaseException) -> None:
             self.failure = failure
 
-        async def call_tool(self, name: str, arguments: dict):
+        async def call_tool(
+            self,
+            name: str,
+            arguments: dict,
+        ):
             raise self.failure
 
     async def run() -> None:
@@ -244,14 +308,17 @@ def test_mcp_adapter_preserves_cancellation_and_uncertainty() -> None:
             voprf_mode="voprf",
             voprf_ciphersuite="ristretto255-SHA512",
             linkage_encoding_version=1,
-            blinded_element=encode_unpadded(b"b" * 32, expected_length=32),
+            blinded_element=encode_unpadded(
+                b"b" * 32,
+                expected_length=32,
+            ),
         )
-        cancelled = _MCPVOPRFEvaluator(  # type: ignore[arg-type]
+        cancelled = _MCPVOPRFEvaluator(
             Session(asyncio.CancelledError())
         )
         with pytest.raises(asyncio.CancelledError):
             await cancelled.evaluate_voprf(request)
-        broken = _MCPVOPRFEvaluator(  # type: ignore[arg-type]
+        broken = _MCPVOPRFEvaluator(
             Session(OSError("lost"))
         )
         with pytest.raises(EvaluationTransportError) as caught:
@@ -261,8 +328,9 @@ def test_mcp_adapter_preserves_cancellation_and_uncertainty() -> None:
     asyncio.run(run())
 
 
-def test_stdio_discovery_runs_once_and_fails_early(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_tool_discovery(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     class Context:
         def __init__(self, value: object) -> None:
@@ -287,12 +355,14 @@ def test_stdio_discovery_runs_once_and_fails_early(
             return type("Tools", (), {"tools": []})()
 
     async def run() -> None:
-        oprf_server = server(tmp_path)
+        oprf_server = make_server(tmp_path)
         session = Session()
         transport = Context((object(), object()))
         session_context = Context(session)
         monkeypatch.setattr(
-            client_module, "stdio_client", lambda parameters: transport
+            client_module,
+            "stdio_client",
+            lambda parameters: transport,
         )
         monkeypatch.setattr(
             client_module,
@@ -301,7 +371,8 @@ def test_stdio_discovery_runs_once_and_fails_early(
         )
         with pytest.raises(EvaluationResponseError):
             async with open_stdio_client(
-                config(oprf_server), object()  # type: ignore[arg-type]
+                make_config(oprf_server),
+                object(),
             ):
                 raise AssertionError("unavailable tool was accepted")
         assert session.list_calls == 1
