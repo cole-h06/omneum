@@ -12,13 +12,14 @@ The repository currently implements:
 - version-1 linkage domain encoding;
 - RFC 9497 VOPRF client operations;
 - proof verification against a configured public key; and
-- purpose-specific source, attribute, and claim blinding.
+- purpose-specific source, attribute, and claim linkage methods;
+- a strict single-element `evaluate_voprf` MCP client flow; and
+- an owned local-stdio client context with authenticated pinned configuration.
 
 The repository does not yet provide:
 
-- an `evaluate_voprf` MCP client flow;
-- a complete high-level `VerityClient`;
 - an implemented `infer_credibility` client flow;
+- remote client transport or authentication;
 - an official JavaScript or TypeScript SDK;
 - automatic local token metadata storage; or
 - response rendering and natural-language explanations.
@@ -58,6 +59,42 @@ evaluator could return its own key.
 
 The `ping` fingerprint is diagnostic only and MUST NOT be used as public-key
 authentication or trust on first use.
+
+The local-stdio client calls `list_tools` once when opening and fails early if
+`evaluate_voprf` is absent. This discovery is diagnostic only and does not
+authenticate the deployment, its metadata, or its VOPRF public key.
+
+A configured local-stdio client exposes the three purpose-specific async
+linkage methods:
+
+```python
+import sys
+
+from mcp import StdioServerParameters
+from verity import VerityClientConfig, open_stdio_client
+
+config = VerityClientConfig.from_base64url(
+    deployment_id="urn:uuid:01234567-89ab-cdef-0123-456789abcdef",
+    voprf_key_version=1,
+    voprf_mode="voprf",
+    voprf_ciphersuite="ristretto255-SHA512",
+    linkage_encoding_version=1,
+    voprf_public_key=pinned_public_key,
+)
+server = StdioServerParameters(
+    command=sys.executable,
+    args=["-m", "verity.server"],
+)
+
+async with open_stdio_client(config, server) as client:
+    source = await client.link_source("web_publisher", "https://example.com")
+    attribute = await client.link_attribute("service", "api", "status")
+    claim = await client.link_claim("service", "api", "status", "healthy")
+```
+
+`link_source` uses the parameter names `kind` and `identifier`, matching the
+source schema. Each method returns a `LinkageToken` whose `value` is the exact
+64-byte finalized output.
 
 Remote caller credentials are separate from the VOPRF public-key pin:
 
@@ -142,7 +179,7 @@ valid state is not an authentication mechanism and must not be treated as one.
 
 ## 6. Evaluation Request
 
-Status: **specified, not implemented**.
+Status: **implemented for single-element local MCP stdio**.
 
 The client sends exactly one blinded element:
 

@@ -28,7 +28,7 @@ Version 1 has the following implementation status:
 | Deployment provisioning and `ping` | Implemented |
 | Canonical linkage serialization and domain encoding | Implemented |
 | RFC 9497 VOPRF client and server primitives | Implemented |
-| `evaluate_voprf` MCP tool | Specified, not implemented |
+| `evaluate_voprf` MCP tool | Implemented for local stdio |
 | `infer_credibility` MCP tool | Non-normative version-1 draft, not implemented |
 | `trace_claim` | Deferred |
 | Overlapping-key rotation | Deferred |

@@ -19,7 +19,7 @@ Related specifications:
 | Tool | Status |
 | --- | --- |
 | `ping` | Implemented |
-| `evaluate_voprf` | Specified, not implemented |
+| `evaluate_voprf` | Implemented for local MCP stdio |
 | `infer_credibility` | Non-normative version-1 draft, not implemented |
 | `trace_claim` | Deferred; no version-1 interface |
 
@@ -210,7 +210,9 @@ The public key itself is not returned by `ping`.
 
 ## 8. `evaluate_voprf`
 
-Status: **specified, not implemented**.
+Status: **implemented for single-element local MCP stdio**. The installed MCP
+SDK does not provide a pre-parse stdio frame bound, so this implementation does
+not claim complete resource-control conformance.
 
 Version 1 evaluates exactly one blinded element per call.
 
