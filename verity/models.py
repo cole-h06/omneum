@@ -1,4 +1,5 @@
 import uuid
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -6,6 +7,43 @@ from pydantic import (
     Field,
     field_validator,
 )
+
+
+VerityCode = Literal[
+    "request_too_large",
+    "invalid_request",
+    "authentication_required",
+    "permission_denied",
+    "unsupported_protocol_version",
+    "deployment_mismatch",
+    "voprf_key_version_mismatch",
+    "unsupported_voprf_mode",
+    "unsupported_voprf_ciphersuite",
+    "unsupported_linkage_encoding_version",
+    "invalid_blinded_element",
+    "invalid_graph",
+    "rate_limited",
+    "server_busy",
+    "request_timeout",
+    "evaluation_failed",
+    "inference_failed",
+    "internal_error",
+]
+
+
+def _canonical_deployment_id(value: str) -> str:
+    prefix = "urn:uuid:"
+    if not value.startswith(prefix):
+        raise ValueError("deployment_id must be a canonical UUID URN")
+    try:
+        parsed = uuid.UUID(value[len(prefix):])
+    except ValueError:
+        raise ValueError(
+            "deployment_id must be a canonical UUID URN"
+        ) from None
+    if value != f"{prefix}{parsed}":
+        raise ValueError("deployment_id must be a canonical UUID URN")
+    return value
 
 
 class EvaluateVOPRFRequest(BaseModel):
@@ -30,22 +68,7 @@ class EvaluateVOPRFRequest(BaseModel):
     @field_validator("deployment_id")
     @classmethod
     def validate_deployment_id(cls, value: str) -> str:
-        prefix = "urn:uuid:"
-        if not value.startswith(prefix):
-            raise ValueError(
-                "deployment_id must be a canonical UUID URN"
-            )
-        try:
-            parsed = uuid.UUID(value[len(prefix):])
-        except ValueError:
-            raise ValueError(
-                "deployment_id must be a canonical UUID URN"
-            ) from None
-        if value != f"{prefix}{parsed}":
-            raise ValueError(
-                "deployment_id must be a canonical UUID URN"
-            )
-        return value
+        return _canonical_deployment_id(value)
 
 
 class EvaluateVOPRFResponse(BaseModel):
@@ -58,12 +81,17 @@ class EvaluateVOPRFResponse(BaseModel):
 
     protocol_version: str
     deployment_id: str
-    voprf_key_version: int
+    voprf_key_version: int = Field(ge=1, le=2**32 - 1)
     voprf_mode: str
     voprf_ciphersuite: str
     linkage_encoding_version: int
     evaluated_element: str
     proof: str
+
+    @field_validator("deployment_id")
+    @classmethod
+    def validate_deployment_id(cls, value: str) -> str:
+        return _canonical_deployment_id(value)
 
 
 class VerityErrorResponse(BaseModel):
@@ -75,7 +103,7 @@ class VerityErrorResponse(BaseModel):
     )
 
     message: str
-    verity_code: str
+    verity_code: VerityCode
 
 
 # Request Models
