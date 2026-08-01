@@ -20,7 +20,7 @@ Related specifications:
 | --- | --- |
 | `ping` | Implemented |
 | `evaluate_voprf` | Implemented for local MCP stdio |
-| `infer_credibility` | Non-normative version-1 draft, not implemented |
+| `infer_credibility` | Specified for local MCP stdio, not implemented |
 | `trace_claim` | Deferred; no version-1 interface |
 
 This document is the intended version-1 contract except where a section is
@@ -101,7 +101,7 @@ tokens, decoded protocol values, or OS error text.
 | Code | Meaning |
 | --- | --- |
 | `request_too_large` | The transport request exceeds the configured bound. |
-| `invalid_request` | A field is missing, extra, wrongly typed, or noncanonical. |
+| `invalid_request` | The schema, type, or canonical metadata is invalid. |
 | `authentication_required` | A remote caller was not authenticated. |
 | `permission_denied` | The caller lacks permission for the requested tool. |
 | `unsupported_protocol_version` | The protocol version is unsupported. |
@@ -290,15 +290,11 @@ the same token.
 
 ## 9. `infer_credibility`
 
-Status: **non-normative version-1 draft, not implemented**.
+Status: **specified for local MCP stdio, not implemented**.
 
-This section records the current direction for the version-1 inference
-milestone. It is not a conformance contract. Exact request and response
-validation, graph and resource limits, telemetry semantics, result ordering,
-and the response contract will be finalized during that milestone.
-
-The complete assertion graph is supplied in each request. The self-hosted
-server does not persist graph state.
+The complete assertion graph and its complete source-pair matrix are supplied
+in each request. Inference is deterministic and request-scoped. The server
+MUST NOT retain the graph, pair values, or results after the request.
 
 ### 9.1 Request
 
@@ -316,27 +312,63 @@ server does not persist graph state.
       "attribute_id": "YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYg",
       "claim_id": "Y2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjYw"
     }
-  ]
+  ],
+  "source_pairs": []
 }
 ```
 
-The draft uses request-level metadata for every token and does not mix token
-identity metadata.
+The request has exactly eight top-level fields: the six authenticated protocol
+metadata fields, `assertions`, and `source_pairs`. Unknown fields at every
+level MUST be rejected.
 
-| Assertion field | Purpose | Requirement |
+| Field | Type | Requirement |
 | --- | --- | --- |
-| `source_id` | source | Strict base64url decoding to 64 bytes |
-| `attribute_id` | attribute | Strict base64url decoding to 64 bytes |
-| `claim_id` | claim | Strict base64url decoding to 64 bytes |
+| `protocol_version` | string | Exactly `"v1"`. |
+| `deployment_id` | string | Canonical lowercase UUID URN. |
+| `voprf_key_version` | integer | `1..2^32-1`, equal to the active version. |
+| `voprf_mode` | string | Exactly `"voprf"`. |
+| `voprf_ciphersuite` | string | Exactly `"ristretto255-SHA512"`. |
+| `linkage_encoding_version` | integer | Exactly `1`. |
+| `assertions` | array | `1..4096` assertion objects. |
+| `source_pairs` | array | The complete canonical upper triangle. |
 
-Exact request and assertion validation remains to be finalized.
+An assertion has exactly `source_id`, `attribute_id`, and `claim_id`. Each is a
+canonical 86-character unpadded-base64url linkage token decoding to 64 bytes.
+The list MUST be strictly sorted by the ASCII tuple
+`(source_id, attribute_id, claim_id)` and MUST NOT contain duplicates. A graph
+MAY contain at most 64 sources, 2048 attributes, and 4096 claims. Each claim
+MUST belong to exactly one attribute, and a source MUST NOT assert more than
+one claim for an attribute.
+
+For `n` unique assertion sources, `source_pairs` has exactly `n(n-1)/2`
+entries, at most 2016. Each object has exactly `source_a_id`, `source_b_id`,
+`dependency`, and `weighted_signal_coverage`. Both identifiers MUST be
+assertion sources and MUST satisfy `source_a_id < source_b_id` in ASCII order.
+The list MUST be strictly sorted by `(source_a_id, source_b_id)` and contain
+every pair once, including pairs whose values are zero.
+
+`dependency` and `weighted_signal_coverage` are finite binary64 numbers in
+`[0, 1]`; booleans are not numbers. Dependency estimates shared influence.
+Weighted signal coverage is the fraction of the configured dependency-signal
+weight for which the client had usable observations. It is not a probability
+that the dependency estimate or either source is correct. No other pair value
+is required by version 1.
+
+The request MUST NOT contain provenance or lineage identifiers, citations,
+owners, timestamps, retrieval records, raw dependency signals, source names,
+claim text, cluster thresholds, cluster membership, or natural-language
+explanations.
 
 ### 9.2 Response
 
-The illustrative draft response retains the existing graph telemetry:
-
 ```json
 {
+  "protocol_version": "v1",
+  "deployment_id": "urn:uuid:01234567-89ab-cdef-0123-456789abcdef",
+  "voprf_key_version": 1,
+  "voprf_mode": "voprf",
+  "voprf_ciphersuite": "ristretto255-SHA512",
+  "linkage_encoding_version": 1,
   "summary": {
     "source_count": 1,
     "claim_count": 1,
@@ -353,7 +385,18 @@ The illustrative draft response retains the existing graph telemetry:
       "attribute_id": "YmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYg",
       "claim_id": "Y2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjYw",
       "support": 1.0,
+      "agreement_weight": 1.0,
       "is_attribute_max_support": true,
+      "supporting_source_count": 1,
+      "estimated_independent_support_count": 1.0,
+      "dependency_confidence": null,
+      "supporting_sources": [
+        {
+          "source_id": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ",
+          "independence": 1.0,
+          "contribution": 1.0
+        }
+      ],
       "conflicting_claims": []
     }
   ],
@@ -361,20 +404,120 @@ The illustrative draft response retains the existing graph telemetry:
     "algorithm_version": "verity-v1",
     "iterations": 1,
     "converged": true,
-    "computation_time_ms": 1
+    "convergence_tolerance": 1e-8,
+    "maximum_credibility_delta": 0.0
   }
 }
 ```
 
-| Response field | Description |
-| --- | --- |
-| `summary` | Counts of unique sources, claims, and assertions. |
-| `source_credibility` | Credibility score for each source. |
-| `claim_support` | Support and conflict information for each claim. |
-| `metadata` | Algorithm version and execution telemetry. |
+The response has exactly the six active protocol metadata fields, `summary`,
+`source_credibility`, `claim_support`, and `metadata`. A client MUST validate
+and compare the metadata as it does for evaluation responses.
+
+`summary` contains the exact integer fields `source_count`, `claim_count`, and
+`assertion_count`. `source_credibility` contains one exact
+`{source_id, credibility}` object per source. `claim_support` contains one
+object per claim with exactly the fields shown above. A conflicting-claim
+object has exactly `claim_id` and `support`; a supporting-source object has
+exactly `source_id`, `independence`, and `contribution`.
+
+All numeric results MUST be finite binary64 values. Credibility, support,
+agreement weight, independence, contribution, and maximum delta are
+nonnegative. `dependency_confidence` is `null` for a claim with one supporting
+source and otherwise is in `[0, 1]`. `estimated_independent_support_count` is
+in `[1, supporting_source_count]`. Support is a deterministic graph score, not
+a truth probability. Estimated independent support is a dependency-adjusted
+heuristic, not a count of verified origins.
+
+Successful metadata has exactly `algorithm_version`, `iterations`,
+`converged`, `convergence_tolerance`, and `maximum_credibility_delta`.
+`algorithm_version` is `"verity-v1"`, `iterations` is in `1..1000`,
+`converged` is `true`, and `convergence_tolerance` is `1e-8`.
+`computation_time_ms` is not interoperable response data.
+
+Response arrays use these deterministic orders:
+
+- sources: descending credibility, then ascending `source_id`;
+- claims: ascending `attribute_id`, descending support, then ascending
+  `claim_id`;
+- supporting sources: descending contribution, then ascending `source_id`;
+- conflicts: descending support, then ascending `claim_id`.
+
+All claims tied for the greatest support for an attribute have
+`is_attribute_max_support: true`. `conflicting_claims` contains every other
+claim for the attribute.
+
+### 9.3 Algorithm
+
+Let `S` be the sources, `C` the claims, `A(j)` the sources asserting claim
+`j`, and `P(j)` the sources asserting any claim for `j`'s attribute. Let
+`d(i,k)` be the submitted dependency. Initialize:
+
+```text
+s_i^(0) = 1 / |S|
+w_j = |A(j)| / |P(j)|
+q_ij = 1                                      when |A(j)| = 1
+q_ij = 1 - sum(d(i,k), k in A(j), k != i)
+             / (|A(j)| - 1)                  otherwise
+contribution_ij^(t) = s_i^(t) * w_j * q_ij / |claims asserted by i|
+c_j^(t) = sum(contribution_ij^(t), i in A(j))
+u_i^(t+1) = sum(c_j^(t), j asserted by i)
+s_i^(t+1) = u_i^(t+1) / sum(u_k^(t+1), k in S)
+```
+
+Every sum MUST use IEEE 754 binary64 arithmetic. Dependency terms are ordered
+by the other `source_id`; claim contributions by `source_id`; a source's claim
+terms by `(attribute_id, claim_id)`; normalization terms by `source_id`; and
+pair telemetry by `(source_a_id, source_b_id)`. Iteration stops when
+`max_i(abs(s_i^(t+1) - s_i^(t))) < 1e-8`, after at most 1000 updates. The
+server recomputes claim support and contributions from the converged source
+vector. A zero total propagation update, nonconvergence, or a nonfinite result
+MUST return `inference_failed`.
+
+For the `n` sources supporting a claim:
+
+```text
+supporting_source_count = n
+estimated_independent_support_count =
+    n^2 / (n + 2 * sum(d(i,k), i < k, i and k support the claim))
+dependency_confidence = null                 when n = 1
+dependency_confidence =
+    2 * sum(weighted_signal_coverage(i,k), i < k) / (n * (n - 1))
+                                             otherwise
+```
+
+### 9.4 Validation and Failures
+
+An inference deployment MUST process a request in this order:
+
+1. enforce the transport request-size limit and parse the MCP envelope;
+2. authenticate and authorize the caller when the transport requires it;
+3. validate required fields, types, and absence of unknown fields;
+4. validate canonical metadata and its numeric ranges;
+5. compare metadata in this order: protocol version, deployment ID, VOPRF key
+   version, mode, ciphersuite, linkage encoding version;
+6. enforce graph count bounds;
+7. decode assertion tokens in list order and field order, then validate
+   assertion ordering, uniqueness, membership, and topology;
+8. validate pair count, tokens, membership, canonical ordering, completeness,
+   finiteness, and value ranges;
+9. admit work to the bounded inference executor;
+10. run inference before the deadline; and
+11. validate and order the response.
+
+Strict schema, type, or unknown-field failures are `invalid_request`.
+Out-of-range or nonfinite pair values, an incomplete matrix, noncanonical pair
+ordering, malformed assertion or pair tokens, pair-token membership failures,
+and graph-topology failures are `invalid_graph`. Metadata mismatches use their
+specific error codes.
+Immediate capacity exhaustion is `server_busy`; a deadline is
+`request_timeout`; zero-total propagation, nonconvergence, or invalid numeric
+output is `inference_failed`. Failure responses MUST contain only `message`
+and `verity_code` and MUST NOT reflect submitted values.
 
 Inference authorization is separate from VOPRF evaluation authorization.
-Nothing in this draft section establishes version-1 inference conformance.
+Because this tool is not implemented, no implementation may claim inference
+conformance yet.
 
 ## 10. Resource Controls
 
@@ -391,6 +534,18 @@ These numeric values are deployment-configurable and do not affect
 interoperability. Cryptographic sizes, strict base64url lengths, single-element
 evaluation, canonicalization limits, and linkage input limits are fixed
 protocol requirements.
+
+A local-stdio `infer_credibility` deployment MUST use a fixed bounded executor,
+immediately reject work when all admission slots are occupied, and maintain no
+pending queue. Maximum inference concurrency defaults to 1 and is configurable
+from 1 through 64. The inference deadline defaults to 1000 milliseconds and is
+configurable from 1 through 60000 milliseconds. An admission slot remains
+occupied until timed-out inference work actually finishes. These controls are
+separate from VOPRF evaluation controls.
+
+The installed MCP SDK does not provide a pre-parse stdio frame bound. Until a
+reviewed transport bound exists, the local implementation MUST acknowledge
+that limitation and MUST NOT claim complete resource-control conformance.
 
 ## 11. MCP Binding
 

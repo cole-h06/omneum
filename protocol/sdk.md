@@ -296,20 +296,37 @@ versions.
 
 ## 11. Credibility Inference
 
-`infer_credibility` is a non-normative version-1 draft and is not implemented.
+`infer_credibility` is specified for local MCP stdio and is not implemented.
+The request, response, validation order, bounds, and algorithm are defined in
+`api.md`; no SDK may present this flow as currently available.
 
-The current draft anticipates that the client will submit the complete
-assertion graph required for one inference run. The self-hosted deployment
-remains stateless and does not persist that graph.
+Before a future inference call, the SDK will canonicalize application-local
+assertions, estimate a symmetric dependency and weighted signal coverage for
+every source pair, and link source, attribute, and claim identifiers. It will
+send the complete canonical assertion list and source-pair list. Raw
+provenance, lineage, citations, owners, timestamps, retrieval records, raw
+signals, source names, claim text, and natural-language explanations remain
+local. Weighted signal coverage records how much configured dependency-signal
+weight was observable; it is not correctness confidence.
 
-The illustrative draft response includes source credibility, claim support,
-conflicting claims, and algorithm telemetry. Exact validation, graph and
-resource limits, telemetry semantics, result ordering, and the response
-contract will be finalized during the inference milestone. Nothing in this
-draft defines SDK inference conformance. A future high-level SDK may combine
-opaque identifiers with application-local metadata, but the deployment does
-not receive the original content and does not generate natural-language
-explanations.
+After validating the response metadata, schema, token membership, numeric
+values, and deterministic ordering, the SDK will map opaque results to its
+local names. It may explain server-returned support, contributions, conflicts,
+estimated independent support, and dependency confidence using locally retained
+signal descriptions. Support is a graph score rather than a truth probability,
+and estimated independent support is not a count of verified origins.
+
+`dependency_clusters`, thresholds, and membership never cross MCP. There is no
+default threshold. If a caller explicitly supplies a finite threshold in
+`[0, 1]`, the SDK MAY form an undirected graph among the relevant supporting
+sources with an edge where `dependency >= threshold`, then use its connected
+components as local dependency clusters. For reproducibility, it MUST retain
+both the caller's threshold and the actual cluster membership. Without an
+explicit threshold, it MUST omit cluster counts and cluster explanations.
+
+The deployment does not receive original content or generate natural-language
+explanations. Pairwise signal descriptions such as shared ownership or close
+timing can appear only in SDK explanations derived from retained local data.
 
 `trace_claim` is deferred and has no version-1 SDK interface.
 

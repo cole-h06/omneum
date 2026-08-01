@@ -29,7 +29,7 @@ Version 1 has the following implementation status:
 | Canonical linkage serialization and domain encoding | Implemented |
 | RFC 9497 VOPRF client and server primitives | Implemented |
 | `evaluate_voprf` MCP tool | Implemented for local stdio |
-| `infer_credibility` MCP tool | Non-normative version-1 draft, not implemented |
+| `infer_credibility` MCP tool | Specified for local stdio, not implemented |
 | `trace_claim` | Deferred |
 | Overlapping-key rotation | Deferred |
 | Remote transport profile | Deferred |
@@ -306,16 +306,29 @@ authenticated configuration management and deployment controls.
 
 ## 13. Inference
 
-`infer_credibility` is a non-normative version-1 draft and is not implemented.
+`infer_credibility` is specified for local MCP stdio and is not implemented.
+The exact wire contract and algorithm are defined in `api.md`.
 
-The current draft anticipates that the client will submit an assertion graph
-containing opaque linkage tokens and one request-level token context. Exact
-validation, graph and resource limits, telemetry semantics, result ordering,
-and the response contract will be finalized during the inference milestone.
-The draft does not establish inference conformance.
+Before linkage, the client canonicalizes application-local assertions and
+estimates the symmetric dependency and weighted signal coverage for every
+source pair. It retains raw provenance, lineage, ownership, timestamps,
+retrieval records, signal observations, names, claim text, and explanation
+text locally. The request contains only opaque assertion triples and the two
+numeric values for every canonical source pair.
 
-The self-hosted server remains stateless: the complete graph required for an
-inference run is supplied in that request and is not persisted by the protocol.
+The deployment validates that complete graph and performs deterministic,
+dependency-adjusted credibility propagation. It returns opaque identifiers,
+scores, contributions, conflicts, independent-support telemetry, dependency
+confidence, and deterministic convergence metadata. It cannot recover or
+validate provenance relationships from opaque tokens alone.
+
+The self-hosted server remains stateless and request-scoped: the complete graph
+required for an inference run is supplied in that request and is not persisted.
+`dependency_clusters`, cluster thresholds, and cluster membership are not MCP
+request or response fields. No default cluster threshold exists. An SDK MAY
+compute clusters locally only when its caller supplies an explicit threshold;
+it MUST retain that threshold and the actual cluster membership for a
+reproducible explanation.
 
 `trace_claim` is deferred. Version 1 defines no normative trace interface.
 
