@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-import base64
-import binascii
 import json
-import re
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
 from mcp.types import CallToolResult, TextContent
 
+from verity.base64url import decode_unpadded, encode_unpadded
 from verity.config import (
     PROTOCOL_VERSION,
     VOPRF_MODE,
@@ -28,9 +26,6 @@ from verity.oprf import (
     InvalidBlindedElementError,
     OPRFProtocolError,
 )
-
-
-_BASE64URL = re.compile(r"[A-Za-z0-9_-]+")
 
 
 class EvaluationService:
@@ -122,11 +117,11 @@ class EvaluationService:
                 voprf_mode=VOPRF_MODE,
                 voprf_ciphersuite=CIPHERSUITE,
                 linkage_encoding_version=ENCODING_VERSION,
-                evaluated_element=_encode_protocol_value(
+                evaluated_element=encode_unpadded(
                     evaluation.evaluated_element,
                     expected_length=ELEMENT_LENGTH,
                 ),
-                proof=_encode_protocol_value(
+                proof=encode_unpadded(
                     evaluation.proof,
                     expected_length=PROOF_LENGTH,
                 ),
@@ -274,50 +269,7 @@ def success_result(
 
 
 def _decode_blinded_element(value: str) -> bytes:
-    if (
-        len(value) != 43
-        or _BASE64URL.fullmatch(value) is None
-    ):
-        raise ValueError(
-            "blinded_element must be canonical base64url"
-        )
-    padding = "=" * (-len(value) % 4)
-    try:
-        decoded = base64.b64decode(
-            value + padding,
-            altchars=b"-_",
-            validate=True,
-        )
-    except (binascii.Error, ValueError):
-        raise ValueError(
-            "blinded_element must be canonical base64url"
-        ) from None
-    if len(decoded) != ELEMENT_LENGTH:
-        raise ValueError(
-            "blinded_element must be 32 bytes"
-        )
-    if _encode_protocol_value(
-        decoded,
+    return decode_unpadded(
+        value,
         expected_length=ELEMENT_LENGTH,
-    ) != value:
-        raise ValueError(
-            "blinded_element must be canonical base64url"
-        )
-    return decoded
-
-
-def _encode_protocol_value(
-    value: bytes,
-    *,
-    expected_length: int,
-) -> str:
-    if (
-        type(value) is not bytes
-        or len(value) != expected_length
-    ):
-        raise ValueError(
-            "protocol value has an invalid length"
-        )
-    return base64.urlsafe_b64encode(
-        value
-    ).rstrip(b"=").decode("ascii")
+    )

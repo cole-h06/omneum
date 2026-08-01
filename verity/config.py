@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-import base64
-import binascii
 import hashlib
 import os
-import re
 import secrets
 import uuid
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .base64url import decode_unpadded
 from .linkage import ENCODING_VERSION
 from .oprf import (
     CIPHERSUITE,
@@ -38,7 +36,6 @@ _PUBLIC_KEY = "VERITY_VOPRF_PUBLIC_KEY"
 _PRIVATE_KEY_FILE = "VERITY_VOPRF_PRIVATE_KEY_FILE"
 _MAX_CONCURRENCY = "VERITY_VOPRF_MAX_CONCURRENCY"
 _EVALUATION_TIMEOUT_MS = "VERITY_VOPRF_EVALUATION_TIMEOUT_MS"
-_BASE64URL = re.compile(r"[A-Za-z0-9_-]+")
 _FINGERPRINT_LABEL = b"VERITY-VOPRF-CONFIG\x00"
 
 
@@ -272,35 +269,15 @@ def _parse_key_version(value: str) -> int:
 
 
 def _decode_public_key(value: str) -> bytes:
-    if _BASE64URL.fullmatch(value) is None:
-        raise ConfigurationError(
-            "VERITY_VOPRF_PUBLIC_KEY must be canonical base64url."
-        )
-
-    padding = "=" * (-len(value) % 4)
     try:
-        decoded = base64.b64decode(
-            value + padding,
-            altchars=b"-_",
-            validate=True,
+        return decode_unpadded(
+            value,
+            expected_length=32,
         )
-    except (binascii.Error, ValueError):
+    except ValueError:
         raise ConfigurationError(
             "VERITY_VOPRF_PUBLIC_KEY must be canonical base64url."
         ) from None
-
-    canonical = base64.urlsafe_b64encode(
-        decoded
-    ).rstrip(b"=").decode("ascii")
-    if canonical != value:
-        raise ConfigurationError(
-            "VERITY_VOPRF_PUBLIC_KEY must be canonical base64url."
-        )
-    if len(decoded) != 32:
-        raise ConfigurationError(
-            "VOPRF public key must be 32 bytes."
-        )
-    return decoded
 
 
 def _fingerprint(config: DeploymentConfig) -> str:
