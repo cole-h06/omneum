@@ -302,6 +302,208 @@ response, validation order, bounds, and algorithm are defined in `api.md`.
 Client SDK inference integration is not implemented, and no SDK may present an
 inference client flow as currently available.
 
+### 11.1 Dependency Estimator Version
+
+The version-1 local dependency estimator is identified by the exact string
+`"dependency-estimator-v1"`. An SDK MUST reject any other estimator version. A
+new estimator version is required for a change to signal scoring,
+observability, source-level aggregation, weight normalization, dependency or
+coverage calculation, temporal-window semantics, or cluster construction.
+
+The estimator operates on canonical application-local sources, assertions,
+and evidence before linkage. Each assertion has one stable local assertion ID,
+one source, and one `(entity, attribute, value)` tuple. Every assertion MUST
+have exactly one evidence record. Each source MUST assert at most one value for
+an `(entity, attribute)` property. Evidence references MUST resolve to known
+local sources and assertions.
+
+For each evidence relationship field, `null` means that the relationship was
+not captured, an empty sequence means it was captured and none was found, and
+a nonempty sequence contains the captured relationships. Retrieval records and
+retrieval timestamps are not estimator inputs.
+
+Every valid evidence record in the current research implementation has a
+timezone-aware `observed_at` value describing when the source says the
+information was published or updated. Implementations compare instants, not
+local wall-clock representations. The temporal window is supplied explicitly,
+has a finite positive number of seconds, and has no version-1 default.
+
+`source_timestamp=None` means that temporal metadata was unavailable. A
+missing timestamp does not by itself invalidate an observation or graph.
+
+### 11.2 Source-Level Signal Inputs
+
+The estimator first aggregates assertion evidence by source.
+
+For provenance, let `P_i` be the set union of every non-null
+`provenance_ids` sequence on source `i`'s evidence. Provenance is observable
+for a source only when the source has evidence and every evidence record has a
+non-null `provenance_ids` sequence. For a source pair it is observable only
+when it is observable for both sources. When observable:
+
+```text
+provenance(i,k) = 0                                  if P_i union P_k is empty
+provenance(i,k) = |P_i intersection P_k|
+                    / |P_i union P_k|                otherwise
+```
+
+If provenance is unavailable for either source, its pair score and
+observability are both zero. An observable pair of empty sets has score zero
+and observability one.
+
+Lineage is directional before pair aggregation. Let `L(i,k) = 1` when any
+evidence record for source `i` either lists source `k` in `cited_source_ids` or
+lists a parent assertion whose source is `k`; otherwise `L(i,k) = 0`. Null
+lineage sequences add no direction. Source-level lineage capture is available
+only when every evidence record for the source has both non-null
+`cited_source_ids` and non-null `parent_assertion_ids`. The symmetric score is:
+
+```text
+lineage(i,k) = max(L(i,k), L(k,i))
+```
+
+The pair is lineage-observable when `lineage(i,k) = 1`, even if capture is
+unavailable in the opposite direction. With no positive direction it is
+observable only when source-level lineage capture is available for both
+sources. Thus an observed zero differs from unavailable lineage.
+
+Ownership is source-level metadata. It is observable for a pair only when both
+sources have a non-null `owner_id`. Its score is one when those exact owner IDs
+are equal and zero otherwise. If either owner is unavailable, its score and
+observability are both zero.
+
+### 11.3 Temporal Signal
+
+Let a property be the exact canonical `(entity, attribute)` pair. For a pair of
+sources, the temporal comparison set contains the properties asserted by both
+sources with equal canonical values. For an ordered child-parent pair, let
+`M(i,k)` be that set and let `W` be the explicit temporal window:
+
+```text
+T(i,k) = 0                                           if M(i,k) is empty
+T(i,k) = |{p in M(i,k) :
+              0 < observed_at(i,p) - observed_at(k,p) <= W}|
+           / |M(i,k)|                                otherwise
+
+temporal(i,k) = max(T(i,k), T(k,i))
+```
+
+Equal timestamps do not qualify. A later observation qualifies at the exact
+window boundary. Disagreements and properties present in only one source do
+not enter the denominator.
+
+Temporal dependency is observable for a source pair only when both timestamps
+are present for every property in its temporal comparison set. If any required
+timestamp is missing, the pair's temporal score and observability are both
+zero. A missing timestamp on an assertion that is not in the pair's comparison
+set does not affect that pair's temporal observability. In particular, a
+timestamp is not required for a property absent from either source or for a
+shared property whose values differ. The temporal weight is not redistributed
+when the signal is unavailable.
+
+For the current valid research inputs, temporal observability is one for every
+distinct source pair because every evidence record has a timezone-aware
+`observed_at`. Retrieval time MUST NOT affect this score or observability.
+
+### 11.4 Structural Signal
+
+The structural signal uses only the canonical assertion graph. For each exact
+canonical `(property, value)` assertion `x`, define:
+
+```text
+rarity(x) = 1 / number of sources asserting x
+```
+
+For sources `i` and `k`, let `matches` be their shared properties for which the
+canonical values are equal. Let `size_i` and `size_k` be their total numbers of
+asserted properties. If `matches` is empty, structural dependency is zero.
+Otherwise:
+
+```text
+inclusion(i,k) = max(|matches| / size_k, |matches| / size_i)
+rarity_mean(i,k) =
+    sum(rarity(property, matching value) for each match) / |matches|
+structural(i,k) = inclusion(i,k) * rarity_mean(i,k)
+```
+
+Conflicting values on a shared property do not count as matches and do not
+otherwise reduce the score. Structural dependency is observable for every
+distinct valid source pair, including an observable zero.
+
+### 11.5 Weights, Dependency, and Coverage
+
+The caller MUST supply exactly five finite, non-negative binary64 weights:
+`provenance`, `lineage`, `ownership`, `temporal`, and `structural`. Their sum
+MUST be finite and greater than zero. The values are configuration weights, not
+calibrated production defaults. Individual weights are not constrained to
+`[0, 1]`; arbitrary non-negative ratios such as `25, 30, 15, 15, 15` are valid
+and equivalent to `0.25, 0.30, 0.15, 0.15, 0.15`. The SDK normalizes without
+modifying the caller's values:
+
+```text
+total = provenance + lineage + ownership + temporal + structural
+normalized_weight(name) = supplied_weight(name) / total
+```
+
+The sum and all following accumulations use ordinary IEEE-754 binary64
+operations in this fixed signal order: provenance, lineage, ownership,
+temporal, structural. Unavailable signals have score zero. Their weights remain
+in the configuration and are not redistributed to observable signals.
+
+For every unordered pair of distinct sources:
+
+```text
+dependency(i,k) = clamp(
+    normalized_provenance * provenance(i,k)
+  + normalized_lineage * lineage(i,k)
+  + normalized_ownership * ownership(i,k)
+  + normalized_temporal * temporal(i,k)
+  + normalized_structural * structural(i,k),
+  0,
+  1
+)
+
+weighted_signal_coverage(i,k) =
+    (normalized_provenance * provenance_observable(i,k)
+   + normalized_lineage * lineage_observable(i,k)
+   + normalized_ownership * ownership_observable(i,k)
+   + normalized_temporal * temporal_observable(i,k)
+   + normalized_structural * structural_observable(i,k))
+    / sum(all five normalized weights)
+```
+
+Each observability value is exactly zero or one. Dependency and coverage are
+symmetric. Every signal, observability, dependency, and coverage diagonal is
+zero. Weighted signal coverage records how much configured signal weight was
+observable. It is not a probability that the dependency estimate or either
+source is correct.
+
+Sources MUST be ordered by their canonical source payload bytes. The SDK emits
+the complete upper triangle in that order. Within structural accumulation,
+matching assertions are ordered by canonical property and value bytes.
+Provenance uses set cardinalities and lineage uses boolean existence, so their
+results do not depend on collection iteration order. These ordering rules
+remove the research prototype's incidental dictionary and set iteration order
+without changing its defined scores.
+
+Conformance-vector numeric outputs are compared as exact binary64 values after
+each JSON number is converted to binary64. Implementations MUST use the fixed
+operation and accumulation order above; the vectors do not define a tolerance.
+
+### 11.6 Local Dependency Clusters
+
+Clusters are optional local telemetry. No default or calibrated threshold
+exists. When the caller supplies a threshold, it MUST be a finite binary64
+number in `[0, 1]`. For the relevant supporting sources, construct an
+undirected graph with an edge for every pair whose dependency is greater than
+or equal to the threshold. The connected components, including singleton
+components, are the dependency clusters.
+
+Sources within a component and the components themselves MUST use canonical
+source order. The SDK MUST retain the exact threshold and complete membership
+for reproducibility. Without an explicit threshold it MUST omit clusters and
+cluster explanations. Thresholds and cluster membership never cross MCP.
+
 Before an inference call, an inference-capable SDK will canonicalize local
 assertions, estimate a symmetric dependency and weighted signal coverage for
 every source pair, and link source, attribute, and claim identifiers. It will

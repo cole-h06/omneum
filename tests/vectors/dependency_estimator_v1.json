@@ -1,0 +1,507 @@
+{
+  "estimator_version": "dependency-estimator-v1",
+  "signal_order": [
+    "provenance",
+    "lineage",
+    "ownership",
+    "temporal",
+    "structural"
+  ],
+  "output_comparison": {
+    "mode": "exact_binary64",
+    "tolerance": null,
+    "description": "Convert JSON numbers to IEEE-754 binary64 and compare outputs exactly after using the specified operation and accumulation order."
+  },
+  "cases": [
+    {
+      "name": "provenance_jaccard",
+      "operation": "provenance",
+      "source_a_ids": ["p1", "p2"],
+      "source_b_ids": ["p2", "p3"],
+      "expected_score": 0.3333333333333333
+    },
+    {
+      "name": "provenance_observed_empty",
+      "operation": "provenance",
+      "source_a_ids": [],
+      "source_b_ids": [],
+      "expected_score": 0.0,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "lineage_direction",
+      "operation": "lineage",
+      "a_to_b": 1.0,
+      "b_to_a": 0.0,
+      "expected_score": 1.0,
+      "expected_observable_with_missing_reverse_capture": 1.0
+    },
+    {
+      "name": "lineage_cited_source",
+      "operation": "lineage_evidence",
+      "source_ids": ["a", "b"],
+      "assertions": [
+        {"assertion_id": "a1", "source_id": "a"},
+        {"assertion_id": "b1", "source_id": "b"}
+      ],
+      "evidence": [
+        {"assertion_id": "a1", "cited_source_ids": ["b"], "parent_assertion_ids": []},
+        {"assertion_id": "b1", "cited_source_ids": [], "parent_assertion_ids": []}
+      ],
+      "expected_a_to_b": 1.0,
+      "expected_b_to_a": 0.0,
+      "expected_score": 1.0,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "lineage_parent_assertion",
+      "operation": "lineage_evidence",
+      "source_ids": ["a", "b"],
+      "assertions": [
+        {"assertion_id": "a1", "source_id": "a"},
+        {"assertion_id": "b1", "source_id": "b"}
+      ],
+      "evidence": [
+        {"assertion_id": "a1", "cited_source_ids": [], "parent_assertion_ids": ["b1"]},
+        {"assertion_id": "b1", "cited_source_ids": [], "parent_assertion_ids": []}
+      ],
+      "expected_a_to_b": 1.0,
+      "expected_b_to_a": 0.0,
+      "expected_score": 1.0,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "lineage_observed_zero",
+      "operation": "lineage_evidence",
+      "source_ids": ["a", "b"],
+      "assertions": [
+        {"assertion_id": "a1", "source_id": "a"},
+        {"assertion_id": "b1", "source_id": "b"}
+      ],
+      "evidence": [
+        {"assertion_id": "a1", "cited_source_ids": [], "parent_assertion_ids": []},
+        {"assertion_id": "b1", "cited_source_ids": [], "parent_assertion_ids": []}
+      ],
+      "expected_a_to_b": 0.0,
+      "expected_b_to_a": 0.0,
+      "expected_score": 0.0,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "lineage_one_unavailable",
+      "operation": "lineage_evidence",
+      "source_ids": ["a", "b"],
+      "assertions": [
+        {"assertion_id": "a1", "source_id": "a"},
+        {"assertion_id": "b1", "source_id": "b"}
+      ],
+      "evidence": [
+        {"assertion_id": "a1", "cited_source_ids": null, "parent_assertion_ids": null},
+        {"assertion_id": "b1", "cited_source_ids": [], "parent_assertion_ids": []}
+      ],
+      "expected_a_to_b": 0.0,
+      "expected_b_to_a": 0.0,
+      "expected_score": 0.0,
+      "expected_observable": 0.0
+    },
+    {
+      "name": "lineage_both_unavailable",
+      "operation": "lineage_evidence",
+      "source_ids": ["a", "b"],
+      "assertions": [
+        {"assertion_id": "a1", "source_id": "a"},
+        {"assertion_id": "b1", "source_id": "b"}
+      ],
+      "evidence": [
+        {"assertion_id": "a1", "cited_source_ids": null, "parent_assertion_ids": null},
+        {"assertion_id": "b1", "cited_source_ids": null, "parent_assertion_ids": null}
+      ],
+      "expected_a_to_b": 0.0,
+      "expected_b_to_a": 0.0,
+      "expected_score": 0.0,
+      "expected_observable": 0.0
+    },
+    {
+      "name": "ownership_equal",
+      "operation": "ownership",
+      "source_a_owner_id": "owner-1",
+      "source_b_owner_id": "owner-1",
+      "expected_score": 1.0,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "ownership_different",
+      "operation": "ownership",
+      "source_a_owner_id": "owner-1",
+      "source_b_owner_id": "owner-2",
+      "expected_score": 0.0,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "ownership_unavailable",
+      "operation": "ownership",
+      "source_a_owner_id": null,
+      "source_b_owner_id": "owner-2",
+      "expected_score": 0.0,
+      "expected_observable": 0.0
+    },
+    {
+      "name": "ownership_both_unavailable",
+      "operation": "ownership",
+      "source_a_owner_id": null,
+      "source_b_owner_id": null,
+      "expected_score": 0.0,
+      "expected_observable": 0.0
+    },
+    {
+      "name": "temporal_direction_and_boundary",
+      "operation": "temporal",
+      "temporal_window_seconds": 7200.0,
+      "matching_properties": [
+        {
+          "child_observed_at": "2026-02-02T11:00:00Z",
+          "parent_observed_at": "2026-02-02T09:00:00Z"
+        },
+        {
+          "child_observed_at": "2026-02-02T09:00:00Z",
+          "parent_observed_at": "2026-02-02T09:00:00Z"
+        }
+      ],
+      "expected_child_to_parent": 0.5,
+      "expected_parent_to_child": 0.0,
+      "expected_score": 0.5,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "temporal_complete_timestamps",
+      "operation": "temporal_missingness",
+      "temporal_window_seconds": 7200.0,
+      "matching_properties": [
+        {
+          "source_a_observed_at": "2026-02-02T11:00:00Z",
+          "source_b_observed_at": "2026-02-02T09:00:00Z"
+        }
+      ],
+      "unrelated_observations": [],
+      "normalized_weights": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      },
+      "other_signal_scores": 0.0,
+      "other_signals_observable": 1.0,
+      "expected_temporal_score": 1.0,
+      "expected_temporal_observable": 1.0,
+      "expected_dependency": 0.15,
+      "expected_weighted_signal_coverage": 1.0
+    },
+    {
+      "name": "temporal_one_required_missing",
+      "operation": "temporal_missingness",
+      "temporal_window_seconds": 7200.0,
+      "matching_properties": [
+        {
+          "source_a_observed_at": null,
+          "source_b_observed_at": "2026-02-02T09:00:00Z"
+        }
+      ],
+      "unrelated_observations": [],
+      "normalized_weights": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      },
+      "other_signal_scores": 0.0,
+      "other_signals_observable": 1.0,
+      "expected_temporal_score": 0.0,
+      "expected_temporal_observable": 0.0,
+      "expected_dependency": 0.0,
+      "expected_weighted_signal_coverage": 0.85
+    },
+    {
+      "name": "temporal_both_required_missing",
+      "operation": "temporal_missingness",
+      "temporal_window_seconds": 7200.0,
+      "matching_properties": [
+        {
+          "source_a_observed_at": null,
+          "source_b_observed_at": null
+        }
+      ],
+      "unrelated_observations": [],
+      "normalized_weights": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      },
+      "other_signal_scores": 0.0,
+      "other_signals_observable": 1.0,
+      "expected_temporal_score": 0.0,
+      "expected_temporal_observable": 0.0,
+      "expected_dependency": 0.0,
+      "expected_weighted_signal_coverage": 0.85
+    },
+    {
+      "name": "temporal_unrelated_missing",
+      "operation": "temporal_missingness",
+      "temporal_window_seconds": 7200.0,
+      "matching_properties": [
+        {
+          "source_a_observed_at": "2026-02-02T11:00:00Z",
+          "source_b_observed_at": "2026-02-02T09:00:00Z"
+        }
+      ],
+      "unrelated_observations": [
+        {
+          "source": "a",
+          "reason": "property absent from source b",
+          "observed_at": null
+        },
+        {
+          "source": "b",
+          "reason": "shared property has a different value",
+          "observed_at": null
+        }
+      ],
+      "normalized_weights": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      },
+      "other_signal_scores": 0.0,
+      "other_signals_observable": 1.0,
+      "expected_temporal_score": 1.0,
+      "expected_temporal_observable": 1.0,
+      "expected_dependency": 0.15,
+      "expected_weighted_signal_coverage": 1.0
+    },
+    {
+      "name": "temporal_no_matching_properties",
+      "operation": "temporal",
+      "temporal_window_seconds": 7200.0,
+      "source_a_observations": [
+        {"property": "p1", "value": "x", "observed_at": "2026-02-02T11:00:00Z"}
+      ],
+      "source_b_observations": [
+        {"property": "p2", "value": "x", "observed_at": "2026-02-02T09:00:00Z"}
+      ],
+      "expected_a_to_b": 0.0,
+      "expected_b_to_a": 0.0,
+      "expected_score": 0.0,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "structural_rarity_weighted_inclusion",
+      "operation": "structural",
+      "source_assertions": {
+        "a": {"p1": "x", "p2": "y"},
+        "b": {"p1": "x"},
+        "c": {"p1": "x"}
+      },
+      "source_a": "a",
+      "source_b": "b",
+      "expected_inclusion": 1.0,
+      "expected_rarity_mean": 0.3333333333333333,
+      "expected_score": 0.3333333333333333,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "weight_normalization",
+      "operation": "weights",
+      "supplied": {
+        "provenance": 25.0,
+        "lineage": 30.0,
+        "ownership": 15.0,
+        "temporal": 15.0,
+        "structural": 15.0
+      },
+      "expected_normalized": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      }
+    },
+    {
+      "name": "combined_weighting",
+      "operation": "combine",
+      "normalized_weights": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      },
+      "signals": {
+        "provenance": 1.0,
+        "lineage": 1.0,
+        "ownership": 1.0,
+        "temporal": 1.0,
+        "structural": 0.5
+      },
+      "observability": {
+        "provenance": 1.0,
+        "lineage": 1.0,
+        "ownership": 1.0,
+        "temporal": 1.0,
+        "structural": 1.0
+      },
+      "expected_dependency": 0.9249999999999999,
+      "expected_weighted_signal_coverage": 1.0
+    },
+    {
+      "name": "missing_without_renormalization",
+      "operation": "combine",
+      "normalized_weights": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      },
+      "signals": {
+        "provenance": 0.0,
+        "lineage": 0.0,
+        "ownership": 0.0,
+        "temporal": 0.0,
+        "structural": 0.0
+      },
+      "observability": {
+        "provenance": 0.0,
+        "lineage": 0.0,
+        "ownership": 1.0,
+        "temporal": 1.0,
+        "structural": 1.0
+      },
+      "expected_dependency": 0.0,
+      "expected_weighted_signal_coverage": 0.44999999999999996
+    },
+    {
+      "name": "all_signals_unavailable",
+      "operation": "combine",
+      "scope": "aggregation formula; structural observability remains required for a valid assertion graph",
+      "normalized_weights": {
+        "provenance": 0.25,
+        "lineage": 0.3,
+        "ownership": 0.15,
+        "temporal": 0.15,
+        "structural": 0.15
+      },
+      "signals": {
+        "provenance": 0.0,
+        "lineage": 0.0,
+        "ownership": 0.0,
+        "temporal": 0.0,
+        "structural": 0.0
+      },
+      "observability": {
+        "provenance": 0.0,
+        "lineage": 0.0,
+        "ownership": 0.0,
+        "temporal": 0.0,
+        "structural": 0.0
+      },
+      "expected_dependency": 0.0,
+      "expected_weighted_signal_coverage": 0.0
+    },
+    {
+      "name": "source_level_provenance_union",
+      "operation": "provenance",
+      "source_a_observations": [
+        {"provenance_ids": ["p1"]},
+        {"provenance_ids": ["p2"]}
+      ],
+      "source_b_observations": [
+        {"provenance_ids": ["p2"]},
+        {"provenance_ids": ["p3"]}
+      ],
+      "expected_source_a_ids": ["p1", "p2"],
+      "expected_source_b_ids": ["p2", "p3"],
+      "expected_score": 0.3333333333333333,
+      "expected_observable": 1.0
+    },
+    {
+      "name": "source_level_missing_provenance",
+      "operation": "provenance_capture",
+      "source_a_observations": [
+        {"provenance_ids": ["p1"]},
+        {"provenance_ids": null}
+      ],
+      "source_b_observations": [
+        {"provenance_ids": []}
+      ],
+      "expected_source_a_observable": false,
+      "expected_source_b_observable": true,
+      "expected_pair_score": 0.0,
+      "expected_pair_observable": 0.0
+    },
+    {
+      "name": "provenance_either_unavailable",
+      "operation": "provenance_capture",
+      "source_a_observations": [
+        {"provenance_ids": null}
+      ],
+      "source_b_observations": [
+        {"provenance_ids": ["p1"]}
+      ],
+      "expected_source_a_observable": false,
+      "expected_source_b_observable": true,
+      "expected_pair_score": 0.0,
+      "expected_pair_observable": 0.0
+    },
+    {
+      "name": "symmetry_and_zero_diagonal",
+      "operation": "matrix_invariants",
+      "expected_symmetric": true,
+      "expected_zero_diagonal": true
+    },
+    {
+      "name": "explicit_threshold_clusters",
+      "operation": "clusters",
+      "threshold": 0.5,
+      "sources": ["a", "b", "c", "d"],
+      "dependencies": [
+        {"source_a": "a", "source_b": "b", "dependency": 0.5},
+        {"source_a": "a", "source_b": "c", "dependency": 0.0},
+        {"source_a": "a", "source_b": "d", "dependency": 0.0},
+        {"source_a": "b", "source_b": "c", "dependency": 0.75},
+        {"source_a": "b", "source_b": "d", "dependency": 0.0},
+        {"source_a": "c", "source_b": "d", "dependency": 0.25}
+      ],
+      "expected_components": [["a", "b", "c"], ["d"]]
+    }
+  ],
+  "enterprise_complete_matrix": {
+    "description": "Synthetic enterprise fixture derived from the committed five-source, fifteen-assertion experiment.",
+    "temporal_window_seconds": 7200.0,
+    "supplied_weights": {
+      "provenance": 0.25,
+      "lineage": 0.3,
+      "ownership": 0.15,
+      "temporal": 0.15,
+      "structural": 0.15
+    },
+    "source_order": ["handbook", "faq", "sql", "vendor", "research"],
+    "pairs": [
+      {"source_a": "handbook", "source_b": "faq", "signals": {"provenance": 1.0, "lineage": 0.0, "ownership": 1.0, "temporal": 0.0, "structural": 0.27777777777777773}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.44166666666666665, "weighted_signal_coverage": 1.0},
+      {"source_a": "handbook", "source_b": "sql", "signals": {"provenance": 0.0, "lineage": 0.0, "ownership": 0.0, "temporal": 1.0, "structural": 0.27777777777777773}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.19166666666666665, "weighted_signal_coverage": 1.0},
+      {"source_a": "handbook", "source_b": "vendor", "signals": {"provenance": 0.0, "lineage": 0.0, "ownership": 0.0, "temporal": 0.0, "structural": 0.0}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.0, "weighted_signal_coverage": 1.0},
+      {"source_a": "handbook", "source_b": "research", "signals": {"provenance": 0.5, "lineage": 1.0, "ownership": 0.0, "temporal": 0.0, "structural": 0.16666666666666666}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.45, "weighted_signal_coverage": 1.0},
+      {"source_a": "faq", "source_b": "sql", "signals": {"provenance": 0.0, "lineage": 0.0, "ownership": 0.0, "temporal": 0.0, "structural": 0.27777777777777773}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.04166666666666666, "weighted_signal_coverage": 1.0},
+      {"source_a": "faq", "source_b": "vendor", "signals": {"provenance": 0.0, "lineage": 0.0, "ownership": 0.0, "temporal": 0.0, "structural": 0.0}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.0, "weighted_signal_coverage": 1.0},
+      {"source_a": "faq", "source_b": "research", "signals": {"provenance": 0.5, "lineage": 0.0, "ownership": 0.0, "temporal": 0.0, "structural": 0.16666666666666666}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.15, "weighted_signal_coverage": 1.0},
+      {"source_a": "sql", "source_b": "vendor", "signals": {"provenance": 0.0, "lineage": 0.0, "ownership": 0.0, "temporal": 0.0, "structural": 0.0}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.0, "weighted_signal_coverage": 1.0},
+      {"source_a": "sql", "source_b": "research", "signals": {"provenance": 0.0, "lineage": 0.0, "ownership": 0.0, "temporal": 0.0, "structural": 0.16666666666666666}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.024999999999999998, "weighted_signal_coverage": 1.0},
+      {"source_a": "vendor", "source_b": "research", "signals": {"provenance": 0.5, "lineage": 1.0, "ownership": 0.0, "temporal": 1.0, "structural": 0.16666666666666666}, "observability": {"provenance": 1.0, "lineage": 1.0, "ownership": 1.0, "temporal": 1.0, "structural": 1.0}, "dependency": 0.6, "weighted_signal_coverage": 1.0}
+    ]
+  }
+}
