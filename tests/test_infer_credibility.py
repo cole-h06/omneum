@@ -19,7 +19,10 @@ from verity.models import (
 )
 from verity.oprf import VOPRFEvaluation
 from verity.tools.evaluate_voprf import EvaluationService
-from verity.tools.infer_credibility import InferenceService
+from verity.tools.infer_credibility import (
+    MAX_CONFLICTING_CLAIM_ENTRIES,
+    InferenceService,
+)
 from verity.transport.mcp import create_server
 
 
@@ -598,6 +601,77 @@ def test_bounds():
                 assert code(await service.evaluate(request(
                     assertions=assertions,
                 ))) == "invalid_graph"
+        finally:
+            service.close()
+
+    asyncio.run(run())
+
+
+def test_conflict_limit():
+    tool_module._validate_conflict_entry_count(
+        MAX_CONFLICTING_CLAIM_ENTRIES
+    )
+    with pytest.raises(tool_module.GraphError):
+        tool_module._validate_conflict_entry_count(
+            MAX_CONFLICTING_CLAIM_ENTRIES + 1
+        )
+
+
+def test_conflict_calculation():
+    claim_counts = [64, 64, 64, 64, 16, 3, 3, 2, 2]
+    claim_attributes = {}
+    claim_index = 0
+    for attribute_index, claim_count in enumerate(claim_counts):
+        for _ in range(claim_count):
+            claim_attributes[claim_index] = attribute_index
+            claim_index += 1
+    assert tool_module._conflict_entry_count(
+        claim_attributes
+    ) == MAX_CONFLICTING_CLAIM_ENTRIES
+
+
+def test_conflict_precedes_admission(monkeypatch):
+    claim_counts = [64, 64, 64, 64, 17]
+    assertions = []
+    claim_value = 10_000
+    for attribute_index, claim_count in enumerate(claim_counts):
+        for source_index in range(claim_count):
+            assertions.append({
+                "source_id": token(source_index + 1),
+                "attribute_id": token(attribute_index + 1_000),
+                "claim_id": token(claim_value),
+            })
+            claim_value += 1
+    assertions.sort(key=lambda item: (
+        item["source_id"],
+        item["attribute_id"],
+        item["claim_id"],
+    ))
+    sources = sorted({item["source_id"] for item in assertions})
+    pairs = [
+        {
+            "source_a_id": source_a_id,
+            "source_b_id": source_b_id,
+            "dependency": 0.0,
+            "weighted_signal_coverage": 0.0,
+        }
+        for index, source_a_id in enumerate(sources)
+        for source_b_id in sources[index + 1:]
+    ]
+
+    async def run():
+        service = InferenceService(make_state())
+
+        def submit(_graph):
+            raise AssertionError("inference was admitted")
+
+        monkeypatch.setattr(service, "_submit", submit)
+        try:
+            result = await service.evaluate(request(
+                assertions=assertions,
+                source_pairs=pairs,
+            ))
+            assert code(result) == "invalid_graph"
         finally:
             service.close()
 

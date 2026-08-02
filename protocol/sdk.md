@@ -126,7 +126,8 @@ contains only a blinded group element and non-secret deployment metadata.
 
 The deployment can still observe caller identity, timing, request size, and
 volume. An inference request also reveals equality and topology among the
-opaque tokens it contains.
+opaque tokens it contains. Stable tokens reveal equality within their
+deployment and key-version boundary.
 
 ## 4. Canonicalization and Serialization
 
@@ -296,11 +297,12 @@ versions.
 
 ## 11. Credibility Inference
 
-`infer_credibility` is specified for local MCP stdio and is not implemented.
-The request, response, validation order, bounds, and algorithm are defined in
-`api.md`; no SDK may present this flow as currently available.
+`infer_credibility` is implemented by the local MCP stdio server. The request,
+response, validation order, bounds, and algorithm are defined in `api.md`.
+Client SDK inference integration is not implemented, and no SDK may present an
+inference client flow as currently available.
 
-Before a future inference call, the SDK will canonicalize application-local
+Before an inference call, an inference-capable SDK will canonicalize local
 assertions, estimate a symmetric dependency and weighted signal coverage for
 every source pair, and link source, attribute, and claim identifiers. It will
 send the complete canonical assertion list and source-pair list. Raw
@@ -327,6 +329,18 @@ explicit threshold, it MUST omit cluster counts and cluster explanations.
 The deployment does not receive original content or generate natural-language
 explanations. Pairwise signal descriptions such as shared ownership or close
 timing can appear only in SDK explanations derived from retained local data.
+
+The server rejects a graph whose response would contain more than 16384 total
+conflicting-claim entries. For an attribute with `m` distinct claims, that
+attribute contributes `m * (m - 1)` entries because every claim lists every
+other claim.
+
+The installed MCP SDK reads a complete newline-delimited stdio frame before
+application validation; pre-parse frame-size limiting is unsupported.
+Duplicate JSON object keys use the installed parser's last-value semantics.
+Timed-out Python inference work cannot be forcibly terminated and retains its
+capacity slot until completion. The server suppresses MCP SDK protocol-message
+logging so protocol values are not intentionally logged by Verity.
 
 `trace_claim` is deferred and has no version-1 SDK interface.
 

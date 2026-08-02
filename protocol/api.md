@@ -20,7 +20,7 @@ Related specifications:
 | --- | --- |
 | `ping` | Implemented |
 | `evaluate_voprf` | Implemented for local MCP stdio |
-| `infer_credibility` | Specified for local MCP stdio, not implemented |
+| `infer_credibility` | Implemented for local MCP stdio |
 | `trace_claim` | Deferred; no version-1 interface |
 
 This document is the intended version-1 contract except where a section is
@@ -290,7 +290,8 @@ the same token.
 
 ## 9. `infer_credibility`
 
-Status: **specified for local MCP stdio, not implemented**.
+Status: **implemented for local MCP stdio**. Client SDK inference integration
+is not implemented.
 
 The complete assertion graph and its complete source-pair matrix are supplied
 in each request. Inference is deterministic and request-scoped. The server
@@ -445,7 +446,19 @@ Response arrays use these deterministic orders:
 
 All claims tied for the greatest support for an attribute have
 `is_attribute_max_support: true`. `conflicting_claims` contains every other
-claim for the attribute.
+claim for the attribute. Version 1 permits at most 16384 total
+`conflicting_claims` entries in one response. For each attribute containing
+`m` distinct claims, every claim lists its other claims, so that attribute
+contributes:
+
+```text
+m * (m - 1)
+```
+
+The request-wide total is the sum of `m * (m - 1)` over all attributes. The
+server MUST calculate this total from the validated assertion topology before
+executor admission. A total greater than 16384 is `invalid_graph`; the server
+MUST NOT truncate or omit conflicts.
 
 ### 9.3 Algorithm
 
@@ -498,7 +511,8 @@ An inference deployment MUST process a request in this order:
    version, mode, ciphersuite, linkage encoding version;
 6. enforce graph count bounds;
 7. decode assertion tokens in list order and field order, then validate
-   assertion ordering, uniqueness, membership, and topology;
+   assertion ordering, uniqueness, membership, topology, and the 16384-entry
+   request-wide conflict-response limit;
 8. validate pair count, tokens, membership, canonical ordering, completeness,
    finiteness, and value ranges;
 9. admit work to the bounded inference executor;
@@ -516,8 +530,6 @@ output is `inference_failed`. Failure responses MUST contain only `message`
 and `verity_code` and MUST NOT reflect submitted values.
 
 Inference authorization is separate from VOPRF evaluation authorization.
-Because this tool is not implemented, no implementation may claim inference
-conformance yet.
 
 ## 10. Resource Controls
 
@@ -546,11 +558,21 @@ separate from VOPRF evaluation controls.
 The installed MCP SDK does not provide a pre-parse stdio frame bound. Until a
 reviewed transport bound exists, the local implementation MUST acknowledge
 that limitation and MUST NOT claim complete resource-control conformance.
+It reads a complete newline-delimited frame before application validation, so
+pre-parse frame-size limiting is unsupported. Duplicate JSON object keys use
+the installed parser's last-value semantics.
+
+Timed-out Python work cannot be forcibly terminated. Its admission slot
+remains occupied until the underlying work finishes.
+
+Verity does not intentionally log protocol values. The local server suppresses
+MCP SDK protocol-message logging before processing requests, including SDK
+records that would otherwise be emitted through the root logger.
 
 ## 11. MCP Binding
 
 An MCP client invokes a tool through the transport's standard `tools/call`
-operation. For example, once implemented:
+operation. For example:
 
 ```json
 {

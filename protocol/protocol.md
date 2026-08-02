@@ -29,7 +29,7 @@ Version 1 has the following implementation status:
 | Canonical linkage serialization and domain encoding | Implemented |
 | RFC 9497 VOPRF client and server primitives | Implemented |
 | `evaluate_voprf` MCP tool | Implemented for local stdio |
-| `infer_credibility` MCP tool | Specified for local stdio, not implemented |
+| `infer_credibility` MCP tool | Implemented for local stdio |
 | `trace_claim` | Deferred |
 | Overlapping-key rotation | Deferred |
 | Remote transport profile | Deferred |
@@ -50,8 +50,8 @@ Assertions are the edges of the Verity credibility graph.
 A **Client** performs content-sensitive processing locally, constructs protocol
 requests, and verifies VOPRF evaluations.
 
-A **Deployment** evaluates blinded inputs and, when inference is implemented,
-operates on opaque linkage tokens.
+A **Deployment** evaluates blinded inputs and runs deterministic credibility
+inference over request-scoped opaque graphs.
 
 ## 5. Design Principles
 
@@ -70,6 +70,9 @@ the graph structure submitted for inference.
 Independent valid VOPRF rounds over the same encoded input and active
 deployment key produce the same finalized token, even though client blinds and
 server proofs are randomized.
+
+Stable tokens reveal equality within their deployment and key-version
+boundary. Inference additionally reveals the submitted equality and topology.
 
 Tokens MUST be compared only when their complete token identity matches.
 
@@ -306,8 +309,9 @@ authenticated configuration management and deployment controls.
 
 ## 13. Inference
 
-`infer_credibility` is specified for local MCP stdio and is not implemented.
-The exact wire contract and algorithm are defined in `api.md`.
+`infer_credibility` is implemented for local MCP stdio. The exact wire contract
+and algorithm are defined in `api.md`. Client SDK inference integration is not
+implemented.
 
 Before linkage, the client canonicalizes application-local assertions and
 estimates the symmetric dependency and weighted signal coverage for every
@@ -320,7 +324,14 @@ The deployment validates that complete graph and performs deterministic,
 dependency-adjusted credibility propagation. It returns opaque identifiers,
 scores, contributions, conflicts, independent-support telemetry, dependency
 confidence, and deterministic convergence metadata. It cannot recover or
-validate provenance relationships from opaque tokens alone.
+validate provenance relationships from opaque tokens alone. The submitted
+dependency and weighted-signal-coverage values are client estimates that the
+deployment cannot independently verify.
+
+For an attribute with `m` distinct claims, the response contains
+`m * (m - 1)` conflict entries. The sum across all attributes MUST NOT exceed
+16384. The deployment rejects a larger topology as `invalid_graph` before
+executor admission and does not truncate the response.
 
 The self-hosted server remains stateless and request-scoped: the complete graph
 required for an inference run is supplied in that request and is not persisted.
@@ -352,6 +363,12 @@ The numeric request-size, concurrency, queue, deadline, and rate limits are
 deployment-configurable. Cryptographic sizes, one-element evaluation, linkage
 payload limits, and canonicalization bounds are protocol constants.
 
+The installed MCP SDK reads each complete newline-delimited stdio frame before
+application validation and does not support a pre-parse frame-size limit.
+Duplicate JSON object keys use its parser's last-value semantics. Timed-out
+Python work cannot be forcibly terminated and retains its capacity slot until
+completion.
+
 ## 15. Security Considerations
 
 VOPRF does not replace authenticated transport, caller authorization, secure
@@ -366,6 +383,10 @@ finalized tokens, or decoded protocol values.
 Successful `evaluate_voprf` responses necessarily contain the evaluated
 element and proof. Successful inference responses may contain linkage
 identifiers.
+
+Verity does not intentionally log protocol values. The local server suppresses
+MCP SDK protocol-message logging before processing requests, even when the root
+logger is configured for debug output.
 
 Metadata mismatch detection is not authentication. Proof verification
 authenticates an evaluation relative to the already authenticated public key;

@@ -42,6 +42,7 @@ MAX_SOURCES = 64
 MAX_ATTRIBUTES = 2048
 MAX_CLAIMS = 4096
 MAX_SOURCE_PAIRS = 2016
+MAX_CONFLICTING_CLAIM_ENTRIES = 16_384
 
 
 class InferenceService:
@@ -246,6 +247,10 @@ def _validate_graph(
             raise GraphError("source has multiple claims for an attribute")
         source_attributes.add(source_attribute)
 
+    _validate_conflict_entry_count(
+        _conflict_entry_count(claim_attributes)
+    )
+
     pair_keys = []
     engine_pairs = []
     for pair in request.source_pairs:
@@ -295,6 +300,21 @@ def _validate_graph(
         for item in assertions
     ]
     return build_graph(engine_assertions, engine_pairs)
+
+
+def _conflict_entry_count(claim_attributes) -> int:
+    claim_counts = {}
+    for attribute_id in claim_attributes.values():
+        claim_counts[attribute_id] = claim_counts.get(attribute_id, 0) + 1
+    return sum(
+        count * (count - 1)
+        for count in claim_counts.values()
+    )
+
+
+def _validate_conflict_entry_count(count: int) -> None:
+    if count > MAX_CONFLICTING_CLAIM_ENTRIES:
+        raise GraphError("too many conflicting-claim entries")
 
 
 def _token(value: str) -> None:

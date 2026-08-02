@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import logging
 import os
 import subprocess
 from pathlib import Path
@@ -343,3 +344,44 @@ def test_validation_precedes_server(
         server_module.main()
 
     assert not constructed
+
+
+def test_mcp_logs_suppressed():
+    records = []
+
+    class Capture(logging.Handler):
+        def emit(self, record):
+            records.append(record)
+
+    root_logger = logging.getLogger()
+    original_level = root_logger.level
+    handler = Capture()
+    root_logger.addHandler(handler)
+    root_logger.setLevel(logging.DEBUG)
+    try:
+        server_module._suppress_mcp_logging()
+        logging.getLogger("mcp.server.lowlevel.server").warning(
+            "protocol-value"
+        )
+        root_record = logging.LogRecord(
+            "root",
+            logging.WARNING,
+            str(
+                server_module._MCP_PACKAGE_ROOT
+                / "shared"
+                / "session.py"
+            ),
+            1,
+            "malformed protocol-value",
+            (),
+            None,
+        )
+        root_logger.handle(root_record)
+        logging.getLogger("verity.test").debug("application-value")
+    finally:
+        root_logger.removeHandler(handler)
+        root_logger.setLevel(original_level)
+
+    messages = [record.getMessage() for record in records]
+    assert not any("protocol-value" in message for message in messages)
+    assert "application-value" in messages
