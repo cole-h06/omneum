@@ -9,11 +9,17 @@ import pytest
 import verity.config as config_module
 from verity.config import (
     DEFAULT_EVALUATION_TIMEOUT_MS,
+    DEFAULT_INFERENCE_MAX_CONCURRENCY,
+    DEFAULT_INFERENCE_TIMEOUT_MS,
     DEFAULT_MAX_CONCURRENCY,
     MAX_EVALUATION_TIMEOUT_MS,
+    MAX_INFERENCE_MAX_CONCURRENCY,
+    MAX_INFERENCE_TIMEOUT_MS,
     MAX_KEY_VERSION,
     MAX_MAX_CONCURRENCY,
     MIN_EVALUATION_TIMEOUT_MS,
+    MIN_INFERENCE_MAX_CONCURRENCY,
+    MIN_INFERENCE_TIMEOUT_MS,
     MIN_MAX_CONCURRENCY,
     ConfigurationError,
     DeploymentConfig,
@@ -75,6 +81,11 @@ def test_load_config(tmp_path: Path) -> None:
         == DEFAULT_EVALUATION_TIMEOUT_MS
     )
     assert (
+        state.inference_max_concurrency
+        == DEFAULT_INFERENCE_MAX_CONCURRENCY
+    )
+    assert state.inference_timeout_ms == DEFAULT_INFERENCE_TIMEOUT_MS
+    assert (
         state.voprf_server.public_key
         == VOPRFServer(
             Path(
@@ -100,6 +111,18 @@ def test_load_config(tmp_path: Path) -> None:
             MIN_EVALUATION_TIMEOUT_MS,
             MAX_EVALUATION_TIMEOUT_MS,
             "voprf_evaluation_timeout_ms",
+        ),
+        (
+            "VERITY_INFERENCE_MAX_CONCURRENCY",
+            MIN_INFERENCE_MAX_CONCURRENCY,
+            MAX_INFERENCE_MAX_CONCURRENCY,
+            "inference_max_concurrency",
+        ),
+        (
+            "VERITY_INFERENCE_TIMEOUT_MS",
+            MIN_INFERENCE_TIMEOUT_MS,
+            MAX_INFERENCE_TIMEOUT_MS,
+            "inference_timeout_ms",
         ),
     ],
 )
@@ -128,6 +151,14 @@ def test_resource_control_boundaries(
         ),
         (
             "VERITY_VOPRF_EVALUATION_TIMEOUT_MS",
+            ("", "0", "60001", "-1", "01", "1.0", "True"),
+        ),
+        (
+            "VERITY_INFERENCE_MAX_CONCURRENCY",
+            ("", "0", "65", "-1", "01", "1.0", "True"),
+        ),
+        (
+            "VERITY_INFERENCE_TIMEOUT_MS",
             ("", "0", "60001", "-1", "01", "1.0", "True"),
         ),
     ],

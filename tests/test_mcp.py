@@ -77,6 +77,7 @@ def test_ping(tmp_path: Path) -> None:
                 }
                 assert "ping" in listed_tools
                 assert "evaluate_voprf" in listed_tools
+                assert "infer_credibility" in listed_tools
                 evaluate_schema = listed_tools[
                     "evaluate_voprf"
                 ].inputSchema
@@ -95,6 +96,33 @@ def test_ping(tmp_path: Path) -> None:
                     "linkage_encoding_version",
                     "blinded_element",
                 }
+                inference_schema = listed_tools[
+                    "infer_credibility"
+                ].inputSchema
+                assert (
+                    inference_schema["additionalProperties"]
+                    is False
+                )
+                assert set(inference_schema["required"]) == {
+                    "protocol_version",
+                    "deployment_id",
+                    "voprf_key_version",
+                    "voprf_mode",
+                    "voprf_ciphersuite",
+                    "linkage_encoding_version",
+                    "assertions",
+                    "source_pairs",
+                }
+                assert (
+                    inference_schema["$defs"]["Assertion"]
+                    ["additionalProperties"]
+                    is False
+                )
+                assert (
+                    inference_schema["$defs"]["SourcePair"]
+                    ["additionalProperties"]
+                    is False
+                )
 
                 result = await session.call_tool("ping")
                 assert not result.isError
