@@ -16,7 +16,7 @@ from verity.client import (
     EvaluationVerificationError,
     VerityClient,
     VerityClientConfig,
-    _MCPVOPRFEvaluator,
+    _MCPVerityEvaluator,
     open_stdio_client,
 )
 from verity.models import EvaluateVOPRFRequest
@@ -29,12 +29,30 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 def test_package_exports() -> None:
     assert verity.__all__ == [
+        "Claim",
+        "ClaimSupportResult",
+        "ConflictingClaimResult",
+        "ConvergenceMetadata",
         "CredibilityGraph",
+        "CredibilityResult",
+        "DependencyCluster",
+        "DependencyEstimatorConfig",
+        "DependencySignalScores",
         "EvaluationRejectedError",
         "EvaluationResponseError",
         "EvaluationTransportError",
         "EvaluationVerificationError",
+        "InferenceMappingError",
+        "InferenceRejectedError",
+        "InferenceResponseError",
+        "InferenceTransportError",
         "LinkageToken",
+        "Observation",
+        "PairwiseDependencyResult",
+        "Source",
+        "SourceCredibilityResult",
+        "SourceReference",
+        "SupportingSourceResult",
         "VerityClient",
         "VerityClientConfig",
         "VerityClientConfigurationError",
@@ -313,12 +331,12 @@ def test_adapter_errors() -> None:
                 expected_length=32,
             ),
         )
-        cancelled = _MCPVOPRFEvaluator(
+        cancelled = _MCPVerityEvaluator(
             Session(asyncio.CancelledError())
         )
         with pytest.raises(asyncio.CancelledError):
             await cancelled.evaluate_voprf(request)
-        broken = _MCPVOPRFEvaluator(
+        broken = _MCPVerityEvaluator(
             Session(OSError("lost"))
         )
         with pytest.raises(EvaluationTransportError) as caught:

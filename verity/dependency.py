@@ -1,6 +1,6 @@
 import math
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timedelta
 from itertools import combinations
 
@@ -51,14 +51,20 @@ def _number(value, name, *, positive=False, unit=False):
 
 @dataclass(frozen=True, slots=True)
 class DependencyEstimatorConfig:
-    provenance_weight: float
-    lineage_weight: float
-    ownership_weight: float
-    temporal_weight: float
-    structural_weight: float
-    temporal_window_seconds: float
-    estimator_version: str = "dependency-estimator-v1"
-    dependency_cluster_threshold: float | None = None
+    provenance_weight: float = field(repr=False)
+    lineage_weight: float = field(repr=False)
+    ownership_weight: float = field(repr=False)
+    temporal_weight: float = field(repr=False)
+    structural_weight: float = field(repr=False)
+    temporal_window_seconds: float = field(repr=False)
+    estimator_version: str = field(
+        default="dependency-estimator-v1",
+        repr=False,
+    )
+    dependency_cluster_threshold: float | None = field(
+        default=None,
+        repr=False,
+    )
 
     def __post_init__(self):
         if type(self.estimator_version) is not str:
@@ -85,16 +91,16 @@ class DependencyEstimatorConfig:
 
 @dataclass(frozen=True, slots=True)
 class DependencySignalScores:
-    provenance: float
-    lineage: float
-    ownership: float
-    temporal: float
-    structural: float
-    provenance_observable: bool
-    lineage_observable: bool
-    ownership_observable: bool
-    temporal_observable: bool
-    structural_observable: bool
+    provenance: float = field(repr=False)
+    lineage: float = field(repr=False)
+    ownership: float = field(repr=False)
+    temporal: float = field(repr=False)
+    structural: float = field(repr=False)
+    provenance_observable: bool = field(repr=False)
+    lineage_observable: bool = field(repr=False)
+    ownership_observable: bool = field(repr=False)
+    temporal_observable: bool = field(repr=False)
+    structural_observable: bool = field(repr=False)
 
     def __post_init__(self):
         for name in SIGNALS:
@@ -105,11 +111,11 @@ class DependencySignalScores:
 
 @dataclass(frozen=True, slots=True)
 class PairwiseDependencyResult:
-    source_a: SourceReference
-    source_b: SourceReference
-    signals: DependencySignalScores
-    dependency: float
-    weighted_signal_coverage: float
+    source_a: SourceReference = field(repr=False)
+    source_b: SourceReference = field(repr=False)
+    signals: DependencySignalScores = field(repr=False)
+    dependency: float = field(repr=False)
+    weighted_signal_coverage: float = field(repr=False)
 
     def __post_init__(self):
         if type(self.source_a) is not SourceReference:
@@ -124,12 +130,18 @@ class PairwiseDependencyResult:
             "weighted_signal_coverage",
             unit=True,
         )
+        source_a = _canonical_source(self.source_a)
+        source_b = _canonical_source(self.source_b)
+        if source_a == source_b:
+            raise ValueError("source pair must not be diagonal")
+        if serialize_source(*source_a) > serialize_source(*source_b):
+            raise ValueError("source pair must be canonically ordered")
 
 
 @dataclass(frozen=True, slots=True)
 class DependencyCluster:
-    threshold: float
-    sources: tuple[SourceReference, ...]
+    threshold: float = field(repr=False)
+    sources: tuple[SourceReference, ...] = field(repr=False)
 
     def __post_init__(self):
         _number(self.threshold, "threshold", unit=True)
@@ -137,6 +149,13 @@ class DependencyCluster:
             raise TypeError("sources must be a nonempty tuple")
         if any(type(source) is not SourceReference for source in self.sources):
             raise TypeError("sources must contain SourceReference values")
+        identities = tuple(_canonical_source(source) for source in self.sources)
+        if len(set(identities)) != len(identities):
+            raise ValueError("cluster sources must be unique")
+        if identities != tuple(
+            sorted(identities, key=lambda source: serialize_source(*source))
+        ):
+            raise ValueError("cluster sources must be canonically ordered")
 
 
 def _canonical_source(value):

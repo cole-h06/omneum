@@ -73,7 +73,10 @@ def serialize_claim(
         "attribute": attribute,
         "value": value,
     }
-    return _serialize_linkage(payload)
+    try:
+        return _serialize_linkage(payload)
+    except rfc8785.CanonicalizationError:
+        raise ValueError("claim value is invalid") from None
 
 
 def _serialize_linkage(

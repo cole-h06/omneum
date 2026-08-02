@@ -56,7 +56,7 @@ def observation(
 ):
     return Observation(
         assertion_id,
-        reference(source_id),
+        source(source_id),
         Claim("service", "Entity", attribute, value),
         timestamp,
         provenance,
@@ -80,6 +80,30 @@ def test_pair():
     assert pairs[0].signals.temporal == 0.0
     assert pairs[0].weighted_signal_coverage == 1.0
     assert clusters == ()
+
+
+def test_pair_constructor():
+    signals = DependencySignalScores(
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        True, True, True, True, True,
+    )
+    source_a = SourceReference("web_publisher", "a.example")
+    source_b = SourceReference("web_publisher", "b.example")
+
+    value = PairwiseDependencyResult(
+        source_a, source_b, signals, 0.0, 1.0
+    )
+
+    assert value.source_a == source_a
+    assert value.source_b == source_b
+    with pytest.raises(ValueError):
+        PairwiseDependencyResult(
+            source_a, source_a, signals, 0.0, 1.0
+        )
+    with pytest.raises(ValueError):
+        PairwiseDependencyResult(
+            source_b, source_a, signals, 0.0, 1.0
+        )
 
 
 def test_lineage():

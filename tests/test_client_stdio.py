@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 from mcp import StdioServerParameters
 
 from verity.base64url import encode_unpadded
 from verity.client import VerityClientConfig, open_stdio_client
+from verity.dependency import DependencyEstimatorConfig
+from verity.information import Claim, Observation, Source
 from verity.oprf import VOPRFServer
 
 
@@ -60,5 +63,37 @@ def test_stdio_client(tmp_path: Path) -> None:
             )
             assert len(first.value) == 64
             assert first.value == second.value
+            result = await client.infer_credibility(
+                (
+                    Observation(
+                        "assertion-a",
+                        Source(
+                            "web_publisher",
+                            "https://example.com",
+                        ),
+                        Claim(
+                            "service",
+                            "example",
+                            "display_name",
+                            "Alice",
+                        ),
+                        datetime(2026, 1, 1, tzinfo=timezone.utc),
+                        (),
+                        (),
+                        (),
+                    ),
+                ),
+                estimator=DependencyEstimatorConfig(
+                    0.25,
+                    0.3,
+                    0.15,
+                    0.15,
+                    0.15,
+                    7200.0,
+                ),
+            )
+            assert result.source_credibility[0].credibility == 1.0
+            assert result.claim_support[0].support == 1.0
+            assert result.pairwise_dependencies == ()
 
     asyncio.run(run())

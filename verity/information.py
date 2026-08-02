@@ -1,6 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
+
+import orjson
+import rfc8785
 
 from .canonicalization import canonicalize_value
 
@@ -26,11 +29,27 @@ def _strings(value, name):
         _string(item, name)
 
 
+def _value_type(value):
+    if value is None or type(value) in (bool, int, float, str):
+        return
+    if type(value) is list:
+        for item in value:
+            _value_type(item)
+        return
+    if type(value) is dict:
+        for key, item in value.items():
+            if type(key) is not str:
+                raise TypeError("claim object keys must be strings")
+            _value_type(item)
+        return
+    raise TypeError("claim value must use exact JSON types")
+
+
 @dataclass(frozen=True, slots=True)
 class Source:
     kind: str
-    identifier: str
-    owner_id: str | None = None
+    identifier: str = field(repr=False)
+    owner_id: str | None = field(default=None, repr=False)
 
     def __post_init__(self):
         _string(self.kind, "kind")
@@ -41,41 +60,60 @@ class Source:
 @dataclass(frozen=True, slots=True)
 class SourceReference:
     kind: str
-    identifier: str
+    identifier: str = field(repr=False)
 
     def __post_init__(self):
         _string(self.kind, "kind")
         _string(self.identifier, "identifier")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class Claim:
-    entity_namespace: str
-    entity: str
-    attribute: str
-    value: Any
+    entity_namespace: str = field(repr=False)
+    entity: str = field(repr=False)
+    attribute: str = field(repr=False)
+    _value_bytes: bytes = field(repr=False)
 
-    def __post_init__(self):
-        _string(self.entity_namespace, "entity_namespace")
-        _string(self.entity, "entity")
-        _string(self.attribute, "attribute")
-        canonicalize_value(self.value)
+    def __init__(self, entity_namespace, entity, attribute, value):
+        _string(entity_namespace, "entity_namespace")
+        _string(entity, "entity")
+        _string(attribute, "attribute")
+        _value_type(value)
+        canonical = canonicalize_value(value)
+        try:
+            value_bytes = rfc8785.dumps(canonical)
+        except rfc8785.CanonicalizationError:
+            raise ValueError("claim value is invalid") from None
+        object.__setattr__(self, "entity_namespace", entity_namespace)
+        object.__setattr__(self, "entity", entity)
+        object.__setattr__(self, "attribute", attribute)
+        object.__setattr__(self, "_value_bytes", value_bytes)
+
+    @property
+    def value(self) -> Any:
+        return orjson.loads(self._value_bytes)
 
 
 @dataclass(frozen=True, slots=True)
 class Observation:
-    assertion_id: str
-    source: SourceReference
-    claim: Claim
-    source_timestamp: datetime | None
-    provenance_ids: tuple[str, ...] | None
-    cited_sources: tuple[SourceReference, ...] | None = None
-    parent_assertion_ids: tuple[str, ...] | None = None
+    assertion_id: str = field(repr=False)
+    source: Source = field(repr=False)
+    claim: Claim = field(repr=False)
+    source_timestamp: datetime | None = field(repr=False)
+    provenance_ids: tuple[str, ...] | None = field(repr=False)
+    cited_sources: tuple[SourceReference, ...] | None = field(
+        default=None,
+        repr=False,
+    )
+    parent_assertion_ids: tuple[str, ...] | None = field(
+        default=None,
+        repr=False,
+    )
 
     def __post_init__(self):
         _string(self.assertion_id, "assertion_id")
-        if type(self.source) is not SourceReference:
-            raise TypeError("source must be a SourceReference")
+        if type(self.source) is not Source:
+            raise TypeError("source must be a Source")
         if type(self.claim) is not Claim:
             raise TypeError("claim must be a Claim")
         if self.source_timestamp is not None:

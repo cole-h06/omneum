@@ -114,11 +114,13 @@ def canonicalize_source(
         )
 
         host = uri.host
+        path = uri.path
 
         if host is None:
             host = source
+            path = None
 
-        if uri.path not in (
+        if path not in (
             "",
             "/",
             None,
