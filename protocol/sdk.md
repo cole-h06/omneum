@@ -8,6 +8,7 @@ been released.
 
 The repository currently implements:
 
+- `web_publisher` and `web_document` source canonicalization;
 - strict fixed-schema RFC 8785 linkage serialization;
 - version-1 linkage domain encoding;
 - RFC 9497 VOPRF client operations;
@@ -18,6 +19,8 @@ The repository currently implements:
 
 The repository does not yet provide:
 
+- production canonicalization for the specified `internal_resource`,
+  `internal_service`, or `database` source kinds;
 - an implemented `infer_credibility` client flow;
 - remote client transport or authentication;
 - an official JavaScript or TypeScript SDK;

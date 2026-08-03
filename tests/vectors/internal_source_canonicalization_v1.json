@@ -1,0 +1,105 @@
+{
+  "name": "internal-source-canonicalization-v1",
+  "canonical_identifier_length": 76,
+  "fixed_error": "internal source identifier is invalid",
+  "fixed_type_error": "internal source identifier must be a string",
+  "canonical_cases": [
+    {
+      "name": "internal_resource_canonical",
+      "kind": "internal_resource",
+      "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555",
+      "expected": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555"
+    },
+    {
+      "name": "internal_resource_uppercase",
+      "kind": "internal_resource",
+      "input": "v1:01234567-89AB-4DEF-8123-456789ABCDEF:11111111-2222-4333-8444-555555555555",
+      "expected": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555"
+    },
+    {
+      "name": "internal_service_canonical",
+      "kind": "internal_service",
+      "input": "v1:01234567-89ab-4def-8123-456789abcdef:aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+      "expected": "v1:01234567-89ab-4def-8123-456789abcdef:aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee"
+    },
+    {
+      "name": "internal_service_uppercase",
+      "kind": "internal_service",
+      "input": "v1:01234567-89AB-4DEF-8123-456789ABCDEF:AAAAAAAA-BBBB-4CCC-8DDD-EEEEEEEEEEEE",
+      "expected": "v1:01234567-89ab-4def-8123-456789abcdef:aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee"
+    },
+    {
+      "name": "database_canonical",
+      "kind": "database",
+      "input": "v1:01234567-89ab-4def-8123-456789abcdef:99999999-8888-4777-8666-555555555555",
+      "expected": "v1:01234567-89ab-4def-8123-456789abcdef:99999999-8888-4777-8666-555555555555"
+    },
+    {
+      "name": "database_uppercase",
+      "kind": "database",
+      "input": "v1:01234567-89AB-4DEF-8123-456789ABCDEF:99999999-8888-4777-8666-555555555555",
+      "expected": "v1:01234567-89ab-4def-8123-456789abcdef:99999999-8888-4777-8666-555555555555"
+    }
+  ],
+  "idempotence_cases": [
+    "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555",
+    "v1:01234567-89ab-4def-8123-456789abcdef:aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+    "v1:01234567-89ab-4def-8123-456789abcdef:99999999-8888-4777-8666-555555555555"
+  ],
+  "rejection_cases": [
+    {"name": "empty", "input": ""},
+    {"name": "wrong_prefix_case", "input": "V1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555"},
+    {"name": "wrong_prefix", "input": "v2:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555"},
+    {"name": "missing_separator", "input": "v1:01234567-89ab-4def-8123-456789abcdef11111111-2222-4333-8444-555555555555"},
+    {"name": "extra_separator", "input": "v1:01234567-89ab-4def-8123-456789abcdef::11111111-2222-4333-8444-555555555555"},
+    {"name": "malformed_uuid", "input": "v1:01234567-89ab-4def-8123-456789abcdeg:11111111-2222-4333-8444-555555555555"},
+    {"name": "leading_whitespace", "input": " v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555"},
+    {"name": "trailing_whitespace", "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555 "},
+    {"name": "unicode", "input": "v1:01234567-89ab-4def-8123-456789abcdef:résumé"},
+    {"name": "braces", "input": "v1:{01234567-89ab-4def-8123-456789abcdef}:{11111111-2222-4333-8444-555555555555}"},
+    {"name": "compact_uuid", "input": "v1:0123456789ab4def8123456789abcdef:11111111222243338444555555555555"},
+    {"name": "uri", "input": "https://internal.example/resource/11111111-2222-4333-8444-555555555555"},
+    {"name": "urn", "input": "urn:uuid:11111111-2222-4333-8444-555555555555"},
+    {"name": "path", "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555/path"},
+    {"name": "query", "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555?x=1"},
+    {"name": "fragment", "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555#fragment"},
+    {"name": "user_information", "input": "v1:user@01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555"},
+    {"name": "port", "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555:443"},
+    {"name": "percent_encoding", "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-5555555555%35"},
+    {"name": "trailing_slash", "input": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555/"},
+    {"name": "nil_scope", "input": "v1:00000000-0000-0000-0000-000000000000:11111111-2222-4333-8444-555555555555"},
+    {"name": "nil_object", "input": "v1:01234567-89ab-4def-8123-456789abcdef:00000000-0000-0000-0000-000000000000"},
+    {"name": "max_scope", "input": "v1:ffffffff-ffff-ffff-ffff-ffffffffffff:11111111-2222-4333-8444-555555555555"},
+    {"name": "max_object", "input": "v1:01234567-89ab-4def-8123-456789abcdef:ffffffff-ffff-ffff-ffff-ffffffffffff"}
+  ],
+  "wrong_type_cases": [null, true, 1, 1.0, [], {}],
+  "database_rejection_cases": [
+    {"name": "connection_string", "input": "postgresql://database.internal/catalog"},
+    {"name": "credentials", "input": "postgresql://user:secret@database.internal/catalog"},
+    {"name": "hostname", "input": "database.internal"},
+    {"name": "port", "input": "database.internal:5432"},
+    {"name": "resource_path", "input": "/subscriptions/secret/resourceGroups/data/providers/database/catalog"},
+    {"name": "table", "input": "catalog.public.customers"},
+    {"name": "query_text", "input": "SELECT * FROM customers"}
+  ],
+  "separation_cases": {
+    "distinct_scopes": [
+      "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555",
+      "v1:fedcba98-7654-4321-8fed-cba987654321:11111111-2222-4333-8444-555555555555"
+    ],
+    "distinct_objects": [
+      "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555",
+      "v1:01234567-89ab-4def-8123-456789abcdef:22222222-3333-4444-8555-666666666666"
+    ]
+  },
+  "cross_kind_separation": {
+    "private_key_hex": "0100000000000000000000000000000000000000000000000000000000000000",
+    "public_key_hex": "e2f2ae0a6abc4e71a884a961c500515f58e30b6aa582dd8db6a65945e08d2d76",
+    "identifier": "v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555",
+    "tokens": {
+      "internal_resource": "769427770c0d4b4bccf6e73f815d1541fda27aa70ca9d38f7cbcb8be1ff390484bf9948cae741fc3943fcae89f195ba5abce53a8c0dc30b47589c3055060553f",
+      "internal_service": "15fe4ccc8202ec6c5f2b0b9477613dd733dc71190e3063863d68ba8d786bfbc60589f3879c674ad8ba528cccb98c3578827c2be6935dfb7191befb91ec4e287d",
+      "database": "9bcd6dcbfb9d4937a8f2ebbf279321330f49fd34694f3264841f0a0b1b3d938d89325ef9442bec8dc2d3ce41a3b2db866c5b85f29c7597c2e384ad137dec4fc8"
+    }
+  }
+}

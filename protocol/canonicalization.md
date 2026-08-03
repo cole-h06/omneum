@@ -33,17 +33,22 @@ The repository implements:
 The source kinds with version-1 interoperable canonicalization rules are:
 
 - `web_publisher`;
-- `web_document`.
-
-The following source-kind names are reserved and deferred:
-
+- `web_document`;
 - `internal_resource`;
-- `internal_service`;
-- `database`; and
+- `internal_service`; and
+- `database`.
+
+The rules for `internal_resource`, `internal_service`, and `database` are
+specified but not implemented by the reference SDK. An SDK MUST NOT present
+those profiles as implemented until its production canonicalizer passes the
+language-neutral vectors.
+
+The following source-kind name is reserved and deferred:
+
 - `package`.
 
-The reserved kinds have no version-1 interoperable canonicalization rules.
-Clients MUST NOT claim version-1 conformance for them. Only source kinds with
+The reserved kind has no version-1 interoperable canonicalization rule.
+Clients MUST NOT claim version-1 conformance for it. Only source kinds with
 canonicalization rules specified in this document may claim conformance.
 
 ## 4. Semantic Canonicalization
@@ -94,6 +99,65 @@ HTTPS://Example.com:443/docs/api#section
 
 The precise URI normalization behavior must remain covered by cross-language
 vectors before another SDK claims interoperability.
+
+#### Internal source identifiers
+
+`internal_resource`, `internal_service`, and `database` use the same opaque
+identifier grammar:
+
+```text
+v1:<scope_uuid>:<object_uuid>
+```
+
+The identifier is a structured ASCII value, not a URI or URN. `scope_uuid` is
+an application-issued namespace used to prevent accidental collisions between
+unrelated internal sources. Authorization to use a namespace is outside
+version-1 canonicalization.
+
+A client MUST:
+
+- require the exact, case-sensitive prefix `v1:`;
+- require exactly two UUIDs separated by one colon;
+- require the hyphenated `8-4-4-4-12` UUID representation;
+- accept uppercase or lowercase UUID hexadecimal digits;
+- emit lowercase ASCII hexadecimal digits;
+- reject the Nil and Max UUID in either position;
+- impose no UUID version or variant restriction;
+- reject whitespace rather than removing or normalizing it;
+- reject non-ASCII input, braces, compact UUIDs, URI or URN prefixes, paths,
+  queries, fragments, user information, ports, percent encoding, and trailing
+  slashes; and
+- produce an identifier of exactly 76 UTF-8 bytes.
+
+Canonicalizing an already canonical identifier MUST return the same 76 bytes.
+An input whose exact type is not a string MUST fail with the fixed message
+`internal source identifier must be a string`. A malformed string MUST fail
+with the fixed message `internal source identifier is invalid`. Failures MUST
+NOT include the input or an underlying parser message in error text or
+representations.
+
+Example:
+
+```text
+v1:01234567-89AB-4DEF-8123-456789ABCDEF:11111111-2222-4333-8444-555555555555
+    -> v1:01234567-89ab-4def-8123-456789abcdef:11111111-2222-4333-8444-555555555555
+```
+
+The source kinds have these meanings:
+
+- `internal_resource` identifies one logical organization-managed information
+  resource. It does not identify a revision, file path, storage location, or
+  retrieval event.
+- `internal_service` identifies one logical service. It does not identify an
+  endpoint, deployment, replica, region, operation, snapshot, or credential.
+- `database` identifies one logical governed datastore. It does not identify a
+  connection string or physical endpoint. Tables and query results are
+  ordinarily observations from the logical database. Applications should
+  assign separate database source identities when datasets have materially
+  distinct governance or provenance boundaries.
+
+The grammar structurally excludes database credentials, passwords, connection
+strings, hostnames, ports, resource paths, table names, and query text.
 
 ### 4.2 Entity Namespaces
 
@@ -190,6 +254,17 @@ The schema contains exactly:
 kind
 identifier
 ```
+
+The schema and linkage encoding do not change for internal source kinds. The
+same identifier used with different source kinds produces distinct RFC 8785
+payloads and distinct linkage inputs because `kind` is serialized. For the
+76-byte internal identifier, payload and complete linkage-input sizes are:
+
+| Kind | RFC 8785 payload | Complete linkage input |
+| --- | ---: | ---: |
+| `internal_resource` | 120 bytes | 137 bytes |
+| `internal_service` | 119 bytes | 136 bytes |
+| `database` | 111 bytes | 128 bytes |
 
 ### 5.2 Attribute
 
