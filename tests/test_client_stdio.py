@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 import os
 from contextlib import asynccontextmanager
@@ -229,6 +230,32 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
                 observations,
                 estimator=estimator,
             )
+            baseline = next(
+                arguments
+                for name, arguments in reversed(calls)
+                if name == "infer_credibility"
+            )
+            mutations = []
+            unknown = copy.deepcopy(baseline)
+            unknown["assertions"][0]["unknown"] = "stdio-secret-marker"
+            mutations.append(unknown)
+            coerced = copy.deepcopy(baseline)
+            coerced["source_pairs"][0]["dependency"] = "0.5"
+            mutations.append(coerced)
+            oversized = copy.deepcopy(baseline)
+            oversized["unknown"] = "stdio-secret-marker" * 8_192
+            mutations.append(oversized)
+            for mutation in mutations:
+                rejected = await client._evaluator._session.call_tool(
+                    "infer_credibility",
+                    mutation,
+                )
+                assert rejected.isError
+                assert rejected.structuredContent == {
+                    "message": "Request validation failed.",
+                    "verity_code": "invalid_request",
+                }
+                assert "stdio-secret-marker" not in repr(rejected)
             second = await client.infer_credibility(
                 observations,
                 estimator=estimator,
@@ -367,7 +394,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     }
     assert len(sessions) == 1
     assert [name for name, _ in calls].count("evaluate_voprf") == 20
-    assert [name for name, _ in calls].count("infer_credibility") == 2
+    assert [name for name, _ in calls].count("infer_credibility") == 5
     evaluation_requests = [
         arguments
         for name, arguments in calls
@@ -390,7 +417,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         for name, arguments in calls
         if name == "infer_credibility"
     ]
-    assert inference_requests[0] == inference_requests[1]
+    assert inference_requests[0] == inference_requests[-1]
     request = inference_requests[0]
     assert set(request) == {
         "protocol_version",
