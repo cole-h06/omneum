@@ -1,0 +1,178 @@
+{
+  "name": "enterprise-policy-observations",
+  "scope_uuid": "12345678-1234-4abc-8def-123456789abc",
+  "estimator": {
+    "estimator_version": "dependency-estimator-v1",
+    "provenance_weight": 0.25,
+    "lineage_weight": 0.3,
+    "ownership_weight": 0.15,
+    "temporal_weight": 0.15,
+    "structural_weight": 0.15,
+    "temporal_window_seconds": 7200.0,
+    "dependency_cluster_threshold": 0.4
+  },
+  "sources": [
+    {
+      "name": "policy_manual",
+      "kind": "internal_resource",
+      "identifier": "v1:12345678-1234-4abc-8def-123456789abc:11111111-1111-4111-8111-111111111111",
+      "owner_id": "commerce-policy"
+    },
+    {
+      "name": "support_portal",
+      "kind": "internal_resource",
+      "identifier": "v1:12345678-1234-4abc-8def-123456789abc:22222222-2222-4222-8222-222222222222",
+      "owner_id": "commerce-policy"
+    },
+    {
+      "name": "orders_api",
+      "kind": "internal_service",
+      "identifier": "v1:12345678-1234-4abc-8def-123456789abc:33333333-3333-4333-8333-333333333333",
+      "owner_id": "service-operations"
+    },
+    {
+      "name": "orders_store",
+      "kind": "database",
+      "identifier": "v1:12345678-1234-4abc-8def-123456789abc:44444444-4444-4444-8444-444444444444",
+      "owner_id": "data-governance"
+    }
+  ],
+  "observations": [
+    {
+      "assertion_id": "manual-return-window",
+      "source": "policy_manual",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Return Window",
+      "value": "30 days",
+      "source_timestamp": "2026-01-15T09:00:00+00:00",
+      "provenance_ids": ["policy-v3", "legal-review"],
+      "cited_sources": [],
+      "parent_assertion_ids": []
+    },
+    {
+      "assertion_id": "manual-support-channel",
+      "source": "policy_manual",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Support Channel",
+      "value": "email",
+      "source_timestamp": "2026-01-15T09:00:00+00:00",
+      "provenance_ids": ["policy-v3", "legal-review"],
+      "cited_sources": [],
+      "parent_assertion_ids": []
+    },
+    {
+      "assertion_id": "portal-return-window",
+      "source": "support_portal",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Return Window",
+      "value": "30 days",
+      "source_timestamp": "2026-01-15T10:00:00+00:00",
+      "provenance_ids": ["policy-v3", "portal-edit"],
+      "cited_sources": ["policy_manual"],
+      "parent_assertion_ids": []
+    },
+    {
+      "assertion_id": "portal-support-channel",
+      "source": "support_portal",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Support Channel",
+      "value": "email",
+      "source_timestamp": "2026-01-15T09:00:00+00:00",
+      "provenance_ids": ["policy-v3", "portal-edit"],
+      "cited_sources": ["policy_manual"],
+      "parent_assertion_ids": []
+    },
+    {
+      "assertion_id": "api-return-window",
+      "source": "orders_api",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Return Window",
+      "value": "14 days",
+      "source_timestamp": "2026-01-15T12:00:00+00:00",
+      "provenance_ids": ["service-contract-v2"],
+      "cited_sources": [],
+      "parent_assertion_ids": []
+    },
+    {
+      "assertion_id": "api-support-channel",
+      "source": "orders_api",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Support Channel",
+      "value": "chat",
+      "source_timestamp": "2026-01-15T12:00:00+00:00",
+      "provenance_ids": ["service-contract-v2"],
+      "cited_sources": [],
+      "parent_assertion_ids": []
+    },
+    {
+      "assertion_id": "store-return-window",
+      "source": "orders_store",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Return Window",
+      "value": "30 days",
+      "source_timestamp": "2026-01-15T14:00:00+00:00",
+      "provenance_ids": ["policy-v3", "warehouse-sync"],
+      "cited_sources": [],
+      "parent_assertion_ids": ["manual-return-window"]
+    },
+    {
+      "assertion_id": "store-support-channel",
+      "source": "orders_store",
+      "entity_namespace": "service",
+      "entity": "Commerce Platform",
+      "attribute": "Support Channel",
+      "value": "email",
+      "source_timestamp": "2026-01-15T14:00:00+00:00",
+      "provenance_ids": ["policy-v3", "warehouse-sync"],
+      "cited_sources": [],
+      "parent_assertion_ids": ["manual-support-channel"]
+    }
+  ],
+  "expected": {
+    "pairwise_dependencies": [
+      ["policy_manual", "support_portal", 0.6583333333333333, 1.0],
+      ["policy_manual", "orders_api", 0.0, 1.0],
+      ["policy_manual", "orders_store", 0.4333333333333333, 1.0],
+      ["support_portal", "orders_api", 0.0, 1.0],
+      ["support_portal", "orders_store", 0.13333333333333333, 1.0],
+      ["orders_api", "orders_store", 0.0, 1.0]
+    ],
+    "source_credibility": {
+      "policy_manual": 0.33333333311957547,
+      "support_portal": 0.33333333311957547,
+      "orders_api": 6.412736567826177e-10,
+      "orders_store": 0.33333333311957547
+    },
+    "majority_claim": {
+      "support": 0.22187499985771744,
+      "agreement_weight": 0.75,
+      "estimated_independent_support_count": 1.6513761467889911,
+      "dependency_confidence": 1.0,
+      "supporting_sources": {
+        "policy_manual": [0.4541666666666667, 0.056770833296927704],
+        "support_portal": [0.6041666666666667, 0.07552083328490383],
+        "orders_store": [0.7166666666666667, 0.08958333327588591]
+      },
+      "cluster": ["policy_manual", "support_portal", "orders_store"]
+    },
+    "minority_claim": {
+      "support": 8.015920709782721e-11,
+      "agreement_weight": 0.25,
+      "estimated_independent_support_count": 1.0,
+      "dependency_confidence": null,
+      "cluster": ["orders_api"]
+    },
+    "convergence": {
+      "iterations": 12,
+      "convergence_tolerance": 1e-8,
+      "maximum_credibility_delta": 2.773508556113893e-9
+    }
+  }
+}
