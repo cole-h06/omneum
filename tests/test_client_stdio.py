@@ -18,6 +18,7 @@ from verity.dependency import (
     DependencyEstimatorConfig,
     estimate_dependencies,
 )
+from verity.explanations import explain_claim, explain_dependency
 from verity.information import Claim, Observation, Source, SourceReference
 from verity.oprf import VOPRFServer
 from verity.serialization import serialize_source
@@ -260,11 +261,54 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
                 observations,
                 estimator=estimator,
             )
-        return first, second
+            claim = next(
+                item
+                for item in first.claim_support
+                if item.claim.attribute == "return_window"
+                and item.claim.value == "30 days"
+            )
+            pair = next(
+                item
+                for item in first.pairwise_dependencies
+                if {
+                    item.source_a.identifier,
+                    item.source_b.identifier,
+                } == {
+                    sources["policy_manual"].identifier,
+                    sources["support_portal"].identifier,
+                }
+            )
+            claim_explanation = explain_claim(claim)
+            dependency_explanation = explain_dependency(
+                pair,
+                source_labels={
+                    sources["policy_manual"]: "Policy Manual",
+                    sources["support_portal"]: "Support Portal",
+                },
+            )
+        return first, second, claim_explanation, dependency_explanation
 
-    first, second = asyncio.run(run())
+    first, second, claim_explanation, dependency_explanation = asyncio.run(
+        run()
+    )
 
     assert first == second
+    assert claim_explanation == (
+        "Return window = 30 days\n"
+        "Support: 0.22\n\n"
+        "Supported by 3 sources.\n"
+        "Estimated independent support: 1.65.\n"
+        "Dependency signal coverage: 1.00.\n"
+        "Dependency group: 1.\n"
+        "Conflicts: 14 days (support 0.00).\n"
+        "✓ Highest-supported competing value."
+    )
+    assert dependency_explanation == (
+        "Policy Manual ↔ Support Portal\n\n"
+        "Estimated independence: 0.34\n"
+        "Shared provenance, citation or lineage relationship, shared "
+        "ownership, close timing, and assertion overlap detected."
+    )
     assert first.pairwise_dependencies == expected_pairs
     assert first.dependency_cluster_threshold == 0.4
     assert {item.source.kind for item in first.source_credibility} == {
@@ -469,6 +513,17 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         "commerce platform",
         "return_window",
         "support_channel",
+        "Policy Manual",
+        "Support Portal",
+        *(
+            line
+            for explanation in (
+                claim_explanation,
+                dependency_explanation,
+            )
+            for line in explanation.splitlines()
+            if line
+        ),
         *(
             provenance
             for item in fixture["observations"]

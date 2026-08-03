@@ -13,18 +13,18 @@ The repository currently implements:
 - strict fixed-schema RFC 8785 linkage serialization;
 - version-1 linkage domain encoding;
 - RFC 9497 VOPRF client operations;
-- proof verification against a configured public key; and
+- proof verification against a configured public key;
 - purpose-specific source, attribute, and claim linkage methods;
 - a strict single-element `evaluate_voprf` MCP client flow; and
-- an owned local-stdio client context with authenticated pinned configuration.
+- an owned local-stdio client context with authenticated pinned configuration;
+- the local `infer_credibility` SDK flow; and
+- deterministic local claim and dependency explanations.
 
 The repository does not yet provide:
 
-- an implemented `infer_credibility` client flow;
 - remote client transport or authentication;
 - an official JavaScript or TypeScript SDK;
-- automatic local token metadata storage; or
-- response rendering and natural-language explanations.
+- automatic local token metadata storage.
 
 Those absent capabilities MUST NOT be presented as currently available.
 
@@ -301,8 +301,8 @@ versions.
 
 `infer_credibility` is implemented by the local MCP stdio server. The request,
 response, validation order, bounds, and algorithm are defined in `api.md`.
-Client SDK inference integration is not implemented, and no SDK may present an
-inference client flow as currently available.
+The Python SDK implements the local-stdio inference flow and maps validated
+opaque results back to application-local `Source` and `Claim` values.
 
 ### 11.1 Dependency Estimator Version
 
@@ -533,6 +533,35 @@ explicit threshold, it MUST omit cluster counts and cluster explanations.
 The deployment does not receive original content or generate natural-language
 explanations. Pairwise signal descriptions such as shared ownership or close
 timing can appear only in SDK explanations derived from retained local data.
+
+### 11.7 Local Explanations
+
+The Python SDK exposes `explain_claim` and `explain_dependency`. Both accept
+only validated typed SDK results, are deterministic and side-effect-free, and
+perform no MCP, network, VOPRF, inference, logging, or filesystem work. They
+return text without a final newline and display binary64 values rounded to two
+decimal places without modifying the typed result.
+
+Claim explanations call the graph score `Support`, state the supporting-source
+count and `Estimated independent support`, and use singular grammar for one
+source. They emit `Highest-supported competing value` only when the engine's
+`is_attribute_max_support` field is true. Conflicts retain result order.
+Dependency signal coverage is shown only when present. Dependency-group counts
+are shown only when local clusters are present; the explanation does not infer
+or invent a threshold.
+
+Dependency explanations display `1 - dependency` as `Estimated independence`.
+They describe only observed positive signals, in provenance, lineage,
+ownership, temporal, and structural order. Observed zero and unavailable
+signals add no phrase. These factual descriptions MUST NOT classify dependency
+magnitude or describe copying, coordination, truth probability, or estimate
+correctness.
+
+Optional source labels are application-local presentation aliases. Labels MUST
+be exact nonempty strings without control characters. They do not affect
+canonicalization, identity, linkage, dependency calculation, ordering, or
+results and MUST NOT cross MCP. Without an alias, internal sources are displayed
+by source kind so their UUID identifiers are not exposed by default.
 
 The server rejects a graph whose response would contain more than 16384 total
 conflicting-claim entries. For an attribute with `m` distinct claims, that

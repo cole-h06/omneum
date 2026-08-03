@@ -57,6 +57,8 @@ def test_package_exports() -> None:
         "VerityClientConfig",
         "VerityClientConfigurationError",
         "VerityClientError",
+        "explain_claim",
+        "explain_dependency",
         "open_stdio_client",
     ]
 

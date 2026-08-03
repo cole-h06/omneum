@@ -28,6 +28,7 @@ from .dependency import (
     DependencySignalScores,
     PairwiseDependencyResult,
 )
+from .explanations import explain_claim, explain_dependency
 from .graph import CredibilityGraph
 from .information import Claim, Observation, Source, SourceReference
 
@@ -62,5 +63,7 @@ __all__ = [
     "VerityClientConfig",
     "VerityClientConfigurationError",
     "VerityClientError",
+    "explain_claim",
+    "explain_dependency",
     "open_stdio_client",
 ]
