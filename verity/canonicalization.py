@@ -13,6 +13,21 @@ ENTITY_NAMESPACES = {
     },
 }
 
+INTERNAL_SOURCE_KINDS = {
+    "internal_resource",
+    "internal_service",
+    "database",
+}
+INTERNAL_SOURCE_PATTERN = re.compile(
+    r"v1:"
+    r"([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-"
+    r"[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}):"
+    r"([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-"
+    r"[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})"
+)
+NIL_UUID = "00000000-0000-0000-0000-000000000000"
+MAX_UUID = "ffffffff-ffff-ffff-ffff-ffffffffffff"
+
 
 def canonicalize_entity(
     entity_namespace: str,
@@ -95,6 +110,9 @@ def canonicalize_source(
     Converts a source identifier into its canonical form.
     """
 
+    if source_kind in INTERNAL_SOURCE_KINDS:
+        return _canonicalize_internal_source(source)
+
     if not isinstance(source, str):
         raise TypeError(
             "source must be a string"
@@ -112,8 +130,16 @@ def canonicalize_source(
         uri = rfc3986.uri_reference(
             source
         )
+        iri_host = None
 
-        host = uri.host
+        if uri.scheme is not None and uri.host is None:
+            iri = rfc3986.iri_reference(
+                source
+            )
+            iri_host = iri.host
+            uri = iri.encode()
+
+        host = iri_host or uri.host
         path = uri.path
 
         if host is None:
@@ -155,11 +181,19 @@ def canonicalize_source(
 
     if source_kind == "web_document":
 
-        uri = (
-            rfc3986
-            .uri_reference(source)
-            .normalize()
+        uri = rfc3986.uri_reference(
+            source
         )
+        iri_host = None
+
+        if uri.scheme is not None and uri.host is None:
+            iri = rfc3986.iri_reference(
+                source
+            )
+            iri_host = iri.host
+            uri = iri.encode()
+
+        uri = uri.normalize()
 
         if (
             uri.scheme is None
@@ -172,7 +206,7 @@ def canonicalize_source(
         scheme = uri.scheme.lower()
 
         host = idna.encode(
-            uri.host.lower(),
+            (iri_host or uri.host).lower(),
             uts46=True,
         ).decode(
             "ascii"
@@ -182,13 +216,13 @@ def canonicalize_source(
 
         if (
             scheme == "http"
-            and port == 80
+            and port == "80"
         ):
             port = None
 
         if (
             scheme == "https"
-            and port == 443
+            and port == "443"
         ):
             port = None
 
@@ -218,6 +252,33 @@ def canonicalize_source(
     raise ValueError(
         "unknown source kind"
     )
+
+
+def _canonicalize_internal_source(source):
+    if type(source) is not str:
+        raise TypeError(
+            "internal source identifier must be a string"
+        )
+
+    match = INTERNAL_SOURCE_PATTERN.fullmatch(source)
+
+    if match is None:
+        raise ValueError(
+            "internal source identifier is invalid"
+        )
+
+    scope_uuid = match.group(1).lower()
+    object_uuid = match.group(2).lower()
+
+    if scope_uuid in (NIL_UUID, MAX_UUID) or object_uuid in (
+        NIL_UUID,
+        MAX_UUID,
+    ):
+        raise ValueError(
+            "internal source identifier is invalid"
+        )
+
+    return f"v1:{scope_uuid}:{object_uuid}"
 
 
 def canonicalize_value(

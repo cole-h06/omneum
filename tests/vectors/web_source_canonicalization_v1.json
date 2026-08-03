@@ -1,0 +1,58 @@
+{
+  "name": "web-source-canonicalization-v1",
+  "private_key_hex": "0100000000000000000000000000000000000000000000000000000000000000",
+  "public_key_hex": "e2f2ae0a6abc4e71a884a961c500515f58e30b6aa582dd8db6a65945e08d2d76",
+  "default_port_cases": [
+    {
+      "name": "http_default_port",
+      "inputs": [
+        "http://example.com:80/path",
+        "http://example.com/path"
+      ],
+      "canonical": "http://example.com/path",
+      "payload_hex": "7b226964656e746966696572223a22687474703a2f2f6578616d706c652e636f6d2f70617468222c226b696e64223a227765625f646f63756d656e74227d",
+      "encoded_input_hex": "5645524954592d4f50524600000101003e7b226964656e746966696572223a22687474703a2f2f6578616d706c652e636f6d2f70617468222c226b696e64223a227765625f646f63756d656e74227d",
+      "token_hex": "e7d49a719c1224cf761afca364cfa6d7e6c8aa1476af7e077b14140016d2e8c9c6bfeeb8a614afa66217ae958a7be9e0d79b5a0091d67aff7d7b6bf4712be5bc"
+    },
+    {
+      "name": "https_default_port",
+      "inputs": [
+        "https://example.com:443/path",
+        "https://example.com/path"
+      ],
+      "canonical": "https://example.com/path",
+      "payload_hex": "7b226964656e746966696572223a2268747470733a2f2f6578616d706c652e636f6d2f70617468222c226b696e64223a227765625f646f63756d656e74227d",
+      "encoded_input_hex": "5645524954592d4f50524600000101003f7b226964656e746966696572223a2268747470733a2f2f6578616d706c652e636f6d2f70617468222c226b696e64223a227765625f646f63756d656e74227d",
+      "token_hex": "db18d11a588314464b13f006a700754f84bd9173e28d3f413d4cb1f964aaf8ea28578f8953d68b48249151861e9d03dfc7f51616245d167b8467baa66990479c"
+    }
+  ],
+  "nondefault_port_cases": [
+    {
+      "input": "http://example.com:8080/path",
+      "canonical": "http://example.com:8080/path",
+      "without_port": "http://example.com/path"
+    },
+    {
+      "input": "https://example.com:8443/path",
+      "canonical": "https://example.com:8443/path",
+      "without_port": "https://example.com/path"
+    }
+  ],
+  "idna_cases": [
+    {
+      "kind": "web_publisher",
+      "input": "https://BÜCHER.example/",
+      "canonical": "xn--bcher-kva.example"
+    },
+    {
+      "kind": "web_document",
+      "input": "https://BÜCHER.example/path",
+      "canonical": "https://xn--bcher-kva.example/path"
+    },
+    {
+      "kind": "web_document",
+      "input": "https://faß.de/path",
+      "canonical": "https://xn--fa-hia.de/path"
+    }
+  ]
+}

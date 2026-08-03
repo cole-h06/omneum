@@ -23,7 +23,8 @@ are to be interpreted as described in RFC 2119 and RFC 8174.
 
 The repository implements:
 
-- `web_publisher` and `web_document` source canonicalization;
+- `web_publisher`, `web_document`, `internal_resource`, `internal_service`, and
+  `database` source canonicalization;
 - the `service` entity namespace;
 - attribute and value canonicalization;
 - strict source, attribute, and claim serializers;
@@ -37,11 +38,6 @@ The source kinds with version-1 interoperable canonicalization rules are:
 - `internal_resource`;
 - `internal_service`; and
 - `database`.
-
-The rules for `internal_resource`, `internal_service`, and `database` are
-specified but not implemented by the reference SDK. An SDK MUST NOT present
-those profiles as implemented until its production canonicalizer passes the
-language-neutral vectors.
 
 The following source-kind name is reserved and deferred:
 
