@@ -1,0 +1,17 @@
+{
+  "deployment": {
+    "id": "eu-support-copilot-production",
+    "service": "EU Customer Support Copilot",
+    "status": "approved",
+    "approved_at": "2026-07-16T08:00:00+00:00",
+    "release": "model-registry-release-2026-07"
+  },
+  "configuration": {
+    "input_data_policy": "redacted customer content only",
+    "provider_retention_days": 0,
+    "processing_region": "EU"
+  },
+  "governance": {
+    "approved_policy": "policy-ai-17-v4"
+  }
+}

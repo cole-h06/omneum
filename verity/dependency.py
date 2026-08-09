@@ -110,12 +110,52 @@ class DependencySignalScores:
 
 
 @dataclass(frozen=True, slots=True)
+class DependencyEvidence:
+    source_a_cites_source_b: bool = field(repr=False)
+    source_b_cites_source_a: bool = field(repr=False)
+    source_a_parent_count: int = field(repr=False)
+    source_b_parent_count: int = field(repr=False)
+    same_owner: bool = field(repr=False)
+    shared_provenance_count: int = field(repr=False)
+    matching_claim_count: int = field(repr=False)
+    qualifying_time_deltas_seconds: tuple[float, ...] = field(repr=False)
+
+    def __post_init__(self):
+        for name in (
+            "source_a_cites_source_b",
+            "source_b_cites_source_a",
+            "same_owner",
+        ):
+            if type(getattr(self, name)) is not bool:
+                raise TypeError(f"{name} must be a bool")
+        for name in (
+            "source_a_parent_count",
+            "source_b_parent_count",
+            "shared_provenance_count",
+            "matching_claim_count",
+        ):
+            value = getattr(self, name)
+            if type(value) is not int:
+                raise TypeError(f"{name} must be an int")
+            if value < 0:
+                raise ValueError(f"{name} must be non-negative")
+        if type(self.qualifying_time_deltas_seconds) is not tuple:
+            raise TypeError("qualifying_time_deltas_seconds must be a tuple")
+        for value in self.qualifying_time_deltas_seconds:
+            if type(value) is not float:
+                raise TypeError("qualifying time deltas must be floats")
+            if not math.isfinite(value) or value <= 0.0:
+                raise ValueError("qualifying time deltas must be positive")
+
+
+@dataclass(frozen=True, slots=True)
 class PairwiseDependencyResult:
     source_a: SourceReference = field(repr=False)
     source_b: SourceReference = field(repr=False)
     signals: DependencySignalScores = field(repr=False)
     dependency: float = field(repr=False)
     weighted_signal_coverage: float = field(repr=False)
+    evidence: DependencyEvidence | None = field(default=None, repr=False)
 
     def __post_init__(self):
         if type(self.source_a) is not SourceReference:
@@ -124,6 +164,8 @@ class PairwiseDependencyResult:
             raise TypeError("source_b must be a SourceReference")
         if type(self.signals) is not DependencySignalScores:
             raise TypeError("signals must be DependencySignalScores")
+        if self.evidence is not None and type(self.evidence) is not DependencyEvidence:
+            raise TypeError("evidence must be DependencyEvidence or None")
         _number(self.dependency, "dependency", unit=True)
         _number(
             self.weighted_signal_coverage,
@@ -288,7 +330,7 @@ def estimate_dependencies(sources, observations, config):
 
     results = []
     for source_a, source_b in combinations(ordered_keys, 2):
-        signals = _signals(
+        signals, evidence = _signals(
             source_a,
             source_b,
             source_map,
@@ -303,6 +345,7 @@ def estimate_dependencies(sources, observations, config):
             signals,
             dependency,
             coverage,
+            evidence,
         ))
 
     clusters = ()
@@ -320,9 +363,9 @@ def _signals(source_a, source_b, source_map, rows_by_source, assertion_ids, conf
     union = provenance_a | provenance_b
     provenance = len(provenance_a & provenance_b) / len(union) if provenance_observable and union else 0.0
 
-    direction_a = _lineage(source_b, rows_a, assertion_ids)
-    direction_b = _lineage(source_a, rows_b, assertion_ids)
-    lineage = max(direction_a, direction_b)
+    citation_a, parents_a = _lineage(source_b, rows_a, assertion_ids)
+    citation_b, parents_b = _lineage(source_a, rows_b, assertion_ids)
+    lineage = float(bool(citation_a or citation_b or parents_a or parents_b))
     captured_a = all(row[0].cited_sources is not None and row[0].parent_assertion_ids is not None for row in rows_a)
     captured_b = all(row[0].cited_sources is not None and row[0].parent_assertion_ids is not None for row in rows_b)
     lineage_observable = bool(lineage or (captured_a and captured_b))
@@ -345,6 +388,7 @@ def _signals(source_a, source_b, source_map, rows_by_source, assertion_ids, conf
         for key in matches
     )
     temporal = 0.0
+    time_deltas = ()
     if temporal_observable and matches:
         window = timedelta(seconds=config.temporal_window_seconds)
         qualifying_a = sum(
@@ -356,6 +400,19 @@ def _signals(source_a, source_b, source_map, rows_by_source, assertion_ids, conf
             for key in matches
         )
         temporal = max(qualifying_a, qualifying_b) / len(matches)
+        time_deltas = tuple(
+            abs(
+                properties_a[key][0].source_timestamp
+                - properties_b[key][0].source_timestamp
+            ).total_seconds()
+            for key in matches
+            if timedelta(0)
+            < abs(
+                properties_a[key][0].source_timestamp
+                - properties_b[key][0].source_timestamp
+            )
+            <= window
+        )
 
     supporters = {}
     for rows in rows_by_source.values():
@@ -368,20 +425,35 @@ def _signals(source_a, source_b, source_map, rows_by_source, assertion_ids, conf
     else:
         structural = 0.0
 
-    return DependencySignalScores(
+    signals = DependencySignalScores(
         provenance, lineage, ownership, temporal, structural,
         provenance_observable, lineage_observable, ownership_observable,
         temporal_observable, True,
     )
+    evidence = DependencyEvidence(
+        citation_a,
+        citation_b,
+        parents_a,
+        parents_b,
+        bool(ownership),
+        len(provenance_a & provenance_b) if provenance_observable else 0,
+        len(matches),
+        time_deltas,
+    )
+    return signals, evidence
 
 
 def _lineage(other_source, rows, assertion_ids):
+    citation = False
+    parents = 0
     for observation, *_ in rows:
         if any(_canonical_source(value) == other_source for value in observation.cited_sources or ()):
-            return 1.0
-        if any(assertion_ids[value][1] == other_source for value in observation.parent_assertion_ids or ()):
-            return 1.0
-    return 0.0
+            citation = True
+        parents += sum(
+            assertion_ids[value][1] == other_source
+            for value in observation.parent_assertion_ids or ()
+        )
+    return citation, parents
 
 
 def _clusters(source_keys, results, threshold):

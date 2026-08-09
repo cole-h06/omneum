@@ -4,6 +4,7 @@ from typing import Callable
 
 import pytest
 
+from verity.canonicalization import canonicalize_value
 from verity.serialization import (
     MAX_INTEGER,
     serialize_attribute,
@@ -192,36 +193,24 @@ def test_safe_integer(value: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "value",
+    ("value", "error"),
     [
-        -MAX_INTEGER - 1,
-        MAX_INTEGER + 1,
+        pytest.param(-MAX_INTEGER - 1, ValueError, id="integer-min"),
+        pytest.param(MAX_INTEGER + 1, ValueError, id="integer-max"),
+        pytest.param(float("nan"), ValueError, id="nan"),
+        pytest.param(float("inf"), ValueError, id="positive-infinity"),
+        pytest.param(float("-inf"), ValueError, id="negative-infinity"),
+        pytest.param(b"value", TypeError, id="bytes"),
+        pytest.param(("value",), TypeError, id="tuple"),
+        pytest.param({"value"}, TypeError, id="set"),
     ],
 )
-def test_unsafe_integer(value: int) -> None:
-    with pytest.raises(ValueError):
+def test_invalid_value(value: object, error: type[Exception]) -> None:
+    with pytest.raises(error):
         serialize_claim(
             "service",
             "worker",
-            "count",
-            value,
-        )
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
-        float("nan"),
-        float("inf"),
-        float("-inf"),
-    ],
-)
-def test_nonfinite_number(value: float) -> None:
-    with pytest.raises(ValueError):
-        serialize_claim(
-            "service",
-            "worker",
-            "ratio",
+            "value",
             value,
         )
 
@@ -285,24 +274,6 @@ def test_non_string_key() -> None:
             "worker",
             "profile",
             {1: "value"},
-        )
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
-        b"value",
-        ("value",),
-        {"value"},
-    ],
-)
-def test_unsupported_value(value: object) -> None:
-    with pytest.raises(TypeError):
-        serialize_claim(
-            "service",
-            "worker",
-            "profile",
-            value,
         )
 
 
@@ -375,3 +346,4 @@ def test_serialization_does_not_normalize() -> None:
         b'{"attribute":"Display Name","entity":"Cafe\xcc\x81 ",'
         b'"entity_namespace":" Service "}'
     )
+    assert canonicalize_value("a") != canonicalize_value("а")

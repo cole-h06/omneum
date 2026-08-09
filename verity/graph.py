@@ -18,9 +18,9 @@ class _Assertion:
     value: Any
 
 
-class CredibilityGraph:
+class AssertionGraph:
     """
-    A collection of assertions submitted to Verity for inference.
+    A collection of assertions submitted to Verity for evaluation.
     """
 
     def __init__(self) -> None:

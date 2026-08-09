@@ -8,6 +8,7 @@ import pytest
 import verity.dependency as dependency
 from verity.dependency import (
     DependencyCluster,
+    DependencyEvidence,
     DependencyEstimatorConfig,
     DependencySignalScores,
     InformationGraphError,
@@ -106,6 +107,27 @@ def test_pair_constructor():
         )
 
 
+def test_evidence():
+    value = DependencyEvidence(
+        True, False, 0, 3, True, 2, 3, (3600.0,)
+    )
+
+    assert value.source_b_parent_count == 3
+    assert value.qualifying_time_deltas_seconds == (3600.0,)
+    with pytest.raises(TypeError):
+        DependencyEvidence(
+            1, False, 0, 0, False, 0, 0, ()
+        )
+    with pytest.raises(ValueError):
+        DependencyEvidence(
+            False, False, -1, 0, False, 0, 0, ()
+        )
+    with pytest.raises(ValueError):
+        DependencyEvidence(
+            False, False, 0, 0, False, 0, 0, (float("nan"),)
+        )
+
+
 def test_lineage():
     sources = (source("a.example", "owner"), source("b.example", "owner"))
     observations = (
@@ -117,6 +139,8 @@ def test_lineage():
 
     assert pairs[0].signals.lineage == 1.0
     assert pairs[0].signals.lineage_observable
+    assert pairs[0].evidence.source_a_cites_source_b
+    assert not pairs[0].evidence.source_b_cites_source_a
 
 
 def test_parent():
@@ -129,6 +153,8 @@ def test_parent():
     pairs, _ = estimate_dependencies(sources, observations, config())
 
     assert pairs[0].signals.lineage == 1.0
+    assert pairs[0].evidence.source_a_parent_count == 1
+    assert pairs[0].evidence.source_b_parent_count == 0
 
 
 def test_temporal_missing():

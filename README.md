@@ -1,2 +1,1 @@
-# verity-mcp
-A graph-based source credibility inference engine for AI agents and information networks.
+**A Data Trust Gateway for Agentic Systems.**

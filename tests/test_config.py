@@ -9,17 +9,17 @@ import pytest
 import verity.config as config_module
 from verity.config import (
     DEFAULT_EVALUATION_TIMEOUT_MS,
-    DEFAULT_INFERENCE_MAX_CONCURRENCY,
-    DEFAULT_INFERENCE_TIMEOUT_MS,
+    DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+    DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
     DEFAULT_MAX_CONCURRENCY,
     MAX_EVALUATION_TIMEOUT_MS,
-    MAX_INFERENCE_MAX_CONCURRENCY,
-    MAX_INFERENCE_TIMEOUT_MS,
+    MAX_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+    MAX_ASSERTION_EVALUATION_TIMEOUT_MS,
     MAX_KEY_VERSION,
     MAX_MAX_CONCURRENCY,
     MIN_EVALUATION_TIMEOUT_MS,
-    MIN_INFERENCE_MAX_CONCURRENCY,
-    MIN_INFERENCE_TIMEOUT_MS,
+    MIN_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+    MIN_ASSERTION_EVALUATION_TIMEOUT_MS,
     MIN_MAX_CONCURRENCY,
     ConfigurationError,
     DeploymentConfig,
@@ -81,10 +81,10 @@ def test_load_config(tmp_path: Path) -> None:
         == DEFAULT_EVALUATION_TIMEOUT_MS
     )
     assert (
-        state.inference_max_concurrency
-        == DEFAULT_INFERENCE_MAX_CONCURRENCY
+        state.assertion_evaluation_max_concurrency
+        == DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY
     )
-    assert state.inference_timeout_ms == DEFAULT_INFERENCE_TIMEOUT_MS
+    assert state.assertion_evaluation_timeout_ms == DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS
     assert (
         state.voprf_server.public_key
         == VOPRFServer(
@@ -113,16 +113,16 @@ def test_load_config(tmp_path: Path) -> None:
             "voprf_evaluation_timeout_ms",
         ),
         (
-            "VERITY_INFERENCE_MAX_CONCURRENCY",
-            MIN_INFERENCE_MAX_CONCURRENCY,
-            MAX_INFERENCE_MAX_CONCURRENCY,
-            "inference_max_concurrency",
+            "VERITY_ASSERTION_EVALUATION_MAX_CONCURRENCY",
+            MIN_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+            MAX_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+            "assertion_evaluation_max_concurrency",
         ),
         (
-            "VERITY_INFERENCE_TIMEOUT_MS",
-            MIN_INFERENCE_TIMEOUT_MS,
-            MAX_INFERENCE_TIMEOUT_MS,
-            "inference_timeout_ms",
+            "VERITY_ASSERTION_EVALUATION_TIMEOUT_MS",
+            MIN_ASSERTION_EVALUATION_TIMEOUT_MS,
+            MAX_ASSERTION_EVALUATION_TIMEOUT_MS,
+            "assertion_evaluation_timeout_ms",
         ),
     ],
 )
@@ -154,11 +154,11 @@ def test_resource_control_boundaries(
             ("", "0", "60001", "-1", "01", "1.0", "True"),
         ),
         (
-            "VERITY_INFERENCE_MAX_CONCURRENCY",
+            "VERITY_ASSERTION_EVALUATION_MAX_CONCURRENCY",
             ("", "0", "65", "-1", "01", "1.0", "True"),
         ),
         (
-            "VERITY_INFERENCE_TIMEOUT_MS",
+            "VERITY_ASSERTION_EVALUATION_TIMEOUT_MS",
             ("", "0", "60001", "-1", "01", "1.0", "True"),
         ),
     ],
@@ -378,77 +378,33 @@ def test_noncanonical_public_key(
         load_deployment_state(environ)
 
 
-@pytest.mark.parametrize("length", [31, 33])
-def test_invalid_public_key_length(
-    tmp_path: Path,
-    length: int,
-) -> None:
-    environ = provisioning(
-        tmp_path / "voprf.key"
-    )
-    environ["VERITY_VOPRF_PUBLIC_KEY"] = encode(
-        b"x" * length
-    )
-
-    with pytest.raises(ConfigurationError):
-        load_deployment_state(environ)
-
-
 @pytest.mark.parametrize(
-    "public_key",
+    ("target", "key"),
     [
-        b"\x00" * 32,
-        b"\xff" * 32,
+        pytest.param("public", b"x" * 31, id="public-short"),
+        pytest.param("public", b"x" * 33, id="public-long"),
+        pytest.param("public", b"\x00" * 32, id="public-zero"),
+        pytest.param("public", b"\xff" * 32, id="public-maximum"),
+        pytest.param("private", b"x" * 31, id="private-short"),
+        pytest.param("private", b"x" * 33, id="private-long"),
+        pytest.param("private", b"\x00" * 32, id="private-zero"),
+        pytest.param("private", b"\xff" * 32, id="private-maximum"),
     ],
 )
-def test_invalid_public_key(
+def test_invalid_key_material(
     tmp_path: Path,
-    public_key: bytes,
+    target: str,
+    key: bytes,
 ) -> None:
     environ = provisioning(
         tmp_path / "voprf.key"
     )
-    environ["VERITY_VOPRF_PUBLIC_KEY"] = encode(
-        public_key
-    )
-
-    with pytest.raises(ConfigurationError):
-        load_deployment_state(environ)
-
-
-@pytest.mark.parametrize("length", [31, 33])
-def test_invalid_private_key_length(
-    tmp_path: Path,
-    length: int,
-) -> None:
-    environ = provisioning(
-        tmp_path / "voprf.key"
-    )
-    Path(
-        environ["VERITY_VOPRF_PRIVATE_KEY_FILE"]
-    ).write_bytes(b"x" * length)
-
-    with pytest.raises(ConfigurationError):
-        load_deployment_state(environ)
-
-
-@pytest.mark.parametrize(
-    "private_key",
-    [
-        b"\x00" * 32,
-        b"\xff" * 32,
-    ],
-)
-def test_invalid_private_key(
-    tmp_path: Path,
-    private_key: bytes,
-) -> None:
-    environ = provisioning(
-        tmp_path / "voprf.key"
-    )
-    Path(
-        environ["VERITY_VOPRF_PRIVATE_KEY_FILE"]
-    ).write_bytes(private_key)
+    if target == "public":
+        environ["VERITY_VOPRF_PUBLIC_KEY"] = encode(key)
+    else:
+        Path(
+            environ["VERITY_VOPRF_PRIVATE_KEY_FILE"]
+        ).write_bytes(key)
 
     with pytest.raises(ConfigurationError):
         load_deployment_state(environ)

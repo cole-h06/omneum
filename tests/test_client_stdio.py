@@ -73,7 +73,7 @@ def test_stdio_client(tmp_path: Path) -> None:
             )
             assert len(first.value) == 64
             assert first.value == second.value
-            result = await client.infer_credibility(
+            result = await client.evaluate_assertion(
                 (
                     Observation(
                         "assertion-a",
@@ -102,7 +102,7 @@ def test_stdio_client(tmp_path: Path) -> None:
                     7200.0,
                 ),
             )
-            assert result.source_credibility[0].credibility == 1.0
+            assert result.source_reliability[0].reliability == 1.0
             assert result.claim_support[0].support == 1.0
             assert result.pairwise_dependencies == ()
 
@@ -113,7 +113,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     fixture_path = (
         Path(__file__).parent
         / "vectors"
-        / "enterprise_stdio_inference_v1.json"
+        / "enterprise_stdio_assertion_evaluation_v1.json"
     )
     fixture = json.loads(fixture_path.read_text())
     sources = {
@@ -227,14 +227,14 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             voprf_public_key=public_key,
         )
         async with open_stdio_client(config, parameters) as client:
-            first = await client.infer_credibility(
+            first = await client.evaluate_assertion(
                 observations,
                 estimator=estimator,
             )
             baseline = next(
                 arguments
                 for name, arguments in reversed(calls)
-                if name == "infer_credibility"
+                if name == "evaluate_assertion"
             )
             mutations = []
             unknown = copy.deepcopy(baseline)
@@ -248,7 +248,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             mutations.append(oversized)
             for mutation in mutations:
                 rejected = await client._evaluator._session.call_tool(
-                    "infer_credibility",
+                    "evaluate_assertion",
                     mutation,
                 )
                 assert rejected.isError
@@ -257,7 +257,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
                     "verity_code": "invalid_request",
                 }
                 assert "stdio-secret-marker" not in repr(rejected)
-            second = await client.infer_credibility(
+            second = await client.evaluate_assertion(
                 observations,
                 estimator=estimator,
             )
@@ -296,27 +296,29 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert claim_explanation == (
         "Return window = 30 days\n"
         "Support: 0.22\n\n"
-        "Supported by 3 sources.\n"
-        "Estimated independent support: 1.65.\n"
-        "Dependency signal coverage: 1.00.\n"
-        "Dependency group: 1.\n"
-        "Conflicts: 14 days (support 0.00).\n"
-        "✓ Highest-supported competing value."
+        "Highest support\n\n"
+        "Supporting sources: 3\n"
+        "Independent support: 1.65\n\n"
+        "Conflicting value:\n"
+        "14 days (support 0.00)"
     )
     assert dependency_explanation == (
         "Policy Manual ↔ Support Portal\n\n"
-        "Estimated independence: 0.34\n"
-        "Shared provenance, citation or lineage relationship, shared "
-        "ownership, close timing, and assertion overlap detected."
+        "Independence: 0.34\n\n"
+        "• Direct citation\n"
+        "• Same owner\n"
+        "• 1 shared provenance identifier\n"
+        "• Updated 1 hour apart\n"
+        "• 2 matching claims"
     )
     assert first.pairwise_dependencies == expected_pairs
     assert first.dependency_cluster_threshold == 0.4
-    assert {item.source.kind for item in first.source_credibility} == {
+    assert {item.source.kind for item in first.source_reliability} == {
         "internal_resource",
         "internal_service",
         "database",
     }
-    assert {item.source for item in first.source_credibility} == set(
+    assert {item.source for item in first.source_reliability} == set(
         sources.values()
     )
     expected_order = tuple(
@@ -416,9 +418,9 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         for source in minority.dependency_clusters[0].sources
     ] == expected_minority["cluster"]
     assert {
-        source_names[item.source]: item.credibility
-        for item in first.source_credibility
-    } == fixture["expected"]["source_credibility"]
+        source_names[item.source]: item.reliability
+        for item in first.source_reliability
+    } == fixture["expected"]["source_reliability"]
     assert first.convergence.iterations == fixture["expected"]["convergence"][
         "iterations"
     ]
@@ -427,8 +429,8 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         == fixture["expected"]["convergence"]["convergence_tolerance"]
     )
     assert (
-        first.convergence.maximum_credibility_delta
-        == fixture["expected"]["convergence"]["maximum_credibility_delta"]
+        first.convergence.convergence_delta
+        == fixture["expected"]["convergence"]["convergence_delta"]
     )
 
     assert counts == {
@@ -438,7 +440,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     }
     assert len(sessions) == 1
     assert [name for name, _ in calls].count("evaluate_voprf") == 20
-    assert [name for name, _ in calls].count("infer_credibility") == 5
+    assert [name for name, _ in calls].count("evaluate_assertion") == 5
     evaluation_requests = [
         arguments
         for name, arguments in calls
@@ -456,13 +458,13 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         }
         for request in evaluation_requests
     )
-    inference_requests = [
+    assertion_requests = [
         arguments
         for name, arguments in calls
-        if name == "infer_credibility"
+        if name == "evaluate_assertion"
     ]
-    assert inference_requests[0] == inference_requests[-1]
-    request = inference_requests[0]
+    assert assertion_requests[0] == assertion_requests[-1]
+    request = assertion_requests[0]
     assert set(request) == {
         "protocol_version",
         "deployment_id",

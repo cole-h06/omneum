@@ -20,7 +20,7 @@ Related specifications:
 | --- | --- |
 | `ping` | Implemented |
 | `evaluate_voprf` | Implemented for local MCP stdio |
-| `infer_credibility` | Implemented for local MCP stdio |
+| `evaluate_assertions` | Implemented for local MCP stdio |
 | `trace_claim` | Deferred; no version-1 interface |
 
 This document is the intended version-1 contract except where a section is
@@ -32,7 +32,7 @@ corresponding tool is currently registered.
 | Property | Version-1 value | Description |
 | --- | --- | --- |
 | `protocol_version` | `"v1"` | Tool request and response contract |
-| `algorithm_version` | `"verity-v1"` | Credibility-inference implementation |
+| `algorithm_version` | `"verity-v1"` | Source-reliability algorithm |
 | `voprf_mode` | `"voprf"` | RFC 9497 VOPRF mode |
 | `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF ciphersuite |
 | `voprf_key_version` | `1..2^32-1` | Active deployment key |
@@ -65,8 +65,8 @@ All protocol byte strings MUST use strict unpadded base64url:
 Local stdio deployments MAY rely on the OS and process boundary.
 
 Remote transports MUST authenticate callers and authorize each operation.
-Evaluation and inference are separate permissions. A caller authorized for one
-MUST NOT be assumed to be authorized for the other.
+VOPRF evaluation and assertion evaluation are separate permissions. A caller
+authorized for one MUST NOT be assumed to be authorized for the other.
 
 Request metadata does not authenticate a caller. Matching a deployment ID or
 key version proves only that a request names the active configuration.
@@ -111,12 +111,12 @@ tokens, decoded protocol values, or OS error text.
 | `unsupported_voprf_ciphersuite` | The ciphersuite is unsupported. |
 | `unsupported_linkage_encoding_version` | The linkage encoding is unsupported. |
 | `invalid_blinded_element` | The blinded element is malformed or invalid. |
-| `invalid_graph` | An inference graph is malformed. |
+| `invalid_graph` | An assertion graph is malformed. |
 | `rate_limited` | A caller exceeded an evaluation rate limit. |
 | `server_busy` | Concurrency or queue capacity is exhausted. |
 | `request_timeout` | Processing exceeded its deadline. |
 | `evaluation_failed` | Evaluation failed without a safe client-visible detail. |
-| `inference_failed` | Inference could not be completed. |
+| `assertion_evaluation_failed` | Assertion evaluation could not be completed. |
 | `internal_error` | An unexpected server failure occurred. |
 
 Unknown, stale, retired, and future key versions all produce
@@ -181,7 +181,7 @@ Unknown request fields MUST be rejected.
 | --- | --- | --- |
 | `status` | string | Deployment status; version 1 returns `"ok"`. |
 | `protocol_version` | string | Implemented protocol contract. |
-| `algorithm_version` | string | Configured inference algorithm. |
+| `algorithm_version` | string | Configured source-reliability algorithm. |
 | `deployment_id` | string | Canonical lowercase UUID URN. |
 | `voprf_key_version` | integer | Active VOPRF key version. |
 | `voprf_mode` | string | Active RFC 9497 mode. |
@@ -288,13 +288,15 @@ failure. The server stores no request state. Each successful call uses fresh
 proof randomness, so proofs may differ while valid responses still finalize to
 the same token.
 
-## 9. `infer_credibility`
+## 9. `evaluate_assertions`
 
-Status: **implemented for local MCP stdio**. Client SDK inference integration
-is not implemented.
+Status: **implemented for local MCP stdio**, including the Python SDK flow that
+performs local dependency estimation and linkage, submits the assertion-evaluation
+request, validates the response, and maps opaque results back to local values.
+Remote transport and Verity Cloud integration are not implemented.
 
 The complete assertion graph and its complete source-pair matrix are supplied
-in each request. Inference is deterministic and request-scoped. The server
+in each request. Assertion evaluation is deterministic and request-scoped. The server
 MUST NOT retain the graph, pair values, or results after the request.
 
 ### 9.1 Request
@@ -375,10 +377,10 @@ explanations.
     "claim_count": 1,
     "assertion_count": 1
   },
-  "source_credibility": [
+  "source_reliability": [
     {
       "source_id": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ",
-      "credibility": 1.0
+      "reliability": 1.0
     }
   ],
   "claim_support": [
@@ -406,24 +408,24 @@ explanations.
     "iterations": 1,
     "converged": true,
     "convergence_tolerance": 1e-8,
-    "maximum_credibility_delta": 0.0
+    "convergence_delta": 0.0
   }
 }
 ```
 
 The response has exactly the six active protocol metadata fields, `summary`,
-`source_credibility`, `claim_support`, and `metadata`. A client MUST validate
+`source_reliability`, `claim_support`, and `metadata`. A client MUST validate
 and compare the metadata as it does for evaluation responses.
 
 `summary` contains the exact integer fields `source_count`, `claim_count`, and
-`assertion_count`. `source_credibility` contains one exact
-`{source_id, credibility}` object per source. `claim_support` contains one
+`assertion_count`. `source_reliability` contains one exact
+`{source_id, reliability}` object per source. `claim_support` contains one
 object per claim with exactly the fields shown above. A conflicting-claim
 object has exactly `claim_id` and `support`; a supporting-source object has
 exactly `source_id`, `independence`, and `contribution`.
 
-All numeric results MUST be finite binary64 values. Credibility, support,
-agreement weight, independence, contribution, and maximum delta are
+All numeric results MUST be finite binary64 values. Reliability, support,
+agreement weight, independence, contribution, and convergence delta are
 nonnegative. `dependency_confidence` is `null` for a claim with one supporting
 source and otherwise is in `[0, 1]`. `estimated_independent_support_count` is
 in `[1, supporting_source_count]`. Support is a deterministic graph score, not
@@ -431,14 +433,14 @@ a truth probability. Estimated independent support is a dependency-adjusted
 heuristic, not a count of verified origins.
 
 Successful metadata has exactly `algorithm_version`, `iterations`,
-`converged`, `convergence_tolerance`, and `maximum_credibility_delta`.
+`converged`, `convergence_tolerance`, and `convergence_delta`.
 `algorithm_version` is `"verity-v1"`, `iterations` is in `1..1000`,
 `converged` is `true`, and `convergence_tolerance` is `1e-8`.
 `computation_time_ms` is not interoperable response data.
 
 Response arrays use these deterministic orders:
 
-- sources: descending credibility, then ascending `source_id`;
+- sources: descending reliability, then ascending `source_id`;
 - claims: ascending `attribute_id`, descending support, then ascending
   `claim_id`;
 - supporting sources: descending contribution, then ascending `source_id`;
@@ -485,7 +487,7 @@ pair telemetry by `(source_a_id, source_b_id)`. Iteration stops when
 `max_i(abs(s_i^(t+1) - s_i^(t))) < 1e-8`, after at most 1000 updates. The
 server recomputes claim support and contributions from the converged source
 vector. A zero total propagation update, nonconvergence, or a nonfinite result
-MUST return `inference_failed`.
+MUST return `assertion_evaluation_failed`.
 
 For the `n` sources supporting a claim:
 
@@ -501,7 +503,7 @@ dependency_confidence =
 
 ### 9.4 Validation and Failures
 
-An inference deployment MUST process a request in this order:
+An assertion-evaluation deployment MUST process a request in this order:
 
 1. enforce the transport request-size limit and parse the MCP envelope;
 2. authenticate and authorize the caller when the transport requires it;
@@ -515,8 +517,8 @@ An inference deployment MUST process a request in this order:
    request-wide conflict-response limit;
 8. validate pair count, tokens, membership, canonical ordering, completeness,
    finiteness, and value ranges;
-9. admit work to the bounded inference executor;
-10. run inference before the deadline; and
+9. admit work to the bounded assertion-evaluation executor;
+10. run assertion evaluation before the deadline; and
 11. validate and order the response.
 
 Strict schema, type, or unknown-field failures are `invalid_request`.
@@ -526,10 +528,10 @@ and graph-topology failures are `invalid_graph`. Metadata mismatches use their
 specific error codes.
 Immediate capacity exhaustion is `server_busy`; a deadline is
 `request_timeout`; zero-total propagation, nonconvergence, or invalid numeric
-output is `inference_failed`. Failure responses MUST contain only `message`
+output is `assertion_evaluation_failed`. Failure responses MUST contain only `message`
 and `verity_code` and MUST NOT reflect submitted values.
 
-Inference authorization is separate from VOPRF evaluation authorization.
+Assertion-evaluation authorization is separate from VOPRF evaluation authorization.
 
 ## 10. Resource Controls
 
@@ -547,12 +549,12 @@ interoperability. Cryptographic sizes, strict base64url lengths, single-element
 evaluation, canonicalization limits, and linkage input limits are fixed
 protocol requirements.
 
-A local-stdio `infer_credibility` deployment MUST use a fixed bounded executor,
+A local-stdio `evaluate_assertions` deployment MUST use a fixed bounded executor,
 immediately reject work when all admission slots are occupied, and maintain no
-pending queue. Maximum inference concurrency defaults to 1 and is configurable
-from 1 through 64. The inference deadline defaults to 1000 milliseconds and is
+pending queue. Maximum assertion-evaluation concurrency defaults to 1 and is
+configurable from 1 through 64. The assertion-evaluation deadline defaults to 1000 milliseconds and is
 configurable from 1 through 60000 milliseconds. An admission slot remains
-occupied until timed-out inference work actually finishes. These controls are
+occupied until timed-out assertion-evaluation work actually finishes. These controls are
 separate from VOPRF evaluation controls.
 
 The installed MCP SDK does not provide a pre-parse stdio frame bound. Until a

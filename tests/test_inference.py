@@ -24,7 +24,7 @@ from verity.inference import (
 VECTOR_PATH = (
     Path(__file__).parent
     / "vectors"
-    / "inference_v1.json"
+    / "reliability_v1.json"
 )
 
 
@@ -61,7 +61,7 @@ def test_single():
     assert result.summary.source_count == 1
     assert result.summary.claim_count == 1
     assert result.summary.assertion_count == 1
-    assert result.source_credibility[0].credibility == 1.0
+    assert result.source_reliability[0].reliability == 1.0
     assert result.claim_support[0].support == 1.0
     assert result.claim_support[0].agreement_weight == 1.0
     assert result.claim_support[0].supporting_source_count == 1
@@ -71,7 +71,7 @@ def test_single():
     )
     assert result.claim_support[0].dependency_confidence is None
     assert result.metadata.iterations == 1
-    assert result.metadata.maximum_credibility_delta == 0.0
+    assert result.metadata.convergence_delta == 0.0
 
 
 def test_agreement():
@@ -169,14 +169,14 @@ def test_contributions():
         assert total == item.support
 
         for source in item.supporting_sources:
-            credibility = next(
-                score.credibility
-                for score in result.source_credibility
+            reliability = next(
+                score.reliability
+                for score in result.source_reliability
                 if score.source_id == source.source_id
             )
             degree = 2 if source.source_id == "source-a" else 1
             assert source.contribution == (
-                credibility
+                reliability
                 * item.agreement_weight
                 * source.independence
                 / degree
@@ -191,9 +191,9 @@ def test_ordering():
         AssertionTriple("source-c", "attribute-a", "claim-a"),
     ]))
 
-    assert list(result.source_credibility) == sorted(
-        result.source_credibility,
-        key=lambda item: (-item.credibility, item.source_id),
+    assert list(result.source_reliability) == sorted(
+        result.source_reliability,
+        key=lambda item: (-item.reliability, item.source_id),
     )
     assert list(result.claim_support) == sorted(
         result.claim_support,
@@ -230,7 +230,7 @@ def test_convergence():
     assert result.metadata.iterations < 1000
     assert result.metadata.converged is True
     assert result.metadata.convergence_tolerance == CONVERGENCE_TOLERANCE
-    assert result.metadata.maximum_credibility_delta < CONVERGENCE_TOLERANCE
+    assert result.metadata.convergence_delta < CONVERGENCE_TOLERANCE
 
 
 def test_nonconvergence(monkeypatch):

@@ -17,7 +17,7 @@ The repository currently implements:
 - purpose-specific source, attribute, and claim linkage methods;
 - a strict single-element `evaluate_voprf` MCP client flow; and
 - an owned local-stdio client context with authenticated pinned configuration;
-- the local `infer_credibility` SDK flow; and
+- the local assertion-evaluation SDK flow; and
 - deterministic local claim and dependency explanations.
 
 The repository does not yet provide:
@@ -101,7 +101,7 @@ source schema. Each method returns a `LinkageToken` whose `value` is the exact
 Remote caller credentials are separate from the VOPRF public-key pin:
 
 - caller authentication proves who may invoke a deployment;
-- authorization grants evaluation or inference permission; and
+- authorization grants VOPRF or assertion-evaluation permission; and
 - the pinned VOPRF public key lets the client verify the evaluation proof.
 
 Metadata equality is not authentication.
@@ -127,7 +127,7 @@ Content-sensitive operations remain on the client. An evaluation request
 contains only a blinded group element and non-secret deployment metadata.
 
 The deployment can still observe caller identity, timing, request size, and
-volume. An inference request also reveals equality and topology among the
+volume. An assertion-evaluation request also reveals equality and topology among the
 opaque tokens it contains. Stable tokens reveal equality within their
 deployment and key-version boundary.
 
@@ -268,8 +268,7 @@ Purpose is source, attribute, or claim. The token is the 64-byte output,
 represented on the wire as unpadded base64url.
 
 Tokens with different identity metadata MUST NOT be compared as if they shared
-one linkage space. `protocol_version` and credibility `algorithm_version` are
-not part of token identity.
+one linkage space. protocol_version and algorithm_version are not part of token identity.
 
 Applications MAY maintain a local mapping from tokens to their original
 content. Such a registry is application state, is not sent to the deployment,
@@ -293,16 +292,16 @@ Each field is an unpadded base64url linkage token:
 - `attribute_id` has attribute purpose; and
 - `claim_id` has claim purpose.
 
-An inference request has one request-level token context. It MUST NOT mix
+An assertion-evaluation request has one request-level token context. It MUST NOT mix
 deployments, key versions, VOPRF modes, ciphersuites, or linkage encoding
 versions.
 
-## 11. Credibility Inference
+## 11. Assertion Evaluation
 
-`infer_credibility` is implemented by the local MCP stdio server. The request,
+`evaluate_assertions` is implemented by the local MCP stdio server. The request,
 response, validation order, bounds, and algorithm are defined in `api.md`.
-The Python SDK implements the local-stdio inference flow and maps validated
-opaque results back to application-local `Source` and `Claim` values.
+The Python SDK implements the local-stdio assertion-evaluation flow and maps
+validated opaque results back to application-local `Source` and `Claim` values.
 
 ### 11.1 Dependency Estimator Version
 
@@ -506,7 +505,9 @@ source order. The SDK MUST retain the exact threshold and complete membership
 for reproducibility. Without an explicit threshold it MUST omit clusters and
 cluster explanations. Thresholds and cluster membership never cross MCP.
 
-Before an inference call, an inference-capable SDK will canonicalize local
+### 11.7 Local Privacy Boundary
+
+Before an assertion-evaluation call, an assertion-evaluation-capable SDK will canonicalize local
 assertions, estimate a symmetric dependency and weighted signal coverage for
 every source pair, and link source, attribute, and claim identifiers. It will
 send the complete canonical assertion list and source-pair list. Raw
@@ -520,42 +521,41 @@ values, and deterministic ordering, the SDK will map opaque results to its
 local names. It may explain server-returned support, contributions, conflicts,
 estimated independent support, and dependency confidence using locally retained
 signal descriptions. Support is a graph score rather than a truth probability,
-and estimated independent support is not a count of verified origins.
-
-`dependency_clusters`, thresholds, and membership never cross MCP. There is no
-default threshold. If a caller explicitly supplies a finite threshold in
-`[0, 1]`, the SDK MAY form an undirected graph among the relevant supporting
-sources with an edge where `dependency >= threshold`, then use its connected
-components as local dependency clusters. For reproducibility, it MUST retain
-both the caller's threshold and the actual cluster membership. Without an
-explicit threshold, it MUST omit cluster counts and cluster explanations.
+and estimated independent support is not a count of verified origins. Local
+cluster behavior is defined in Section 11.6.
 
 The deployment does not receive original content or generate natural-language
 explanations. Pairwise signal descriptions such as shared ownership or close
 timing can appear only in SDK explanations derived from retained local data.
 
-### 11.7 Local Explanations
+### 11.8 Local Explanations
 
 The Python SDK exposes `explain_claim` and `explain_dependency`. Both accept
 only validated typed SDK results, are deterministic and side-effect-free, and
-perform no MCP, network, VOPRF, inference, logging, or filesystem work. They
+perform no MCP, network, VOPRF, assertion evaluation, logging, or filesystem work. They
 return text without a final newline and display binary64 values rounded to two
 decimal places without modifying the typed result.
 
 Claim explanations call the graph score `Support`, state the supporting-source
-count and `Estimated independent support`, and use singular grammar for one
-source. They emit `Highest-supported competing value` only when the engine's
-`is_attribute_max_support` field is true. Conflicts retain result order.
-Dependency signal coverage is shown only when present. Dependency-group counts
-are shown only when local clusters are present; the explanation does not infer
-or invent a threshold.
+count and `Independent support`, and use singular grammar for one
+source. They emit `Highest support` only when the engine's
+`is_attribute_max_support` field is true. Conflicts retain result order. Signal
+coverage and dependency clusters remain available in the typed result but are
+not part of the default claim explanation.
 
-Dependency explanations display `1 - dependency` as `Estimated independence`.
-They describe only observed positive signals, in provenance, lineage,
-ownership, temporal, and structural order. Observed zero and unavailable
-signals add no phrase. These factual descriptions MUST NOT classify dependency
-magnitude or describe copying, coordination, truth probability, or estimate
-correctness.
+Independent support estimates how much independent evidence supports a claim
+after accounting for source dependency. It is a continuous value, not an
+integer or a literal source count. With four fully independent supporting
+sources, the value approaches 4. If those sources are highly dependent, the
+value may be much lower.
+
+Dependency explanations display `1 - dependency` as `Independence`. They use
+locally retained evidence summaries to report citation direction, derived
+assertion counts, common ownership, shared-provenance counts, qualifying update
+gaps, and matching-claim counts. Raw identifiers and metadata remain local.
+Observed zero and unavailable signals add no fact. These descriptions MUST NOT
+classify dependency magnitude or describe copying, coordination, truth
+probability, or estimate correctness.
 
 Optional source labels are application-local presentation aliases. Labels MUST
 be exact nonempty strings without control characters. They do not affect
@@ -571,7 +571,7 @@ other claim.
 The installed MCP SDK reads a complete newline-delimited stdio frame before
 application validation; pre-parse frame-size limiting is unsupported.
 Duplicate JSON object keys use the installed parser's last-value semantics.
-Timed-out Python inference work cannot be forcibly terminated and retains its
+Timed-out Python assertion-evaluation work cannot be forcibly terminated and retains its
 capacity slot until completion. The server suppresses MCP SDK protocol-message
 logging so protocol values are not intentionally logged by Verity.
 

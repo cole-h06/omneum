@@ -5,22 +5,23 @@ This document provides a high-level overview of the Verity architecture and defi
 To see related specifications, visit:
 
 - **[`protocol.md`](../protocol/protocol.md)** — the communication contract between clients and Verity deployments. Defines the JSON-RPC protocol and request & response formats.
-- **[`canonicalization.md`](../protocol/canonicalization.md)** — deterministic normalization rules. Specifies how semantically equivalent assertions produce the same graph representation before inference.
+- **[`canonicalization.md`](../protocol/canonicalization.md)** — deterministic normalization rules. Specifies how semantically equivalent assertions produce the same graph representation before evaluation.
 - **[`sdk.md`](../protocol/sdk.md)** — client integration guides for constructing graphs, linkage token generation, submitting requests from supported languages.
-- **[`mcp.md`](../protocol/mcp.md)** — the MCP binding for the Verity Protocol.
 
 ## 1. Objectives
 
-The system architecture is designed to compute structural credibility over structured assertions collected from various independent sources.
+Verity is a Data Trust Gateway for Agentic Systems. It evaluates structured
+assertions collected from multiple sources and returns deterministic
+information-quality signals.
 
 A major goal for Verity is to enable integration with existing structured data pipelines, regardless of application domain, programming language, or deployment environment used.
 
 The architecture is guided by several core design principles:
 
-- Semantic extraction is separated from credibility inference.
+- Semantic extraction is separated from assertion evaluation.
 - Deterministic graph construction through standardized canonicalization.
-- Privacy-preserving linkage using tokens instead of the underlying content of the data.
-- Producing deterministic credibility signals from graph topology.
+- Privacy-preserving linkage through deterministic cryptographic tokens instead of the underlying application data.
+- Producing deterministic source-reliability and claim-support signals from graph topology.
 - Deployment through standard protocol interfaces such as MCP.
   
 ## 2. System Overview
@@ -29,11 +30,13 @@ At the highest level, Verity is composed of three key architectural components:
 
 - Verity SDK
 - Verity Deployment
-- Inference Engine
+- Assertion Evaluation Engine
 
-Applications can install and integrate the Verity SDK directly into their structured data pipelines. The SDK performs deterministic canonicalization, generates privacy-preserving linkage tokens, constructs a graph update, and submits it to a Verity deployment.
+Applications can install and integrate the Verity SDK directly into their structured data pipelines. The SDK performs deterministic canonicalization, serializes canonical values, executes the privacy-preserving linkage protocol to generate linkage tokens, constructs a complete request-scoped assertion graph, and submits it to a Verity deployment.
 
-A Verity deployment receives graph updates from the Verity SDK, constructs the submitted credibility graph, executes structural credibility inference, and returns credibility signals to the application.
+A Verity deployment receives a complete opaque graph in each request, evaluates
+the assertions without retaining the graph, and returns source reliability,
+claim support, dependency telemetry, conflicts, and convergence metadata.
 
 <p align="center">
   <img src="images/architecture.png" alt="Verity system architecture" width="600">
@@ -51,15 +54,18 @@ The SDK serves as the primary integration point between applications and a Verit
 
 ### 3.2 Verity Deployment
 
-A deployment is the runtime environment responsible for receiving graph updates, constructing the inference graph, executing the inference engine, and returning credibility signals.
+A deployment validates request-scoped assertion graphs, executes the assertion
+evaluation engine, and returns information-quality signals.
 
-### 3.3 Inference Engine
+### 3.3 Assertion Evaluation Engine
 
-The inference engine in Verity implements an iterative graph-based propagation ranking method. It computes structural credibility scores by propagating credibility throughout the graph.
+The assertion evaluation engine implements an iterative graph-propagation
+method. Internally, it updates source reliability and claim support until the
+source-reliability vector converges.
 
 ## 4. End-to-End Workflow
 
-This section specifies how data flows through a Verity deployment, from the point an application creates structured assertions to receiving credibility signals.
+This section specifies how data flows through a Verity deployment, from creating structured assertions to receiving information-quality signals.
 
 ### 4.1 Structured Data Pipeline
 
@@ -69,46 +75,66 @@ The method used to perform semantic extraction is outside the scope of Verity.
 
 ### 4.2 Canonicalization
 
-The Verity SDK applies deterministic canonicalization to structured assertions before constructing graph updates. The canonicalization rules are defined in the Verity Canonicalization Specification.
+The Verity SDK applies deterministic canonicalization to structured assertions. The resulting canonical assertions are then deterministically serialized before privacy-preserving linkage tokens are generated. The canonicalization rules are defined in the Verity Canonicalization Specification.
 
-### 4.3 Linkage Token Generation
+### 4.3 Privacy-Preserving Linkage
 
-The SDK generates privacy-preserving linkage tokens from the canonicalized graph update. The method used to generate linkage tokens is defined separately from the system architecture.
+After canonicalization, the SDK deterministically serializes canonical assertions and executes the standardized linkage protocol to generate privacy-preserving linkage tokens.
 
-### 4.4 Graph Update Construction
+These linkage tokens are deterministic for equivalent canonical assertions while minimizing disclosure of the underlying assertion content.
 
-The SDK constructs a graph update message containing the linkage tokens and associated protocol metadata before submitting it to a Verity deployment.
+The linkage protocol is specified separately from the system architecture.
 
-### 4.5 Graph Submission
+### 4.4 Assertion-Evaluation Request Construction
 
-The graph update is transmitted to a Verity deployment using a supported protocol binding (such as MCP).
+The SDK constructs a complete assertion-evaluation request containing opaque
+assertion triples, the numerical source-pair inputs required by the algorithm,
+and the protocol metadata required by the Verity Protocol.
 
-### 4.6 Credibility Inference
+### 4.5 Request Submission
 
-After submission, the deployment resolves the linkage tokens, constructs the credibility graph represented by the submitted assertions, and executes the configured inference algorithm to compute structural credibility.
+The request is transmitted to the reference deployment over local MCP stdio. Remote transport and Verity Cloud behavior are not implemented.
 
-### 4.7 Credibility Response
+### 4.6 Assertion Evaluation
 
-The deployment returns deterministic credibility signals to the application.
+After submission, the deployment treats linkage tokens as opaque identifiers,
+constructs the assertion graph, and executes the configured algorithm. It does
+not reverse or resolve tokens to application content.
 
-## 5. Inference Graph
+### 4.7 Evaluation Response
 
-Each inference request defines a credibility graph composed of the submitted sources, claims, and assertions. The deployment constructs this graph before executing structural credibility inference.
+The deployment returns deterministic information-quality signals to the application.
+
+## 5. Assertion Graph
+
+Each evaluation request defines an assertion graph composed of the submitted
+sources, claims, and assertions. The deployment constructs this graph before
+executing dependency-adjusted reliability propagation.
 
 ### 5.1 Graph Structure
 
-The credibility graph is modeled as a bipartite graph where source and claim nodes connect through their assertions (edges). The submitted assertions determine the topology analyzed during inference.
+The assertion graph is modeled as a bipartite graph where source and claim
+nodes connect through their assertions. The submitted assertions determine the
+topology analyzed during evaluation.
 
 ### 5.2 Graph Construction
 
-After resolving linkage tokens, the deployment constructs the credibility graph represented by the submitted assertions. This graph serves as the input to the inference engine for the duration of the inference request.
+The deployment constructs the assertion graph directly from the submitted
+opaque assertion triples. The graph exists only for the duration of the
+request.
 
 ## 6. Deployment
 
 ### 6.1 Reference Implementation
 
-The reference implementation is designed to be deployed as a self-hosted MCP server. It accepts graph updates, executes structural credibility inference, and returns deterministic credibility signals according to the Verity Protocol.
+The reference implementation is a local-stdio MCP server. It accepts complete
+request-scoped graphs, evaluates assertions, and returns deterministic
+information-quality signals according to the Verity Protocol.
 
 ### 6.2 Trust Boundary
 
-Applications perform semantic extraction and canonicalization before interacting with Verity. Verity operates only on protocol-compliant graph updates and does not interpret the underlying content. This separation establishes the trust boundary between application-specific processing and structural credibility inference.
+Applications perform semantic extraction, canonicalization, and
+privacy-preserving linkage before interacting with Verity. Verity operates only
+on opaque linkage tokens and protocol metadata, never on the underlying
+application content. This separation establishes the trust boundary between
+application-specific processing and assertion evaluation.

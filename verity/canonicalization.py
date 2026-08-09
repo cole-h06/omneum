@@ -368,35 +368,3 @@ def canonicalize_value(
     raise TypeError(
         "value must be a supported JSON data type"
     )
-
-
-def canonicalize_assertion(
-    source_kind: str,
-    source: str,
-    entity_namespace: str,
-    entity: str,
-    attribute: str,
-    value: Any,
-) -> dict[str, Any]:
-    """
-    Converts an assertion into its canonical form.
-    """
-
-    return {
-        "source_kind": source_kind,
-        "source": canonicalize_source(
-            source_kind,
-            source,
-        ),
-        "entity_namespace": entity_namespace,
-        "entity": canonicalize_entity(
-            entity_namespace,
-            entity,
-        ),
-        "attribute": canonicalize_attribute(
-            attribute,
-        ),
-        "value": canonicalize_value(
-            value,
-        ),
-    }

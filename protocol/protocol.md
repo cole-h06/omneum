@@ -5,11 +5,12 @@
 The Verity Protocol defines the interoperability contract between clients and
 Verity deployments. It describes how clients transform canonical structured
 values into privacy-preserving linkage tokens and submit assertion graphs for
-credibility inference.
+assertion evaluation.
 
 The protocol does not define how applications extract structured assertions
 from unstructured data. It also does not require a particular implementation
-of the credibility algorithm beyond the versioned behavior exposed by the API.
+of the source-reliability and claim-support algorithm beyond the versioned
+behavior exposed by the API.
 
 This document specifies the intended version-1 contract. Features are marked as
 implemented, specified but not implemented, or deferred where appropriate.
@@ -29,7 +30,7 @@ Version 1 has the following implementation status:
 | Canonical linkage serialization and domain encoding | Implemented |
 | RFC 9497 VOPRF client and server primitives | Implemented |
 | `evaluate_voprf` MCP tool | Implemented for local stdio |
-| `infer_credibility` MCP tool | Implemented for local stdio |
+| `evaluate_assertions` MCP tool | Implemented for local stdio |
 | `trace_claim` | Deferred |
 | Overlapping-key rotation | Deferred |
 | Remote transport profile | Deferred |
@@ -45,25 +46,25 @@ It groups claims that describe competing values for that property.
 A **Claim** is a canonical entity, attribute, and value tuple.
 
 An **Assertion** is a directed relationship from one source to one claim.
-Assertions are the edges of the Verity credibility graph.
+Assertions are the edges of the Verity assertion graph.
 
 A **Client** performs content-sensitive processing locally, constructs protocol
 requests, and verifies VOPRF evaluations.
 
-A **Deployment** evaluates blinded inputs and runs deterministic credibility
-inference over request-scoped opaque graphs.
+A **Deployment** evaluates blinded inputs and performs deterministic assertion
+evaluation over request-scoped opaque graphs.
 
 ## 5. Design Principles
 
 ### 5.1 Content Blindness
 
 Clients MUST NOT send canonical source, entity, attribute, or claim content in
-evaluation or inference requests. Deployments operate on blinded elements or
+evaluation or assertion-evaluation requests. Deployments operate on blinded elements or
 opaque linkage tokens.
 
 VOPRF limits what an evaluator learns from an individual evaluation. It does
 not hide traffic metadata, request timing, caller identity, request volume, or
-the graph structure submitted for inference.
+the graph structure submitted for evaluation.
 
 ### 5.2 Deterministic Linkage
 
@@ -72,7 +73,8 @@ deployment key produce the same finalized token, even though client blinds and
 server proofs are randomized.
 
 Stable tokens reveal equality within their deployment and key-version
-boundary. Inference additionally reveals the submitted equality and topology.
+boundary. Assertion evaluation additionally reveals the submitted equality and
+topology.
 
 Tokens MUST be compared only when their complete token identity matches.
 
@@ -95,13 +97,14 @@ Version 1 separates values that evolve for different reasons:
 | Field | Version-1 value | Meaning |
 | --- | --- | --- |
 | `protocol_version` | `"v1"` | MCP request and response contract |
-| `algorithm_version` | `"verity-v1"` | Credibility-inference algorithm |
+| `algorithm_version` | `"verity-v1"` | Source-reliability algorithm |
 | `voprf_mode` | `"voprf"` | RFC 9497 protocol mode |
 | `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF group and hash suite |
 | `voprf_key_version` | integer `1..2^32-1` | Deployment VOPRF key |
 | `linkage_encoding_version` | integer `1` | Verity linkage input encoding |
 
-`algorithm_version` applies to inference, not VOPRF evaluation.
+`algorithm_version` applies to the source-reliability and claim-support
+algorithm, not VOPRF evaluation.
 
 Changing the protocol version alone does not change token identity. Changing
 the deployment, VOPRF key, mode, ciphersuite, linkage encoding version, purpose,
@@ -150,9 +153,9 @@ Local stdio deployments MAY rely on the OS user, process-launch, filesystem,
 and IPC boundary.
 
 Remote transports MUST authenticate callers and MUST authorize VOPRF evaluation
-separately from credibility inference. Permission to evaluate does not imply
-permission to infer, and permission to infer does not imply permission to
-evaluate.
+separately from assertion evaluation. Permission to evaluate VOPRF inputs does
+not imply permission to evaluate assertions, and permission to evaluate
+assertions does not imply permission to evaluate VOPRF inputs.
 
 Request metadata is validation input. It does not authenticate the caller.
 
@@ -225,7 +228,7 @@ evaluation schema is defined in `api.md`.
 
 ## 10. Assertions and Token Identity
 
-Every inference assertion contains:
+Every assertion-evaluation entry contains:
 
 - `source_id`;
 - `attribute_id`; and
@@ -307,11 +310,13 @@ boundary.
 Version 1 has no persistent rollback floor. Rollback protection depends on
 authenticated configuration management and deployment controls.
 
-## 13. Inference
+## 13. Assertion Evaluation
 
-`infer_credibility` is implemented for local MCP stdio. The exact wire contract
-and algorithm are defined in `api.md`. Client SDK inference integration is not
-implemented.
+`evaluate_assertions` is implemented for local MCP stdio. The exact wire contract
+and algorithm are defined in `api.md`. The Python SDK implements local
+dependency estimation, linkage, request submission, response validation, and
+mapping of opaque results back to application-local values. Remote transport
+and Verity Cloud integration are not implemented.
 
 Before linkage, the client canonicalizes application-local assertions and
 estimates the symmetric dependency and weighted signal coverage for every
@@ -321,7 +326,7 @@ text locally. The request contains only opaque assertion triples and the two
 numeric values for every canonical source pair.
 
 The deployment validates that complete graph and performs deterministic,
-dependency-adjusted credibility propagation. It returns opaque identifiers,
+dependency-adjusted reliability propagation. It returns opaque identifiers,
 scores, contributions, conflicts, independent-support telemetry, dependency
 confidence, and deterministic convergence metadata. It cannot recover or
 validate provenance relationships from opaque tokens alone. The submitted
@@ -334,7 +339,8 @@ For an attribute with `m` distinct claims, the response contains
 executor admission and does not truncate the response.
 
 The self-hosted server remains stateless and request-scoped: the complete graph
-required for an inference run is supplied in that request and is not persisted.
+required for an assertion-evaluation run is supplied in that request and is
+not persisted.
 `dependency_clusters`, cluster thresholds, and cluster membership are not MCP
 request or response fields. No default cluster threshold exists. An SDK MAY
 compute clusters locally only when its caller supplies an explicit threshold;
@@ -381,7 +387,7 @@ state, canonical private inputs, blinded elements, evaluation elements, proofs,
 finalized tokens, or decoded protocol values.
 
 Successful `evaluate_voprf` responses necessarily contain the evaluated
-element and proof. Successful inference responses may contain linkage
+element and proof. Successful assertion-evaluation responses may contain linkage
 identifiers.
 
 Verity does not intentionally log protocol values. The local server suppresses
@@ -395,10 +401,10 @@ authorized.
 
 ## 16. Compatibility
 
-Changes to request or response structure require a new protocol version.
+Breaking changes to the request or response structure of a released protocol require a new protocol version.
 Changes that alter canonical serialized bytes or domain encoding require a new
 linkage encoding version. Key rotation uses a new VOPRF key version. Changes to
-credibility inference use a new algorithm version.
+the source-reliability or claim-support algorithm use a new algorithm version.
 
 Older token identity metadata must remain available for as long as old tokens
 are retained. Version 1 does not require an evaluator to continue serving old

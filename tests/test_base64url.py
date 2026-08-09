@@ -3,6 +3,9 @@ import pytest
 from verity.base64url import decode_unpadded, encode_unpadded
 
 
+CANONICAL = encode_unpadded(b"\x00" * 32, expected_length=32)
+
+
 def test_round_trip() -> None:
     value = bytes(range(32))
     encoded = encode_unpadded(
@@ -20,19 +23,26 @@ def test_round_trip() -> None:
 @pytest.mark.parametrize(
     "value",
     [
-        "",
-        "A" * 42,
-        "A" * 44,
-        "A" * 42 + "=",
-        "A" * 42 + "+",
+        pytest.param("", id="empty"),
+        pytest.param(CANONICAL[:-1], id="truncated"),
+        pytest.param(CANONICAL + "A", id="extended"),
+        pytest.param(CANONICAL + "=", id="padding"),
+        pytest.param(CANONICAL[:-1] + "+", id="alphabet"),
+        pytest.param(CANONICAL[:-1] + " ", id="whitespace"),
+        pytest.param(CANONICAL[:-1] + "B", id="trailing-bits"),
     ],
 )
 def test_invalid_encoding(value: str) -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="^protocol value must be canonical base64url$",
+    ) as caught:
         decode_unpadded(
             value,
             expected_length=32,
         )
+    assert str(caught.value) == "protocol value must be canonical base64url"
+    assert CANONICAL not in repr(caught.value)
 
 
 def test_invalid_types() -> None:

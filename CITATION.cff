@@ -19,6 +19,6 @@ license: MIT
 
 abstract: >
   Verity MCP is the reference implementation of the Verity Protocol.
-  It exposes a Model Context Protocol (MCP) server for computing
-  deterministic structural credibility signals over networks of
-  sources, claims, and assertions.
+  It exposes a Model Context Protocol (MCP) Data Trust Gateway for
+  evaluating assertion networks and computing deterministic source
+  reliability and claim support.

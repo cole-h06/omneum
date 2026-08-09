@@ -15,14 +15,14 @@ from verity.config import DeploymentState
 from verity.models import (
     Assertion,
     EvaluateVOPRFRequest,
-    InferCredibilityRequest,
+    EvaluateAssertionRequest,
     SourcePair,
 )
 from verity.tools.evaluate_voprf import (
     EvaluationService,
     invalid_request_result,
 )
-from verity.tools.infer_credibility import InferenceService
+from verity.tools.evaluate_assertion import AssertionEvaluationService
 from verity.tools.ping import handle_ping
 
 
@@ -39,7 +39,7 @@ class VerityFastMCP(FastMCP):
         except ToolError:
             if name in {
                 "evaluate_voprf",
-                "infer_credibility",
+                "evaluate_assertion",
             }:
                 return invalid_request_result()
             raise
@@ -51,14 +51,14 @@ def create_server(state: DeploymentState) -> FastMCP:
     """
 
     evaluation_service = EvaluationService(state)
-    inference_service = InferenceService(state)
+    assertion_service = AssertionEvaluationService(state)
 
     @asynccontextmanager
     async def lifespan(_server):
         try:
             yield None
         finally:
-            inference_service.close()
+            assertion_service.close()
             evaluation_service.close()
 
     mcp = VerityFastMCP(
@@ -125,12 +125,12 @@ def create_server(state: DeploymentState) -> FastMCP:
     )
 
     @mcp.tool(
-        name="infer_credibility",
+        name="evaluate_assertion",
         description=(
-            "Run deterministic credibility inference over an opaque graph."
+            "Evaluate opaque assertions and return information-quality signals."
         ),
     )
-    async def infer_credibility(
+    async def evaluate_assertion(
         protocol_version: str,
         deployment_id: str,
         voprf_key_version: int,
@@ -141,7 +141,7 @@ def create_server(state: DeploymentState) -> FastMCP:
         source_pairs: list[SourcePair],
     ) -> CallToolResult:
         try:
-            request = InferCredibilityRequest(
+            request = EvaluateAssertionRequest(
                 protocol_version=protocol_version,
                 deployment_id=deployment_id,
                 voprf_key_version=voprf_key_version,
@@ -155,22 +155,22 @@ def create_server(state: DeploymentState) -> FastMCP:
             )
         except ValidationError:
             return invalid_request_result()
-        return await inference_service.evaluate(request)
+        return await assertion_service.evaluate(request)
 
-    inference_tool = mcp._tool_manager.get_tool(
-        "infer_credibility"
+    assertion_tool = mcp._tool_manager.get_tool(
+        "evaluate_assertion"
     )
-    if inference_tool is None:  # pragma: no cover
+    if assertion_tool is None:  # pragma: no cover
         raise RuntimeError(
-            "infer_credibility registration failed"
+            "evaluate_assertion registration failed"
         )
-    inference_tool.fn_metadata.arg_model.model_config.update(
+    assertion_tool.fn_metadata.arg_model.model_config.update(
         extra="forbid",
         strict=True,
     )
-    inference_tool.fn_metadata.arg_model.model_rebuild(force=True)
-    inference_tool.parameters = (
-        InferCredibilityRequest.model_json_schema()
+    assertion_tool.fn_metadata.arg_model.model_rebuild(force=True)
+    assertion_tool.parameters = (
+        EvaluateAssertionRequest.model_json_schema()
     )
 
     return mcp

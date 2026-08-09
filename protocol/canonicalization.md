@@ -448,8 +448,8 @@ Any change that alters the strict canonical payload bytes or the binary linkage
 encoding requires a new linkage encoding version.
 
 A new VOPRF key uses a new key version, not a new linkage encoding version.
-A new MCP request contract uses a new protocol version. A change to credibility
-inference uses a new algorithm version.
+A breaking change to a released MCP request contract requires a new protocol version. A change to the
+source-reliability or claim-support algorithm uses a new algorithm version.
 
 Version 1 does not mix linkage or key versions within one request. Stored tokens
 must retain their complete token identity for as long as they remain in use.

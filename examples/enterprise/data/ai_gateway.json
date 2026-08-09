@@ -1,0 +1,18 @@
+{
+  "deployment": {
+    "id": "eu-support-copilot-production",
+    "environment": "production",
+    "service": "EU Customer Support Copilot",
+    "last_updated": "2026-07-16T09:00:00+00:00",
+    "change_id": "deployment-change-8421"
+  },
+  "runtime": {
+    "input_data_policy": "redacted customer content only",
+    "provider_retention_days": 0,
+    "processing_region": "EU",
+    "redaction_enabled": true
+  },
+  "configuration": {
+    "model_registry_reference": "model-registry-release-2026-07"
+  }
+}

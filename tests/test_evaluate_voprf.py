@@ -154,7 +154,7 @@ def test_strict_request_validation(
     [
         (
             "protocol_version",
-            "v2",
+            "v3",
             "unsupported_protocol_version",
         ),
         (

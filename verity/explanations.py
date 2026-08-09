@@ -14,13 +14,6 @@ _INTERNAL_LABELS = {
     "internal_service": "Internal service",
     "database": "Database",
 }
-_SIGNALS = (
-    ("provenance", "Shared provenance"),
-    ("lineage", "Citation or lineage relationship"),
-    ("ownership", "Shared ownership"),
-    ("temporal", "Close timing"),
-    ("structural", "Assertion overlap"),
-)
 
 
 def explain_claim(
@@ -38,28 +31,21 @@ def explain_claim(
         f"{_attribute(claim.attribute)} = {_value(claim.value)}",
         f"Support: {result.support:.2f}",
         "",
-        _supported(result.supporting_source_count),
-        "Estimated independent support: "
-        f"{result.estimated_independent_support_count:.2f}.",
     ]
-    if result.dependency_confidence is not None:
-        lines.append(
-            "Dependency signal coverage: "
-            f"{result.dependency_confidence:.2f}."
-        )
-    if result.dependency_clusters is not None:
-        lines.append(
-            f"Dependency {_group(len(result.dependency_clusters))}: "
-            f"{len(result.dependency_clusters)}."
-        )
+    if result.is_attribute_max_support:
+        lines.extend(("Highest support", ""))
+    lines.extend([
+        _supporting(result.supporting_source_count),
+        "Independent support: "
+        f"{result.estimated_independent_support_count:.2f}",
+    ])
     if result.conflicting_claims:
-        conflicts = "; ".join(
+        noun = "value" if len(result.conflicting_claims) == 1 else "values"
+        lines.extend(("", f"Conflicting {noun}:"))
+        lines.extend(
             f"{_value(item.claim.value)} (support {item.support:.2f})"
             for item in result.conflicting_claims
         )
-        lines.append(f"Conflicts: {conflicts}.")
-    if result.is_attribute_max_support:
-        lines.append("✓ Highest-supported competing value.")
     return "\n".join(lines)
 
 
@@ -74,23 +60,15 @@ def explain_dependency(
     labels = _labels(source_labels)
     source_a = _source_label(result.source_a.kind, result.source_a.identifier, labels)
     source_b = _source_label(result.source_b.kind, result.source_b.identifier, labels)
-    positive = [
-        phrase
-        for name, phrase in _SIGNALS
-        if getattr(result.signals, f"{name}_observable")
-        and getattr(result.signals, name) > 0.0
-    ]
-    description = (
-        _signal_sentence(positive)
-        if positive
-        else "No positive dependency signal was observed."
-    )
-    return "\n".join((
+    facts = _evidence(result)
+    lines = [
         f"{source_a} ↔ {source_b}",
         "",
-        f"Estimated independence: {1.0 - result.dependency:.2f}",
-        description,
-    ))
+        f"Independence: {1.0 - result.dependency:.2f}",
+        "",
+    ]
+    lines.extend(f"• {fact}" for fact in facts or ("None observed",))
+    return "\n".join(lines)
 
 
 def _labels(value):
@@ -143,19 +121,70 @@ def _value(value):
     return serialized
 
 
-def _supported(count):
+def _supporting(count):
     noun = "source" if count == 1 else "sources"
-    return f"Supported by {count} {noun}."
+    return f"Supporting {noun}: {count}"
 
 
-def _group(count):
-    return "group" if count == 1 else "groups"
+def _evidence(result):
+    evidence = result.evidence
+    if evidence is None:
+        return _signal_fallback(result)
+
+    facts = []
+    if evidence.source_a_cites_source_b:
+        facts.append("Direct citation")
+    if evidence.source_b_cites_source_a:
+        facts.append("Direct citation")
+    if evidence.source_a_parent_count:
+        facts.append(_derived(evidence.source_a_parent_count))
+    if evidence.source_b_parent_count:
+        facts.append(_derived(evidence.source_b_parent_count))
+    if evidence.same_owner:
+        facts.append("Same owner")
+    if evidence.shared_provenance_count:
+        count = evidence.shared_provenance_count
+        noun = "identifier" if count == 1 else "identifiers"
+        facts.append(f"{count} shared provenance {noun}")
+    deltas = tuple(sorted(set(evidence.qualifying_time_deltas_seconds)))
+    if len(deltas) == 1:
+        facts.append(f"Updated {_duration(deltas[0])} apart")
+    elif deltas:
+        facts.append(
+            "Update gaps: " + ", ".join(_duration(value) for value in deltas)
+        )
+    if evidence.matching_claim_count:
+        count = evidence.matching_claim_count
+        noun = "claim" if count == 1 else "claims"
+        facts.append(f"{count} matching {noun}")
+    return facts
 
 
-def _signal_sentence(values):
-    if len(values) == 1:
-        return f"{values[0]} detected."
-    lowered = [values[0], *(value[0].lower() + value[1:] for value in values[1:])]
-    if len(lowered) == 2:
-        return f"{lowered[0]} and {lowered[1]} detected."
-    return f"{', '.join(lowered[:-1])}, and {lowered[-1]} detected."
+def _derived(count):
+    noun = "assertion" if count == 1 else "assertions"
+    return f"{count} derived {noun}"
+
+
+def _duration(seconds):
+    for unit, size in (("day", 86_400), ("hour", 3_600), ("minute", 60)):
+        if seconds % size == 0:
+            count = int(seconds / size)
+            noun = unit if count == 1 else f"{unit}s"
+            return f"{count} {noun}"
+    return f"{seconds:g} seconds"
+
+
+def _signal_fallback(result):
+    signals = result.signals
+    positive = any(
+        getattr(signals, f"{name}_observable")
+        and getattr(signals, name) > 0.0
+        for name in (
+            "provenance",
+            "lineage",
+            "ownership",
+            "temporal",
+            "structural",
+        )
+    )
+    return ["Details unavailable"] if positive else []

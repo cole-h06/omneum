@@ -1,4 +1,7 @@
 -r requirements.txt
+
 pytest>=8
 maturin>=1,<2
 hypothesis>=6.161,<7
+langgraph
+crewai>=1.15,<2; python_version < "3.14"

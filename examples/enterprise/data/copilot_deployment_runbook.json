@@ -1,0 +1,30 @@
+{
+  "document": {
+    "id": "runbook-copilot-v1",
+    "title": "EU Support Copilot Deployment Runbook",
+    "owner": "ai-platform",
+    "status": "superseded",
+    "published_at": "2025-02-01T09:00:00+00:00",
+    "classification": "Internal"
+  },
+  "deployment_controls": [
+    {
+      "control_id": "input-data-policy",
+      "name": "Input Data Policy",
+      "setting": "unredacted customer content allowed"
+    },
+    {
+      "control_id": "provider-retention",
+      "name": "Provider Retention",
+      "setting": "30 days"
+    },
+    {
+      "control_id": "processing-region",
+      "name": "Processing Region",
+      "setting": "US"
+    }
+  ],
+  "references": [
+    "vendor-terms-2024"
+  ]
+}

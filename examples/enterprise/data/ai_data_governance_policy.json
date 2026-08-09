@@ -1,0 +1,30 @@
+{
+  "document": {
+    "id": "policy-ai-17-v4",
+    "title": "AI Data Governance Policy",
+    "owner": "risk-and-compliance",
+    "department": "Security",
+    "last_updated": "2026-07-15T09:00:00+00:00",
+    "classification": "Internal"
+  },
+  "controls": [
+    {
+      "control_id": "input-data-policy",
+      "name": "Input Data Policy",
+      "setting": "redacted customer content only"
+    },
+    {
+      "control_id": "provider-retention",
+      "name": "Provider Retention",
+      "setting": "0 days"
+    },
+    {
+      "control_id": "processing-region",
+      "name": "Processing Region",
+      "setting": "EU"
+    }
+  ],
+  "references": [
+    "dpia-eu-support-2026"
+  ]
+}

@@ -21,7 +21,7 @@ from .canonicalization import (
     canonicalize_value,
 )
 from .config import PROTOCOL_VERSION, VOPRF_MODE
-from .graph import CredibilityGraph
+from .graph import AssertionGraph
 from .dependency import (
     DependencyCluster,
     DependencyEstimatorConfig,
@@ -45,8 +45,8 @@ from .models import (
     EvaluateVOPRFRequest,
     EvaluateVOPRFResponse,
     Assertion as RequestAssertion,
-    InferCredibilityRequest,
-    InferCredibilityResponse,
+    EvaluateAssertionRequest,
+    EvaluateAssertionResponse,
     SourcePair as RequestSourcePair,
     VerityErrorResponse,
 )
@@ -94,24 +94,24 @@ class EvaluationVerificationError(VerityClientError):
     """The VOPRF proof or finalization result was invalid."""
 
 
-class InferenceTransportError(VerityClientError):
+class AssertionEvaluationTransportError(VerityClientError):
     def __init__(self, *, uncertain: bool) -> None:
-        super().__init__("Credibility inference transport failed.")
+        super().__init__("Assertion evaluation transport failed.")
         self.uncertain = uncertain
 
 
-class InferenceRejectedError(VerityClientError):
+class AssertionEvaluationRejectedError(VerityClientError):
     def __init__(self, verity_code: str) -> None:
-        super().__init__("Credibility inference was rejected.")
+        super().__init__("Assertion evaluation was rejected.")
         self.verity_code = verity_code
 
 
-class InferenceResponseError(VerityClientError):
-    """The inference response was malformed or inconsistent."""
+class AssertionEvaluationResponseError(VerityClientError):
+    """The assertion-evaluation response was malformed or inconsistent."""
 
 
-class InferenceMappingError(VerityClientError):
-    """The inference response could not be mapped to local information."""
+class AssertionEvaluationMappingError(VerityClientError):
+    """The assertion-evaluation response could not be mapped locally."""
 
 
 def _exact(value, expected, name):
@@ -145,15 +145,15 @@ def _canonical_source_identity(value):
 
 
 @dataclass(frozen=True, slots=True)
-class SourceCredibilityResult:
+class SourceEvaluation:
     source: Source = field(repr=False)
-    credibility: float
+    reliability: float
 
     def __post_init__(self):
         _exact(self.source, Source, "source")
         _result_number(
-            self.credibility,
-            "credibility",
+            self.reliability,
+            "reliability",
             minimum=0.0,
             maximum=1.0,
         )
@@ -292,7 +292,7 @@ class ConvergenceMetadata:
     iterations: int
     converged: bool
     convergence_tolerance: float
-    maximum_credibility_delta: float
+    convergence_delta: float
 
     def __post_init__(self):
         if type(self.algorithm_version) is not str:
@@ -306,7 +306,7 @@ class ConvergenceMetadata:
         if type(self.converged) is not bool:
             raise TypeError("converged must be a bool")
         if not self.converged:
-            raise ValueError("inference result must be converged")
+            raise ValueError("assertion evaluation must be converged")
         _result_number(
             self.convergence_tolerance,
             "convergence_tolerance",
@@ -315,17 +315,17 @@ class ConvergenceMetadata:
         if self.convergence_tolerance != CONVERGENCE_TOLERANCE:
             raise ValueError("convergence_tolerance is unsupported")
         _result_number(
-            self.maximum_credibility_delta,
-            "maximum_credibility_delta",
+            self.convergence_delta,
+            "convergence_delta",
             minimum=0.0,
         )
-        if self.maximum_credibility_delta >= self.convergence_tolerance:
-            raise ValueError("maximum_credibility_delta is not converged")
+        if self.convergence_delta >= self.convergence_tolerance:
+            raise ValueError("convergence_delta is not converged")
 
 
 @dataclass(frozen=True, slots=True)
-class CredibilityResult:
-    source_credibility: tuple[SourceCredibilityResult, ...]
+class AssertionEvaluation:
+    source_reliability: tuple[SourceEvaluation, ...]
     claim_support: tuple[ClaimSupportResult, ...]
     pairwise_dependencies: tuple[PairwiseDependencyResult, ...]
     convergence: ConvergenceMetadata
@@ -333,18 +333,18 @@ class CredibilityResult:
 
     def __post_init__(self):
         _tuple_of(
-            self.source_credibility,
-            SourceCredibilityResult,
-            "source_credibility",
+            self.source_reliability,
+            SourceEvaluation,
+            "source_reliability",
         )
-        if not self.source_credibility:
-            raise ValueError("source_credibility must not be empty")
+        if not self.source_reliability:
+            raise ValueError("source_reliability must not be empty")
         source_identities = tuple(
             _canonical_source_identity(item.source)
-            for item in self.source_credibility
+            for item in self.source_reliability
         )
         if len(set(source_identities)) != len(source_identities):
-            raise ValueError("source credibility entries must be unique")
+            raise ValueError("source reliability entries must be unique")
         _tuple_of(
             self.claim_support,
             ClaimSupportResult,
@@ -516,9 +516,9 @@ class _VerityEvaluator(Protocol):
     ) -> CallToolResult:
         ...
 
-    async def infer_credibility(
+    async def evaluate_assertion(
         self,
-        request: InferCredibilityRequest,
+        request: EvaluateAssertionRequest,
     ) -> CallToolResult:
         ...
 
@@ -531,7 +531,7 @@ class VerityClient:
         config: VerityClientConfig,
         evaluator: _VerityEvaluator,
         *,
-        inference_available: bool | None = None,
+        assertion_evaluation_available: bool | None = None,
     ) -> None:
         if type(config) is not VerityClientConfig:
             raise TypeError("config must be a VerityClientConfig")
@@ -545,10 +545,10 @@ class VerityClient:
             ) from None
         self._config = config
         self._evaluator = evaluator
-        self._inference_available = (
-            callable(getattr(evaluator, "infer_credibility", None))
-            if inference_available is None
-            else inference_available
+        self._assertion_evaluation_available = (
+            callable(getattr(evaluator, "evaluate_assertion", None))
+            if assertion_evaluation_available is None
+            else assertion_evaluation_available
         )
         self._linkage = LinkageClient(oprf_client)
 
@@ -601,15 +601,15 @@ class VerityClient:
             )
         )
 
-    async def infer_credibility(
+    async def evaluate_assertion(
         self,
         observations: Sequence[Observation],
         *,
         estimator: DependencyEstimatorConfig,
-    ) -> CredibilityResult:
-        if not self._inference_available:
-            raise InferenceResponseError(
-                "The infer_credibility tool is unavailable."
+    ) -> AssertionEvaluation:
+        if not self._assertion_evaluation_available:
+            raise AssertionEvaluationResponseError(
+                "The evaluate_assertion tool is unavailable."
             )
         values = tuple(observations)
         if any(type(value) is not Observation for value in values):
@@ -646,7 +646,7 @@ class VerityClient:
             self._check_token(token, "source")
             encoded = token.to_base64url()
             if encoded in used_tokens:
-                raise InferenceMappingError("Linkage token mapping is invalid.")
+                raise AssertionEvaluationMappingError("Linkage token mapping is invalid.")
             used_tokens.add(encoded)
             source_tokens[key] = encoded
             source_objects[encoded] = item
@@ -675,7 +675,7 @@ class VerityClient:
                 self._check_token(token, "attribute")
                 encoded = token.to_base64url()
                 if encoded in used_tokens:
-                    raise InferenceMappingError(
+                    raise AssertionEvaluationMappingError(
                         "Linkage token mapping is invalid."
                     )
                 used_tokens.add(encoded)
@@ -690,7 +690,7 @@ class VerityClient:
                 self._check_token(token, "claim")
                 encoded = token.to_base64url()
                 if encoded in used_tokens:
-                    raise InferenceMappingError(
+                    raise AssertionEvaluationMappingError(
                         "Linkage token mapping is invalid."
                     )
                 used_tokens.add(encoded)
@@ -724,7 +724,7 @@ class VerityClient:
                 weighted_signal_coverage=pair.weighted_signal_coverage,
             ))
         pair_values.sort(key=lambda item: (item.source_a_id, item.source_b_id))
-        request = InferCredibilityRequest(
+        request = EvaluateAssertionRequest(
             protocol_version=PROTOCOL_VERSION,
             deployment_id=self._config.deployment_id,
             voprf_key_version=self._config.voprf_key_version,
@@ -735,14 +735,14 @@ class VerityClient:
             source_pairs=pair_values,
         )
         try:
-            result = await self._evaluator.infer_credibility(request)
+            result = await self._evaluator.evaluate_assertion(request)
         except asyncio.CancelledError:
             raise
-        except InferenceTransportError:
+        except AssertionEvaluationTransportError:
             raise
         except Exception:
-            raise InferenceTransportError(uncertain=True) from None
-        response = self._validate_inference_response(result)
+            raise AssertionEvaluationTransportError(uncertain=True) from None
+        response = self._validate_assertion_response(result)
         _validate_mapping(
             response,
             set(source_objects),
@@ -754,9 +754,9 @@ class VerityClient:
             tuple(SourcePair(x.source_a_id, x.source_b_id, x.dependency, x.weighted_signal_coverage) for x in pair_values),
         )
         expected = infer(expected_graph)
-        _compare_inference(response, expected)
+        _compare_assertion_evaluation(response, expected)
         try:
-            return _map_inference(
+            return _map_assertion_evaluation(
                 response,
                 source_objects,
                 claim_objects,
@@ -764,8 +764,8 @@ class VerityClient:
                 estimator.dependency_cluster_threshold,
             )
         except (KeyError, ValueError, TypeError):
-            raise InferenceMappingError(
-                "Inference response could not be mapped."
+            raise AssertionEvaluationMappingError(
+                "Assertion-evaluation response could not be mapped."
             ) from None
 
     def _check_token(self, token: LinkageToken, purpose: str) -> None:
@@ -782,27 +782,27 @@ class VerityClient:
             }[purpose],
         )
         if not all(comparisons):
-            raise InferenceMappingError("Linkage token identity is invalid.")
+            raise AssertionEvaluationMappingError("Linkage token identity is invalid.")
 
-    def _validate_inference_response(self, result) -> InferCredibilityResponse:
+    def _validate_assertion_response(self, result) -> EvaluateAssertionResponse:
         if not isinstance(result, CallToolResult):
-            raise InferenceResponseError("Evaluator returned an invalid response.")
+            raise AssertionEvaluationResponseError("Evaluator returned an invalid response.")
         if result.isError:
             try:
                 error = VerityErrorResponse.model_validate(
                     result.structuredContent, strict=True
                 )
             except ValidationError:
-                raise InferenceResponseError(
+                raise AssertionEvaluationResponseError(
                     "Evaluator returned an invalid structured error."
                 ) from None
-            raise InferenceRejectedError(error.verity_code)
+            raise AssertionEvaluationRejectedError(error.verity_code)
         try:
-            response = InferCredibilityResponse.model_validate(
+            response = EvaluateAssertionResponse.model_validate(
                 result.structuredContent, strict=True
             )
         except ValidationError:
-            raise InferenceResponseError(
+            raise AssertionEvaluationResponseError(
                 "Evaluator returned an invalid success response."
             ) from None
         pinned = (
@@ -814,7 +814,9 @@ class VerityClient:
             response.linkage_encoding_version == self._config.linkage_encoding_version,
         )
         if not all(pinned):
-            raise InferenceResponseError("Inference metadata does not match the pin.")
+            raise AssertionEvaluationResponseError(
+                "Assertion-evaluation metadata does not match the pin."
+            )
         metadata = response.metadata
         if (
             metadata.algorithm_version != ALGORITHM_VERSION
@@ -822,7 +824,9 @@ class VerityClient:
             or metadata.convergence_tolerance != CONVERGENCE_TOLERANCE
             or not 1 <= metadata.iterations <= 1000
         ):
-            raise InferenceResponseError("Inference convergence metadata is invalid.")
+            raise AssertionEvaluationResponseError(
+                "Assertion-evaluation convergence metadata is invalid."
+            )
         return response
 
     async def _evaluate(
@@ -956,19 +960,19 @@ class _MCPVerityEvaluator:
         except Exception:
             raise EvaluationTransportError(uncertain=True) from None
 
-    async def infer_credibility(
+    async def evaluate_assertion(
         self,
-        request: InferCredibilityRequest,
+        request: EvaluateAssertionRequest,
     ) -> CallToolResult:
         if self._closed:
-            raise InferenceTransportError(uncertain=False)
+            raise AssertionEvaluationTransportError(uncertain=False)
         try:
             return await self._session.call_tool(
-                "infer_credibility",
+                "evaluate_assertion",
                 request.model_dump(mode="json"),
             )
         except Exception:
-            raise InferenceTransportError(uncertain=True) from None
+            raise AssertionEvaluationTransportError(uncertain=True) from None
 
     def close(self) -> None:
         self._closed = True
@@ -991,15 +995,15 @@ async def open_stdio_client(
                 raise EvaluationResponseError(
                     "The evaluate_voprf tool is unavailable."
                 )
-            inference_available = any(
-                tool.name == "infer_credibility" for tool in tools.tools
+            assertion_evaluation_available = any(
+                tool.name == "evaluate_assertion" for tool in tools.tools
             )
             evaluator = _MCPVerityEvaluator(session)
             try:
                 yield VerityClient(
                     config,
                     evaluator,
-                    inference_available=inference_available,
+                    assertion_evaluation_available=assertion_evaluation_available,
                 )
             finally:
                 evaluator.close()
@@ -1063,7 +1067,7 @@ def _snapshot_observations(values):
     return tuple(result)
 
 
-def _compare_inference(response, expected) -> None:
+def _compare_assertion_evaluation(response, expected) -> None:
     if (
         response.summary.source_count != expected.summary.source_count
         or response.summary.claim_count != expected.summary.claim_count
@@ -1073,20 +1077,24 @@ def _compare_inference(response, expected) -> None:
         or response.metadata.converged != expected.metadata.converged
         or response.metadata.convergence_tolerance
         != expected.metadata.convergence_tolerance
-        or response.metadata.maximum_credibility_delta
-        != expected.metadata.maximum_credibility_delta
+        or response.metadata.convergence_delta
+        != expected.metadata.convergence_delta
     ):
-        raise InferenceResponseError("Inference response is inconsistent.")
+        raise AssertionEvaluationResponseError(
+            "Assertion-evaluation response is inconsistent."
+        )
     actual_sources = tuple(
-        (item.source_id, item.credibility)
-        for item in response.source_credibility
+        (item.source_id, item.reliability)
+        for item in response.source_reliability
     )
     expected_sources = tuple(
-        (item.source_id, item.credibility)
-        for item in expected.source_credibility
+        (item.source_id, item.reliability)
+        for item in expected.source_reliability
     )
     if actual_sources != expected_sources:
-        raise InferenceResponseError("Inference source results are inconsistent.")
+        raise AssertionEvaluationResponseError(
+            "Source-reliability results are inconsistent."
+        )
     actual_claims = tuple(
         (
             item.attribute_id,
@@ -1130,23 +1138,33 @@ def _compare_inference(response, expected) -> None:
         for item in expected.claim_support
     )
     if actual_claims != expected_claims:
-        raise InferenceResponseError("Inference claim results are inconsistent.")
+        raise AssertionEvaluationResponseError(
+            "Claim-support results are inconsistent."
+        )
 
 
 def _validate_mapping(response, sources, attributes, claims) -> None:
-    for item in response.source_credibility:
+    for item in response.source_reliability:
         if item.source_id not in sources:
-            raise InferenceMappingError("Inference token mapping is invalid.")
+            raise AssertionEvaluationMappingError(
+                "Assertion-evaluation token mapping is invalid."
+            )
     for item in response.claim_support:
         if item.attribute_id not in attributes or item.claim_id not in claims:
-            raise InferenceMappingError("Inference token mapping is invalid.")
+            raise AssertionEvaluationMappingError(
+                "Assertion-evaluation token mapping is invalid."
+            )
         if any(source.source_id not in sources for source in item.supporting_sources):
-            raise InferenceMappingError("Inference token mapping is invalid.")
+            raise AssertionEvaluationMappingError(
+                "Assertion-evaluation token mapping is invalid."
+            )
         if any(claim.claim_id not in claims for claim in item.conflicting_claims):
-            raise InferenceMappingError("Inference token mapping is invalid.")
+            raise AssertionEvaluationMappingError(
+                "Assertion-evaluation token mapping is invalid."
+            )
 
 
-def _map_inference(
+def _map_assertion_evaluation(
     response,
     source_objects,
     claim_objects,
@@ -1154,11 +1172,11 @@ def _map_inference(
     threshold,
 ):
     source_results = tuple(
-        SourceCredibilityResult(
+        SourceEvaluation(
             source_objects[item.source_id],
-            item.credibility,
+            item.reliability,
         )
-        for item in response.source_credibility
+        for item in response.source_reliability
     )
     claim_results = []
     for item in response.claim_support:
@@ -1240,7 +1258,7 @@ def _map_inference(
             dependency_clusters=clusters,
         ))
     metadata = response.metadata
-    return CredibilityResult(
+    return AssertionEvaluation(
         source_results,
         tuple(claim_results),
         pairs,
@@ -1249,7 +1267,7 @@ def _map_inference(
             metadata.iterations,
             metadata.converged,
             metadata.convergence_tolerance,
-            metadata.maximum_credibility_delta,
+            metadata.convergence_delta,
         ),
         threshold,
     )

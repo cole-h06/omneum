@@ -78,7 +78,7 @@ def test_ping(tmp_path: Path) -> None:
                 }
                 assert "ping" in listed_tools
                 assert "evaluate_voprf" in listed_tools
-                assert "infer_credibility" in listed_tools
+                assert "evaluate_assertion" in listed_tools
                 evaluate_schema = listed_tools[
                     "evaluate_voprf"
                 ].inputSchema
@@ -97,14 +97,14 @@ def test_ping(tmp_path: Path) -> None:
                     "linkage_encoding_version",
                     "blinded_element",
                 }
-                inference_schema = listed_tools[
-                    "infer_credibility"
+                assertion_schema = listed_tools[
+                    "evaluate_assertion"
                 ].inputSchema
                 assert (
-                    inference_schema["additionalProperties"]
+                    assertion_schema["additionalProperties"]
                     is False
                 )
-                assert set(inference_schema["required"]) == {
+                assert set(assertion_schema["required"]) == {
                     "protocol_version",
                     "deployment_id",
                     "voprf_key_version",
@@ -115,12 +115,12 @@ def test_ping(tmp_path: Path) -> None:
                     "source_pairs",
                 }
                 assert (
-                    inference_schema["$defs"]["Assertion"]
+                    assertion_schema["$defs"]["Assertion"]
                     ["additionalProperties"]
                     is False
                 )
                 assert (
-                    inference_schema["$defs"]["SourcePair"]
+                    assertion_schema["$defs"]["SourcePair"]
                     ["additionalProperties"]
                     is False
                 )

@@ -1,0 +1,160 @@
+{
+  "name": "enterprise-derived-five-source",
+  "assertions": [
+    {"source_id": "source-a", "attribute_id": "attribute-a", "claim_id": "claim-a"},
+    {"source_id": "source-a", "attribute_id": "attribute-b", "claim_id": "claim-c"},
+    {"source_id": "source-a", "attribute_id": "attribute-c", "claim_id": "claim-e"},
+    {"source_id": "source-b", "attribute_id": "attribute-a", "claim_id": "claim-a"},
+    {"source_id": "source-b", "attribute_id": "attribute-b", "claim_id": "claim-c"},
+    {"source_id": "source-b", "attribute_id": "attribute-c", "claim_id": "claim-e"},
+    {"source_id": "source-c", "attribute_id": "attribute-a", "claim_id": "claim-a"},
+    {"source_id": "source-c", "attribute_id": "attribute-b", "claim_id": "claim-c"},
+    {"source_id": "source-c", "attribute_id": "attribute-c", "claim_id": "claim-e"},
+    {"source_id": "source-d", "attribute_id": "attribute-a", "claim_id": "claim-b"},
+    {"source_id": "source-d", "attribute_id": "attribute-b", "claim_id": "claim-d"},
+    {"source_id": "source-d", "attribute_id": "attribute-c", "claim_id": "claim-f"},
+    {"source_id": "source-e", "attribute_id": "attribute-a", "claim_id": "claim-a"},
+    {"source_id": "source-e", "attribute_id": "attribute-b", "claim_id": "claim-d"},
+    {"source_id": "source-e", "attribute_id": "attribute-c", "claim_id": "claim-e"}
+  ],
+  "source_pairs": [
+    {"source_a_id": "source-a", "source_b_id": "source-b", "dependency": 0.44166666666666665, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-a", "source_b_id": "source-c", "dependency": 0.19166666666666665, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-a", "source_b_id": "source-d", "dependency": 0.0, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-a", "source_b_id": "source-e", "dependency": 0.45, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-b", "source_b_id": "source-c", "dependency": 0.04166666666666666, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-b", "source_b_id": "source-d", "dependency": 0.0, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-b", "source_b_id": "source-e", "dependency": 0.15, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-c", "source_b_id": "source-d", "dependency": 0.0, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-c", "source_b_id": "source-e", "dependency": 0.024999999999999998, "weighted_signal_coverage": 1.0},
+    {"source_a_id": "source-d", "source_b_id": "source-e", "dependency": 0.6, "weighted_signal_coverage": 1.0}
+  ],
+  "result": {
+    "summary": {
+      "source_count": 5,
+      "claim_count": 6,
+      "assertion_count": 15
+    },
+    "source_reliability": [
+      {"source_id": "source-a", "reliability": 0.26197884508073876},
+      {"source_id": "source-b", "reliability": 0.26197884508073876},
+      {"source_id": "source-c", "reliability": 0.26197884508073876},
+      {"source_id": "source-e", "reliability": 0.2081046898781616},
+      {"source_id": "source-d", "reliability": 0.0059587748796220506}
+    ],
+    "claim_support": [
+      {
+        "attribute_id": "attribute-a",
+        "claim_id": "claim-a",
+        "support": 0.207524446680251,
+        "agreement_weight": 0.8,
+        "is_attribute_max_support": true,
+        "supporting_source_count": 4,
+        "estimated_independent_support_count": 2.4242424242424243,
+        "dependency_confidence": 1.0,
+        "supporting_sources": [
+          {"source_id": "source-c", "independence": 0.9138888888888889, "contribution": 0.06384521483819486},
+          {"source_id": "source-b", "independence": 0.7888888888888889, "contribution": 0.0551125866688369},
+          {"source_id": "source-a", "independence": 0.6388888888888888, "contribution": 0.04463343286560734},
+          {"source_id": "source-e", "independence": 0.7916666666666666, "contribution": 0.04393321230761189}
+        ],
+        "conflicting_claims": [
+          {"claim_id": "claim-b", "support": 0.0003972516586414701}
+        ]
+      },
+      {
+        "attribute_id": "attribute-a",
+        "claim_id": "claim-b",
+        "support": 0.0003972516586414701,
+        "agreement_weight": 0.2,
+        "is_attribute_max_support": false,
+        "supporting_source_count": 1,
+        "estimated_independent_support_count": 1.0,
+        "dependency_confidence": null,
+        "supporting_sources": [
+          {"source_id": "source-d", "independence": 1.0, "contribution": 0.0003972516586414701}
+        ],
+        "conflicting_claims": [
+          {"claim_id": "claim-a", "support": 0.207524446680251}
+        ]
+      },
+      {
+        "attribute_id": "attribute-b",
+        "claim_id": "claim-c",
+        "support": 0.12182016296254353,
+        "agreement_weight": 0.6,
+        "is_attribute_max_support": true,
+        "supporting_source_count": 3,
+        "estimated_independent_support_count": 2.0689655172413794,
+        "dependency_confidence": 1.0,
+        "supporting_sources": [
+          {"source_id": "source-c", "independence": 0.8833333333333333, "contribution": 0.046282929297597176},
+          {"source_id": "source-b", "independence": 0.7583333333333333, "contribution": 0.03973345817057871},
+          {"source_id": "source-a", "independence": 0.6833333333333333, "contribution": 0.03580377549436763}
+        ],
+        "conflicting_claims": [
+          {"claim_id": "claim-d", "support": 0.011416718120415129}
+        ]
+      },
+      {
+        "attribute_id": "attribute-b",
+        "claim_id": "claim-d",
+        "support": 0.011416718120415129,
+        "agreement_weight": 0.4,
+        "is_attribute_max_support": false,
+        "supporting_source_count": 2,
+        "estimated_independent_support_count": 1.25,
+        "dependency_confidence": 1.0,
+        "supporting_sources": [
+          {"source_id": "source-e", "independence": 0.4, "contribution": 0.011098916793501952},
+          {"source_id": "source-d", "independence": 0.4, "contribution": 0.0003178013269131761}
+        ],
+        "conflicting_claims": [
+          {"claim_id": "claim-c", "support": 0.12182016296254353}
+        ]
+      },
+      {
+        "attribute_id": "attribute-c",
+        "claim_id": "claim-e",
+        "support": 0.207524446680251,
+        "agreement_weight": 0.8,
+        "is_attribute_max_support": true,
+        "supporting_source_count": 4,
+        "estimated_independent_support_count": 2.4242424242424243,
+        "dependency_confidence": 1.0,
+        "supporting_sources": [
+          {"source_id": "source-c", "independence": 0.9138888888888889, "contribution": 0.06384521483819486},
+          {"source_id": "source-b", "independence": 0.7888888888888889, "contribution": 0.0551125866688369},
+          {"source_id": "source-a", "independence": 0.6388888888888888, "contribution": 0.04463343286560734},
+          {"source_id": "source-e", "independence": 0.7916666666666666, "contribution": 0.04393321230761189}
+        ],
+        "conflicting_claims": [
+          {"claim_id": "claim-f", "support": 0.0003972516586414701}
+        ]
+      },
+      {
+        "attribute_id": "attribute-c",
+        "claim_id": "claim-f",
+        "support": 0.0003972516586414701,
+        "agreement_weight": 0.2,
+        "is_attribute_max_support": false,
+        "supporting_source_count": 1,
+        "estimated_independent_support_count": 1.0,
+        "dependency_confidence": null,
+        "supporting_sources": [
+          {"source_id": "source-d", "independence": 1.0, "contribution": 0.0003972516586414701}
+        ],
+        "conflicting_claims": [
+          {"claim_id": "claim-e", "support": 0.207524446680251}
+        ]
+      }
+    ],
+    "metadata": {
+      "algorithm_version": "verity-v1",
+      "iterations": 9,
+      "converged": true,
+      "convergence_tolerance": 1e-08,
+      "convergence_delta": 2.7385139754823595e-09
+    }
+  }
+}

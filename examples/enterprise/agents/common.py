@@ -1,0 +1,64 @@
+from datetime import datetime
+
+from verity import Claim, Observation, Source, SourceReference
+
+
+SCOPE = "7c710000-1234-4abc-8def-123456789abc"
+ENTITY_NAMESPACE = "service"
+ENTITY = "EU Customer Support Copilot"
+
+POLICY_SOURCE = Source(
+    "internal_resource",
+    f"v1:{SCOPE}:00000001-0000-4000-8000-000000000001",
+    "risk-and-compliance",
+)
+RUNBOOK_SOURCE = Source(
+    "internal_resource",
+    f"v1:{SCOPE}:00000002-0000-4000-8000-000000000002",
+    "ai-platform",
+)
+BRIEF_SOURCE = Source(
+    "internal_resource",
+    f"v1:{SCOPE}:00000003-0000-4000-8000-000000000003",
+    "ai-platform",
+)
+REGISTRY_SOURCE = Source(
+    "database",
+    f"v1:{SCOPE}:00000004-0000-4000-8000-000000000004",
+    "model-governance",
+)
+GATEWAY_SOURCE = Source(
+    "internal_service",
+    f"v1:{SCOPE}:00000005-0000-4000-8000-000000000005",
+    "ai-platform-operations",
+)
+VENDOR_SOURCE = Source(
+    "web_document",
+    "https://trust.example.ai/legal/enterprise-data-controls",
+    "vendor-legal",
+)
+
+
+def observation(
+    assertion_id,
+    source,
+    attribute,
+    value,
+    timestamp,
+    provenance_ids,
+    cited_sources=(),
+    parent_assertion_ids=(),
+):
+    return Observation(
+        assertion_id,
+        source,
+        Claim(ENTITY_NAMESPACE, ENTITY, attribute, value),
+        datetime.fromisoformat(timestamp),
+        tuple(provenance_ids),
+        tuple(cited_sources),
+        tuple(parent_assertion_ids),
+    )
+
+
+def reference(source):
+    return SourceReference(source.kind, source.identifier)

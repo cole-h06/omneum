@@ -10,6 +10,7 @@ from verity.client import (
 )
 from verity.dependency import (
     DependencyCluster,
+    DependencyEvidence,
     DependencySignalScores,
     PairwiseDependencyResult,
 )
@@ -104,12 +105,25 @@ def dependency_result(case, source_values):
     endpoints.sort(
         key=lambda source: serialize_source(source.kind, source.identifier)
     )
+    evidence = case.get("evidence")
+    if evidence is not None:
+        evidence = DependencyEvidence(
+            evidence.get("source_a_cites_source_b", False),
+            evidence.get("source_b_cites_source_a", False),
+            evidence.get("source_a_parent_count", 0),
+            evidence.get("source_b_parent_count", 0),
+            evidence.get("same_owner", False),
+            evidence.get("shared_provenance_count", 0),
+            evidence.get("matching_claim_count", 0),
+            tuple(float(value) for value in evidence.get("time_deltas", [])),
+        )
     return PairwiseDependencyResult(
         SourceReference(endpoints[0].kind, endpoints[0].identifier),
         SourceReference(endpoints[1].kind, endpoints[1].identifier),
         signals,
         float(case["dependency"]),
         float(case["weighted_signal_coverage"]),
+        evidence,
     )
 
 

@@ -26,7 +26,7 @@ VerityCode = Literal[
     "server_busy",
     "request_timeout",
     "evaluation_failed",
-    "inference_failed",
+    "assertion_evaluation_failed",
     "internal_error",
 ]
 
@@ -126,7 +126,7 @@ class SourcePair(_StrictModel):
     weighted_signal_coverage: float
 
 
-class InferCredibilityRequest(_StrictModel):
+class EvaluateAssertionRequest(_StrictModel):
     protocol_version: str
     deployment_id: str
     voprf_key_version: int = Field(
@@ -145,16 +145,9 @@ class InferCredibilityRequest(_StrictModel):
         return _canonical_deployment_id(value)
 
 
-class TraceClaimRequest(BaseModel):
-    """
-    trace_claim request.
-    """
-
-    claim_id: str
-
-class SourceCredibility(_StrictModel):
+class SourceReliability(_StrictModel):
     source_id: str
-    credibility: float = Field(ge=0, allow_inf_nan=False)
+    reliability: float = Field(ge=0, allow_inf_nan=False)
 
 
 class ConflictingClaim(_StrictModel):
@@ -210,13 +203,13 @@ class Metadata(_StrictModel):
         ge=0,
         allow_inf_nan=False,
     )
-    maximum_credibility_delta: float = Field(
+    convergence_delta: float = Field(
         ge=0,
         allow_inf_nan=False,
     )
 
 
-class InferCredibilityResponse(_StrictModel):
+class EvaluateAssertionResponse(_StrictModel):
     protocol_version: str
     deployment_id: str
     voprf_key_version: int = Field(ge=1, le=2**32 - 1)
@@ -224,7 +217,7 @@ class InferCredibilityResponse(_StrictModel):
     voprf_ciphersuite: str
     linkage_encoding_version: int
     summary: Summary
-    source_credibility: list[SourceCredibility]
+    source_reliability: list[SourceReliability]
     claim_support: list[ClaimSupport]
     metadata: Metadata
 
@@ -232,21 +225,6 @@ class InferCredibilityResponse(_StrictModel):
     @classmethod
     def validate_deployment_id(cls, value: str) -> str:
         return _canonical_deployment_id(value)
-
-
-class TraceClaimResponse(BaseModel):
-
-    attribute_id: str
-
-    claim_id: str
-
-    support: float
-
-    is_attribute_max_support: bool
-
-    supporting_sources: list[SourceCredibility]
-
-    conflicting_claims: list[ConflictingClaim]
 
 
 class PingResponse(BaseModel):

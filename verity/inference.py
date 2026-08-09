@@ -10,13 +10,13 @@ MAX_ITERATIONS = 1000
 
 
 class InferenceError(RuntimeError):
-    """Credibility inference could not be completed."""
+    """Reliability propagation could not be completed."""
 
 
 @dataclass(frozen=True, slots=True)
-class SourceCredibility:
+class SourceReliability:
     source_id: str
-    credibility: float
+    reliability: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,7 +52,7 @@ class InferenceMetadata:
     iterations: int
     converged: bool
     convergence_tolerance: float
-    maximum_credibility_delta: float
+    convergence_delta: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,7 +65,7 @@ class InferenceSummary:
 @dataclass(frozen=True, slots=True)
 class InferenceResult:
     summary: InferenceSummary
-    source_credibility: tuple[SourceCredibility, ...]
+    source_reliability: tuple[SourceReliability, ...]
     claim_support: tuple[ClaimSupport, ...]
     metadata: InferenceMetadata
 
@@ -130,7 +130,7 @@ def _independence(
 
 def _claim_scores(
     graph: InferenceGraph,
-    credibility: dict[str, float],
+    reliability: dict[str, float],
     agreement: dict[str, float],
     independence: dict[str, dict[str, float]],
 ) -> tuple[dict[str, float], dict[str, dict[str, float]]]:
@@ -141,7 +141,7 @@ def _claim_scores(
         total = 0.0
         for source_id in graph.claim_to_sources[claim_id]:
             contribution = _finite(
-                credibility[source_id]
+                reliability[source_id]
                 * agreement[claim_id]
                 * independence[claim_id][source_id]
                 / graph.source_degree[source_id]
@@ -276,12 +276,12 @@ def _claim_results(
 
 
 def infer(graph: InferenceGraph) -> InferenceResult:
-    """Run deterministic version-1 credibility inference."""
+    """Run deterministic version-1 reliability propagation."""
 
     if not graph.sources:
         raise InferenceError("inference graph has no sources")
 
-    credibility = {
+    reliability = {
         source_id: 1.0 / len(graph.sources)
         for source_id in graph.sources
     }
@@ -292,16 +292,16 @@ def infer(graph: InferenceGraph) -> InferenceResult:
     for iteration in range(1, MAX_ITERATIONS + 1):
         support, _ = _claim_scores(
             graph,
-            credibility,
+            reliability,
             agreement,
             independence,
         )
         updated = _source_update(graph, support)
         maximum_delta = max(
-            _finite(abs(updated[source_id] - credibility[source_id]))
+            _finite(abs(updated[source_id] - reliability[source_id]))
             for source_id in graph.sources
         )
-        credibility = updated
+        reliability = updated
         if maximum_delta < CONVERGENCE_TOLERANCE:
             break
     else:
@@ -309,16 +309,16 @@ def infer(graph: InferenceGraph) -> InferenceResult:
 
     support, contributions = _claim_scores(
         graph,
-        credibility,
+        reliability,
         agreement,
         independence,
     )
-    source_credibility = tuple(sorted(
+    source_reliability = tuple(sorted(
         (
-            SourceCredibility(source_id, credibility[source_id])
+            SourceReliability(source_id, reliability[source_id])
             for source_id in graph.sources
         ),
-        key=lambda item: (-item.credibility, item.source_id),
+        key=lambda item: (-item.reliability, item.source_id),
     ))
 
     return InferenceResult(
@@ -327,7 +327,7 @@ def infer(graph: InferenceGraph) -> InferenceResult:
             claim_count=len(graph.claims),
             assertion_count=graph.assertion_count,
         ),
-        source_credibility=source_credibility,
+        source_reliability=source_reliability,
         claim_support=_claim_results(
             graph,
             support,
@@ -340,6 +340,6 @@ def infer(graph: InferenceGraph) -> InferenceResult:
             iterations=iteration,
             converged=True,
             convergence_tolerance=CONVERGENCE_TOLERANCE,
-            maximum_credibility_delta=maximum_delta,
+            convergence_delta=maximum_delta,
         ),
     )

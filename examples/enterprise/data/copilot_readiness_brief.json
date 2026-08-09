@@ -1,0 +1,22 @@
+{
+  "document": {
+    "id": "readiness-brief-2026-07-15",
+    "title": "EU Support Copilot Readiness Brief",
+    "owner": "ai-platform",
+    "generated_at": "2026-07-15T10:00:00+00:00",
+    "status": "published"
+  },
+  "summary": {
+    "based_on": [
+      "runbook-copilot-v1"
+    ],
+    "references": [
+      "runbook-copilot-v1"
+    ]
+  },
+  "deployment_assessment": {
+    "input_data_policy": "unredacted customer content allowed",
+    "provider_retention_days": 30,
+    "processing_region": "US"
+  }
+}

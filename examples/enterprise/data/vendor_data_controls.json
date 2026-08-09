@@ -1,0 +1,14 @@
+{
+  "page": {
+    "url": "https://trust.example.ai/legal/enterprise-data-controls",
+    "title": "Enterprise Data Controls",
+    "publisher": "Example AI",
+    "last_modified": "2026-06-20T12:00:00+00:00"
+  },
+  "enterprise_controls": {
+    "provider_retention_days": 0,
+    "supported_processing_regions": [
+      "EU"
+    ]
+  }
+}

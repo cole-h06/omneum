@@ -29,12 +29,12 @@ MAX_MAX_CONCURRENCY = 64
 DEFAULT_EVALUATION_TIMEOUT_MS = 1_000
 MIN_EVALUATION_TIMEOUT_MS = 1
 MAX_EVALUATION_TIMEOUT_MS = 60_000
-DEFAULT_INFERENCE_MAX_CONCURRENCY = 1
-MIN_INFERENCE_MAX_CONCURRENCY = 1
-MAX_INFERENCE_MAX_CONCURRENCY = 64
-DEFAULT_INFERENCE_TIMEOUT_MS = 1_000
-MIN_INFERENCE_TIMEOUT_MS = 1
-MAX_INFERENCE_TIMEOUT_MS = 60_000
+DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY = 1
+MIN_ASSERTION_EVALUATION_MAX_CONCURRENCY = 1
+MAX_ASSERTION_EVALUATION_MAX_CONCURRENCY = 64
+DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS = 1_000
+MIN_ASSERTION_EVALUATION_TIMEOUT_MS = 1
+MAX_ASSERTION_EVALUATION_TIMEOUT_MS = 60_000
 
 _DEPLOYMENT_ID = "VERITY_DEPLOYMENT_ID"
 _KEY_VERSION = "VERITY_VOPRF_KEY_VERSION"
@@ -42,8 +42,8 @@ _PUBLIC_KEY = "VERITY_VOPRF_PUBLIC_KEY"
 _PRIVATE_KEY_FILE = "VERITY_VOPRF_PRIVATE_KEY_FILE"
 _MAX_CONCURRENCY = "VERITY_VOPRF_MAX_CONCURRENCY"
 _EVALUATION_TIMEOUT_MS = "VERITY_VOPRF_EVALUATION_TIMEOUT_MS"
-_INFERENCE_MAX_CONCURRENCY = "VERITY_INFERENCE_MAX_CONCURRENCY"
-_INFERENCE_TIMEOUT_MS = "VERITY_INFERENCE_TIMEOUT_MS"
+_ASSERTION_EVALUATION_MAX_CONCURRENCY = "VERITY_ASSERTION_EVALUATION_MAX_CONCURRENCY"
+_ASSERTION_EVALUATION_TIMEOUT_MS = "VERITY_ASSERTION_EVALUATION_TIMEOUT_MS"
 _FINGERPRINT_LABEL = b"VERITY-VOPRF-CONFIG\x00"
 
 
@@ -61,10 +61,10 @@ class DeploymentConfig:
     voprf_evaluation_timeout_ms: int = (
         DEFAULT_EVALUATION_TIMEOUT_MS
     )
-    inference_max_concurrency: int = (
-        DEFAULT_INFERENCE_MAX_CONCURRENCY
+    assertion_evaluation_max_concurrency: int = (
+        DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY
     )
-    inference_timeout_ms: int = DEFAULT_INFERENCE_TIMEOUT_MS
+    assertion_evaluation_timeout_ms: int = DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS
 
     def __post_init__(self) -> None:
         _validate_deployment_id(self.deployment_id)
@@ -97,16 +97,16 @@ class DeploymentConfig:
             maximum=MAX_EVALUATION_TIMEOUT_MS,
         )
         _validate_bounded_integer(
-            self.inference_max_concurrency,
+            self.assertion_evaluation_max_concurrency,
             name="Inference maximum concurrency",
-            minimum=MIN_INFERENCE_MAX_CONCURRENCY,
-            maximum=MAX_INFERENCE_MAX_CONCURRENCY,
+            minimum=MIN_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+            maximum=MAX_ASSERTION_EVALUATION_MAX_CONCURRENCY,
         )
         _validate_bounded_integer(
-            self.inference_timeout_ms,
+            self.assertion_evaluation_timeout_ms,
             name="Inference timeout",
-            minimum=MIN_INFERENCE_TIMEOUT_MS,
-            maximum=MAX_INFERENCE_TIMEOUT_MS,
+            minimum=MIN_ASSERTION_EVALUATION_TIMEOUT_MS,
+            maximum=MAX_ASSERTION_EVALUATION_TIMEOUT_MS,
         )
 
 
@@ -120,10 +120,10 @@ class DeploymentState:
     voprf_evaluation_timeout_ms: int = (
         DEFAULT_EVALUATION_TIMEOUT_MS
     )
-    inference_max_concurrency: int = (
-        DEFAULT_INFERENCE_MAX_CONCURRENCY
+    assertion_evaluation_max_concurrency: int = (
+        DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY
     )
-    inference_timeout_ms: int = DEFAULT_INFERENCE_TIMEOUT_MS
+    assertion_evaluation_timeout_ms: int = DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS
 
 
 def load_deployment_state(
@@ -155,19 +155,19 @@ def load_deployment_state(
             minimum=MIN_EVALUATION_TIMEOUT_MS,
             maximum=MAX_EVALUATION_TIMEOUT_MS,
         ),
-        inference_max_concurrency=_optional_bounded_integer(
+        assertion_evaluation_max_concurrency=_optional_bounded_integer(
             values,
-            name=_INFERENCE_MAX_CONCURRENCY,
-            default=DEFAULT_INFERENCE_MAX_CONCURRENCY,
-            minimum=MIN_INFERENCE_MAX_CONCURRENCY,
-            maximum=MAX_INFERENCE_MAX_CONCURRENCY,
+            name=_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+            default=DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+            minimum=MIN_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+            maximum=MAX_ASSERTION_EVALUATION_MAX_CONCURRENCY,
         ),
-        inference_timeout_ms=_optional_bounded_integer(
+        assertion_evaluation_timeout_ms=_optional_bounded_integer(
             values,
-            name=_INFERENCE_TIMEOUT_MS,
-            default=DEFAULT_INFERENCE_TIMEOUT_MS,
-            minimum=MIN_INFERENCE_TIMEOUT_MS,
-            maximum=MAX_INFERENCE_TIMEOUT_MS,
+            name=_ASSERTION_EVALUATION_TIMEOUT_MS,
+            default=DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
+            minimum=MIN_ASSERTION_EVALUATION_TIMEOUT_MS,
+            maximum=MAX_ASSERTION_EVALUATION_TIMEOUT_MS,
         ),
     )
     try:
@@ -197,10 +197,10 @@ def load_deployment_state(
         voprf_evaluation_timeout_ms=(
             config.voprf_evaluation_timeout_ms
         ),
-        inference_max_concurrency=(
-            config.inference_max_concurrency
+        assertion_evaluation_max_concurrency=(
+            config.assertion_evaluation_max_concurrency
         ),
-        inference_timeout_ms=config.inference_timeout_ms,
+        assertion_evaluation_timeout_ms=config.assertion_evaluation_timeout_ms,
     )
 
 

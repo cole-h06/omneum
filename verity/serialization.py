@@ -1,6 +1,5 @@
 import math
 
-import orjson
 import rfc8785
 
 from typing import Any
@@ -10,22 +9,6 @@ MAX_INTEGER = (1 << 53) - 1
 MAX_NESTING_DEPTH = 32
 MAX_VALUE_NODES = 4_096
 MAX_LINKAGE_PAYLOAD_SIZE = 65_517
-
-
-def serialize_assertion(
-    assertion: dict[str, Any],
-) -> bytes:
-    """
-    Serializes a canonical assertion into a deterministic
-    JSON byte sequence.
-    """
-
-    return orjson.dumps(
-        assertion,
-        option=(
-            orjson.OPT_SORT_KEYS
-        ),
-    )
 
 
 def serialize_source(
