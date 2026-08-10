@@ -3,5 +3,9 @@
 pytest>=8
 maturin>=1,<2
 hypothesis>=6.161,<7
-langgraph
+
+langgraph>=1,<2
+openai-agents>=0.13,<1
+llama-index>=0.13,<1
+
 crewai>=1.15,<2; python_version < "3.14"
