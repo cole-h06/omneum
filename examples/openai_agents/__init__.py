@@ -1,0 +1,1 @@
+"""OpenAI Agents SDK integration for the canonical enterprise workflow."""

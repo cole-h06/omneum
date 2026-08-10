@@ -33,7 +33,7 @@ def test_package_exports() -> None:
         "ClaimSupportResult",
         "ConflictingClaimResult",
         "ConvergenceMetadata",
-        "AssertionGraph",
+        "BipartiteGraph",
         "AssertionEvaluation",
         "DependencyCluster",
         "DependencyEvidence",

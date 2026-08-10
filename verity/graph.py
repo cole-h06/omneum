@@ -18,9 +18,9 @@ class _Assertion:
     value: Any
 
 
-class AssertionGraph:
+class BipartiteGraph:
     """
-    A collection of assertions submitted to Verity for evaluation.
+    A bipartite graph of sources and claims constructed from submitted assertions.
     """
 
     def __init__(self) -> None:
