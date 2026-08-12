@@ -30,7 +30,6 @@ from .dependency import (
     PairwiseDependencyResult,
 )
 from .explanations import explain_claim, explain_dependency
-from .graph import BipartiteGraph
 from .information import Claim, Observation, Source, SourceReference
 
 __version__ = "1.0.0"
@@ -40,7 +39,6 @@ __all__ = [
     "ClaimSupportResult",
     "ConflictingClaimResult",
     "ConvergenceMetadata",
-    "BipartiteGraph",
     "AssertionEvaluation",
     "DependencyCluster",
     "DependencyEvidence",

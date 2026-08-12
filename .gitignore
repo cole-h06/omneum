@@ -16,4 +16,4 @@ build/
 dist/
 *.egg-info/
 
-native/oprf/target/
+target/

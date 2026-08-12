@@ -1,24 +1,9 @@
 cff-version: 1.2.0
-
+message: "If you use this software, please cite it as below."
 title: Verity MCP
-
-message: >
-  If you use Verity MCP in your research, please cite this software.
-
 type: software
-
 authors:
-  - family-names: Hoke
-    given-names: Cole
-
-repository-code: https://github.com/cole-h06/verity-mcp
-
-url: https://github.com/cole-h06/verity-mcp
-
-license: MIT
-
-abstract: >
-  Verity MCP is the reference implementation of the Verity Protocol.
-  It exposes a Model Context Protocol (MCP) Data Trust Gateway for
-  evaluating assertion networks and computing deterministic source
-  reliability and claim support.
+  - family-names: "Hoke"
+    given-names: "Cole"
+year: 2026
+url: "https://github.com/cole-h06/verity-mcp"

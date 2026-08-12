@@ -21,7 +21,6 @@ from .canonicalization import (
     canonicalize_value,
 )
 from .config import PROTOCOL_VERSION, VOPRF_MODE
-from .graph import BipartiteGraph
 from .dependency import (
     DependencyCluster,
     DependencyEstimatorConfig,

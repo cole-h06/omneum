@@ -1,0 +1,23 @@
+[build-system]
+requires = [
+    "maturin>=1,<2",
+]
+build-backend = "maturin"
+
+[project]
+name = "verity"
+version = "1.0.0"
+description = "A data trust gateway for agentic applications."
+requires-python = ">=3.11"
+
+dependencies = [
+    "mcp[cli]>=1.27,<2",
+    "idna>=3.10",
+    "rfc3986>=2.0.0",
+    "orjson>=3.10",
+    "rfc8785==0.1.4",
+]
+
+[tool.maturin]
+module-name = "verity_oprf"
+python-packages = ["verity"]
