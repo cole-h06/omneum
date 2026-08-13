@@ -20,6 +20,12 @@ def init() -> None:
     config_dir = get_config_dir()
     key_dir = get_key_dir()
 
+    if (config_dir / "config.toml").exists():
+        typer.echo("Verity is already initialized.")
+        typer.echo(f"Configuration: {config_dir}")
+        typer.echo(f"Keys: {key_dir}")
+        raise typer.Exit()
+
     deployment_id = generate_deployment_id()
 
     key_material = generate_voprf_key_material()

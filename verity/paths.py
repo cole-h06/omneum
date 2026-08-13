@@ -16,3 +16,7 @@ def get_key_dir() -> Path:
     path = get_config_dir() / "keys"
     path.mkdir(parents=True, exist_ok=True)
     return path
+
+
+def get_private_key_path() -> Path:
+    return get_key_dir() / "voprf.key"

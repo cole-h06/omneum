@@ -3,7 +3,7 @@ from pathlib import Path
 
 from verity.base64url import encode_unpadded
 from verity.oprf import ELEMENT_LENGTH
-from verity.paths import get_key_dir
+from verity.paths import get_private_key_path
 from verity_oprf import provision_server_key
 
 
@@ -11,10 +11,6 @@ from verity_oprf import provision_server_key
 class VOPRFKeyMaterial:
     private_key_file: Path
     public_key: bytes
-
-
-def get_private_key_path() -> Path:
-    return get_key_dir() / "voprf.key"
 
 
 def generate_voprf_key_material() -> VOPRFKeyMaterial:

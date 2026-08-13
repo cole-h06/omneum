@@ -1,1 +1,1 @@
-**A Data Trust Gateway for Agentic Applications.**
+**A Data Trust Gateway for Agentic Systems.**

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import tomllib
 import os
 import secrets
 import uuid
@@ -16,6 +17,7 @@ from .oprf import (
     VOPRFClient,
     VOPRFServer,
 )
+from .paths import get_config_dir, get_private_key_path
 
 
 PROTOCOL_VERSION = "v1"
@@ -126,49 +128,31 @@ class DeploymentState:
     assertion_evaluation_timeout_ms: int = DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS
 
 
-def load_deployment_state(
-    environ: Mapping[str, str] | None = None,
-) -> DeploymentState:
-    values = os.environ if environ is None else environ
+def load_config_file() -> dict[str, object]:
+    path = get_config_dir() / "config.toml"
+
+    try:
+        with path.open("rb") as file:
+            return tomllib.load(file)
+    except FileNotFoundError:
+        raise ConfigurationError(
+            "Deployment has not been initialized. Run 'verity init'."
+        ) from None
+
+
+def load_deployment_state() -> DeploymentState:
+    config = load_config_file()
     config = DeploymentConfig(
-        deployment_id=_required(values, _DEPLOYMENT_ID),
-        voprf_key_version=_parse_key_version(
-            _required(values, _KEY_VERSION)
-        ),
+        deployment_id=config["deployment_id"],
+        voprf_key_version=config["voprf_key_version"],
         voprf_public_key=_decode_public_key(
-            _required(values, _PUBLIC_KEY)
+            config["voprf_public_key"]
         ),
-        voprf_private_key_file=Path(
-            _required(values, _PRIVATE_KEY_FILE)
-        ),
-        voprf_max_concurrency=_optional_bounded_integer(
-            values,
-            name=_MAX_CONCURRENCY,
-            default=DEFAULT_MAX_CONCURRENCY,
-            minimum=MIN_MAX_CONCURRENCY,
-            maximum=MAX_MAX_CONCURRENCY,
-        ),
-        voprf_evaluation_timeout_ms=_optional_bounded_integer(
-            values,
-            name=_EVALUATION_TIMEOUT_MS,
-            default=DEFAULT_EVALUATION_TIMEOUT_MS,
-            minimum=MIN_EVALUATION_TIMEOUT_MS,
-            maximum=MAX_EVALUATION_TIMEOUT_MS,
-        ),
-        assertion_evaluation_max_concurrency=_optional_bounded_integer(
-            values,
-            name=_ASSERTION_EVALUATION_MAX_CONCURRENCY,
-            default=DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
-            minimum=MIN_ASSERTION_EVALUATION_MAX_CONCURRENCY,
-            maximum=MAX_ASSERTION_EVALUATION_MAX_CONCURRENCY,
-        ),
-        assertion_evaluation_timeout_ms=_optional_bounded_integer(
-            values,
-            name=_ASSERTION_EVALUATION_TIMEOUT_MS,
-            default=DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
-            minimum=MIN_ASSERTION_EVALUATION_TIMEOUT_MS,
-            maximum=MAX_ASSERTION_EVALUATION_TIMEOUT_MS,
-        ),
+        voprf_private_key_file=get_private_key_path(),
+        voprf_max_concurrency=DEFAULT_MAX_CONCURRENCY,
+        voprf_evaluation_timeout_ms=DEFAULT_EVALUATION_TIMEOUT_MS,
+        assertion_evaluation_max_concurrency=DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+        assertion_evaluation_timeout_ms=DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
     )
     try:
         VOPRFClient(config.voprf_public_key)
