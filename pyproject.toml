@@ -16,7 +16,12 @@ dependencies = [
     "rfc3986>=2.0.0",
     "orjson>=3.10",
     "rfc8785==0.1.4",
+    "platformdirs>=4,<5",
 ]
+
+[project.scripts]
+verity = "verity.cli:app"
+verity-server = "verity.server:main"
 
 [tool.maturin]
 module-name = "verity_oprf"

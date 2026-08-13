@@ -1,0 +1,35 @@
+from dataclasses import dataclass
+from pathlib import Path
+
+from verity.base64url import encode_unpadded
+from verity.oprf import ELEMENT_LENGTH
+from verity.paths import get_key_dir
+from verity_oprf import provision_server_key
+
+
+@dataclass(frozen=True, slots=True)
+class VOPRFKeyMaterial:
+    private_key_file: Path
+    public_key: bytes
+
+
+def get_private_key_path() -> Path:
+    return get_key_dir() / "voprf.key"
+
+
+def generate_voprf_key_material() -> VOPRFKeyMaterial:
+    path = get_private_key_path()
+
+    public_key = provision_server_key(str(path))
+
+    return VOPRFKeyMaterial(
+        private_key_file=path,
+        public_key=public_key,
+    )
+
+
+def encode_public_key(public_key: bytes) -> str:
+    return encode_unpadded(
+        public_key,
+        expected_length=ELEMENT_LENGTH,
+    )

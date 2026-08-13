@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fs::{File, OpenOptions};
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 
 use pyo3::exceptions::{PyTypeError, PyValueError};
 use pyo3::prelude::*;
@@ -29,6 +29,8 @@ enum OprfError {
     BlindIdentity(VoprfError),
     KeyFile,
     KeyFileLength,
+    KeyFileCreate,
+    KeyFileWrite,
     ServerKey(VoprfError),
     BlindedElement(VoprfError),
     ClientState(VoprfError),
@@ -66,6 +68,12 @@ impl fmt::Display for OprfError {
                     formatter,
                     "VOPRF private key file must contain exactly 32 bytes"
                 )
+            }
+            Self::KeyFileCreate => {
+                write!(formatter, "Unable to create VOPRF private key file")
+            }
+            Self::KeyFileWrite => {
+                write!(formatter, "Unable to write VOPRF private key file")
             }
             Self::ServerKey(error) => {
                 write!(formatter, "Invalid RFC 9497 VOPRF server key: {error}")
@@ -198,6 +206,45 @@ fn server_from_file(path: &str) -> Result<VoprfServer<Ristretto255>, OprfError> 
     server_from_reader(file)
 }
 
+fn provision_server_key_inner(path: &str) -> Result<Vec<u8>, OprfError> {
+    let private_key = <Ristretto255 as voprf::CipherSuite>::Group::random_scalar(&mut OsRng);
+
+    let private_key_bytes = Zeroizing::new(
+        <Ristretto255 as voprf::CipherSuite>::Group::serialize_scalar(private_key).to_vec(),
+    );
+
+    let server = server_from_key(&private_key_bytes)?;
+
+    #[cfg(unix)]
+    let mut file = {
+        use std::os::unix::fs::OpenOptionsExt;
+
+        OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(path)
+            .map_err(|_| OprfError::KeyFileCreate)?
+    };
+
+    #[cfg(not(unix))]
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .map_err(|_| OprfError::KeyFileCreate)?;
+
+    file.write_all(&private_key_bytes)
+        .map_err(|_| OprfError::KeyFileWrite)?;
+
+    file.sync_all().map_err(|_| OprfError::KeyFileWrite)?;
+
+    Ok(
+        <Ristretto255 as voprf::CipherSuite>::Group::serialize_elem(server.get_public_key())
+            .to_vec(),
+    )
+}
+
 #[cfg(test)]
 fn derive_public_key_inner(server_key: &[u8]) -> Result<Vec<u8>, OprfError> {
     let server = server_from_key(server_key)?;
@@ -288,6 +335,12 @@ fn finalize_inner(
 }
 
 #[pyfunction]
+fn provision_server_key(private_key_file: &str) -> PyResult<Vec<u8>> {
+    provision_server_key_inner(private_key_file)
+        .map_err(|error| PyValueError::new_err(error.to_string()))
+}
+
+#[pyfunction]
 fn blind(input_data: &[u8]) -> PyResult<(Vec<u8>, Vec<u8>)> {
     blind_inner(input_data).map_err(|error| PyValueError::new_err(error.to_string()))
 }
@@ -373,6 +426,7 @@ fn finalize(
 
 #[pymodule]
 fn verity_oprf(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(provision_server_key, m)?)?;
     m.add_function(wrap_pyfunction!(blind, m)?)?;
     m.add_function(wrap_pyfunction!(validate_public_key, m)?)?;
     m.add_function(wrap_pyfunction!(finalize, m)?)?;
