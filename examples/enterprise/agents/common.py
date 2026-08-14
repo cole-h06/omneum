@@ -45,18 +45,20 @@ def observation(
     attribute,
     value,
     timestamp,
-    provenance_ids,
     cited_sources=(),
     parent_assertion_ids=(),
 ):
+    modified_at = datetime.fromisoformat(timestamp)
     return Observation(
-        assertion_id,
-        source,
-        Claim(ENTITY_NAMESPACE, ENTITY, attribute, value),
-        datetime.fromisoformat(timestamp),
-        tuple(provenance_ids),
-        tuple(cited_sources),
-        tuple(parent_assertion_ids),
+        assertion_id=assertion_id,
+        source=source,
+        claim=Claim(ENTITY_NAMESPACE, ENTITY, attribute, value),
+        observed_at=modified_at,
+        source_modified_at=modified_at,
+        upstream_sources=(),
+        cited_sources=tuple(cited_sources),
+        parent_assertion_ids=tuple(parent_assertion_ids),
+        retrievals=(),
     )
 
 

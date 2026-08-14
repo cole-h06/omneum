@@ -14,8 +14,6 @@ def sql_agent():
 
     deployment = registry["deployment"]
     configuration = registry["configuration"]
-    governance = registry["governance"]
-
     policy = reference(POLICY_SOURCE)
 
     return (
@@ -25,10 +23,6 @@ def sql_agent():
             "Input Data Policy",
             configuration["input_data_policy"],
             deployment["approved_at"],
-            (
-                governance["approved_policy"],
-                deployment["release"],
-            ),
             (policy,),
             ("policy-input-data",),
         ),
@@ -38,10 +32,6 @@ def sql_agent():
             "Provider Retention",
             f'{configuration["provider_retention_days"]} days',
             deployment["approved_at"],
-            (
-                governance["approved_policy"],
-                deployment["release"],
-            ),
             (policy,),
             ("policy-retention",),
         ),
@@ -51,10 +41,6 @@ def sql_agent():
             "Processing Region",
             configuration["processing_region"],
             deployment["approved_at"],
-            (
-                governance["approved_policy"],
-                deployment["release"],
-            ),
             (policy,),
             ("policy-region",),
         ),

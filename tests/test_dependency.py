@@ -1,13 +1,13 @@
 import json
 
-from datetime import datetime, timezone
+from dataclasses import asdict
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
 
 import verity.dependency as dependency
 from verity.dependency import (
-    DependencyCluster,
     DependencyEvidence,
     DependencyEstimatorConfig,
     DependencySignalScores,
@@ -19,22 +19,22 @@ from verity.dependency import (
 from verity.information import Claim, Observation, Source, SourceReference
 
 
+NOW = datetime(2026, 2, 2, 12, tzinfo=timezone.utc)
 VECTOR = Path(__file__).parent / "vectors" / "dependency_estimator_v1.json"
 WEIGHTS = {
-    "provenance_weight": 0.25,
-    "lineage_weight": 0.3,
-    "ownership_weight": 0.15,
-    "temporal_weight": 0.15,
-    "structural_weight": 0.15,
+    "upstream_weight": 0.25,
+    "citation_weight": 0.20,
+    "assertion_lineage_weight": 0.20,
+    "ownership_weight": 0.10,
+    "temporal_weight": 0.10,
+    "graph_weight": 0.15,
 }
 
 
-def config(**values):
-    return DependencyEstimatorConfig(
-        **WEIGHTS,
-        temporal_window_seconds=values.pop("temporal_window_seconds", 7200.0),
-        **values,
-    )
+def config(**changes):
+    values = {**WEIGHTS, "temporal_window_seconds": 7200.0}
+    values.update(changes)
+    return DependencyEstimatorConfig(**values)
 
 
 def source(identifier, owner=None):
@@ -45,169 +45,284 @@ def reference(identifier):
     return SourceReference("web_publisher", f"https://{identifier}")
 
 
-def observation(
-    assertion_id,
-    source_id,
-    attribute="status",
-    value="active",
-    timestamp=datetime(2026, 2, 2, 11, tzinfo=timezone.utc),
-    provenance=(),
-    cited=(),
-    parents=(),
-):
+def observation(assertion_id, source_id, attribute="status", value="active", **changes):
+    values = {
+        "assertion_id": assertion_id,
+        "source": source(source_id),
+        "claim": Claim("service", "Entity", attribute, value),
+        "observed_at": NOW,
+        "source_modified_at": NOW,
+        "upstream_sources": (),
+        "cited_sources": (),
+        "parent_assertion_ids": (),
+        "retrievals": (),
+    }
+    values.update(changes)
+    return Observation(**values)
+
+
+def pair(observations, sources=None, values=None):
+    if sources is None:
+        sources = tuple(dict.fromkeys(item.source for item in observations))
+    results, _ = estimate_dependencies(tuple(sources), tuple(observations), values or config())
+    return results[0]
+
+
+def empty_signals(**changes):
+    values = {
+        name: 0.0 for name in dependency.SIGNALS
+    } | {
+        f"{name}_observable": True for name in dependency.SIGNALS
+    }
+    values.update(changes)
+    return DependencySignalScores(**values)
+
+
+def vector_observation(item, sources):
     return Observation(
-        assertion_id,
-        source(source_id),
-        Claim("service", "Entity", attribute, value),
-        timestamp,
-        provenance,
-        tuple(reference(value) for value in cited) if cited is not None else None,
-        parents,
+        assertion_id=item["assertion_id"],
+        source=sources[item["source_id"]],
+        claim=Claim("service", "Entity", item["attribute"], item["value"]),
+        observed_at=datetime.fromisoformat(item["observed_at"]),
+        source_modified_at=(
+            datetime.fromisoformat(item["source_modified_at"])
+            if item["source_modified_at"] is not None
+            else None
+        ),
+        upstream_sources=(
+            tuple(reference(value) for value in item["upstream_source_ids"])
+            if item["upstream_source_ids"] is not None
+            else None
+        ),
+        cited_sources=(
+            tuple(reference(value) for value in item["cited_source_ids"])
+            if item["cited_source_ids"] is not None
+            else None
+        ),
+        parent_assertion_ids=(
+            tuple(item["parent_assertion_ids"])
+            if item["parent_assertion_ids"] is not None
+            else None
+        ),
+        retrievals=(),
     )
 
 
-def test_pair():
+def test_vectors():
+    vector = json.loads(VECTOR.read_text())
+    assert vector["estimator_version"] == "dependency-estimator-v1"
+    assert tuple(vector["signal_order"]) == dependency.SIGNALS
+    assert vector["output_comparison"] == {
+        "mode": "exact_binary64",
+        "tolerance": None,
+    }
+
+    for case in vector["weight_cases"]:
+        values = {
+            f"{name}_weight": value
+            for name, value in zip(dependency.SIGNALS, case["supplied"])
+        }
+        values["temporal_window_seconds"] = 7200.0
+        assert dependency._weights(DependencyEstimatorConfig(**values)) == tuple(
+            case["expected"]
+        )
+
+    for case in vector["combine_cases"]:
+        values = dict(zip(dependency.SIGNALS, case["scores"]))
+        values.update(
+            (f"{name}_observable", value)
+            for name, value in zip(dependency.SIGNALS, case["observability"])
+        )
+        assert combine_dependency(DependencySignalScores(**values), config()) == (
+            case["expected_dependency"],
+            case["expected_weighted_signal_coverage"],
+        )
+
+    for case in vector["pair_cases"]:
+        sources = {
+            item["id"]: source(item["id"], item["owner_id"])
+            for item in case["sources"]
+        }
+        observations = tuple(
+            vector_observation(item, sources)
+            for item in case["observations"]
+        )
+        result = pair(observations, tuple(sources.values()))
+        assert tuple(getattr(result.signals, name) for name in dependency.SIGNALS) == tuple(
+            case["expected_signals"]
+        )
+        assert tuple(
+            getattr(result.signals, f"{name}_observable")
+            for name in dependency.SIGNALS
+        ) == tuple(case["expected_observability"])
+        assert result.dependency == case["expected_dependency"]
+        assert result.weighted_signal_coverage == case[
+            "expected_weighted_signal_coverage"
+        ]
+        if "expected_evidence" in case:
+            expected = dict(case["expected_evidence"])
+            expected["qualifying_time_deltas_seconds"] = tuple(
+                expected["qualifying_time_deltas_seconds"]
+            )
+            assert asdict(result.evidence) == expected
+
+    case = vector["matrix_case"]
+    source_map = {
+        value: source(value, f"owner-{value}")
+        for value in case["sources"]
+    }
+    sources = tuple(source_map.values())
+    observations = tuple(
+        observation(
+            f"{value}1",
+            value,
+            attribute=value,
+            value=value,
+            source=source_map[value],
+        )
+        for value in case["sources"]
+    )
+    results, _ = estimate_dependencies(sources, observations, config())
+    assert [
+        [result.source_a.identifier, result.source_b.identifier]
+        for result in results
+    ] == case["expected_pairs"]
+    assert [result.dependency for result in results] == case["expected_dependencies"]
+    assert [result.weighted_signal_coverage for result in results] == case[
+        "expected_weighted_signal_coverages"
+    ]
+
+    case = vector["cluster_case"]
+    keys = tuple(("web_publisher", value) for value in case["sources"])
+    results = tuple(
+        PairwiseDependencyResult(
+            SourceReference("web_publisher", item["source_a"]),
+            SourceReference("web_publisher", item["source_b"]),
+            empty_signals(),
+            item["dependency"],
+            1.0,
+        )
+        for item in case["dependencies"]
+    )
+    clusters = dependency._clusters(keys, results, case["threshold"])
+    assert [
+        [source.identifier for source in cluster.sources]
+        for cluster in clusters
+    ] == case["expected_components"]
+
+
+def test_pair_and_graph_signal():
     sources = (source("b.example", "owner"), source("a.example", "owner"))
     observations = (
-        observation("b1", "b.example", provenance=("p",)),
-        observation("a1", "a.example", provenance=("p",)),
+        observation("b1", "b.example"),
+        observation("a1", "a.example"),
     )
-
-    pairs, clusters = estimate_dependencies(sources, observations, config())
-
-    assert pairs[0].source_a.identifier == "a.example"
-    assert pairs[0].source_b.identifier == "b.example"
-    assert pairs[0].signals.provenance == 1.0
-    assert pairs[0].signals.temporal == 0.0
-    assert pairs[0].weighted_signal_coverage == 1.0
+    results, clusters = estimate_dependencies(sources, observations, config())
+    result = results[0]
+    assert (result.source_a.identifier, result.source_b.identifier) == (
+        "a.example", "b.example"
+    )
+    assert result.signals.graph == 0.5
+    assert result.signals.ownership == 1.0
+    assert result.weighted_signal_coverage == 1.0
     assert clusters == ()
 
 
-def test_pair_constructor():
-    signals = DependencySignalScores(
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        True, True, True, True, True,
+def test_six_independent_signals():
+    a = source("a.example", "owner")
+    b = source("b.example", "owner")
+    observations = (
+        observation(
+            "a1", "a.example",
+            source=a,
+            source_modified_at=NOW,
+            upstream_sources=(reference("b.example"),),
+            cited_sources=(reference("b.example"),),
+            parent_assertion_ids=("b1",),
+        ),
+        observation(
+            "b1", "b.example", source=b,
+            source_modified_at=NOW - timedelta(hours=1),
+        ),
     )
-    source_a = SourceReference("web_publisher", "a.example")
-    source_b = SourceReference("web_publisher", "b.example")
-
-    value = PairwiseDependencyResult(
-        source_a, source_b, signals, 0.0, 1.0
+    result = pair(observations, (a, b))
+    assert result.signals == DependencySignalScores(
+        upstream=1.0, citation=1.0, assertion_lineage=1.0,
+        ownership=1.0, temporal=1.0, graph=0.5,
+        upstream_observable=True, citation_observable=True,
+        assertion_lineage_observable=True, ownership_observable=True,
+        temporal_observable=True, graph_observable=True,
+    )
+    assert result.evidence == DependencyEvidence(
+        source_a_upstream_of_source_b=False,
+        source_b_upstream_of_source_a=True,
+        source_a_cites_source_b=True,
+        source_b_cites_source_a=False,
+        source_a_parent_count=1,
+        source_b_parent_count=0,
+        same_owner=True,
+        matching_claim_count=1,
+        qualifying_time_deltas_seconds=(3600.0,),
     )
 
-    assert value.source_a == source_a
-    assert value.source_b == source_b
+
+def test_signal_missingness_and_coverage():
+    result = pair((
+        observation("a1", "a.example", source_modified_at=None,
+                    upstream_sources=None, cited_sources=None,
+                    parent_assertion_ids=None),
+        observation("b1", "b.example", source_modified_at=None,
+                    upstream_sources=None, cited_sources=None,
+                    parent_assertion_ids=None),
+    ))
+    assert not result.signals.upstream_observable
+    assert not result.signals.citation_observable
+    assert not result.signals.assertion_lineage_observable
+    assert not result.signals.ownership_observable
+    assert not result.signals.temporal_observable
+    assert result.signals.graph_observable
+    assert result.weighted_signal_coverage == pytest.approx(0.15)
+
+
+def test_observed_at_and_retrieval_time_do_not_drive_temporal():
+    result = pair((
+        observation("a1", "a.example", observed_at=NOW,
+                    source_modified_at=None),
+        observation("b1", "b.example", observed_at=NOW - timedelta(hours=1),
+                    source_modified_at=None),
+    ))
+    assert result.signals.temporal == 0.0
+    assert not result.signals.temporal_observable
+
+
+def test_pair_constructor_and_evidence_validation():
+    signals = empty_signals()
+    a = SourceReference("web_publisher", "a.example")
+    b = SourceReference("web_publisher", "b.example")
+    assert PairwiseDependencyResult(a, b, signals, 0.0, 1.0).source_a == a
     with pytest.raises(ValueError):
-        PairwiseDependencyResult(
-            source_a, source_a, signals, 0.0, 1.0
-        )
+        PairwiseDependencyResult(a, a, signals, 0.0, 1.0)
     with pytest.raises(ValueError):
-        PairwiseDependencyResult(
-            source_b, source_a, signals, 0.0, 1.0
-        )
-
-
-def test_evidence():
-    value = DependencyEvidence(
-        True, False, 0, 3, True, 2, 3, (3600.0,)
-    )
-
-    assert value.source_b_parent_count == 3
-    assert value.qualifying_time_deltas_seconds == (3600.0,)
+        PairwiseDependencyResult(b, a, signals, 0.0, 1.0)
     with pytest.raises(TypeError):
-        DependencyEvidence(
-            1, False, 0, 0, False, 0, 0, ()
-        )
+        DependencyEvidence(1, False, False, False, 0, 0, False, 0, ())
     with pytest.raises(ValueError):
-        DependencyEvidence(
-            False, False, -1, 0, False, 0, 0, ()
-        )
-    with pytest.raises(ValueError):
-        DependencyEvidence(
-            False, False, 0, 0, False, 0, 0, (float("nan"),)
-        )
+        DependencyEvidence(False, False, False, False, -1, 0, False, 0, ())
 
 
-def test_lineage():
-    sources = (source("a.example", "owner"), source("b.example", "owner"))
-    observations = (
-        observation("a1", "a.example", cited=("b.example",)),
-        observation("b1", "b.example"),
+def test_weight_normalization_and_combination():
+    values = DependencyEstimatorConfig(
+        upstream_weight=25.0, citation_weight=20.0,
+        assertion_lineage_weight=20.0, ownership_weight=10.0,
+        temporal_weight=10.0, graph_weight=15.0,
+        temporal_window_seconds=7200.0,
     )
-
-    pairs, _ = estimate_dependencies(sources, observations, config())
-
-    assert pairs[0].signals.lineage == 1.0
-    assert pairs[0].signals.lineage_observable
-    assert pairs[0].evidence.source_a_cites_source_b
-    assert not pairs[0].evidence.source_b_cites_source_a
-
-
-def test_parent():
-    sources = (source("a.example"), source("b.example"))
-    observations = (
-        observation("a1", "a.example", parents=("b1",)),
-        observation("b1", "b.example"),
+    assert dependency._weights(values) == (0.25, 0.2, 0.2, 0.1, 0.1, 0.15)
+    signals = empty_signals(
+        upstream=1.0, citation=1.0, assertion_lineage=1.0,
+        ownership=1.0, temporal=1.0, graph=0.5,
     )
-
-    pairs, _ = estimate_dependencies(sources, observations, config())
-
-    assert pairs[0].signals.lineage == 1.0
-    assert pairs[0].evidence.source_a_parent_count == 1
-    assert pairs[0].evidence.source_b_parent_count == 0
-
-
-def test_temporal_missing():
-    sources = (source("a.example", "owner"), source("b.example", "owner"))
-    observations = (
-        observation("a1", "a.example", timestamp=None),
-        observation("b1", "b.example"),
-    )
-
-    pairs, _ = estimate_dependencies(sources, observations, config())
-
-    assert pairs[0].signals.temporal == 0.0
-    assert not pairs[0].signals.temporal_observable
-    assert pairs[0].weighted_signal_coverage == 0.85
-
-
-def test_temporal_unrelated():
-    sources = (source("a.example"), source("b.example"))
-    observations = (
-        observation("a1", "a.example"),
-        observation("a2", "a.example", "other", timestamp=None),
-        observation("b1", "b.example"),
-        observation("b2", "b.example", "different", timestamp=None),
-    )
-
-    pairs, _ = estimate_dependencies(sources, observations, config())
-
-    assert pairs[0].signals.temporal_observable
-
-
-def test_cluster():
-    sources = (
-        source("a.example"),
-        source("b.example"),
-        source("c.example"),
-    )
-    observations = tuple(
-        observation(f"{name}1", f"{name}.example", provenance=("p",))
-        for name in ("a", "b", "c")
-    )
-
-    _, clusters = estimate_dependencies(
-        sources,
-        observations,
-        config(dependency_cluster_threshold=0.25),
-    )
-
-    assert clusters[0].threshold == 0.25
-    assert tuple(value.identifier for value in clusters[0].sources) == (
-        "a.example",
-        "b.example",
-        "c.example",
-    )
+    assert combine_dependency(signals, values) == (0.925, 1.0)
 
 
 @pytest.mark.parametrize("threshold", [0.0, 1.0])
@@ -221,368 +336,39 @@ def test_bad_threshold(threshold):
         config(dependency_cluster_threshold=threshold)
 
 
-def test_ratio_weights():
-    values = DependencyEstimatorConfig(25.0, 30.0, 15.0, 15.0, 15.0, 7200.0)
-    signals = DependencySignalScores(
-        1.0, 1.0, 1.0, 1.0, 0.5, True, True, True, True, True
+def test_clusters_are_deterministic():
+    sources = tuple(source(f"{name}.example") for name in "abc")
+    observations = tuple(observation(f"{name}1", f"{name}.example") for name in "abc")
+    _, clusters = estimate_dependencies(
+        sources, observations, config(dependency_cluster_threshold=0.04)
+    )
+    assert tuple(item.identifier for item in clusters[0].sources) == (
+        "a.example", "b.example", "c.example"
     )
 
-    assert combine_dependency(signals, values) == (0.9249999999999999, 1.0)
+
+@pytest.mark.parametrize(
+    "change,match",
+    [
+        ({"upstream_sources": (reference("missing.example"),)}, "upstream source is unknown"),
+        ({"cited_sources": (reference("missing.example"),)}, "cited source is unknown"),
+        ({"parent_assertion_ids": ("missing",)}, "parent assertion is unknown"),
+    ],
+)
+def test_unknown_relationships(change, match):
+    with pytest.raises(InformationGraphError, match=match):
+        pair((observation("a1", "a.example", **change), observation("b1", "b.example")))
 
 
-def test_vectors():
-    vector = json.loads(VECTOR.read_text())
-    for case in vector["cases"]:
-        VECTOR_OPERATIONS[case["operation"]](case, vector)
-
-    for pair in vector["enterprise_complete_matrix"]["pairs"]:
-        scores = DependencySignalScores(
-            *(pair["signals"][name] for name in vector["signal_order"]),
-            *(bool(pair["observability"][name]) for name in vector["signal_order"]),
+def test_duplicate_and_canonical_source_validation():
+    a = source("a.example")
+    with pytest.raises(InformationGraphError, match="duplicate assertion ID"):
+        estimate_dependencies((a,), (
+            observation("a1", "a.example", attribute="one"),
+            observation("a1", "a.example", attribute="two"),
+        ), config())
+    with pytest.raises(InformationGraphError, match="conflicting owners"):
+        estimate_dependencies(
+            (source("A.example", "one"), source("a.example", "two")),
+            (observation("a1", "a.example"),), config()
         )
-        result = combine_dependency(scores, config())
-        assert result == (
-            pair["dependency"],
-            pair["weighted_signal_coverage"],
-        )
-
-
-def _pair(sources, observations, values=None):
-    pairs, _ = estimate_dependencies(
-        tuple(sources),
-        tuple(observations),
-        values or config(),
-    )
-    return pairs[0]
-
-
-def _provenance(case, vector):
-    if "source_a_observations" in case:
-        a_values = [item["provenance_ids"] for item in case["source_a_observations"]]
-        b_values = [item["provenance_ids"] for item in case["source_b_observations"]]
-    else:
-        a_values = [case["source_a_ids"]]
-        b_values = [case["source_b_ids"]]
-    observations = [
-        observation(f"a{index}", "a.example", f"a{index}", provenance=None if value is None else tuple(value))
-        for index, value in enumerate(a_values)
-    ] + [
-        observation(f"b{index}", "b.example", f"b{index}", provenance=None if value is None else tuple(value))
-        for index, value in enumerate(b_values)
-    ]
-    result = _pair(
-        (source("a.example"), source("b.example")),
-        observations,
-    ).signals
-    assert result.provenance == case.get("expected_score", case.get("expected_pair_score"))
-    if "expected_observable" in case or "expected_pair_observable" in case:
-        assert result.provenance_observable == bool(
-            case.get("expected_observable", case.get("expected_pair_observable"))
-        )
-
-
-def _lineage_case(case, vector):
-    a_to_b = case["a_to_b"]
-    b_to_a = case["b_to_a"]
-    observations = (
-        observation(
-            "a1",
-            "a.example",
-            cited=("b.example",) if a_to_b else (),
-        ),
-        observation(
-            "b1",
-            "b.example",
-            cited=("a.example",) if b_to_a else None,
-            parents=() if b_to_a else None,
-        ),
-    )
-    result = _pair(
-        (source("a.example"), source("b.example")),
-        observations,
-    ).signals
-    assert result.lineage == case["expected_score"]
-    assert result.lineage_observable == bool(
-        case["expected_observable_with_missing_reverse_capture"]
-    )
-
-
-def _lineage_evidence(case, vector):
-    rows = {item["assertion_id"]: item for item in case["evidence"]}
-    observations = []
-    for item in case["assertions"]:
-        evidence = rows[item["assertion_id"]]
-        observations.append(observation(
-            item["assertion_id"],
-            f'{item["source_id"]}.example',
-            cited=None if evidence["cited_source_ids"] is None else tuple(
-                f"{value}.example" for value in evidence["cited_source_ids"]
-            ),
-            parents=None if evidence["parent_assertion_ids"] is None else tuple(
-                evidence["parent_assertion_ids"]
-            ),
-        ))
-    result = _pair(
-        tuple(source(f"{value}.example") for value in case["source_ids"]),
-        observations,
-    ).signals
-    assert result.lineage == case["expected_score"]
-    assert result.lineage_observable == bool(case["expected_observable"])
-
-
-def _ownership(case, vector):
-    result = _pair(
-        (
-            source("a.example", case["source_a_owner_id"]),
-            source("b.example", case["source_b_owner_id"]),
-        ),
-        (observation("a1", "a.example"), observation("b1", "b.example")),
-    ).signals
-    assert result.ownership == case["expected_score"]
-    assert result.ownership_observable == bool(case["expected_observable"])
-
-
-def _timestamp(value):
-    if value is None:
-        return None
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
-
-
-def _temporal(case, vector):
-    observations = []
-    if "matching_properties" in case:
-        for index, item in enumerate(case["matching_properties"]):
-            observations.extend((
-                observation(
-                    f"a{index}", "a.example", f"p{index}",
-                    timestamp=_timestamp(item["child_observed_at"]),
-                ),
-                observation(
-                    f"b{index}", "b.example", f"p{index}",
-                    timestamp=_timestamp(item["parent_observed_at"]),
-                ),
-            ))
-    else:
-        for label, source_id in (("a", "a.example"), ("b", "b.example")):
-            for index, item in enumerate(case[f"source_{label}_observations"]):
-                observations.append(observation(
-                    f"{label}{index}", source_id, item["property"], item["value"],
-                    timestamp=_timestamp(item["observed_at"]),
-                ))
-    result = _pair(
-        (source("a.example"), source("b.example")),
-        observations,
-        config(temporal_window_seconds=case["temporal_window_seconds"]),
-    ).signals
-    assert result.temporal == case["expected_score"]
-    assert result.temporal_observable == bool(case["expected_observable"])
-
-
-def _temporal_missingness(case, vector):
-    observations = []
-    for index, item in enumerate(case["matching_properties"]):
-        observations.extend((
-            observation(
-                f"a{index}", "a.example", f"p{index}",
-                timestamp=_timestamp(item["source_a_observed_at"]),
-            ),
-            observation(
-                f"b{index}", "b.example", f"p{index}",
-                timestamp=_timestamp(item["source_b_observed_at"]),
-            ),
-        ))
-    for index, item in enumerate(case["unrelated_observations"]):
-        source_id = f'{item["source"]}.example'
-        observations.append(observation(
-            f'u{item["source"]}{index}', source_id, f"u{index}",
-            value=item["reason"], timestamp=_timestamp(item["observed_at"]),
-        ))
-    result = _pair(
-        (source("a.example", "owner"), source("b.example", "owner")),
-        observations,
-        config(temporal_window_seconds=case["temporal_window_seconds"]),
-    )
-    assert result.signals.temporal == case["expected_temporal_score"]
-    assert result.signals.temporal_observable == bool(case["expected_temporal_observable"])
-    scores = DependencySignalScores(
-        case["other_signal_scores"],
-        case["other_signal_scores"],
-        case["other_signal_scores"],
-        result.signals.temporal,
-        case["other_signal_scores"],
-        bool(case["other_signals_observable"]),
-        bool(case["other_signals_observable"]),
-        bool(case["other_signals_observable"]),
-        result.signals.temporal_observable,
-        bool(case["other_signals_observable"]),
-    )
-    values = case["normalized_weights"]
-    assert combine_dependency(
-        scores,
-        DependencyEstimatorConfig(
-            *(values[name] for name in vector["signal_order"]),
-            case["temporal_window_seconds"],
-        ),
-    ) == (
-        case["expected_dependency"],
-        case["expected_weighted_signal_coverage"],
-    )
-
-
-def _structural(case, vector):
-    sources = tuple(source(f"{name}.example") for name in case["source_assertions"])
-    observations = []
-    for name, assertions in case["source_assertions"].items():
-        observations.extend(
-            observation(f"{name}{index}", f"{name}.example", prop, value)
-            for index, (prop, value) in enumerate(assertions.items())
-        )
-    pairs, _ = estimate_dependencies(sources, tuple(observations), config())
-    result = next(
-        pair for pair in pairs
-        if pair.source_a.identifier == f'{case["source_a"]}.example'
-        and pair.source_b.identifier == f'{case["source_b"]}.example'
-    )
-    assert result.signals.structural == case["expected_score"]
-    assert result.signals.structural_observable == bool(case["expected_observable"])
-
-
-def _weight_case(case, vector):
-    supplied = case["supplied"]
-    values = DependencyEstimatorConfig(
-        *(supplied[name] for name in vector["signal_order"]),
-        7200.0,
-    )
-    assert dependency._weights(values) == tuple(
-        case["expected_normalized"][name] for name in vector["signal_order"]
-    )
-
-
-def _combine(case, vector):
-    scores = DependencySignalScores(
-        *(case["signals"][name] for name in vector["signal_order"]),
-        *(bool(case["observability"][name]) for name in vector["signal_order"]),
-    )
-    values = case["normalized_weights"]
-    assert combine_dependency(
-        scores,
-        DependencyEstimatorConfig(
-            *(values[name] for name in vector["signal_order"]),
-            7200.0,
-        ),
-    ) == (
-        case["expected_dependency"],
-        case["expected_weighted_signal_coverage"],
-    )
-
-
-def _matrix(case, vector):
-    sources = tuple(source(f"{name}.example") for name in ("a", "b", "c"))
-    observations = tuple(
-        observation(f"{name}1", f"{name}.example")
-        for name in ("a", "b", "c")
-    )
-    pairs, _ = estimate_dependencies(sources, observations, config())
-    reversed_pairs, _ = estimate_dependencies(
-        tuple(reversed(sources)),
-        tuple(reversed(observations)),
-        config(),
-    )
-    keys = {(pair.source_a.identifier, pair.source_b.identifier) for pair in pairs}
-    assert len(keys) == 3
-    assert all(source_a != source_b for source_a, source_b in keys)
-    assert (pairs == reversed_pairs) == case["expected_symmetric"]
-    assert all(source_a != source_b for source_a, source_b in keys) == case[
-        "expected_zero_diagonal"
-    ]
-
-
-def _cluster_case(case, vector):
-    keys = tuple(("web_publisher", value) for value in case["sources"])
-    empty = DependencySignalScores(
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        False, False, False, False, False,
-    )
-    results = tuple(
-        PairwiseDependencyResult(
-            SourceReference("web_publisher", item["source_a"]),
-            SourceReference("web_publisher", item["source_b"]),
-            empty,
-            item["dependency"],
-            0.0,
-        )
-        for item in case["dependencies"]
-    )
-    clusters = dependency._clusters(keys, results, case["threshold"])
-    assert [
-        [source.identifier for source in cluster.sources]
-        for cluster in clusters
-    ] == case["expected_components"]
-    assert all(type(cluster) is DependencyCluster for cluster in clusters)
-
-
-VECTOR_OPERATIONS = {
-    "provenance": _provenance,
-    "provenance_capture": _provenance,
-    "lineage": _lineage_case,
-    "lineage_evidence": _lineage_evidence,
-    "ownership": _ownership,
-    "temporal": _temporal,
-    "temporal_missingness": _temporal_missingness,
-    "structural": _structural,
-    "weights": _weight_case,
-    "combine": _combine,
-    "matrix_invariants": _matrix,
-    "clusters": _cluster_case,
-}
-
-
-def test_duplicate_id():
-    sources = (source("a.example"), source("b.example"))
-    observations = (
-        observation("same", "a.example"),
-        observation("same", "b.example"),
-    )
-
-    with pytest.raises(InformationGraphError):
-        estimate_dependencies(sources, observations, config())
-
-
-def test_unknown_citation():
-    sources = (source("a.example"),)
-    observations = (observation("a1", "a.example", cited=("b.example",)),)
-
-    with pytest.raises(InformationGraphError):
-        estimate_dependencies(sources, observations, config())
-
-
-def test_self_reference():
-    sources = (source("a.example"),)
-    observations = (observation("a1", "a.example", cited=("a.example",)),)
-
-    with pytest.raises(InformationGraphError):
-        estimate_dependencies(sources, observations, config())
-
-
-def test_canonical_source():
-    sources = (
-        source("EXAMPLE.com", "owner-a"),
-        source("example.com", "owner-b"),
-    )
-    observations = (observation("a1", "example.com"),)
-
-    with pytest.raises(InformationGraphError):
-        estimate_dependencies(sources, observations, config())
-
-
-def test_input_unchanged():
-    sources = (source("a.example"), source("b.example"))
-    observations = (
-        observation("a1", "a.example"),
-        observation("b1", "b.example"),
-    )
-
-    estimate_dependencies(sources, observations, config())
-
-    assert sources[0].identifier == "https://a.example"
-    assert observations[0].claim.entity == "Entity"

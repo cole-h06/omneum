@@ -42,10 +42,6 @@ def _policy_observations(policy):
             controls["input-data-policy"]["name"],
             controls["input-data-policy"]["setting"],
             policy["document"]["last_updated"],
-            (
-                policy["document"]["id"],
-                *policy["references"],
-            ),
         ),
         observation(
             "policy-retention",
@@ -53,10 +49,6 @@ def _policy_observations(policy):
             controls["provider-retention"]["name"],
             f'{controls["provider-retention"]["setting"]}',
             policy["document"]["last_updated"],
-            (
-                policy["document"]["id"],
-                *policy["references"],
-            ),
         ),
         observation(
             "policy-region",
@@ -64,10 +56,6 @@ def _policy_observations(policy):
             controls["processing-region"]["name"],
             controls["processing-region"]["setting"],
             policy["document"]["last_updated"],
-            (
-                policy["document"]["id"],
-                *policy["references"],
-            ),
         ),
     )
 
@@ -85,10 +73,6 @@ def _runbook_observations(runbook):
             controls["input-data-policy"]["name"],
             controls["input-data-policy"]["setting"],
             runbook["document"]["published_at"],
-            (
-                runbook["document"]["id"],
-                *runbook["references"],
-            ),
         ),
         observation(
             "runbook-retention",
@@ -96,10 +80,6 @@ def _runbook_observations(runbook):
             controls["provider-retention"]["name"],
             controls["provider-retention"]["setting"],
             runbook["document"]["published_at"],
-            (
-                runbook["document"]["id"],
-                *runbook["references"],
-            ),
         ),
         observation(
             "runbook-region",
@@ -107,9 +87,5 @@ def _runbook_observations(runbook):
             controls["processing-region"]["name"],
             controls["processing-region"]["setting"],
             runbook["document"]["published_at"],
-            (
-                runbook["document"]["id"],
-                *runbook["references"],
-            ),
         ),
     )

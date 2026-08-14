@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-import base64
 import json
-import os
 from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters, stdio_client
 
 from verity.base64url import encode_unpadded
-from verity.oprf import VOPRFServer
+from stdio_state import isolated_deployment_environment
 
 
 DEPLOYMENT_ID = (
@@ -31,20 +29,9 @@ def token(value):
 
 
 def provisioning(tmp_path):
-    private_key_file = tmp_path / "voprf.key"
-    private_key_file.write_bytes(PRIVATE_KEY)
-    public_key = VOPRFServer(private_key_file).public_key
-    return {
-        **os.environ,
-        "VERITY_DEPLOYMENT_ID": DEPLOYMENT_ID,
-        "VERITY_VOPRF_KEY_VERSION": "1",
-        "VERITY_VOPRF_PUBLIC_KEY": (
-            base64.urlsafe_b64encode(public_key)
-            .rstrip(b"=")
-            .decode("ascii")
-        ),
-        "VERITY_VOPRF_PRIVATE_KEY_FILE": str(private_key_file),
-    }
+    return isolated_deployment_environment(
+        tmp_path, DEPLOYMENT_ID, PRIVATE_KEY
+    )[0]
 
 
 def golden_request():

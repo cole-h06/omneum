@@ -22,7 +22,6 @@ def search_agent():
             "Provider Retention",
             f'{controls["provider_retention_days"]} days',
             page["last_modified"],
-            ("vendor-dpa-2026-06",),
         ),
         observation(
             "vendor-region",
@@ -30,6 +29,5 @@ def search_agent():
             "Processing Region",
             controls["supported_processing_regions"][0],
             page["last_modified"],
-            ("vendor-dpa-2026-06",),
         ),
     )

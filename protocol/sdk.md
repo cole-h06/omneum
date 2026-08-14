@@ -311,62 +311,56 @@ new estimator version is required for a change to signal scoring,
 observability, source-level aggregation, weight normalization, dependency or
 coverage calculation, temporal-window semantics, or cluster construction.
 
-The estimator operates on canonical application-local sources, assertions,
-and evidence before linkage. Each assertion has one stable local assertion ID,
-one source, and one `(entity, attribute, value)` tuple. Every assertion MUST
-have exactly one evidence record. Each source MUST assert at most one value for
-an `(entity, attribute)` property. Evidence references MUST resolve to known
-local sources and assertions.
+The estimator operates on canonical application-local sources and observations
+before linkage. A `Source` has `kind`, `identifier`, and optional `owner_id`.
+Each `Observation` contains one stable `assertion_id`, one `Source`, one
+`(entity_namespace, entity, attribute, value)` claim, required `observed_at`,
+optional `source_modified_at`, optional `upstream_sources`, `cited_sources`,
+and `parent_assertion_ids`, and optional `retrievals`. Each source MUST assert
+at most one value for an `(entity, attribute)` property. Relationship
+references MUST resolve to known local sources and assertions.
 
 For each evidence relationship field, `null` means that the relationship was
 not captured, an empty sequence means it was captured and none was found, and
 a nonempty sequence contains the captured relationships. Retrieval records and
 retrieval timestamps are not estimator inputs.
 
-Every valid evidence record in the current research implementation has a
-timezone-aware `observed_at` value describing when the source says the
-information was published or updated. Implementations compare instants, not
-local wall-clock representations. The temporal window is supplied explicitly,
-has a finite positive number of seconds, and has no version-1 default.
+`observed_at` is timezone-aware and records when the workflow observed the
+assertion. It is not a dependency-estimator timestamp. `source_modified_at` is
+timezone-aware when present, records when the source resource was modified,
+and is the timestamp used by the temporal signal. A null `source_modified_at`
+means temporal metadata was unavailable and does not by itself invalidate an
+observation or graph.
 
-`source_timestamp=None` means that temporal metadata was unavailable. A
-missing timestamp does not by itself invalidate an observation or graph.
+A `Retrieval` contains `retrieval_id`, `kind`, `resource_id`, a required
+timezone-aware `retrieved_at`, and a `fields` object containing exact JSON
+values. Retrieval records describe how an underlying resource was retrieved;
+neither `retrieved_at` nor `fields` is an estimator input. The temporal window
+is supplied explicitly, has a finite positive number of seconds, and has no
+version-1 default.
 
 ### 11.2 Source-Level Signal Inputs
 
-The estimator first aggregates assertion evidence by source.
+The estimator first aggregates observation metadata by source. Upstream,
+citation, and assertion lineage are distinct binary signals.
 
-For provenance, let `P_i` be the set union of every non-null
-`provenance_ids` sequence on source `i`'s evidence. Provenance is observable
-for a source only when the source has evidence and every evidence record has a
-non-null `provenance_ids` sequence. For a source pair it is observable only
-when it is observable for both sources. When observable:
+`upstream_sources` lists sources known to be upstream of the observation's
+source. Let `U(i,k) = 1` when any observation from source `k` lists source `i`
+as upstream. The symmetric upstream score is `max(U(i,k), U(k,i))`.
 
-```text
-provenance(i,k) = 0                                  if P_i union P_k is empty
-provenance(i,k) = |P_i intersection P_k|
-                    / |P_i union P_k|                otherwise
-```
+Let `C(i,k) = 1` when any observation from source `i` lists source `k` in
+`cited_sources`. The symmetric citation score is `max(C(i,k), C(k,i))`.
 
-If provenance is unavailable for either source, its pair score and
-observability are both zero. An observable pair of empty sets has score zero
-and observability one.
+Let `P(i,k)` be the count of assertions from source `i` whose direct
+`parent_assertion_ids` resolve to assertions from source `k`. The symmetric
+assertion-lineage score is one when either `P(i,k)` or `P(k,i)` is nonzero and
+zero otherwise. Parent relationships are direct assertion-level lineage; they
+are not combined with explicit citations.
 
-Lineage is directional before pair aggregation. Let `L(i,k) = 1` when any
-evidence record for source `i` either lists source `k` in `cited_source_ids` or
-lists a parent assertion whose source is `k`; otherwise `L(i,k) = 0`. Null
-lineage sequences add no direction. Source-level lineage capture is available
-only when every evidence record for the source has both non-null
-`cited_source_ids` and non-null `parent_assertion_ids`. The symmetric score is:
-
-```text
-lineage(i,k) = max(L(i,k), L(k,i))
-```
-
-The pair is lineage-observable when `lineage(i,k) = 1`, even if capture is
-unavailable in the opposite direction. With no positive direction it is
-observable only when source-level lineage capture is available for both
-sources. Thus an observed zero differs from unavailable lineage.
+For each relationship signal, a positive relationship makes the pair
+observable. With no positive relationship, the signal is observable only when
+every observation from both sources has a non-null sequence for that signal.
+Thus an observed zero differs from unavailable relationship metadata.
 
 Ownership is source-level metadata. It is observable for a pair only when both
 sources have a non-null `owner_id`. Its score is one when those exact owner IDs
@@ -383,7 +377,8 @@ sources with equal canonical values. For an ordered child-parent pair, let
 ```text
 T(i,k) = 0                                           if M(i,k) is empty
 T(i,k) = |{p in M(i,k) :
-              0 < observed_at(i,p) - observed_at(k,p) <= W}|
+              0 < source_modified_at(i,p)
+                    - source_modified_at(k,p) <= W}|
            / |M(i,k)|                                otherwise
 
 temporal(i,k) = max(T(i,k), T(k,i))
@@ -402,13 +397,11 @@ timestamp is not required for a property absent from either source or for a
 shared property whose values differ. The temporal weight is not redistributed
 when the signal is unavailable.
 
-For the current valid research inputs, temporal observability is one for every
-distinct source pair because every evidence record has a timezone-aware
-`observed_at`. Retrieval time MUST NOT affect this score or observability.
+`observed_at` and retrieval time MUST NOT affect this score or observability.
 
-### 11.4 Structural Signal
+### 11.4 Graph Signal
 
-The structural signal uses only the canonical assertion graph. For each exact
+The graph signal uses only the canonical assertion graph. For each exact
 canonical `(property, value)` assertion `x`, define:
 
 ```text
@@ -417,60 +410,63 @@ rarity(x) = 1 / number of sources asserting x
 
 For sources `i` and `k`, let `matches` be their shared properties for which the
 canonical values are equal. Let `size_i` and `size_k` be their total numbers of
-asserted properties. If `matches` is empty, structural dependency is zero.
+asserted properties. If `matches` is empty, graph dependency is zero.
 Otherwise:
 
 ```text
 inclusion(i,k) = max(|matches| / size_k, |matches| / size_i)
 rarity_mean(i,k) =
     sum(rarity(property, matching value) for each match) / |matches|
-structural(i,k) = inclusion(i,k) * rarity_mean(i,k)
+graph(i,k) = inclusion(i,k) * rarity_mean(i,k)
 ```
 
 Conflicting values on a shared property do not count as matches and do not
-otherwise reduce the score. Structural dependency is observable for every
+otherwise reduce the score. Graph dependency is observable for every
 distinct valid source pair, including an observable zero.
 
 ### 11.5 Weights, Dependency, and Coverage
 
-The caller MUST supply exactly five finite, non-negative binary64 weights:
-`provenance`, `lineage`, `ownership`, `temporal`, and `structural`. Their sum
+The caller MUST supply exactly six finite, non-negative binary64 weights:
+`upstream`, `citation`, `assertion_lineage`, `ownership`, `temporal`, and
+`graph`. Their sum
 MUST be finite and greater than zero. The values are configuration weights, not
 calibrated production defaults. Individual weights are not constrained to
-`[0, 1]`; arbitrary non-negative ratios such as `25, 30, 15, 15, 15` are valid
-and equivalent to `0.25, 0.30, 0.15, 0.15, 0.15`. The SDK normalizes without
+`[0, 1]`; arbitrary non-negative ratios such as `25, 20, 20, 10, 10, 15` are
+valid and equivalent to `0.25, 0.20, 0.20, 0.10, 0.10, 0.15`. The SDK normalizes without
 modifying the caller's values:
 
 ```text
-total = provenance + lineage + ownership + temporal + structural
+total = upstream + citation + assertion_lineage + ownership + temporal + graph
 normalized_weight(name) = supplied_weight(name) / total
 ```
 
 The sum and all following accumulations use ordinary IEEE-754 binary64
-operations in this fixed signal order: provenance, lineage, ownership,
-temporal, structural. Unavailable signals have score zero. Their weights remain
+operations in this fixed signal order: upstream, citation, assertion_lineage,
+ownership, temporal, graph. Unavailable signals have score zero. Their weights remain
 in the configuration and are not redistributed to observable signals.
 
 For every unordered pair of distinct sources:
 
 ```text
 dependency(i,k) = clamp(
-    normalized_provenance * provenance(i,k)
-  + normalized_lineage * lineage(i,k)
+    normalized_upstream * upstream(i,k)
+  + normalized_citation * citation(i,k)
+  + normalized_assertion_lineage * assertion_lineage(i,k)
   + normalized_ownership * ownership(i,k)
   + normalized_temporal * temporal(i,k)
-  + normalized_structural * structural(i,k),
+  + normalized_graph * graph(i,k),
   0,
   1
 )
 
 weighted_signal_coverage(i,k) =
-    (normalized_provenance * provenance_observable(i,k)
-   + normalized_lineage * lineage_observable(i,k)
+    (normalized_upstream * upstream_observable(i,k)
+   + normalized_citation * citation_observable(i,k)
+   + normalized_assertion_lineage * assertion_lineage_observable(i,k)
    + normalized_ownership * ownership_observable(i,k)
    + normalized_temporal * temporal_observable(i,k)
-   + normalized_structural * structural_observable(i,k))
-    / sum(all five normalized weights)
+   + normalized_graph * graph_observable(i,k))
+    / sum(all six normalized weights)
 ```
 
 Each observability value is exactly zero or one. Dependency and coverage are
@@ -480,12 +476,11 @@ observable. It is not a probability that the dependency estimate or either
 source is correct.
 
 Sources MUST be ordered by their canonical source payload bytes. The SDK emits
-the complete upper triangle in that order. Within structural accumulation,
+the complete upper triangle in that order. Within graph accumulation,
 matching assertions are ordered by canonical property and value bytes.
-Provenance uses set cardinalities and lineage uses boolean existence, so their
-results do not depend on collection iteration order. These ordering rules
-remove the research prototype's incidental dictionary and set iteration order
-without changing its defined scores.
+Relationship signals use boolean existence, so their results do not depend on
+collection iteration order. These ordering rules remove incidental dictionary
+and set iteration order without changing defined scores.
 
 Conformance-vector numeric outputs are compared as exact binary64 values after
 each JSON number is converted to binary64. Implementations MUST use the fixed
@@ -511,9 +506,9 @@ Before an assertion-evaluation call, an assertion-evaluation-capable SDK will ca
 assertions, estimate a symmetric dependency and weighted signal coverage for
 every source pair, and link source, attribute, and claim identifiers. It will
 send the complete canonical assertion list and source-pair list. Raw
-provenance, lineage, citations, owners, timestamps, retrieval records, raw
-signals, source names, claim text, and natural-language explanations remain
-local. Weighted signal coverage records how much configured dependency-signal
+upstream relationships, citations, assertion lineage, owners, timestamps,
+retrieval records, raw signals, source names, claim text, and natural-language
+explanations remain local. Weighted signal coverage records how much configured dependency-signal
 weight was observable; it is not correctness confidence.
 
 After validating the response metadata, schema, token membership, numeric
@@ -550,9 +545,9 @@ sources, the value approaches 4. If those sources are highly dependent, the
 value may be much lower.
 
 Dependency explanations display `1 - dependency` as `Independence`. They use
-locally retained evidence summaries to report citation direction, derived
-assertion counts, common ownership, shared-provenance counts, qualifying update
-gaps, and matching-claim counts. Raw identifiers and metadata remain local.
+locally retained evidence summaries to report upstream and citation direction,
+derived assertion counts, common ownership, qualifying update gaps, and
+matching-claim counts. Raw identifiers and metadata remain local.
 Observed zero and unavailable signals add no fact. These descriptions MUST NOT
 classify dependency magnitude or describe copying, coordination, truth
 probability, or estimate correctness.

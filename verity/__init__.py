@@ -30,7 +30,13 @@ from .dependency import (
     PairwiseDependencyResult,
 )
 from .explanations import explain_claim, explain_dependency
-from .information import Claim, Observation, Source, SourceReference
+from .information import (
+    Claim,
+    Observation,
+    Retrieval,
+    Source,
+    SourceReference,
+)
 
 __version__ = "1.0.0"
 
@@ -55,6 +61,7 @@ __all__ = [
     "LinkageToken",
     "Observation",
     "PairwiseDependencyResult",
+    "Retrieval",
     "Source",
     "SourceEvaluation",
     "SourceReference",

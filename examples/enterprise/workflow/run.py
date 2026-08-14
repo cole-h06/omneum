@@ -55,11 +55,12 @@ def collect_observations():
 
 def estimator_config():
     return DependencyEstimatorConfig(
-        provenance_weight=25.0,
-        lineage_weight=30.0,
-        ownership_weight=15.0,
-        temporal_weight=15.0,
-        structural_weight=15.0,
+        upstream_weight=25.0,
+        citation_weight=20.0,
+        assertion_lineage_weight=20.0,
+        ownership_weight=10.0,
+        temporal_weight=10.0,
+        graph_weight=15.0,
         temporal_window_seconds=172_800.0,
         estimator_version="dependency-estimator-v1",
         dependency_cluster_threshold=0.4,
@@ -112,11 +113,12 @@ def render_result(result):
             getattr(item.signals, f"{name}_observable")
             and getattr(item.signals, name) > 0.0
             for name in (
-                "provenance",
-                "lineage",
+                "upstream",
+                "citation",
+                "assertion_lineage",
                 "ownership",
                 "temporal",
-                "structural",
+                "graph",
             )
         ):
             sections.append(
@@ -144,7 +146,7 @@ def render_conclusion(result):
 
     runbook_brief = _dependency(result, RUNBOOK_SOURCE, BRIEF_SOURCE)
     if not (
-        runbook_brief.signals.lineage > 0.0
+        runbook_brief.signals.assertion_lineage > 0.0
         and runbook_brief.signals.ownership > 0.0
     ):
         raise RuntimeError("Readiness-brief lineage was not preserved.")

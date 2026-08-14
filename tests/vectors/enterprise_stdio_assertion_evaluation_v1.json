@@ -3,11 +3,12 @@
   "scope_uuid": "12345678-1234-4abc-8def-123456789abc",
   "estimator": {
     "estimator_version": "dependency-estimator-v1",
-    "provenance_weight": 0.25,
-    "lineage_weight": 0.3,
-    "ownership_weight": 0.15,
-    "temporal_weight": 0.15,
-    "structural_weight": 0.15,
+    "upstream_weight": 0.25,
+    "citation_weight": 0.2,
+    "assertion_lineage_weight": 0.2,
+    "ownership_weight": 0.1,
+    "temporal_weight": 0.1,
+    "graph_weight": 0.15,
     "temporal_window_seconds": 7200.0,
     "dependency_cluster_threshold": 0.4
   },
@@ -45,8 +46,9 @@
       "entity": "Commerce Platform",
       "attribute": "Return Window",
       "value": "30 days",
-      "source_timestamp": "2026-01-15T09:00:00+00:00",
-      "provenance_ids": ["policy-v3", "legal-review"],
+      "observed_at": "2026-01-15T09:05:00+00:00",
+      "source_modified_at": "2026-01-15T09:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": [],
       "parent_assertion_ids": []
     },
@@ -57,8 +59,9 @@
       "entity": "Commerce Platform",
       "attribute": "Support Channel",
       "value": "email",
-      "source_timestamp": "2026-01-15T09:00:00+00:00",
-      "provenance_ids": ["policy-v3", "legal-review"],
+      "observed_at": "2026-01-15T09:05:00+00:00",
+      "source_modified_at": "2026-01-15T09:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": [],
       "parent_assertion_ids": []
     },
@@ -69,8 +72,9 @@
       "entity": "Commerce Platform",
       "attribute": "Return Window",
       "value": "30 days",
-      "source_timestamp": "2026-01-15T10:00:00+00:00",
-      "provenance_ids": ["policy-v3", "portal-edit"],
+      "observed_at": "2026-01-15T10:10:00+00:00",
+      "source_modified_at": "2026-01-15T10:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": ["policy_manual"],
       "parent_assertion_ids": []
     },
@@ -81,8 +85,9 @@
       "entity": "Commerce Platform",
       "attribute": "Support Channel",
       "value": "email",
-      "source_timestamp": "2026-01-15T09:00:00+00:00",
-      "provenance_ids": ["policy-v3", "portal-edit"],
+      "observed_at": "2026-01-15T10:10:00+00:00",
+      "source_modified_at": "2026-01-15T09:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": ["policy_manual"],
       "parent_assertion_ids": []
     },
@@ -93,8 +98,9 @@
       "entity": "Commerce Platform",
       "attribute": "Return Window",
       "value": "14 days",
-      "source_timestamp": "2026-01-15T12:00:00+00:00",
-      "provenance_ids": ["service-contract-v2"],
+      "observed_at": "2026-01-15T12:05:00+00:00",
+      "source_modified_at": "2026-01-15T12:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": [],
       "parent_assertion_ids": []
     },
@@ -105,8 +111,9 @@
       "entity": "Commerce Platform",
       "attribute": "Support Channel",
       "value": "chat",
-      "source_timestamp": "2026-01-15T12:00:00+00:00",
-      "provenance_ids": ["service-contract-v2"],
+      "observed_at": "2026-01-15T12:05:00+00:00",
+      "source_modified_at": "2026-01-15T12:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": [],
       "parent_assertion_ids": []
     },
@@ -117,8 +124,9 @@
       "entity": "Commerce Platform",
       "attribute": "Return Window",
       "value": "30 days",
-      "source_timestamp": "2026-01-15T14:00:00+00:00",
-      "provenance_ids": ["policy-v3", "warehouse-sync"],
+      "observed_at": "2026-01-15T14:15:00+00:00",
+      "source_modified_at": "2026-01-15T14:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": [],
       "parent_assertion_ids": ["manual-return-window"]
     },
@@ -129,50 +137,51 @@
       "entity": "Commerce Platform",
       "attribute": "Support Channel",
       "value": "email",
-      "source_timestamp": "2026-01-15T14:00:00+00:00",
-      "provenance_ids": ["policy-v3", "warehouse-sync"],
+      "observed_at": "2026-01-15T14:15:00+00:00",
+      "source_modified_at": "2026-01-15T14:00:00+00:00",
+      "upstream_sources": [],
       "cited_sources": [],
       "parent_assertion_ids": ["manual-support-channel"]
     }
   ],
   "expected": {
     "pairwise_dependencies": [
-      ["policy_manual", "support_portal", 0.6583333333333333, 1.0],
-      ["policy_manual", "orders_api", 0.0, 1.0],
-      ["policy_manual", "orders_store", 0.4333333333333333, 1.0],
-      ["support_portal", "orders_api", 0.0, 1.0],
-      ["support_portal", "orders_store", 0.13333333333333333, 1.0],
-      ["orders_api", "orders_store", 0.0, 1.0]
+      ["policy_manual", "support_portal", 0.4, 1.0],
+      ["policy_manual", "orders_api", 0.0, 0.9],
+      ["policy_manual", "orders_store", 0.25, 1.0],
+      ["support_portal", "orders_api", 0.0, 0.9],
+      ["support_portal", "orders_store", 0.049999999999999996, 1.0],
+      ["orders_api", "orders_store", 0.0, 0.9]
     ],
     "source_reliability": {
-      "policy_manual": 0.33333333311957547,
-      "support_portal": 0.33333333311957547,
-      "orders_api": 6.412736567826177e-10,
-      "orders_store": 0.33333333311957547
+      "policy_manual": 0.33333333287911304,
+      "support_portal": 0.33333333287911304,
+      "orders_api": 1.362661034300326e-9,
+      "orders_store": 0.33333333287911304
     },
     "majority_claim": {
-      "support": 0.22187499985771744,
+      "support": 0.287499999608235,
       "agreement_weight": 0.75,
-      "estimated_independent_support_count": 1.6513761467889911,
+      "estimated_independent_support_count": 2.0454545454545454,
       "dependency_confidence": 1.0,
       "supporting_sources": {
-        "policy_manual": [0.4541666666666667, 0.056770833296927704],
-        "support_portal": [0.6041666666666667, 0.07552083328490383],
-        "orders_store": [0.7166666666666667, 0.08958333327588591]
+        "policy_manual": [0.675, 0.08437499988502549],
+        "support_portal": [0.775, 0.09687499986799224],
+        "orders_store": [0.85, 0.10624999985521728]
       },
-      "cluster": ["policy_manual", "support_portal", "orders_store"]
+      "clusters": [["policy_manual", "support_portal"], ["orders_store"]]
     },
     "minority_claim": {
-      "support": 8.015920709782721e-11,
+      "support": 1.7033262928754076e-10,
       "agreement_weight": 0.25,
       "estimated_independent_support_count": 1.0,
       "dependency_confidence": null,
-      "cluster": ["orders_api"]
+      "clusters": [["orders_api"]]
     },
     "convergence": {
-      "iterations": 12,
+      "iterations": 10,
       "convergence_tolerance": 1e-8,
-      "convergence_delta": 2.773508556113893e-9
+      "convergence_delta": 8.03970002677976e-9
     }
   }
 }

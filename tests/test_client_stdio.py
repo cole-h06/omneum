@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import copy
 import json
-import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,16 +11,15 @@ import pytest
 from mcp import ClientSession, StdioServerParameters
 
 import verity.client as client_module
-from verity.base64url import encode_unpadded
 from verity.client import VerityClientConfig, open_stdio_client
 from verity.dependency import (
     DependencyEstimatorConfig,
-    estimate_dependencies,
 )
 from verity.explanations import explain_claim, explain_dependency
 from verity.information import Claim, Observation, Source, SourceReference
 from verity.oprf import VOPRFServer
 from verity.serialization import serialize_source
+from stdio_state import isolated_deployment_environment
 
 
 DEPLOYMENT_ID = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"
@@ -31,19 +29,9 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 def test_stdio_client(tmp_path: Path) -> None:
     async def run() -> None:
         root = Path(__file__).parents[1]
-        private_key_file = tmp_path / "voprf.key"
-        private_key_file.write_bytes(PRIVATE_KEY)
-        public_key = VOPRFServer(private_key_file).public_key
-        environment = {
-            **os.environ,
-            "PYTHONPATH": str(root),
-            "VERITY_DEPLOYMENT_ID": DEPLOYMENT_ID,
-            "VERITY_VOPRF_KEY_VERSION": "1",
-            "VERITY_VOPRF_PUBLIC_KEY": encode_unpadded(
-                public_key, expected_length=32
-            ),
-            "VERITY_VOPRF_PRIVATE_KEY_FILE": str(private_key_file),
-        }
+        environment, public_key, _ = isolated_deployment_environment(
+            tmp_path, DEPLOYMENT_ID, PRIVATE_KEY
+        )
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
             args=["-m", "verity.server"],
@@ -76,30 +64,33 @@ def test_stdio_client(tmp_path: Path) -> None:
             result = await client.evaluate_assertion(
                 (
                     Observation(
-                        "assertion-a",
-                        Source(
+                        assertion_id="assertion-a",
+                        source=Source(
                             "web_publisher",
                             "https://example.com",
                         ),
-                        Claim(
+                        claim=Claim(
                             "service",
                             "example",
                             "display_name",
                             "Alice",
                         ),
-                        datetime(2026, 1, 1, tzinfo=timezone.utc),
-                        (),
-                        (),
-                        (),
+                        observed_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                        source_modified_at=None,
+                        upstream_sources=(),
+                        cited_sources=(),
+                        parent_assertion_ids=(),
+                        retrievals=(),
                     ),
                 ),
                 estimator=DependencyEstimatorConfig(
-                    0.25,
-                    0.3,
-                    0.15,
-                    0.15,
-                    0.15,
-                    7200.0,
+                    upstream_weight=0.25,
+                    citation_weight=0.20,
+                    assertion_lineage_weight=0.20,
+                    ownership_weight=0.10,
+                    temporal_weight=0.10,
+                    graph_weight=0.15,
+                    temporal_window_seconds=7200.0,
                 ),
             )
             assert result.source_reliability[0].reliability == 1.0
@@ -130,27 +121,26 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     }
     observations = tuple(
         Observation(
-            item["assertion_id"],
-            sources[item["source"]],
-            Claim(
+            assertion_id=item["assertion_id"],
+            source=sources[item["source"]],
+            claim=Claim(
                 item["entity_namespace"],
                 item["entity"],
                 item["attribute"],
                 item["value"],
             ),
-            datetime.fromisoformat(item["source_timestamp"]),
-            tuple(item["provenance_ids"]),
-            tuple(references[name] for name in item["cited_sources"]),
-            tuple(item["parent_assertion_ids"]),
+            observed_at=datetime.fromisoformat(item["observed_at"]),
+            source_modified_at=datetime.fromisoformat(item["source_modified_at"]),
+            upstream_sources=tuple(
+                references[name] for name in item["upstream_sources"]
+            ),
+            cited_sources=tuple(references[name] for name in item["cited_sources"]),
+            parent_assertion_ids=tuple(item["parent_assertion_ids"]),
+            retrievals=(),
         )
         for item in fixture["observations"]
     )
     estimator = DependencyEstimatorConfig(**fixture["estimator"])
-    expected_pairs, expected_clusters = estimate_dependencies(
-        tuple(sources.values()),
-        observations,
-        estimator,
-    )
     source_names = {source: name for name, source in sources.items()}
     reference_names = {
         reference: name for name, reference in references.items()
@@ -198,20 +188,9 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
 
     async def run():
         root = Path(__file__).parents[1]
-        private_key_file = tmp_path / "enterprise-voprf.key"
-        private_key_file.write_bytes(PRIVATE_KEY)
-        public_key = VOPRFServer(private_key_file).public_key
-        environment = {
-            **os.environ,
-            "PYTHONPATH": str(root),
-            "VERITY_DEPLOYMENT_ID": DEPLOYMENT_ID,
-            "VERITY_VOPRF_KEY_VERSION": "1",
-            "VERITY_VOPRF_PUBLIC_KEY": encode_unpadded(
-                public_key,
-                expected_length=32,
-            ),
-            "VERITY_VOPRF_PRIVATE_KEY_FILE": str(private_key_file),
-        }
+        environment, public_key, _ = isolated_deployment_environment(
+            tmp_path, DEPLOYMENT_ID, PRIVATE_KEY
+        )
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
             args=["-m", "verity.server"],
@@ -295,23 +274,21 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert first == second
     assert claim_explanation == (
         "Return window = 30 days\n"
-        "Support: 0.22\n\n"
+        "Support: 0.29\n\n"
         "Highest support\n\n"
         "Supporting sources: 3\n"
-        "Independent support: 1.65\n\n"
+        "Independent support: 2.05\n\n"
         "Conflicting value:\n"
         "14 days (support 0.00)"
     )
     assert dependency_explanation == (
         "Policy Manual ↔ Support Portal\n\n"
-        "Independence: 0.34\n\n"
+        "Independence: 0.60\n\n"
         "• Direct citation\n"
         "• Same owner\n"
-        "• 1 shared provenance identifier\n"
         "• Updated 1 hour apart\n"
         "• 2 matching claims"
     )
-    assert first.pairwise_dependencies == expected_pairs
     assert first.dependency_cluster_threshold == 0.4
     assert {item.source.kind for item in first.source_reliability} == {
         "internal_resource",
@@ -321,15 +298,6 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert {item.source for item in first.source_reliability} == set(
         sources.values()
     )
-    expected_order = tuple(
-        (pair.source_a, pair.source_b)
-        for pair in expected_pairs
-    )
-    assert tuple(
-        (pair.source_a, pair.source_b)
-        for pair in first.pairwise_dependencies
-    ) == expected_order
-    assert len(expected_pairs) == 6
     assert [
         [
             reference_names[pair.source_a],
@@ -337,11 +305,8 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             pair.dependency,
             pair.weighted_signal_coverage,
         ]
-        for pair in expected_pairs
+        for pair in first.pairwise_dependencies
     ] == fixture["expected"]["pairwise_dependencies"]
-    assert all(pair.weighted_signal_coverage == 1.0 for pair in expected_pairs)
-    assert any(pair.dependency == 0.0 for pair in expected_pairs)
-    assert any(0.0 < pair.dependency < 1.0 for pair in expected_pairs)
 
     claims = {
         (item.claim.attribute, item.claim.value): item
@@ -351,15 +316,12 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     minority = claims[("return_window", "14 days")]
     expected_majority = fixture["expected"]["majority_claim"]
     expected_minority = fixture["expected"]["minority_claim"]
-    assert majority.agreement_weight == 0.75
-    assert minority.agreement_weight == 0.25
     assert majority.support == expected_majority["support"]
     assert minority.support == expected_minority["support"]
     assert majority.agreement_weight == expected_majority["agreement_weight"]
     assert minority.agreement_weight == expected_minority["agreement_weight"]
     assert majority.supporting_source_count == 3
     assert minority.supporting_source_count == 1
-    assert majority.dependency_confidence == 1.0
     assert (
         majority.estimated_independent_support_count
         == expected_majority["estimated_independent_support_count"]
@@ -376,15 +338,10 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         minority.dependency_confidence
         == expected_minority["dependency_confidence"]
     )
-    assert 1.0 < majority.estimated_independent_support_count < 3.0
     assert {
         source_names[item.source]: [item.independence, item.contribution]
         for item in majority.supporting_sources
     } == expected_majority["supporting_sources"]
-    assert all(
-        0.0 < item.independence < 1.0
-        for item in majority.supporting_sources
-    )
     assert sum(
         item.contribution for item in majority.supporting_sources
     ) == pytest.approx(majority.support, rel=0.0, abs=1e-15)
@@ -399,24 +356,14 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert claims[("support_channel", "email")].support == majority.support
     assert claims[("support_channel", "chat")].support == minority.support
     assert all(item.conflicting_claims for item in first.claim_support)
-    assert len(majority.dependency_clusters) == 1
     assert [
-        reference_names[source]
-        for source in majority.dependency_clusters[0].sources
-    ] == expected_majority["cluster"]
-    assert majority.dependency_clusters[0].sources == tuple(
-        source
-        for cluster in expected_clusters
-        for source in cluster.sources
-        if source.kind != "internal_service"
-    )
-    assert minority.dependency_clusters[0].sources == (
-        references["orders_api"],
-    )
+        [reference_names[source] for source in cluster.sources]
+        for cluster in majority.dependency_clusters
+    ] == expected_majority["clusters"]
     assert [
-        reference_names[source]
-        for source in minority.dependency_clusters[0].sources
-    ] == expected_minority["cluster"]
+        [reference_names[source] for source in cluster.sources]
+        for cluster in minority.dependency_clusters
+    ] == expected_minority["clusters"]
     assert {
         source_names[item.source]: item.reliability
         for item in first.source_reliability
@@ -424,14 +371,12 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert first.convergence.iterations == fixture["expected"]["convergence"][
         "iterations"
     ]
-    assert (
-        first.convergence.convergence_tolerance
-        == fixture["expected"]["convergence"]["convergence_tolerance"]
-    )
-    assert (
-        first.convergence.convergence_delta
-        == fixture["expected"]["convergence"]["convergence_delta"]
-    )
+    assert first.convergence.convergence_tolerance == fixture["expected"][
+        "convergence"
+    ]["convergence_tolerance"]
+    assert first.convergence.convergence_delta == fixture["expected"][
+        "convergence"
+    ]["convergence_delta"]
 
     assert counts == {
         "processes": 1,
@@ -508,7 +453,8 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         *(source.owner_id for source in sources.values()),
         *(item["attribute"] for item in fixture["observations"]),
         *(item["value"] for item in fixture["observations"]),
-        *(item["source_timestamp"] for item in fixture["observations"]),
+        *(item["observed_at"] for item in fixture["observations"]),
+        *(item["source_modified_at"] for item in fixture["observations"]),
         *(item["assertion_id"] for item in fixture["observations"]),
         *(item["entity"] for item in fixture["observations"]),
         *(item["source"] for item in fixture["observations"]),
@@ -526,11 +472,6 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             for line in explanation.splitlines()
             if line
         ),
-        *(
-            provenance
-            for item in fixture["observations"]
-            for provenance in item["provenance_ids"]
-        ),
     }
     assert all(value not in wire for value in private_values)
 
@@ -540,10 +481,10 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert blinded[:10] != blinded[10:]
     assert tuple(
         serialize_source(pair.source_a.kind, pair.source_a.identifier)
-        for pair in expected_pairs
+        for pair in first.pairwise_dependencies
     ) == tuple(
         sorted(
             serialize_source(pair.source_a.kind, pair.source_a.identifier)
-            for pair in expected_pairs
+            for pair in first.pairwise_dependencies
         )
     )

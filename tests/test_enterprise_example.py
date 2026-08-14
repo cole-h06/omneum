@@ -62,8 +62,9 @@ def test_observations():
         "EU",
         "US",
     }
-    assert all(value.source_timestamp is not None for value in values)
-    assert all(value.provenance_ids is not None for value in values)
+    assert all(value.observed_at is not None for value in values)
+    assert all(value.source_modified_at is not None for value in values)
+    assert all(value.upstream_sources is not None for value in values)
     assert all(value.cited_sources is not None for value in values)
     assert all(value.parent_assertion_ids is not None for value in values)
 
@@ -98,13 +99,13 @@ def test_dependencies():
 
     assert len(pairs) == 15
     assert dependencies[frozenset(("runbook", "brief"))] == pytest.approx(
-        0.6083333333333333
+        0.5750000000000001
     )
     assert dependencies[frozenset(("policy", "registry"))] == pytest.approx(
-        0.575
+        0.5416666666666667
     )
     assert dependencies[frozenset(("registry", "gateway"))] == pytest.approx(
-        0.49166666666666664
+        0.5416666666666667
     )
     assert dependencies[frozenset(("vendor", "gateway"))] == pytest.approx(
         0.0375
@@ -154,7 +155,7 @@ def test_stdio_workflow(monkeypatch):
     assert "Customer content must be redacted." in first_output
     assert "Provider retention must be 0 days." in first_output
     assert "Processing must remain in the EU." in first_output
-    assert "Independent support: 2.37" in first_output
+    assert "Independent support: 2.40" in first_output
     assert "Stale deployment runbook ↔ Copilot readiness brief" in first_output
     assert "corroboration" not in first_output.lower()
 
@@ -181,7 +182,7 @@ def test_stdio_workflow(monkeypatch):
         value.source.owner_id
         for value in observations
     } | {
-        value.source_timestamp.isoformat()
+        value.source_modified_at.isoformat()
         for value in observations
     } | {
         value.claim.entity
@@ -192,10 +193,6 @@ def test_stdio_workflow(monkeypatch):
     } | {
         value.claim.value
         for value in observations
-    } | {
-        item
-        for value in observations
-        for item in value.provenance_ids
     } | set(SOURCE_LABELS.values())
     for request in assertion_requests:
         encoded = json.dumps(request)

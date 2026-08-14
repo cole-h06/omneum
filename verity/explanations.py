@@ -57,10 +57,20 @@ def explain_dependency(
     """Render one validated pair result using local signal telemetry."""
     if type(result) is not PairwiseDependencyResult:
         raise TypeError("result must be a PairwiseDependencyResult")
+
     labels = _labels(source_labels)
-    source_a = _source_label(result.source_a.kind, result.source_a.identifier, labels)
-    source_b = _source_label(result.source_b.kind, result.source_b.identifier, labels)
+    source_a = _source_label(
+        result.source_a.kind,
+        result.source_a.identifier,
+        labels,
+    )
+    source_b = _source_label(
+        result.source_b.kind,
+        result.source_b.identifier,
+        labels,
+    )
     facts = _evidence(result)
+
     lines = [
         f"{source_a} ↔ {source_b}",
         "",
@@ -76,6 +86,7 @@ def _labels(value):
         return {}
     if not isinstance(value, Mapping):
         raise TypeError("source_labels must be a mapping or None")
+
     labels = {}
     for source, label in value.items():
         if type(source) is not Source:
@@ -87,6 +98,7 @@ def _labels(value):
             for character in label
         ):
             raise ValueError("source label is invalid")
+
         try:
             identity = (
                 source.kind,
@@ -94,19 +106,24 @@ def _labels(value):
             )
         except Exception:
             raise ValueError("source label source is invalid") from None
+
         if identity in labels:
             raise ValueError("source labels contain duplicate sources")
+
         labels[identity] = label
+
     return labels
 
 
 def _source_label(kind, identifier, labels):
     canonical = canonicalize_source(kind, identifier)
     supplied = labels.get((kind, canonical))
+
     if supplied is not None:
         return supplied
     if kind in _INTERNAL_LABELS:
         return _INTERNAL_LABELS[kind]
+
     return canonical
 
 
@@ -132,31 +149,39 @@ def _evidence(result):
         return _signal_fallback(result)
 
     facts = []
+
+    if evidence.source_a_upstream_of_source_b:
+        facts.append("Upstream source relationship")
+    if evidence.source_b_upstream_of_source_a:
+        facts.append("Upstream source relationship")
+
     if evidence.source_a_cites_source_b:
         facts.append("Direct citation")
     if evidence.source_b_cites_source_a:
         facts.append("Direct citation")
+
     if evidence.source_a_parent_count:
         facts.append(_derived(evidence.source_a_parent_count))
     if evidence.source_b_parent_count:
         facts.append(_derived(evidence.source_b_parent_count))
+
     if evidence.same_owner:
         facts.append("Same owner")
-    if evidence.shared_provenance_count:
-        count = evidence.shared_provenance_count
-        noun = "identifier" if count == 1 else "identifiers"
-        facts.append(f"{count} shared provenance {noun}")
+
     deltas = tuple(sorted(set(evidence.qualifying_time_deltas_seconds)))
     if len(deltas) == 1:
         facts.append(f"Updated {_duration(deltas[0])} apart")
     elif deltas:
         facts.append(
-            "Update gaps: " + ", ".join(_duration(value) for value in deltas)
+            "Update gaps: "
+            + ", ".join(_duration(value) for value in deltas)
         )
+
     if evidence.matching_claim_count:
         count = evidence.matching_claim_count
         noun = "claim" if count == 1 else "claims"
         facts.append(f"{count} matching {noun}")
+
     return facts
 
 
@@ -166,25 +191,33 @@ def _derived(count):
 
 
 def _duration(seconds):
-    for unit, size in (("day", 86_400), ("hour", 3_600), ("minute", 60)):
+    for unit, size in (
+        ("day", 86_400),
+        ("hour", 3_600),
+        ("minute", 60),
+    ):
         if seconds % size == 0:
             count = int(seconds / size)
             noun = unit if count == 1 else f"{unit}s"
             return f"{count} {noun}"
+
     return f"{seconds:g} seconds"
 
 
 def _signal_fallback(result):
     signals = result.signals
+
     positive = any(
         getattr(signals, f"{name}_observable")
         and getattr(signals, name) > 0.0
         for name in (
-            "provenance",
-            "lineage",
+            "upstream",
+            "citation",
+            "assertion_lineage",
             "ownership",
             "temporal",
-            "structural",
+            "graph",
         )
     )
+
     return ["Details unavailable"] if positive else []

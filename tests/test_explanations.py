@@ -91,11 +91,8 @@ def claim_result(case, source_values):
 def dependency_result(case, source_values):
     signal_values = {}
     for name in (
-        "provenance",
-        "lineage",
-        "ownership",
-        "temporal",
-        "structural",
+        "upstream", "citation", "assertion_lineage",
+        "ownership", "temporal", "graph",
     ):
         score, observable = case["signals"].get(name, [0.0, False])
         signal_values[name] = float(score)
@@ -108,12 +105,13 @@ def dependency_result(case, source_values):
     evidence = case.get("evidence")
     if evidence is not None:
         evidence = DependencyEvidence(
+            evidence.get("source_a_upstream_of_source_b", False),
+            evidence.get("source_b_upstream_of_source_a", False),
             evidence.get("source_a_cites_source_b", False),
             evidence.get("source_b_cites_source_a", False),
             evidence.get("source_a_parent_count", 0),
             evidence.get("source_b_parent_count", 0),
             evidence.get("same_owner", False),
-            evidence.get("shared_provenance_count", 0),
             evidence.get("matching_claim_count", 0),
             tuple(float(value) for value in evidence.get("time_deltas", [])),
         )

@@ -23,10 +23,6 @@ def api_agent():
             "Input Data Policy",
             runtime["input_data_policy"],
             deployment["last_updated"],
-            (
-                deployment["id"],
-                deployment["change_id"],
-            ),
             (registry,),
             ("registry-input-data",),
         ),
@@ -36,10 +32,6 @@ def api_agent():
             "Provider Retention",
             f'{runtime["provider_retention_days"]} days',
             deployment["last_updated"],
-            (
-                deployment["id"],
-                deployment["change_id"],
-            ),
             (registry,),
             ("registry-retention",),
         ),
@@ -49,10 +41,6 @@ def api_agent():
             "Processing Region",
             runtime["processing_region"],
             deployment["last_updated"],
-            (
-                deployment["id"],
-                deployment["change_id"],
-            ),
             (registry,),
             ("registry-region",),
         ),

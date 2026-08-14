@@ -20,20 +20,27 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 def example_deployment():
     root = Path(__file__).parents[2]
     with TemporaryDirectory(prefix="verity-example-") as directory:
-        private_key_file = Path(directory) / "voprf.key"
+        home = Path(directory) / "home"
+        config_dir = home / ".config" / "Verity"
+        private_key_file = config_dir / "keys" / "voprf.key"
+        private_key_file.parent.mkdir(parents=True)
         private_key_file.write_bytes(PRIVATE_KEY)
         public_key = VOPRFServer(private_key_file).public_key
         environment = {
             **os.environ,
+            "HOME": str(home),
+            "XDG_CONFIG_HOME": str(home / ".config"),
+            "LOCALAPPDATA": str(home / "AppData" / "Local"),
             "PYTHONPATH": str(root),
-            "VERITY_DEPLOYMENT_ID": DEPLOYMENT_ID,
-            "VERITY_VOPRF_KEY_VERSION": "1",
-            "VERITY_VOPRF_PUBLIC_KEY": encode_unpadded(
-                public_key,
-                expected_length=32,
-            ),
-            "VERITY_VOPRF_PRIVATE_KEY_FILE": str(private_key_file),
         }
+        for name in tuple(environment):
+            if name.startswith("VERITY_"):
+                del environment[name]
+        (config_dir / "config.toml").write_text(
+            f'deployment_id = "{DEPLOYMENT_ID}"\n'
+            'voprf_key_version = 1\n'
+            f'voprf_public_key = "{encode_unpadded(public_key, expected_length=32)}"\n'
+        )
         config = VerityClientConfig(
             deployment_id=DEPLOYMENT_ID,
             voprf_key_version=1,

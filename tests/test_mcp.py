@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import base64
 import logging
-import os
 import subprocess
 from pathlib import Path
 
@@ -21,6 +20,7 @@ from verity.oprf import (
     VOPRFEvaluation,
     VOPRFServer,
 )
+from stdio_state import isolated_deployment_environment
 
 
 DEPLOYMENT_ID = (
@@ -30,30 +30,16 @@ DEPLOYMENT_ID = (
 PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 
-def provisioning(tmp_path: Path) -> dict[str, str]:
-    private_key_file = tmp_path / "voprf.key"
-    private_key_file.write_bytes(PRIVATE_KEY)
-    public_key = VOPRFServer(
-        private_key_file
-    ).public_key
-    encoded_public_key = base64.urlsafe_b64encode(
-        public_key
-    ).rstrip(b"=").decode("ascii")
-    return {
-        **os.environ,
-        "VERITY_DEPLOYMENT_ID": DEPLOYMENT_ID,
-        "VERITY_VOPRF_KEY_VERSION": "1",
-        "VERITY_VOPRF_PUBLIC_KEY": encoded_public_key,
-        "VERITY_VOPRF_PRIVATE_KEY_FILE": str(
-            private_key_file
-        ),
-    }
+def provisioning(tmp_path: Path):
+    return isolated_deployment_environment(
+        tmp_path, DEPLOYMENT_ID, PRIVATE_KEY
+    )
 
 
 def test_ping(tmp_path: Path) -> None:
     async def call_ping():
         root = Path(__file__).parents[1]
-        environment = provisioning(tmp_path)
+        environment, public_key, _ = provisioning(tmp_path)
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
             args=["-m", "verity.server"],
@@ -149,12 +135,6 @@ def test_ping(tmp_path: Path) -> None:
                 ) == 64
                 assert "voprf_public_key" not in content
 
-                public_key = base64.urlsafe_b64decode(
-                    environment[
-                        "VERITY_VOPRF_PUBLIC_KEY"
-                    ]
-                    + "="
-                )
                 client = VOPRFClient(public_key)
                 input_data = b"stdio evaluation"
                 blind = client.blind(input_data)
@@ -293,8 +273,12 @@ def test_ping(tmp_path: Path) -> None:
 
 def test_invalid_provisioning(tmp_path: Path) -> None:
     root = Path(__file__).parents[1]
-    environment = provisioning(tmp_path)
-    environment["VERITY_VOPRF_KEY_VERSION"] = "0"
+    environment, _, config_path = provisioning(tmp_path)
+    config_path.write_text(
+        config_path.read_text().replace(
+            "voprf_key_version = 1", "voprf_key_version = 0"
+        )
+    )
 
     result = subprocess.run(
         [

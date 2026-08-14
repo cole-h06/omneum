@@ -95,20 +95,20 @@
   ],
   "dependency_cases": [
     {
-      "name": "provenance",
+      "name": "upstream",
       "sources": ["vendor", "warehouse"],
       "dependency": 0.2,
       "weighted_signal_coverage": 1.0,
-      "signals": {"provenance": [0.2, true]},
-      "evidence": {"shared_provenance_count": 1},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.80\n\n• 1 shared provenance identifier"
+      "signals": {"upstream": [1.0, true]},
+      "evidence": {"source_a_upstream_of_source_b": true},
+      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.80\n\n• Upstream source relationship"
     },
     {
-      "name": "lineage",
+      "name": "citation",
       "sources": ["vendor", "warehouse"],
       "dependency": 0.3,
       "weighted_signal_coverage": 1.0,
-      "signals": {"lineage": [1.0, true]},
+      "signals": {"citation": [1.0, true]},
       "evidence": {"source_a_cites_source_b": true},
       "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.70\n\n• Direct citation"
     },
@@ -131,11 +131,11 @@
       "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.85\n\n• Updated 1 hour apart"
     },
     {
-      "name": "structural",
+      "name": "graph",
       "sources": ["vendor", "warehouse"],
       "dependency": 0.1,
       "weighted_signal_coverage": 1.0,
-      "signals": {"structural": [0.5, true]},
+      "signals": {"graph": [0.5, true]},
       "evidence": {"matching_claim_count": 1},
       "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.90\n\n• 1 matching claim"
     },
@@ -155,21 +155,22 @@
       "dependency": 0.5,
       "weighted_signal_coverage": 1.0,
       "signals": {
-        "provenance": [1.0, true],
-        "lineage": [1.0, true],
+        "upstream": [1.0, true],
+        "citation": [1.0, true],
+        "assertion_lineage": [1.0, true],
         "ownership": [1.0, true],
         "temporal": [1.0, true],
-        "structural": [1.0, true]
+        "graph": [1.0, true]
       },
       "evidence": {
+        "source_a_upstream_of_source_b": true,
         "source_b_cites_source_a": true,
         "source_b_parent_count": 3,
         "same_owner": true,
-        "shared_provenance_count": 2,
         "matching_claim_count": 3,
         "time_deltas": [3600.0, 3600.0, 3600.0]
       },
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.50\n\n• Direct citation\n• 3 derived assertions\n• Same owner\n• 2 shared provenance identifiers\n• Updated 1 hour apart\n• 3 matching claims"
+      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.50\n\n• Upstream source relationship\n• Direct citation\n• 3 derived assertions\n• Same owner\n• Updated 1 hour apart\n• 3 matching claims"
     },
     {
       "name": "observed_zero",
@@ -200,9 +201,9 @@
       "sources": ["vendor", "warehouse"],
       "dependency": 0.7549,
       "weighted_signal_coverage": 1.0,
-      "signals": {"provenance": [0.1, true]},
-      "evidence": {"shared_provenance_count": 1},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.25\n\n• 1 shared provenance identifier"
+      "signals": {"upstream": [1.0, true]},
+      "evidence": {"source_a_upstream_of_source_b": true},
+      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.25\n\n• Upstream source relationship"
     }
   ]
 }

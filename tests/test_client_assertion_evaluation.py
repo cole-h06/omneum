@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import pytest
 from mcp.types import CallToolResult
 
+import verity.client as client_module
 from verity.base64url import decode_unpadded, encode_unpadded
 from verity.client import (
     ClaimSupportResult,
@@ -30,7 +31,7 @@ from verity.dependency import (
 )
 from verity.engine_graph import AssertionTriple, SourcePair, build_graph
 from verity.inference import infer
-from verity.information import Claim, Observation, Source, SourceReference
+from verity.information import Claim, Observation, Retrieval, Source, SourceReference
 from verity.linkage import LinkagePurpose
 from verity.models import EvaluateVOPRFRequest, EvaluateAssertionRequest
 from verity.oprf import VOPRFServer
@@ -107,7 +108,13 @@ class Evaluator:
 
 def estimator(threshold=None):
     return DependencyEstimatorConfig(
-        0.25, 0.3, 0.15, 0.15, 0.15, 7200.0,
+        upstream_weight=0.25,
+        citation_weight=0.20,
+        assertion_lineage_weight=0.20,
+        ownership_weight=0.10,
+        temporal_weight=0.10,
+        graph_weight=0.15,
+        temporal_window_seconds=7200.0,
         dependency_cluster_threshold=threshold,
     )
 
@@ -116,24 +123,44 @@ def observations():
     claim = Claim("service", "Product", "Return Window", "30 days")
     return (
         Observation(
-            "a1",
-            Source("web_publisher", "https://a.example", "owner"),
-            claim,
-            datetime(2026, 1, 1, 11, tzinfo=timezone.utc),
-            ("provenance",),
-            (),
-            (),
+            assertion_id="a1",
+            source=Source("web_publisher", "https://a.example", "owner"),
+            claim=claim,
+            observed_at=datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
+            source_modified_at=datetime(2026, 1, 1, 11, tzinfo=timezone.utc),
+            upstream_sources=(),
+            cited_sources=(),
+            parent_assertion_ids=(),
+            retrievals=(),
         ),
         Observation(
-            "b1",
-            Source("web_publisher", "https://b.example", "owner"),
-            claim,
-            datetime(2026, 1, 1, 10, tzinfo=timezone.utc),
-            ("provenance",),
-            (),
-            (),
+            assertion_id="b1",
+            source=Source("web_publisher", "https://b.example", "owner"),
+            claim=claim,
+            observed_at=datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
+            source_modified_at=datetime(2026, 1, 1, 10, tzinfo=timezone.utc),
+            upstream_sources=(),
+            cited_sources=(),
+            parent_assertion_ids=(),
+            retrievals=(),
         ),
     )
+
+
+def make_observation(assertion_id, source, claim, **changes):
+    values = {
+        "assertion_id": assertion_id,
+        "source": source,
+        "claim": claim,
+        "observed_at": datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
+        "source_modified_at": None,
+        "upstream_sources": (),
+        "cited_sources": (),
+        "parent_assertion_ids": (),
+        "retrievals": (),
+    }
+    values.update(changes)
+    return Observation(**values)
 
 
 def test_inference(tmp_path):
@@ -204,15 +231,13 @@ def test_claim_identity(tmp_path, first, second):
         evaluator = Evaluator(server)
         client = VerityClient(make_config(server), evaluator)
         values = (
-            Observation(
+            make_observation(
                 "a1", Source("web_publisher", "a.example"),
                 Claim("service", "entity", "attribute", first),
-                None, (), (), (),
             ),
-            Observation(
+            make_observation(
                 "b1", Source("web_publisher", "b.example"),
                 Claim("service", "entity", "attribute", second),
-                None, (), (), (),
             ),
         )
         await client.evaluate_assertion(values, estimator=estimator())
@@ -228,15 +253,13 @@ def test_claim_equivalence(tmp_path):
         evaluator = Evaluator(server)
         client = VerityClient(make_config(server), evaluator)
         values = (
-            Observation(
+            make_observation(
                 "a1", Source("web_publisher", "a.example"),
                 Claim("service", "entity", "attribute", {"a": 1, "b": 2}),
-                None, (), (), (),
             ),
-            Observation(
+            make_observation(
                 "b1", Source("web_publisher", "b.example"),
                 Claim("service", "entity", "attribute", {"b": 2, "a": 1}),
-                None, (), (), (),
             ),
         )
         await client.evaluate_assertion(values, estimator=estimator())
@@ -290,8 +313,8 @@ def result_values():
         (supporting,), (), None,
     )
     signals = DependencySignalScores(
-        0.0, 0.0, 0.0, 0.0, 0.0,
-        True, True, True, True, True,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        True, True, True, True, True, True,
     )
     references = tuple(
         SourceReference(source.kind, source.identifier)
@@ -479,13 +502,13 @@ def test_source_equivalence(tmp_path):
         return result, evaluator
 
     values = (
-        Observation(
+        make_observation(
             "a1", Source("web_publisher", "HTTPS://EXAMPLE.COM/", "owner"),
-            Claim("service", "entity", "first", 1), None, (), (), (),
+            Claim("service", "entity", "first", 1),
         ),
-        Observation(
+        make_observation(
             "a2", Source("web_publisher", "example.com", "owner"),
-            Claim("service", "entity", "second", 2), None, (), (), (),
+            Claim("service", "entity", "second", 2),
         ),
     )
     first, first_evaluator = asyncio.run(execute(values))
@@ -499,7 +522,7 @@ def test_source_equivalence(tmp_path):
     assert len(second_evaluator.evaluations) == 5
 
 
-def test_mutation_during_linkage(tmp_path):
+def test_mutation_during_linkage(tmp_path, monkeypatch):
     class Paused(Evaluator):
         def __init__(self, server):
             super().__init__(server)
@@ -513,12 +536,28 @@ def test_mutation_during_linkage(tmp_path):
 
     async def run():
         original = {"nested": [1]}
-        item = Observation(
+        retrieval = Retrieval(
+            retrieval_id="retrieval-a",
+            kind="http",
+            resource_id="resource-a",
+            retrieved_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            fields={"nested": [1]},
+        )
+        item = make_observation(
             "a1",
             Source("web_publisher", "example.com"),
             Claim("service", "entity", "attribute", original),
-            None, (), (), (),
+            retrievals=(retrieval,),
         )
+        snapshots = []
+        snapshot_observations = client_module._snapshot_observations
+
+        def capture(values):
+            result = snapshot_observations(values)
+            snapshots.extend(result)
+            return result
+
+        monkeypatch.setattr(client_module, "_snapshot_observations", capture)
         server = make_server(tmp_path)
         evaluator = Paused(server)
         client = VerityClient(make_config(server), evaluator)
@@ -527,9 +566,11 @@ def test_mutation_during_linkage(tmp_path):
         )
         await evaluator.started.wait()
         original["nested"].append(2)
+        retrieval.fields["nested"].append(2)
         evaluator.release.set()
         result = await task
         assert result.claim_support[0].claim.value == {"nested": [1]}
+        assert snapshots[0].retrievals[0].fields == {"nested": [1]}
         assert "nested" not in repr(result)
 
     asyncio.run(run())
@@ -553,7 +594,7 @@ def test_cluster_key_order(tmp_path):
             evaluator,
         )
         result = await client.evaluate_assertion(
-            observations(), estimator=estimator(0.5)
+                observations(), estimator=estimator(0.25)
         )
         return result.claim_support[0].dependency_clusters
 

@@ -138,22 +138,31 @@ def load_config_file() -> dict[str, object]:
         raise ConfigurationError(
             "Deployment has not been initialized. Run 'verity init'."
         ) from None
+    except (OSError, tomllib.TOMLDecodeError):
+        raise ConfigurationError(
+            "Deployment configuration is invalid."
+        ) from None
 
 
 def load_deployment_state() -> DeploymentState:
     config = load_config_file()
-    config = DeploymentConfig(
-        deployment_id=config["deployment_id"],
-        voprf_key_version=config["voprf_key_version"],
-        voprf_public_key=_decode_public_key(
-            config["voprf_public_key"]
-        ),
-        voprf_private_key_file=get_private_key_path(),
-        voprf_max_concurrency=DEFAULT_MAX_CONCURRENCY,
-        voprf_evaluation_timeout_ms=DEFAULT_EVALUATION_TIMEOUT_MS,
-        assertion_evaluation_max_concurrency=DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
-        assertion_evaluation_timeout_ms=DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
-    )
+    try:
+        config = DeploymentConfig(
+            deployment_id=config["deployment_id"],
+            voprf_key_version=config["voprf_key_version"],
+            voprf_public_key=_decode_public_key(
+                config["voprf_public_key"]
+            ),
+            voprf_private_key_file=get_private_key_path(),
+            voprf_max_concurrency=DEFAULT_MAX_CONCURRENCY,
+            voprf_evaluation_timeout_ms=DEFAULT_EVALUATION_TIMEOUT_MS,
+            assertion_evaluation_max_concurrency=DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
+            assertion_evaluation_timeout_ms=DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
+        )
+    except KeyError:
+        raise ConfigurationError(
+            "Deployment configuration is invalid."
+        ) from None
     try:
         VOPRFClient(config.voprf_public_key)
         server = VOPRFServer(

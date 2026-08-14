@@ -24,10 +24,6 @@ def research_agent():
             "Input Data Policy",
             assessment["input_data_policy"],
             document["generated_at"],
-            (
-                brief["summary"]["based_on"][0],
-                document["id"],
-            ),
             (runbook,),
             ("runbook-input-data",),
         ),
@@ -37,10 +33,6 @@ def research_agent():
             "Provider Retention",
             f'{assessment["provider_retention_days"]} days',
             document["generated_at"],
-            (
-                brief["summary"]["based_on"][0],
-                document["id"],
-            ),
             (runbook,),
             ("runbook-retention",),
         ),
@@ -50,10 +42,6 @@ def research_agent():
             "Processing Region",
             assessment["processing_region"],
             document["generated_at"],
-            (
-                brief["summary"]["based_on"][0],
-                document["id"],
-            ),
             (runbook,),
             ("runbook-region",),
         ),
