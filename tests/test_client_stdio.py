@@ -10,15 +10,15 @@ from pathlib import Path
 import pytest
 from mcp import ClientSession, StdioServerParameters
 
-import verity.client as client_module
-from verity.client import VerityClientConfig, open_stdio_client
-from verity.dependency import (
+import omneum.client as client_module
+from omneum.client import OmneumClientConfig, open_stdio_client
+from omneum.dependency import (
     DependencyEstimatorConfig,
 )
-from verity.explanations import explain_claim, explain_dependency
-from verity.information import Claim, Observation, Source, SourceReference
-from verity.oprf import VOPRFServer
-from verity.serialization import serialize_source
+from omneum.explanations import explain_claim, explain_dependency
+from omneum.information import Claim, Observation, Source, SourceReference
+from omneum.oprf import VOPRFServer
+from omneum.serialization import serialize_source
 from stdio_state import isolated_deployment_environment
 
 
@@ -34,11 +34,11 @@ def test_stdio_client(tmp_path: Path) -> None:
         )
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
-            args=["-m", "verity.server"],
+            args=["-m", "omneum.server"],
             cwd=root,
             env=environment,
         )
-        config = VerityClientConfig(
+        config = OmneumClientConfig(
             deployment_id=DEPLOYMENT_ID,
             voprf_key_version=1,
             voprf_mode="voprf",
@@ -193,11 +193,11 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         )
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
-            args=["-m", "verity.server"],
+            args=["-m", "omneum.server"],
             cwd=root,
             env=environment,
         )
-        config = VerityClientConfig(
+        config = OmneumClientConfig(
             deployment_id=DEPLOYMENT_ID,
             voprf_key_version=1,
             voprf_mode="voprf",
@@ -233,7 +233,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
                 assert rejected.isError
                 assert rejected.structuredContent == {
                     "message": "Request validation failed.",
-                    "verity_code": "invalid_request",
+                    "omneum_code": "invalid_request",
                 }
                 assert "stdio-secret-marker" not in repr(rejected)
             second = await client.evaluate_assertion(
@@ -278,6 +278,9 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         "Highest support\n\n"
         "Supporting sources: 3\n"
         "Independent support: 2.05\n\n"
+        "Supported by 3 sources with estimated independent support of 2.05.\n"
+        "Some supporting sources appear dependent.\n"
+        "1 conflicting value was identified.\n\n"
         "Conflicting value:\n"
         "14 days (support 0.00)"
     )

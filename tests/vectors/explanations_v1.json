@@ -1,10 +1,22 @@
 {
   "version": "explanations-v1",
   "sources": {
-    "vendor": {"kind": "web_publisher", "identifier": "api.vendor.example"},
-    "warehouse": {"kind": "web_publisher", "identifier": "warehouse.example"},
-    "ledger": {"kind": "web_publisher", "identifier": "ledger.example"},
-    "review": {"kind": "web_publisher", "identifier": "review.example"},
+    "vendor": {
+      "kind": "web_publisher",
+      "identifier": "api.vendor.example"
+    },
+    "warehouse": {
+      "kind": "web_publisher",
+      "identifier": "warehouse.example"
+    },
+    "ledger": {
+      "kind": "web_publisher",
+      "identifier": "ledger.example"
+    },
+    "review": {
+      "kind": "web_publisher",
+      "identifier": "review.example"
+    },
     "sql": {
       "kind": "database",
       "identifier": "v1:12345678-1234-4abc-8def-123456789abc:11111111-1111-4111-8111-111111111111"
@@ -16,151 +28,285 @@
       "attribute": "revenue",
       "value": "$94M",
       "support": 0.91,
-      "supporting_sources": ["vendor", "warehouse", "ledger", "review"],
+      "supporting_sources": [
+        "vendor",
+        "warehouse",
+        "ledger",
+        "review"
+      ],
       "estimated_independent_support": 3.62,
       "dependency_signal_coverage": 0.75,
       "is_attribute_max_support": true,
       "clusters": null,
       "conflicts": [],
-      "expected": "Revenue = $94M\nSupport: 0.91\n\nHighest support\n\nSupporting sources: 4\nIndependent support: 3.62"
+      "expected": "Revenue = $94M\nSupport: 0.91\n\nHighest support\n\nSupporting sources: 4\nIndependent support: 3.62\n\nSupported by 4 sources with estimated independent support of 3.62.\nSome supporting sources appear dependent."
     },
     {
       "name": "adjusted_revenue",
       "attribute": "revenue",
       "value": "$91M",
       "support": 0.28,
-      "supporting_sources": ["vendor", "warehouse", "ledger"],
+      "supporting_sources": [
+        "vendor",
+        "warehouse",
+        "ledger"
+      ],
       "estimated_independent_support": 1.24,
-      "dependency_signal_coverage": 0.60,
+      "dependency_signal_coverage": 0.6,
       "is_attribute_max_support": false,
       "clusters": null,
       "conflicts": [],
-      "expected": "Revenue = $91M\nSupport: 0.28\n\nSupporting sources: 3\nIndependent support: 1.24"
+      "expected": "Revenue = $91M\nSupport: 0.28\n\nSupporting sources: 3\nIndependent support: 1.24\n\nSupported by 3 sources with estimated independent support of 1.24.\nSome supporting sources appear dependent."
     },
     {
       "name": "singleton",
       "attribute": "status",
       "value": "pending",
       "support": 0.5,
-      "supporting_sources": ["vendor"],
+      "supporting_sources": [
+        "vendor"
+      ],
       "estimated_independent_support": 1.0,
       "dependency_signal_coverage": null,
       "is_attribute_max_support": false,
       "clusters": null,
       "conflicts": [],
-      "expected": "Status = pending\nSupport: 0.50\n\nSupporting source: 1\nIndependent support: 1.00"
+      "expected": "Status = pending\nSupport: 0.50\n\nSupporting source: 1\nIndependent support: 1.00\n\nSupported by 1 source with estimated independent support of 1.00."
     },
     {
       "name": "tied_maximum",
       "attribute": "status",
       "value": "ready",
       "support": 0.5,
-      "supporting_sources": ["warehouse"],
+      "supporting_sources": [
+        "warehouse"
+      ],
       "estimated_independent_support": 1.0,
       "dependency_signal_coverage": null,
       "is_attribute_max_support": true,
-      "clusters": [["warehouse"]],
-      "conflicts": [{"value": "pending", "support": 0.5}],
-      "expected": "Status = ready\nSupport: 0.50\n\nHighest support\n\nSupporting source: 1\nIndependent support: 1.00\n\nConflicting value:\npending (support 0.50)"
+      "clusters": [
+        [
+          "warehouse"
+        ]
+      ],
+      "conflicts": [
+        {
+          "value": "pending",
+          "support": 0.5
+        }
+      ],
+      "expected": "Status = ready\nSupport: 0.50\n\nHighest support\n\nSupporting source: 1\nIndependent support: 1.00\n\nSupported by 1 source with estimated independent support of 1.00.\n1 conflicting value was identified.\n\nConflicting value:\npending (support 0.50)"
     },
     {
       "name": "ordered_conflicts",
       "attribute": "return_window",
       "value": "30 days",
       "support": 0.8,
-      "supporting_sources": ["vendor", "warehouse"],
+      "supporting_sources": [
+        "vendor",
+        "warehouse"
+      ],
       "estimated_independent_support": 1.5,
       "dependency_signal_coverage": 1.0,
       "is_attribute_max_support": true,
-      "clusters": [["vendor"], ["warehouse"]],
-      "conflicts": [
-        {"value": "14 days", "support": 0.2},
-        {"value": "7 days", "support": 0.1}
+      "clusters": [
+        [
+          "vendor"
+        ],
+        [
+          "warehouse"
+        ]
       ],
-      "expected": "Return window = 30 days\nSupport: 0.80\n\nHighest support\n\nSupporting sources: 2\nIndependent support: 1.50\n\nConflicting values:\n14 days (support 0.20)\n7 days (support 0.10)"
+      "conflicts": [
+        {
+          "value": "14 days",
+          "support": 0.2
+        },
+        {
+          "value": "7 days",
+          "support": 0.1
+        }
+      ],
+      "expected": "Return window = 30 days\nSupport: 0.80\n\nHighest support\n\nSupporting sources: 2\nIndependent support: 1.50\n\nSupported by 2 sources with estimated independent support of 1.50.\nSome supporting sources appear dependent.\n2 conflicting values were identified.\n\nConflicting values:\n14 days (support 0.20)\n7 days (support 0.10)"
     },
     {
       "name": "rounding",
       "attribute": "ratio",
       "value": 1.005,
       "support": 0.1251,
-      "supporting_sources": ["vendor", "warehouse"],
+      "supporting_sources": [
+        "vendor",
+        "warehouse"
+      ],
       "estimated_independent_support": 1.995,
       "dependency_signal_coverage": 0.755,
       "is_attribute_max_support": false,
       "clusters": null,
       "conflicts": [],
-      "expected": "Ratio = 1.005\nSupport: 0.13\n\nSupporting sources: 2\nIndependent support: 2.00"
+      "expected": "Ratio = 1.005\nSupport: 0.13\n\nSupporting sources: 2\nIndependent support: 2.00\n\nSupported by 2 sources with estimated independent support of 2.00."
     }
   ],
   "dependency_cases": [
     {
       "name": "upstream",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.2,
       "weighted_signal_coverage": 1.0,
-      "signals": {"upstream": [1.0, true]},
-      "evidence": {"source_a_upstream_of_source_b": true},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.80\n\n• Upstream source relationship"
+      "signals": {
+        "upstream": [
+          1.0,
+          true
+        ]
+      },
+      "evidence": {
+        "source_a_upstream_of_source_b": true
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 0.80\n\n\u2022 Upstream source relationship"
     },
     {
       "name": "citation",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.3,
       "weighted_signal_coverage": 1.0,
-      "signals": {"citation": [1.0, true]},
-      "evidence": {"source_a_cites_source_b": true},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.70\n\n• Direct citation"
+      "signals": {
+        "citation": [
+          1.0,
+          true
+        ]
+      },
+      "evidence": {
+        "source_a_cites_source_b": true
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 0.70\n\n\u2022 Direct citation"
     },
     {
       "name": "ownership",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.15,
       "weighted_signal_coverage": 1.0,
-      "signals": {"ownership": [1.0, true]},
-      "evidence": {"same_owner": true},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.85\n\n• Same owner"
+      "signals": {
+        "ownership": [
+          1.0,
+          true
+        ]
+      },
+      "evidence": {
+        "same_owner": true
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 0.85\n\n\u2022 Same owner"
     },
     {
       "name": "temporal",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.15,
       "weighted_signal_coverage": 1.0,
-      "signals": {"temporal": [1.0, true]},
-      "evidence": {"time_deltas": [3600.0]},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.85\n\n• Updated 1 hour apart"
+      "signals": {
+        "temporal": [
+          1.0,
+          true
+        ]
+      },
+      "evidence": {
+        "time_deltas": [
+          3600.0
+        ]
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 0.85\n\n\u2022 Updated 1 hour apart"
     },
     {
       "name": "graph",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.1,
       "weighted_signal_coverage": 1.0,
-      "signals": {"graph": [0.5, true]},
-      "evidence": {"matching_claim_count": 1},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.90\n\n• 1 matching claim"
+      "signals": {
+        "graph": [
+          0.5,
+          true
+        ]
+      },
+      "evidence": {
+        "matching_claim_count": 1
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 0.90\n\n\u2022 1 matching claim"
     },
     {
       "name": "combined_labels",
-      "sources": ["vendor", "sql"],
+      "sources": [
+        "vendor",
+        "sql"
+      ],
       "dependency": 0.76,
       "weighted_signal_coverage": 0.75,
-      "signals": {"ownership": [1.0, true], "temporal": [1.0, true]},
-      "evidence": {"same_owner": true, "time_deltas": [3600.0]},
-      "labels": {"vendor": "Vendor API", "sql": "Internal SQL"},
-      "expected": "Vendor API ↔ Internal SQL\n\nIndependence: 0.24\n\n• Same owner\n• Updated 1 hour apart"
+      "signals": {
+        "ownership": [
+          1.0,
+          true
+        ],
+        "temporal": [
+          1.0,
+          true
+        ]
+      },
+      "evidence": {
+        "same_owner": true,
+        "time_deltas": [
+          3600.0
+        ]
+      },
+      "labels": {
+        "vendor": "Vendor API",
+        "sql": "Internal SQL"
+      },
+      "expected": "Vendor API \u2194 Internal SQL\n\nIndependence: 0.24\n\n\u2022 Same owner\n\u2022 Updated 1 hour apart"
     },
     {
       "name": "all_signals",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.5,
       "weighted_signal_coverage": 1.0,
       "signals": {
-        "upstream": [1.0, true],
-        "citation": [1.0, true],
-        "assertion_lineage": [1.0, true],
-        "ownership": [1.0, true],
-        "temporal": [1.0, true],
-        "graph": [1.0, true]
+        "upstream": [
+          1.0,
+          true
+        ],
+        "citation": [
+          1.0,
+          true
+        ],
+        "assertion_lineage": [
+          1.0,
+          true
+        ],
+        "ownership": [
+          1.0,
+          true
+        ],
+        "temporal": [
+          1.0,
+          true
+        ],
+        "graph": [
+          1.0,
+          true
+        ]
       },
       "evidence": {
         "source_a_upstream_of_source_b": true,
@@ -168,42 +314,75 @@
         "source_b_parent_count": 3,
         "same_owner": true,
         "matching_claim_count": 3,
-        "time_deltas": [3600.0, 3600.0, 3600.0]
+        "time_deltas": [
+          3600.0,
+          3600.0,
+          3600.0
+        ]
       },
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.50\n\n• Upstream source relationship\n• Direct citation\n• 3 derived assertions\n• Same owner\n• Updated 1 hour apart\n• 3 matching claims"
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 0.50\n\n\u2022 Upstream source relationship\n\u2022 Direct citation\n\u2022 3 derived assertions\n\u2022 Same owner\n\u2022 Updated 1 hour apart\n\u2022 3 matching claims"
     },
     {
       "name": "observed_zero",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.0,
       "weighted_signal_coverage": 1.0,
-      "signals": {"ownership": [0.0, true]},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 1.00\n\n• None observed"
+      "signals": {
+        "ownership": [
+          0.0,
+          true
+        ]
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 1.00\n\n\u2022 None observed"
     },
     {
       "name": "unavailable",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.0,
       "weighted_signal_coverage": 0.0,
-      "signals": {"ownership": [0.0, false]},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 1.00\n\n• None observed"
+      "signals": {
+        "ownership": [
+          0.0,
+          false
+        ]
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 1.00\n\n\u2022 None observed"
     },
     {
       "name": "internal_fallback",
-      "sources": ["vendor", "sql"],
+      "sources": [
+        "vendor",
+        "sql"
+      ],
       "dependency": 0.0,
       "weighted_signal_coverage": 0.0,
       "signals": {},
-      "expected": "api.vendor.example ↔ Database\n\nIndependence: 1.00\n\n• None observed"
+      "expected": "api.vendor.example \u2194 Database\n\nIndependence: 1.00\n\n\u2022 None observed"
     },
     {
       "name": "rounding",
-      "sources": ["vendor", "warehouse"],
+      "sources": [
+        "vendor",
+        "warehouse"
+      ],
       "dependency": 0.7549,
       "weighted_signal_coverage": 1.0,
-      "signals": {"upstream": [1.0, true]},
-      "evidence": {"source_a_upstream_of_source_b": true},
-      "expected": "api.vendor.example ↔ warehouse.example\n\nIndependence: 0.25\n\n• Upstream source relationship"
+      "signals": {
+        "upstream": [
+          1.0,
+          true
+        ]
+      },
+      "evidence": {
+        "source_a_upstream_of_source_b": true
+      },
+      "expected": "api.vendor.example \u2194 warehouse.example\n\nIndependence: 0.25\n\n\u2022 Upstream source relationship"
     }
   ]
 }

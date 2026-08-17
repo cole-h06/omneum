@@ -3,20 +3,20 @@ from pathlib import Path
 
 import pytest
 
-from verity.client import (
+from omneum.client import (
     ClaimSupportResult,
     ConflictingClaimResult,
     SupportingSourceResult,
 )
-from verity.dependency import (
+from omneum.dependency import (
     DependencyCluster,
     DependencyEvidence,
     DependencySignalScores,
     PairwiseDependencyResult,
 )
-from verity.explanations import explain_claim, explain_dependency
-from verity.information import Claim, Source, SourceReference
-from verity.serialization import serialize_source
+from omneum.explanations import explain_claim, explain_dependency
+from omneum.information import Claim, Source, SourceReference
+from omneum.serialization import serialize_source
 
 
 VECTOR_PATH = Path(__file__).parent / "vectors" / "explanations_v1.json"
