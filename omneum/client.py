@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import math
+import os
 import uuid
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
@@ -19,7 +20,12 @@ from .canonicalization import (
     canonicalize_source,
     canonicalize_value,
 )
-from .config import PROTOCOL_VERSION, VOPRF_MODE
+from .config import (
+    PROTOCOL_VERSION,
+    VOPRF_MODE,
+    ConfigurationError,
+    load_config_file,
+)
 from .dependency import (
     DependencyCluster,
     DependencyEstimatorConfig,
@@ -52,7 +58,7 @@ from .models import (
     EvaluateVOPRFRequest,
     EvaluateVOPRFResponse,
     SourcePair as RequestSourcePair,
-    VerityErrorResponse,
+    OmneumErrorResponse,
 )
 from .oprf import (
     CIPHERSUITE,
@@ -66,15 +72,15 @@ from .oprf import (
 from .serialization import serialize_claim, serialize_source
 
 
-class VerityClientError(Exception):
-    """Base class for high-level Verity client failures."""
+class OmneumClientError(Exception):
+    """Base class for high-level Omneum client failures."""
 
 
-class VerityClientConfigurationError(VerityClientError, ValueError):
+class OmneumClientConfigurationError(OmneumClientError, ValueError):
     """Authenticated pinned client configuration is invalid."""
 
 
-class EvaluationTransportError(VerityClientError):
+class EvaluationTransportError(OmneumClientError):
     """The evaluator transport failed."""
 
     def __init__(self, *, uncertain: bool) -> None:
@@ -82,39 +88,39 @@ class EvaluationTransportError(VerityClientError):
         self.uncertain = uncertain
 
 
-class EvaluationRejectedError(VerityClientError):
-    """The evaluator returned a valid version-1 Verity failure."""
+class EvaluationRejectedError(OmneumClientError):
+    """The evaluator returned a valid version-1 Omneum failure."""
 
-    def __init__(self, verity_code: str) -> None:
+    def __init__(self, omneum_code: str) -> None:
         super().__init__("VOPRF evaluation was rejected.")
-        self.verity_code = verity_code
+        self.omneum_code = omneum_code
 
 
-class EvaluationResponseError(VerityClientError):
+class EvaluationResponseError(OmneumClientError):
     """The evaluator response was malformed or inconsistent."""
 
 
-class EvaluationVerificationError(VerityClientError):
+class EvaluationVerificationError(OmneumClientError):
     """The VOPRF proof or finalization result was invalid."""
 
 
-class AssertionEvaluationTransportError(VerityClientError):
+class AssertionEvaluationTransportError(OmneumClientError):
     def __init__(self, *, uncertain: bool) -> None:
         super().__init__("Assertion evaluation transport failed.")
         self.uncertain = uncertain
 
 
-class AssertionEvaluationRejectedError(VerityClientError):
-    def __init__(self, verity_code: str) -> None:
+class AssertionEvaluationRejectedError(OmneumClientError):
+    def __init__(self, omneum_code: str) -> None:
         super().__init__("Assertion evaluation was rejected.")
-        self.verity_code = verity_code
+        self.omneum_code = omneum_code
 
 
-class AssertionEvaluationResponseError(VerityClientError):
+class AssertionEvaluationResponseError(OmneumClientError):
     """The assertion-evaluation response was malformed or inconsistent."""
 
 
-class AssertionEvaluationMappingError(VerityClientError):
+class AssertionEvaluationMappingError(OmneumClientError):
     """The assertion-evaluation response could not be mapped locally."""
 
 
@@ -571,7 +577,7 @@ class AssertionEvaluation:
 
 
 @dataclass(frozen=True, slots=True)
-class VerityClientConfig:
+class OmneumClientConfig:
     """Authenticated deployment metadata and VOPRF public-key pin."""
 
     deployment_id: str = field(repr=False)
@@ -590,17 +596,17 @@ class VerityClientConfig:
             <= self.voprf_key_version
             <= 2**32 - 1
         ):
-            raise VerityClientConfigurationError(
+            raise OmneumClientConfigurationError(
                 "VOPRF key version is invalid."
             )
 
         if self.voprf_mode != VOPRF_MODE:
-            raise VerityClientConfigurationError(
+            raise OmneumClientConfigurationError(
                 "VOPRF mode is unsupported."
             )
 
         if self.voprf_ciphersuite != CIPHERSUITE:
-            raise VerityClientConfigurationError(
+            raise OmneumClientConfigurationError(
                 "VOPRF ciphersuite is unsupported."
             )
 
@@ -608,7 +614,7 @@ class VerityClientConfig:
             self.linkage_encoding_version
             != ENCODING_VERSION
         ):
-            raise VerityClientConfigurationError(
+            raise OmneumClientConfigurationError(
                 "Linkage encoding version is unsupported."
             )
 
@@ -617,9 +623,22 @@ class VerityClientConfig:
             or len(self.voprf_public_key)
             != ELEMENT_LENGTH
         ):
-            raise VerityClientConfigurationError(
+            raise OmneumClientConfigurationError(
                 "VOPRF public-key pin is invalid."
             )
+
+    @classmethod
+    def from_local_deployment(cls) -> OmneumClientConfig:
+        config = load_config_file()
+
+        return cls.from_base64url(
+            deployment_id=config["deployment_id"],
+            voprf_key_version=config["voprf_key_version"],
+            voprf_mode=VOPRF_MODE,
+            voprf_ciphersuite=CIPHERSUITE,
+            linkage_encoding_version=ENCODING_VERSION,
+            voprf_public_key=config["voprf_public_key"],
+        )
 
     @classmethod
     def from_base64url(
@@ -631,14 +650,14 @@ class VerityClientConfig:
         voprf_ciphersuite: str,
         linkage_encoding_version: int,
         voprf_public_key: str,
-    ) -> VerityClientConfig:
+    ) -> OmneumClientConfig:
         try:
             public_key = decode_unpadded(
                 voprf_public_key,
                 expected_length=ELEMENT_LENGTH,
             )
         except ValueError:
-            raise VerityClientConfigurationError(
+            raise OmneumClientConfigurationError(
                 "VOPRF public-key pin is invalid."
             ) from None
 
@@ -723,7 +742,7 @@ class LinkageToken:
         )
 
 
-class _VerityEvaluator(Protocol):
+class _OmneumEvaluator(Protocol):
     async def evaluate_voprf(
         self,
         request: EvaluateVOPRFRequest,
@@ -737,19 +756,19 @@ class _VerityEvaluator(Protocol):
         ...
 
 
-class VerityClient:
-    """Async client for local, pinned Verity linkage evaluation."""
+class OmneumClient:
+    """Async client for local, pinned Omneum linkage evaluation."""
 
     def __init__(
         self,
-        config: VerityClientConfig,
-        evaluator: _VerityEvaluator,
+        config: OmneumClientConfig,
+        evaluator: _OmneumEvaluator,
         *,
         assertion_evaluation_available: bool | None = None,
     ) -> None:
-        if type(config) is not VerityClientConfig:
+        if type(config) is not OmneumClientConfig:
             raise TypeError(
-                "config must be a VerityClientConfig"
+                "config must be a OmneumClientConfig"
             )
 
         if not callable(
@@ -769,7 +788,7 @@ class VerityClient:
                 config.voprf_public_key
             )
         except OPRFError:
-            raise VerityClientConfigurationError(
+            raise OmneumClientConfigurationError(
                 "VOPRF public-key pin is invalid."
             ) from None
 
@@ -1257,7 +1276,7 @@ class VerityClient:
         if result.isError:
             try:
                 error = (
-                    VerityErrorResponse.model_validate(
+                    OmneumErrorResponse.model_validate(
                         result.structuredContent,
                         strict=True,
                     )
@@ -1269,7 +1288,7 @@ class VerityClient:
                 ) from None
 
             raise AssertionEvaluationRejectedError(
-                error.verity_code
+                error.omneum_code
             )
 
         try:
@@ -1426,7 +1445,7 @@ class VerityClient:
         if result.isError:
             try:
                 error = (
-                    VerityErrorResponse.model_validate(
+                    OmneumErrorResponse.model_validate(
                         result.structuredContent,
                         strict=True,
                     )
@@ -1438,7 +1457,7 @@ class VerityClient:
                 ) from None
 
             raise EvaluationRejectedError(
-                error.verity_code
+                error.omneum_code
             )
 
         try:
@@ -1493,7 +1512,7 @@ class VerityClient:
         return response
 
 
-class _MCPVerityEvaluator:
+class _MCPOmneumEvaluator:
     def __init__(
         self,
         session: ClientSession,
@@ -1545,10 +1564,24 @@ class _MCPVerityEvaluator:
 
 @asynccontextmanager
 async def open_stdio_client(
-    config: VerityClientConfig,
+    config: OmneumClientConfig,
     server: StdioServerParameters,
-) -> AsyncIterator[VerityClient]:
+) -> AsyncIterator[OmneumClient]:
     """Open and own one local MCP stdio subprocess and client session."""
+
+    if (
+        isinstance(server, StdioServerParameters)
+        and server.env is None
+    ):
+        config_dir = os.environ.get("OMNEUM_CONFIG_DIR")
+        if config_dir is not None:
+            server = server.model_copy(
+                update={
+                    "env": {
+                        "OMNEUM_CONFIG_DIR": config_dir,
+                    }
+                }
+            )
 
     async with stdio_client(server) as (
         read,
@@ -1580,12 +1613,12 @@ async def open_stdio_client(
                 for tool in tools.tools
             )
 
-            evaluator = _MCPVerityEvaluator(
+            evaluator = _MCPOmneumEvaluator(
                 session
             )
 
             try:
-                yield VerityClient(
+                yield OmneumClient(
                     config,
                     evaluator,
                     assertion_evaluation_available=(
@@ -1603,7 +1636,7 @@ def _validate_deployment_id(
         type(value) is not str
         or not value.startswith("urn:uuid:")
     ):
-        raise VerityClientConfigurationError(
+        raise OmneumClientConfigurationError(
             "Deployment ID must be a "
             "canonical UUID URN."
         )
@@ -1611,13 +1644,13 @@ def _validate_deployment_id(
     try:
         parsed = uuid.UUID(value[9:])
     except ValueError:
-        raise VerityClientConfigurationError(
+        raise OmneumClientConfigurationError(
             "Deployment ID must be a "
             "canonical UUID URN."
         ) from None
 
     if value != f"urn:uuid:{parsed}":
-        raise VerityClientConfigurationError(
+        raise OmneumClientConfigurationError(
             "Deployment ID must be a "
             "canonical UUID URN."
         )

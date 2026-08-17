@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-import verity.config as config_module
-from verity.config import (
+import omneum.config as config_module
+from omneum.config import (
     DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
     DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
     DEFAULT_EVALUATION_TIMEOUT_MS,
@@ -15,8 +15,8 @@ from verity.config import (
     DeploymentConfig,
     load_deployment_state,
 )
-from verity.oprf import VOPRFServer
-from verity.transport.mcp import create_server
+from omneum.oprf import VOPRFServer
+from omneum.transport.mcp import create_server
 
 
 DEPLOYMENT_ID = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"
@@ -86,8 +86,8 @@ def test_stable_server(tmp_path, monkeypatch):
 
 def test_fingerprint(tmp_path, monkeypatch):
     assert persisted_state(tmp_path, monkeypatch).configuration_fingerprint == (
-        "5b8742c8a3338fd212f3be06635d185b"
-        "f8804301b2ea12945ba1dd0e1969e82a"
+        "81070db4aa6e52c44b435e6a0d7bcda1"
+        "09ac0f1910992670b4821cca6bdbeff6"
     )
 
 

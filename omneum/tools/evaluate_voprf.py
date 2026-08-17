@@ -7,19 +7,19 @@ from concurrent.futures import ThreadPoolExecutor
 
 from mcp.types import CallToolResult, TextContent
 
-from verity.base64url import decode_unpadded, encode_unpadded
-from verity.config import (
+from omneum.base64url import decode_unpadded, encode_unpadded
+from omneum.config import (
     PROTOCOL_VERSION,
     VOPRF_MODE,
     DeploymentState,
 )
-from verity.linkage import ENCODING_VERSION
-from verity.models import (
+from omneum.linkage import ENCODING_VERSION
+from omneum.models import (
     EvaluateVOPRFRequest,
     EvaluateVOPRFResponse,
-    VerityErrorResponse,
+    OmneumErrorResponse,
 )
-from verity.oprf import (
+from omneum.oprf import (
     CIPHERSUITE,
     ELEMENT_LENGTH,
     PROOF_LENGTH,
@@ -41,7 +41,7 @@ class EvaluationService:
         )
         self._executor = ThreadPoolExecutor(
             max_workers=state.voprf_max_concurrency,
-            thread_name_prefix="verity-voprf",
+            thread_name_prefix="omneum-voprf",
         )
         self._capacity = state.voprf_max_concurrency
         self._active = 0
@@ -226,11 +226,11 @@ def invalid_request_result() -> CallToolResult:
 
 def error_result(
     message: str,
-    verity_code: str,
+    omneum_code: str,
 ) -> CallToolResult:
-    response = VerityErrorResponse(
+    response = OmneumErrorResponse(
         message=message,
-        verity_code=verity_code,
+        omneum_code=omneum_code,
     ).model_dump(mode="json")
     return CallToolResult(
         content=[

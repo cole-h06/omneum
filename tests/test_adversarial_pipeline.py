@@ -4,10 +4,10 @@ import pytest
 from mcp.types import JSONRPCMessage
 from pydantic import ValidationError
 
-from verity.base64url import encode_unpadded
-from verity.client import LinkageToken
-from verity.linkage import LinkageClient, LinkagePurpose
-from verity.oprf import (
+from omneum.base64url import encode_unpadded
+from omneum.client import LinkageToken
+from omneum.linkage import LinkageClient, LinkagePurpose
+from omneum.oprf import (
     OPRFProtocolError,
     VOPRFClient,
     VOPRFEvaluation,

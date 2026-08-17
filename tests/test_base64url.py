@@ -1,6 +1,6 @@
 import pytest
 
-from verity.base64url import decode_unpadded, encode_unpadded
+from omneum.base64url import decode_unpadded, encode_unpadded
 
 
 CANONICAL = encode_unpadded(b"\x00" * 32, expected_length=32)

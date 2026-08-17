@@ -1,7 +1,7 @@
 from operator import add
 from typing import Annotated, NotRequired, TypedDict
 
-from verity import AssertionEvaluation, Observation
+from omneum import AssertionEvaluation, Observation
 
 
 class ObservationBatch(TypedDict):

@@ -1,6 +1,6 @@
 # CrewAI
 
-This example integrates Verity into a CrewAI Flow.
+This example integrates Omneum into a CrewAI Flow.
 
 It reuses the enterprise workflow from `examples/enterprise`. Only the
 orchestration changes.
@@ -9,7 +9,7 @@ orchestration changes.
 
 - Execute the retrieval steps in parallel.
 - Merge the retrieved observations.
-- Submit the observations to Verity.
+- Submit the observations to Omneum.
 - Generate the final response from the assertion evaluation.
 
 ## Requirements

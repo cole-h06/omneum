@@ -8,32 +8,32 @@ from concurrent.futures import ThreadPoolExecutor
 from mcp.types import CallToolResult, TextContent
 from pydantic import ValidationError
 
-from verity.base64url import decode_unpadded
-from verity.config import (
+from omneum.base64url import decode_unpadded
+from omneum.config import (
     PROTOCOL_VERSION,
     VOPRF_MODE,
     DeploymentState,
 )
-from verity.engine_graph import (
+from omneum.engine_graph import (
     AssertionTriple,
     GraphError,
     InferenceGraph,
     SourcePair as EngineSourcePair,
     build_graph,
 )
-from verity.inference import (
+from omneum.inference import (
     ALGORITHM_VERSION,
     CONVERGENCE_TOLERANCE,
     InferenceError,
     infer,
 )
-from verity.linkage import ENCODING_VERSION
-from verity.models import (
+from omneum.linkage import ENCODING_VERSION
+from omneum.models import (
     EvaluateAssertionRequest,
     EvaluateAssertionResponse,
 )
-from verity.oprf import CIPHERSUITE
-from verity.tools.evaluate_voprf import error_result
+from omneum.oprf import CIPHERSUITE
+from omneum.tools.evaluate_voprf import error_result
 
 
 TOKEN_LENGTH = 64
@@ -53,7 +53,7 @@ class AssertionEvaluationService:
         self._timeout_seconds = state.assertion_evaluation_timeout_ms / 1_000
         self._executor = ThreadPoolExecutor(
             max_workers=state.assertion_evaluation_max_concurrency,
-            thread_name_prefix="verity-assertion-evaluation",
+            thread_name_prefix="omneum-assertion-evaluation",
         )
         self._capacity = state.assertion_evaluation_max_concurrency
         self._active = 0

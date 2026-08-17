@@ -1,4 +1,4 @@
-"""Verity SDK."""
+"""Omneum SDK."""
 
 from .client import (
     ClaimSupportResult,
@@ -16,10 +16,10 @@ from .client import (
     LinkageToken,
     SourceEvaluation,
     SupportingSourceResult,
-    VerityClient,
-    VerityClientConfig,
-    VerityClientConfigurationError,
-    VerityClientError,
+    OmneumClient,
+    OmneumClientConfig,
+    OmneumClientConfigurationError,
+    OmneumClientError,
     open_stdio_client,
 )
 from .dependency import (
@@ -66,10 +66,10 @@ __all__ = [
     "SourceEvaluation",
     "SourceReference",
     "SupportingSourceResult",
-    "VerityClient",
-    "VerityClientConfig",
-    "VerityClientConfigurationError",
-    "VerityClientError",
+    "OmneumClient",
+    "OmneumClientConfig",
+    "OmneumClientConfigurationError",
+    "OmneumClientError",
     "explain_claim",
     "explain_dependency",
     "open_stdio_client",

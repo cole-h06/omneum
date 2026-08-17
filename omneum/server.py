@@ -1,7 +1,7 @@
 """
-Verity MCP Server.
+Omneum MCP Server.
 
-Application entry point for the Verity MCP server.
+Application entry point for the Omneum MCP server.
 """
 
 import logging
@@ -10,8 +10,8 @@ import sys
 
 import mcp
 
-from verity.config import load_deployment_state
-from verity.transport.mcp import create_server
+from omneum.config import load_deployment_state
+from omneum.transport.mcp import create_server
 
 
 _MCP_PACKAGE_ROOT = Path(mcp.__file__).resolve().parent
@@ -61,14 +61,14 @@ logger = logging.getLogger(__name__)
 
 def main() -> None:
     """
-    Initialize and start the Verity MCP server over stdio.
+    Initialize and start the Omneum MCP server over stdio.
     """
 
     state = load_deployment_state()
     server = create_server(state)
 
     try:
-        logger.info("Starting Verity MCP server over stdio...")
+        logger.info("Starting Omneum MCP server over stdio...")
         server.run()
 
     except KeyboardInterrupt:

@@ -6,9 +6,9 @@ from tempfile import TemporaryDirectory
 
 from mcp import StdioServerParameters
 
-from verity import VerityClientConfig
-from verity.base64url import encode_unpadded
-from verity.oprf import VOPRFServer
+from omneum import OmneumClientConfig
+from omneum.base64url import encode_unpadded
+from omneum.oprf import VOPRFServer
 
 
 DEPLOYMENT_ID = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"
@@ -19,9 +19,9 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 @contextmanager
 def example_deployment():
     root = Path(__file__).parents[2]
-    with TemporaryDirectory(prefix="verity-example-") as directory:
+    with TemporaryDirectory(prefix="omneum-example-") as directory:
         home = Path(directory) / "home"
-        config_dir = home / ".config" / "Verity"
+        config_dir = home / ".config" / "Omneum"
         private_key_file = config_dir / "keys" / "voprf.key"
         private_key_file.parent.mkdir(parents=True)
         private_key_file.write_bytes(PRIVATE_KEY)
@@ -34,14 +34,14 @@ def example_deployment():
             "PYTHONPATH": str(root),
         }
         for name in tuple(environment):
-            if name.startswith("VERITY_"):
+            if name.startswith("OMNEUM_"):
                 del environment[name]
         (config_dir / "config.toml").write_text(
             f'deployment_id = "{DEPLOYMENT_ID}"\n'
             'voprf_key_version = 1\n'
             f'voprf_public_key = "{encode_unpadded(public_key, expected_length=32)}"\n'
         )
-        config = VerityClientConfig(
+        config = OmneumClientConfig(
             deployment_id=DEPLOYMENT_ID,
             voprf_key_version=1,
             voprf_mode="voprf",
@@ -51,7 +51,7 @@ def example_deployment():
         )
         server = StdioServerParameters(
             command=sys.executable,
-            args=["-m", "verity.server"],
+            args=["-m", "omneum.server"],
             cwd=root,
             env=environment,
         )

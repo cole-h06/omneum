@@ -6,7 +6,7 @@ from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters, stdio_client
 
-from verity.base64url import encode_unpadded
+from omneum.base64url import encode_unpadded
 from stdio_state import isolated_deployment_environment
 
 
@@ -101,7 +101,7 @@ def test_infer_stdio(tmp_path):
         root = Path(__file__).parents[1]
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
-            args=["-m", "verity.server"],
+            args=["-m", "omneum.server"],
             cwd=root,
             env=provisioning(tmp_path),
         )
@@ -132,7 +132,7 @@ def test_infer_stdio(tmp_path):
                     "assertion_count": 15,
                 }
                 assert content["metadata"] == {
-                    "algorithm_version": "verity-v1",
+                    "algorithm_version": "omneum-v1",
                     "iterations": 9,
                     "converged": True,
                     "convergence_tolerance": 1e-8,
@@ -161,7 +161,7 @@ def test_infer_stdio(tmp_path):
                 assert invalid.isError
                 assert invalid.structuredContent == {
                     "message": "The assertion graph is invalid.",
-                    "verity_code": "invalid_graph",
+                    "omneum_code": "invalid_graph",
                 }
 
     asyncio.run(run())

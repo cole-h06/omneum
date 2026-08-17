@@ -1,3 +1,0 @@
-"""
-Verity MCP protocol tools.
-"""

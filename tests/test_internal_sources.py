@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from verity.canonicalization import canonicalize_source
-from verity.linkage import LinkagePurpose, encode_linkage_input
-from verity.oprf import VOPRFClient, VOPRFServer
-from verity.serialization import serialize_source
+from omneum.canonicalization import canonicalize_source
+from omneum.linkage import LinkagePurpose, encode_linkage_input
+from omneum.oprf import VOPRFClient, VOPRFServer
+from omneum.serialization import serialize_source
 
 
 VECTOR_DIR = Path(__file__).parent / "vectors"

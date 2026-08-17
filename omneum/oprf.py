@@ -14,7 +14,7 @@ OUTPUT_LENGTH = 64
 
 
 class OPRFError(Exception):
-    """Base exception for Verity OPRF failures."""
+    """Base exception for Omneum OPRF failures."""
 
 
 class OPRFBackendUnavailableError(OPRFError):
@@ -87,13 +87,13 @@ class VOPRFBackend(Protocol):
 class NativeVOPRFBackend:
     def __init__(self) -> None:
         try:
-            import verity_oprf
+            import omneum_oprf
         except ImportError as exc:
             raise OPRFBackendUnavailableError(
-                "The Verity RFC 9497 native backend is not installed."
+                "The Omneum RFC 9497 native backend is not installed."
             ) from exc
 
-        self._native = verity_oprf
+        self._native = omneum_oprf
 
     def blind(
         self,

@@ -3,7 +3,7 @@ from llama_index.core.workflow import Workflow, step, StartEvent, StopEvent, Eve
 from examples.enterprise.config import example_deployment
 from examples.enterprise.workflow.run import collect_observations, estimator_config, render_result
 
-from verity import AssertionEvaluation, Observation, open_stdio_client
+from omneum import AssertionEvaluation, Observation, open_stdio_client
 
 
 class ObservationsEvent(Event):

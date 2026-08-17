@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from verity import Claim, Observation, Source, SourceReference
+from omneum import Claim, Observation, Source, SourceReference
 
 
 SCOPE = "7c710000-1234-4abc-8def-123456789abc"

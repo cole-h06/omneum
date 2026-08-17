@@ -25,7 +25,7 @@ from examples.enterprise.workflow.run import (
     estimator_config,
     run_workflow,
 )
-from verity.dependency import estimate_dependencies
+from omneum.dependency import estimate_dependencies
 SOURCES = {
     "policy": POLICY_SOURCE,
     "runbook": RUNBOOK_SOURCE,

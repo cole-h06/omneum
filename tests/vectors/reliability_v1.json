@@ -150,7 +150,7 @@
       }
     ],
     "metadata": {
-      "algorithm_version": "verity-v1",
+      "algorithm_version": "omneum-v1",
       "iterations": 9,
       "converged": true,
       "convergence_tolerance": 1e-08,

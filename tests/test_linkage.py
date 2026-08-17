@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from verity.linkage import (
+from omneum.linkage import (
     ENCODING_VERSION,
     HEADER_SIZE,
     MAX_LINKAGE_INPUT_SIZE,
@@ -18,13 +18,13 @@ from verity.linkage import (
     LinkagePurpose,
     encode_linkage_input,
 )
-from verity.oprf import (
+from omneum.oprf import (
     VOPRFBlindResult,
     VOPRFClient,
     VOPRFEvaluation,
     VOPRFServer,
 )
-from verity.serialization import (
+from omneum.serialization import (
     MAX_LINKAGE_PAYLOAD_SIZE,
     serialize_attribute,
     serialize_claim,

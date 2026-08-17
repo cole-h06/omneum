@@ -1,9 +1,9 @@
-# Verity Protocol
+# Omneum Protocol
 
 ## 1. Introduction
 
-The Verity Protocol defines the interoperability contract between clients and
-Verity deployments. It describes how clients transform canonical structured
+The Omneum Protocol defines the interoperability contract between clients and
+Omneum deployments. It describes how clients transform canonical structured
 values into privacy-preserving linkage tokens and submit assertion graphs for
 assertion evaluation.
 
@@ -34,7 +34,7 @@ Version 1 has the following implementation status:
 | `trace_claim` | Deferred |
 | Overlapping-key rotation | Deferred |
 | Remote transport profile | Deferred |
-| Verity Cloud and multi-tenancy | Out of scope |
+| Omneum Cloud and multi-tenancy | Out of scope |
 
 ## 4. Core Concepts
 
@@ -46,7 +46,7 @@ It groups claims that describe competing values for that property.
 A **Claim** is a canonical entity, attribute, and value tuple.
 
 An **Assertion** is a directed relationship from one source to one claim.
-Assertions are the edges of the Verity assertion graph.
+Assertions are the edges of the Omneum assertion graph.
 
 A **Client** performs content-sensitive processing locally, constructs protocol
 requests, and verifies VOPRF evaluations.
@@ -97,11 +97,11 @@ Version 1 separates values that evolve for different reasons:
 | Field | Version-1 value | Meaning |
 | --- | --- | --- |
 | `protocol_version` | `"v1"` | MCP request and response contract |
-| `algorithm_version` | `"verity-v1"` | Source-reliability algorithm |
+| `algorithm_version` | `"omneum-v1"` | Source-reliability algorithm |
 | `voprf_mode` | `"voprf"` | RFC 9497 protocol mode |
 | `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF group and hash suite |
 | `voprf_key_version` | integer `1..2^32-1` | Deployment VOPRF key |
-| `linkage_encoding_version` | integer `1` | Verity linkage input encoding |
+| `linkage_encoding_version` | integer `1` | Omneum linkage input encoding |
 
 `algorithm_version` applies to the source-reliability and claim-support
 algorithm, not VOPRF evaluation.
@@ -118,7 +118,7 @@ A conforming client performs the following steps:
 structured extraction
     -> semantic canonicalization
     -> strict RFC 8785 fixed-schema serialization
-    -> Verity linkage domain encoding
+    -> Omneum linkage domain encoding
     -> VOPRF blinding
     -> server evaluation and proof generation
     -> response metadata validation
@@ -316,7 +316,7 @@ authenticated configuration management and deployment controls.
 and algorithm are defined in `api.md`. The Python SDK implements local
 dependency estimation, linkage, request submission, response validation, and
 mapping of opaque results back to application-local values. Remote transport
-and Verity Cloud integration are not implemented.
+and Omneum Cloud integration are not implemented.
 
 Before linkage, the client canonicalizes application-local assertions and
 estimates the symmetric dependency and weighted signal coverage for every
@@ -390,7 +390,7 @@ Successful `evaluate_voprf` responses necessarily contain the evaluated
 element and proof. Successful assertion-evaluation responses may contain linkage
 identifiers.
 
-Verity does not intentionally log protocol values. The local server suppresses
+Omneum does not intentionally log protocol values. The local server suppresses
 MCP SDK protocol-message logging before processing requests, even when the root
 logger is configured for debug output.
 

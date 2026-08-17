@@ -1,6 +1,6 @@
 # OpenAI Agents SDK
 
-This example integrates Verity into an OpenAI Agents SDK workflow.
+This example integrates Omneum into an OpenAI Agents SDK workflow.
 
 It reuses the enterprise workflow from `examples/enterprise`. Only the
 orchestration changes.
@@ -9,7 +9,7 @@ orchestration changes.
 
 - Invoke the retrieval tool.
 - Collect the retrieved observations.
-- Submit the observations to Verity.
+- Submit the observations to Omneum.
 - Generate the final response from the returned assertion evaluation.
 
 ## Requirements
@@ -38,5 +38,5 @@ python -m examples.openai_agents.run
 
 ## Files
 
-- `agent.py` — agent and Verity tool definition
+- `agent.py` — agent and Omneum tool definition
 - `run.py` — entry point

@@ -3,7 +3,7 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-from verity.paths import get_config_dir
+from omneum.paths import get_config_dir
 
 
 @dataclass

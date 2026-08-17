@@ -5,7 +5,7 @@ requires = [
 build-backend = "maturin"
 
 [project]
-name = "verity"
+name = "omneum"
 version = "1.0.0"
 description = "A data trust gateway for agentic systems."
 requires-python = ">=3.11"
@@ -20,9 +20,9 @@ dependencies = [
 ]
 
 [project.scripts]
-verity = "verity.cli:app"
-verity-server = "verity.server:main"
+omneum = "omneum.cli:app"
+omneum-server = "omneum.server:main"
 
 [tool.maturin]
-module-name = "verity_oprf"
-python-packages = ["verity"]
+module-name = "omneum_oprf"
+python-packages = ["omneum"]

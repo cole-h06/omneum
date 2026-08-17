@@ -7,15 +7,15 @@ import threading
 
 import pytest
 
-from verity.config import DeploymentState
-from verity.models import EvaluateVOPRFRequest
-from verity.oprf import (
+from omneum.config import DeploymentState
+from omneum.models import EvaluateVOPRFRequest
+from omneum.oprf import (
     InvalidBlindedElementError,
     OPRFProtocolError,
     VOPRFEvaluation,
 )
-from verity.tools.evaluate_voprf import EvaluationService
-from verity.transport.mcp import create_server
+from omneum.tools.evaluate_voprf import EvaluationService
+from omneum.transport.mcp import create_server
 
 
 DEPLOYMENT_ID = (
@@ -104,12 +104,12 @@ def code(result) -> str:
     assert result.structuredContent is not None
     assert set(result.structuredContent) == {
         "message",
-        "verity_code",
+        "omneum_code",
     }
     assert json.loads(result.content[0].text) == (
         result.structuredContent
     )
-    return result.structuredContent["verity_code"]
+    return result.structuredContent["omneum_code"]
 
 
 def test_request_schema() -> None:

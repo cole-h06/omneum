@@ -13,9 +13,9 @@ from mcp import (
     stdio_client,
 )
 
-import verity.server as server_module
-from verity.config import ConfigurationError
-from verity.oprf import (
+import omneum.server as server_module
+from omneum.config import ConfigurationError
+from omneum.oprf import (
     VOPRFClient,
     VOPRFEvaluation,
     VOPRFServer,
@@ -42,7 +42,7 @@ def test_ping(tmp_path: Path) -> None:
         environment, public_key, _ = provisioning(tmp_path)
         parameters = StdioServerParameters(
             command=str(root / ".venv/bin/python"),
-            args=["-m", "verity.server"],
+            args=["-m", "omneum.server"],
             cwd=root,
             env=environment,
         )
@@ -118,7 +118,7 @@ def test_ping(tmp_path: Path) -> None:
                 assert content is not None
                 assert content["status"] == "ok"
                 assert content["protocol_version"] == "v1"
-                assert content["algorithm_version"] == "verity-v1"
+                assert content["algorithm_version"] == "omneum-v1"
                 assert content["deployment_id"] == DEPLOYMENT_ID
                 assert content["voprf_key_version"] == 1
                 assert content["voprf_mode"] == "voprf"
@@ -225,7 +225,7 @@ def test_ping(tmp_path: Path) -> None:
                 assert invalid.isError
                 assert invalid.structuredContent == {
                     "message": "Request validation failed.",
-                    "verity_code": "invalid_request",
+                    "omneum_code": "invalid_request",
                 }
 
                 for malformed in (
@@ -248,7 +248,7 @@ def test_ping(tmp_path: Path) -> None:
                         "message": (
                             "Request validation failed."
                         ),
-                        "verity_code": "invalid_request",
+                        "omneum_code": "invalid_request",
                     }
 
                 mismatch = await session.call_tool(
@@ -263,7 +263,7 @@ def test_ping(tmp_path: Path) -> None:
                     "message": (
                         "The VOPRF key version does not match."
                     ),
-                    "verity_code": (
+                    "omneum_code": (
                         "voprf_key_version_mismatch"
                     ),
                 }
@@ -284,7 +284,7 @@ def test_invalid_provisioning(tmp_path: Path) -> None:
         [
             str(root / ".venv/bin/python"),
             "-m",
-            "verity.server",
+            "omneum.server",
         ],
         cwd=root,
         env=environment,
@@ -295,7 +295,7 @@ def test_invalid_provisioning(tmp_path: Path) -> None:
     )
 
     assert result.returncode != 0
-    assert "Starting Verity MCP server" not in result.stderr
+    assert "Starting Omneum MCP server" not in result.stderr
     assert PRIVATE_KEY.hex() not in result.stderr
 
 
@@ -361,7 +361,7 @@ def test_mcp_logs_suppressed():
             None,
         )
         root_logger.handle(root_record)
-        logging.getLogger("verity.test").debug("application-value")
+        logging.getLogger("omneum.test").debug("application-value")
     finally:
         root_logger.removeHandler(handler)
         root_logger.setLevel(original_level)

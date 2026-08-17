@@ -1,6 +1,6 @@
 # Enterprise
 
-This example integrates Verity into an enterprise AI application that retrieves information from multiple internal and external sources.
+This example integrates Omneum into an enterprise AI application that retrieves information from multiple internal and external sources.
 
 The application answers the question:
 
@@ -10,7 +10,7 @@ The application answers the question:
 
 Five retrieval agents collect structured observations from enterprise systems such as governance documents, deployment records, live configuration, generated reports, and vendor documentation.
 
-Verity evaluates:
+Omneum evaluates:
 
 - Which claims are most strongly supported
 - Where retrieved information conflicts

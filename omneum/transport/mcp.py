@@ -1,7 +1,7 @@
 """
-Verity MCP Transport.
+Omneum MCP Transport.
 
-Configures the FastMCP server and registers the Verity protocol tools.
+Configures the FastMCP server and registers the Omneum protocol tools.
 """
 
 from contextlib import asynccontextmanager
@@ -11,23 +11,23 @@ from mcp.server.fastmcp.exceptions import ToolError
 from mcp.types import CallToolResult
 from pydantic import ValidationError
 
-from verity.config import DeploymentState
-from verity.models import (
+from omneum.config import DeploymentState
+from omneum.models import (
     Assertion,
     EvaluateVOPRFRequest,
     EvaluateAssertionRequest,
     SourcePair,
 )
-from verity.tools.evaluate_voprf import (
+from omneum.tools.evaluate_voprf import (
     EvaluationService,
     invalid_request_result,
 )
-from verity.tools.evaluate_assertion import AssertionEvaluationService
-from verity.tools.ping import handle_ping
+from omneum.tools.evaluate_assertion import AssertionEvaluationService
+from omneum.tools.ping import handle_ping
 
 
-class VerityFastMCP(FastMCP):
-    """FastMCP server with stable Verity validation failures."""
+class OmneumFastMCP(FastMCP):
+    """FastMCP server with stable Omneum validation failures."""
 
     async def call_tool(
         self,
@@ -47,7 +47,7 @@ class VerityFastMCP(FastMCP):
 
 def create_server(state: DeploymentState) -> FastMCP:
     """
-    Create and configure the Verity MCP server.
+    Create and configure the Omneum MCP server.
     """
 
     evaluation_service = EvaluationService(state)
@@ -61,20 +61,20 @@ def create_server(state: DeploymentState) -> FastMCP:
             assertion_service.close()
             evaluation_service.close()
 
-    mcp = VerityFastMCP(
-        "Verity",
+    mcp = OmneumFastMCP(
+        "Omneum",
         lifespan=lifespan,
     )
 
     @mcp.tool(
         name="ping",
         description=(
-            "Verify that the Verity MCP server is reachable."
+            "Verify that the Omneum MCP server is reachable."
         ),
     )
     async def ping() -> dict[str, str | int]:
         """
-        Verify that the Verity MCP server is reachable.
+        Verify that the Omneum MCP server is reachable.
         """
 
         return await handle_ping(state)

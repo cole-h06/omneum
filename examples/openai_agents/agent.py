@@ -2,12 +2,12 @@ from agents import Agent, function_tool
 
 from examples.enterprise.config import example_deployment
 from examples.enterprise.workflow.run import collect_observations, estimator_config, render_result
-from verity import open_stdio_client
+from omneum import open_stdio_client
 
 
 @function_tool
 async def evaluate_assertion() -> str:
-    """Evaluate the retrieved observations with Verity.
+    """Evaluate the retrieved observations with Omneum.
 
     Returns a formatted summary of the assertion evaluation results.
     """

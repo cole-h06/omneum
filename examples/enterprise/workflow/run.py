@@ -1,6 +1,6 @@
 import asyncio
 
-from verity import (
+from omneum import (
     DependencyEstimatorConfig,
     explain_claim,
     explain_dependency,

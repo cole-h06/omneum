@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from verity import Observation
+from omneum import Observation
 
 
 class WorkflowState(BaseModel):

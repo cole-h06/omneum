@@ -154,25 +154,25 @@
       ["orders_api", "orders_store", 0.0, 0.9]
     ],
     "source_reliability": {
-      "policy_manual": 0.33333333287911304,
-      "support_portal": 0.33333333287911304,
-      "orders_api": 1.362661034300326e-9,
-      "orders_store": 0.33333333287911304
+      "policy_manual": 0.333333332879113,
+      "support_portal": 0.333333332879113,
+      "orders_api": 1.3626610343003259e-9,
+      "orders_store": 0.333333332879113
     },
     "majority_claim": {
-      "support": 0.287499999608235,
+      "support": 0.2874999996082349,
       "agreement_weight": 0.75,
       "estimated_independent_support_count": 2.0454545454545454,
       "dependency_confidence": 1.0,
       "supporting_sources": {
-        "policy_manual": [0.675, 0.08437499988502549],
-        "support_portal": [0.775, 0.09687499986799224],
-        "orders_store": [0.85, 0.10624999985521728]
+        "policy_manual": [0.675, 0.08437499988502548],
+        "support_portal": [0.775, 0.09687499986799221],
+        "orders_store": [0.85, 0.10624999985521726]
       },
       "clusters": [["policy_manual", "support_portal"], ["orders_store"]]
     },
     "minority_claim": {
-      "support": 1.7033262928754076e-10,
+      "support": 1.7033262928754073e-10,
       "agreement_weight": 0.25,
       "estimated_independent_support_count": 1.0,
       "dependency_confidence": null,

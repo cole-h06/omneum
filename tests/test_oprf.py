@@ -10,10 +10,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
-import verity_oprf
+import omneum_oprf
 from hypothesis import given, settings, strategies as st
 
-from verity.oprf import (
+from omneum.oprf import (
     InvalidBlindedElementError,
     OPRFProtocolError,
     VOPRFBlindResult,
@@ -231,20 +231,20 @@ def test_concurrent_server_context() -> None:
 def test_server_context(tmp_path: Path) -> None:
     private_key_file = tmp_path / "private-value.key"
     private_key_file.write_bytes(SERVER_KEY)
-    context = verity_oprf._VOPRFServerContext(
+    context = omneum_oprf._VOPRFServerContext(
         str(private_key_file)
     )
 
     assert len(context.public_key) == 32
     assert repr(context) == (
-        "<verity_oprf._VOPRFServerContext>"
+        "<omneum_oprf._VOPRFServerContext>"
     )
     assert str(private_key_file) not in repr(context)
     assert SERVER_KEY.hex() not in repr(context)
     assert not hasattr(context, "__dict__")
     assert not hasattr(context, "private_key")
-    assert not hasattr(verity_oprf, "derive_public_key")
-    assert not hasattr(verity_oprf, "evaluate")
+    assert not hasattr(omneum_oprf, "derive_public_key")
+    assert not hasattr(omneum_oprf, "evaluate")
 
     with pytest.raises(TypeError):
         copy.copy(context)
@@ -271,8 +271,8 @@ def test_fifo_key_file(tmp_path: Path) -> None:
     fifo = tmp_path / "voprf.key"
     os.mkfifo(fifo)
     code = (
-        "import sys, verity_oprf; "
-        "verity_oprf._VOPRFServerContext(sys.argv[1])"
+        "import sys, omneum_oprf; "
+        "omneum_oprf._VOPRFServerContext(sys.argv[1])"
     )
 
     result = subprocess.run(

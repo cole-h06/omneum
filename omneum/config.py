@@ -21,7 +21,7 @@ from .paths import get_config_dir, get_private_key_path
 
 
 PROTOCOL_VERSION = "v1"
-ALGORITHM_VERSION = "verity-v1"
+ALGORITHM_VERSION = "omneum-v1"
 VOPRF_MODE = "voprf"
 MIN_KEY_VERSION = 1
 MAX_KEY_VERSION = 2**32 - 1
@@ -38,15 +38,15 @@ DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS = 1_000
 MIN_ASSERTION_EVALUATION_TIMEOUT_MS = 1
 MAX_ASSERTION_EVALUATION_TIMEOUT_MS = 60_000
 
-_DEPLOYMENT_ID = "VERITY_DEPLOYMENT_ID"
-_KEY_VERSION = "VERITY_VOPRF_KEY_VERSION"
-_PUBLIC_KEY = "VERITY_VOPRF_PUBLIC_KEY"
-_PRIVATE_KEY_FILE = "VERITY_VOPRF_PRIVATE_KEY_FILE"
-_MAX_CONCURRENCY = "VERITY_VOPRF_MAX_CONCURRENCY"
-_EVALUATION_TIMEOUT_MS = "VERITY_VOPRF_EVALUATION_TIMEOUT_MS"
-_ASSERTION_EVALUATION_MAX_CONCURRENCY = "VERITY_ASSERTION_EVALUATION_MAX_CONCURRENCY"
-_ASSERTION_EVALUATION_TIMEOUT_MS = "VERITY_ASSERTION_EVALUATION_TIMEOUT_MS"
-_FINGERPRINT_LABEL = b"VERITY-VOPRF-CONFIG\x00"
+_DEPLOYMENT_ID = "OMNEUM_DEPLOYMENT_ID"
+_KEY_VERSION = "OMNEUM_VOPRF_KEY_VERSION"
+_PUBLIC_KEY = "OMNEUM_VOPRF_PUBLIC_KEY"
+_PRIVATE_KEY_FILE = "OMNEUM_VOPRF_PRIVATE_KEY_FILE"
+_MAX_CONCURRENCY = "OMNEUM_VOPRF_MAX_CONCURRENCY"
+_EVALUATION_TIMEOUT_MS = "OMNEUM_VOPRF_EVALUATION_TIMEOUT_MS"
+_ASSERTION_EVALUATION_MAX_CONCURRENCY = "OMNEUM_ASSERTION_EVALUATION_MAX_CONCURRENCY"
+_ASSERTION_EVALUATION_TIMEOUT_MS = "OMNEUM_ASSERTION_EVALUATION_TIMEOUT_MS"
+_FINGERPRINT_LABEL = b"OMNEUM-VOPRF-CONFIG\x00"
 
 
 class ConfigurationError(ValueError):
@@ -136,7 +136,7 @@ def load_config_file() -> dict[str, object]:
             return tomllib.load(file)
     except FileNotFoundError:
         raise ConfigurationError(
-            "Deployment has not been initialized. Run 'verity init'."
+            "Deployment has not been initialized. Run 'omneum init'."
         ) from None
     except (OSError, tomllib.TOMLDecodeError):
         raise ConfigurationError(
@@ -295,11 +295,11 @@ def _optional_bounded_integer(
 def _parse_key_version(value: str) -> int:
     if not value.isascii() or not value.isdecimal():
         raise ConfigurationError(
-            "VERITY_VOPRF_KEY_VERSION must be an integer."
+            "OMNEUM_VOPRF_KEY_VERSION must be an integer."
         )
     if len(value) > 1 and value.startswith("0"):
         raise ConfigurationError(
-            "VERITY_VOPRF_KEY_VERSION must be canonical."
+            "OMNEUM_VOPRF_KEY_VERSION must be canonical."
         )
 
     version = int(value)
@@ -315,7 +315,7 @@ def _decode_public_key(value: str) -> bytes:
         )
     except ValueError:
         raise ConfigurationError(
-            "VERITY_VOPRF_PUBLIC_KEY must be canonical base64url."
+            "OMNEUM_VOPRF_PUBLIC_KEY must be canonical base64url."
         ) from None
 
 

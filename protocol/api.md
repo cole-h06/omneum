@@ -1,6 +1,6 @@
-# Verity API Reference
+# Omneum API Reference
 
-The Verity API defines the version-1 tool schemas used by clients and
+The Omneum API defines the version-1 tool schemas used by clients and
 deployments. The schemas are transport-independent. The reference
 implementation uses the Model Context Protocol (MCP).
 
@@ -32,7 +32,7 @@ corresponding tool is currently registered.
 | Property | Version-1 value | Description |
 | --- | --- | --- |
 | `protocol_version` | `"v1"` | Tool request and response contract |
-| `algorithm_version` | `"verity-v1"` | Source-reliability algorithm |
+| `algorithm_version` | `"omneum-v1"` | Source-reliability algorithm |
 | `voprf_mode` | `"voprf"` | RFC 9497 VOPRF mode |
 | `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF ciphersuite |
 | `voprf_key_version` | `1..2^32-1` | Active deployment key |
@@ -77,18 +77,18 @@ configuration as described in `protocol.md`. The evaluation endpoint and
 
 ## 5. Errors
 
-Verity failures carry a stable `verity_code`. The MCP binding MAY represent the
+Omneum failures carry a stable `omneum_code`. The MCP binding MAY represent the
 failure as a JSON-RPC error or a tool execution error according to the SDK in
 use. Exact numeric JSON-RPC mappings will be fixed with the MCP implementation;
-clients MUST use `verity_code`, not a numeric transport code, to classify
-Verity failures.
+clients MUST use `omneum_code`, not a numeric transport code, to classify
+Omneum failures.
 
 An error has this logical shape:
 
 ```json
 {
   "message": "Request validation failed.",
-  "verity_code": "invalid_request"
+  "omneum_code": "invalid_request"
 }
 ```
 
@@ -167,7 +167,7 @@ Unknown request fields MUST be rejected.
 {
   "status": "ok",
   "protocol_version": "v1",
-  "algorithm_version": "verity-v1",
+  "algorithm_version": "omneum-v1",
   "deployment_id": "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741",
   "voprf_key_version": 1,
   "voprf_mode": "voprf",
@@ -192,7 +192,7 @@ Unknown request fields MUST be rejected.
 The fingerprint is computed over:
 
 ```text
-"VERITY-VOPRF-CONFIG\x00"
+"OMNEUM-VOPRF-CONFIG\x00"
 || field(deployment_id as ASCII)
 || field(voprf_key_version as 4-byte unsigned big-endian)
 || field(voprf_mode as ASCII)
@@ -293,7 +293,7 @@ the same token.
 Status: **implemented for local MCP stdio**, including the Python SDK flow that
 performs local dependency estimation and linkage, submits the assertion-evaluation
 request, validates the response, and maps opaque results back to local values.
-Remote transport and Verity Cloud integration are not implemented.
+Remote transport and Omneum Cloud integration are not implemented.
 
 The complete assertion graph and its complete source-pair matrix are supplied
 in each request. Assertion evaluation is deterministic and request-scoped. The server
@@ -404,7 +404,7 @@ explanations.
     }
   ],
   "metadata": {
-    "algorithm_version": "verity-v1",
+    "algorithm_version": "omneum-v1",
     "iterations": 1,
     "converged": true,
     "convergence_tolerance": 1e-8,
@@ -434,7 +434,7 @@ heuristic, not a count of verified origins.
 
 Successful metadata has exactly `algorithm_version`, `iterations`,
 `converged`, `convergence_tolerance`, and `convergence_delta`.
-`algorithm_version` is `"verity-v1"`, `iterations` is in `1..1000`,
+`algorithm_version` is `"omneum-v1"`, `iterations` is in `1..1000`,
 `converged` is `true`, and `convergence_tolerance` is `1e-8`.
 `computation_time_ms` is not interoperable response data.
 
@@ -529,7 +529,7 @@ specific error codes.
 Immediate capacity exhaustion is `server_busy`; a deadline is
 `request_timeout`; zero-total propagation, nonconvergence, or invalid numeric
 output is `assertion_evaluation_failed`. Failure responses MUST contain only `message`
-and `verity_code` and MUST NOT reflect submitted values.
+and `omneum_code` and MUST NOT reflect submitted values.
 
 Assertion-evaluation authorization is separate from VOPRF evaluation authorization.
 
@@ -567,7 +567,7 @@ the installed parser's last-value semantics.
 Timed-out Python work cannot be forcibly terminated. Its admission slot
 remains occupied until the underlying work finishes.
 
-Verity does not intentionally log protocol values. The local server suppresses
+Omneum does not intentionally log protocol values. The local server suppresses
 MCP SDK protocol-message logging before processing requests, including SDK
 records that would otherwise be emitted through the root logger.
 
@@ -597,5 +597,5 @@ operation. For example:
 ```
 
 Request identifiers, initialization, cancellation, and transport framing follow
-the MCP specification. The Verity validation and error requirements in this
+the MCP specification. The Omneum validation and error requirements in this
 document apply inside that binding.

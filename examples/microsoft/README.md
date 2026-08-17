@@ -1,6 +1,6 @@
 # Microsoft Agent Framework
 
-This example integrates Verity into a Microsoft Agent Framework agent.
+This example integrates Omneum into a Microsoft Agent Framework agent.
 
 It reuses the enterprise workflow from `examples/enterprise`. Only the
 orchestration changes.
@@ -9,7 +9,7 @@ orchestration changes.
 
 - Invoke the retrieval tool.
 - Collect the retrieved observations.
-- Submit the observations to Verity.
+- Submit the observations to Omneum.
 - Generate the final response from the returned assertion evaluation.
 
 ## Requirements
@@ -40,5 +40,5 @@ python -m examples.microsoft_agent_framework.run
 
 ## Files
 
-- `agent.py` — Microsoft Agent Framework agent and Verity tool definition
+- `agent.py` — Microsoft Agent Framework agent and Omneum tool definition
 - `run.py` — entry point

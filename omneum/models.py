@@ -9,7 +9,7 @@ from pydantic import (
 )
 
 
-VerityCode = Literal[
+OmneumCode = Literal[
     "request_too_large",
     "invalid_request",
     "authentication_required",
@@ -94,7 +94,7 @@ class EvaluateVOPRFResponse(BaseModel):
         return _canonical_deployment_id(value)
 
 
-class VerityErrorResponse(BaseModel):
+class OmneumErrorResponse(BaseModel):
     """Stable structured tool failure."""
 
     model_config = ConfigDict(
@@ -103,7 +103,7 @@ class VerityErrorResponse(BaseModel):
     )
 
     message: str
-    verity_code: VerityCode
+    omneum_code: OmneumCode
 
 
 class _StrictModel(BaseModel):

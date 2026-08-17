@@ -376,6 +376,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
+name = "omneum_oprf"
+version = "0.1.0"
+dependencies = [
+ "bolero",
+ "libc",
+ "pyo3",
+ "rand 0.8.7",
+ "voprf",
+ "zeroize",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -698,18 +710,6 @@ name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
-
-[[package]]
-name = "verity_oprf"
-version = "0.1.0"
-dependencies = [
- "bolero",
- "libc",
- "pyo3",
- "rand 0.8.7",
- "voprf",
- "zeroize",
-]
 
 [[package]]
 name = "version_check"

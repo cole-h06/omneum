@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from verity.oprf import VOPRFServer
+from omneum.oprf import VOPRFServer
 
 
 def isolated_deployment_environment(
@@ -22,13 +22,13 @@ def isolated_deployment_environment(
         "PYTHONPATH": str(Path(__file__).parents[1]),
     }
     for name in tuple(environment):
-        if name.startswith("VERITY_"):
+        if name.startswith("OMNEUM_"):
             del environment[name]
     resolved = subprocess.run(
         [
             sys.executable,
             "-c",
-            "from verity.paths import get_config_dir; print(get_config_dir())",
+            "from omneum.paths import get_config_dir; print(get_config_dir())",
         ],
         env=environment,
         capture_output=True,

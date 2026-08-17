@@ -6,21 +6,21 @@ from pathlib import Path
 import pytest
 from mcp.types import CallToolResult
 
-import verity
-import verity.client as client_module
-from verity.base64url import decode_unpadded, encode_unpadded
-from verity.client import (
+import omneum
+import omneum.client as client_module
+from omneum.base64url import decode_unpadded, encode_unpadded
+from omneum.client import (
     EvaluationRejectedError,
     EvaluationResponseError,
     EvaluationTransportError,
     EvaluationVerificationError,
-    VerityClient,
-    VerityClientConfig,
-    _MCPVerityEvaluator,
+    OmneumClient,
+    OmneumClientConfig,
+    _MCPOmneumEvaluator,
     open_stdio_client,
 )
-from verity.models import EvaluateVOPRFRequest
-from verity.oprf import VOPRFServer
+from omneum.models import EvaluateVOPRFRequest
+from omneum.oprf import VOPRFServer
 
 
 DEPLOYMENT_ID = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"
@@ -28,7 +28,7 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 
 def test_package_exports() -> None:
-    assert verity.__all__ == [
+    assert omneum.__all__ == [
         "Claim",
         "ClaimSupportResult",
         "ConflictingClaimResult",
@@ -54,10 +54,10 @@ def test_package_exports() -> None:
         "SourceEvaluation",
         "SourceReference",
         "SupportingSourceResult",
-        "VerityClient",
-        "VerityClientConfig",
-        "VerityClientConfigurationError",
-        "VerityClientError",
+        "OmneumClient",
+        "OmneumClientConfig",
+        "OmneumClientConfigurationError",
+        "OmneumClientError",
         "explain_claim",
         "explain_dependency",
         "open_stdio_client",
@@ -70,8 +70,8 @@ def make_server(tmp_path: Path) -> VOPRFServer:
     return VOPRFServer(key)
 
 
-def make_config(oprf_server: VOPRFServer) -> VerityClientConfig:
-    return VerityClientConfig(
+def make_config(oprf_server: VOPRFServer) -> OmneumClientConfig:
+    return OmneumClientConfig(
         deployment_id=DEPLOYMENT_ID,
         voprf_key_version=1,
         voprf_mode="voprf",
@@ -157,7 +157,7 @@ def test_linkage(tmp_path: Path) -> None:
     async def run() -> None:
         oprf_server = make_server(tmp_path)
         evaluator = LocalEvaluator(oprf_server)
-        client = VerityClient(
+        client = OmneumClient(
             make_config(oprf_server),
             evaluator,
         )
@@ -227,7 +227,7 @@ def test_invalid_response(
 ) -> None:
     async def run() -> None:
         oprf_server = make_server(tmp_path)
-        client = VerityClient(
+        client = OmneumClient(
             make_config(oprf_server),
             FixedEvaluator(success_result(**changes)),
         )
@@ -245,8 +245,8 @@ def test_invalid_response(
     [
         None,
         {"message": "secret"},
-        {"message": "secret", "verity_code": "future_code"},
-        {"message": "secret", "verity_code": "server_busy", "extra": True},
+        {"message": "secret", "omneum_code": "future_code"},
+        {"message": "secret", "omneum_code": "server_busy", "extra": True},
     ],
 )
 def test_invalid_error(
@@ -255,7 +255,7 @@ def test_invalid_error(
 ) -> None:
     async def run() -> None:
         oprf_server = make_server(tmp_path)
-        client = VerityClient(
+        client = OmneumClient(
             make_config(oprf_server),
             FixedEvaluator(error_result(content)),
         )
@@ -274,10 +274,10 @@ def test_rejected_error(tmp_path: Path) -> None:
         result = error_result(
             {
                 "message": "arbitrary secret",
-                "verity_code": "server_busy",
+                "omneum_code": "server_busy",
             }
         )
-        client = VerityClient(
+        client = OmneumClient(
             make_config(oprf_server),
             FixedEvaluator(result),
         )
@@ -287,7 +287,7 @@ def test_rejected_error(tmp_path: Path) -> None:
                 "https://example.com",
             )
         assert str(caught.value) == "VOPRF evaluation was rejected."
-        assert caught.value.verity_code == "server_busy"
+        assert caught.value.omneum_code == "server_busy"
         assert "secret" not in repr(caught.value)
 
     asyncio.run(run())
@@ -296,7 +296,7 @@ def test_rejected_error(tmp_path: Path) -> None:
 def test_invalid_proof(tmp_path: Path) -> None:
     async def run() -> None:
         oprf_server = make_server(tmp_path)
-        client = VerityClient(
+        client = OmneumClient(
             make_config(oprf_server),
             FixedEvaluator(success_result()),
         )
@@ -334,12 +334,12 @@ def test_adapter_errors() -> None:
                 expected_length=32,
             ),
         )
-        cancelled = _MCPVerityEvaluator(
+        cancelled = _MCPOmneumEvaluator(
             Session(asyncio.CancelledError())
         )
         with pytest.raises(asyncio.CancelledError):
             await cancelled.evaluate_voprf(request)
-        broken = _MCPVerityEvaluator(
+        broken = _MCPOmneumEvaluator(
             Session(OSError("lost"))
         )
         with pytest.raises(EvaluationTransportError) as caught:

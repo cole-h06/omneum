@@ -1,5 +1,5 @@
 """
-Transport layer for the Verity MCP server.
+Transport layer for the Omneum MCP server.
 """
 
 from .mcp import create_server

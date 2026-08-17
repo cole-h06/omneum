@@ -1,6 +1,6 @@
 import pytest
 
-from verity.engine_graph import (
+from omneum.engine_graph import (
     AssertionTriple,
     GraphError,
     SourcePair,

@@ -1,6 +1,6 @@
 # LlamaIndex
 
-This example integrates Verity into a LlamaIndex Workflow.
+This example integrates Omneum into a LlamaIndex Workflow.
 
 It reuses the enterprise workflow from `examples/enterprise`. Only the
 orchestration changes.
@@ -9,7 +9,7 @@ orchestration changes.
 
 - Execute the retrieval workflow.
 - Collect the retrieved observations.
-- Submit the observations to Verity.
+- Submit the observations to Omneum.
 - Generate the final response from the returned assertion evaluation.
 
 ## Requirements

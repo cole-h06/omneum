@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from verity.base64url import encode_unpadded
-from verity.oprf import ELEMENT_LENGTH
-from verity.paths import get_private_key_path
-from verity_oprf import provision_server_key
+from omneum.base64url import encode_unpadded
+from omneum.oprf import ELEMENT_LENGTH
+from omneum.paths import get_private_key_path
+from omneum_oprf import provision_server_key
 
 
 @dataclass(frozen=True, slots=True)

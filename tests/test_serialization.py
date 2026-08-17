@@ -4,8 +4,8 @@ from typing import Callable
 
 import pytest
 
-from verity.canonicalization import canonicalize_value
-from verity.serialization import (
+from omneum.canonicalization import canonicalize_value
+from omneum.serialization import (
     MAX_INTEGER,
     serialize_attribute,
     serialize_claim,

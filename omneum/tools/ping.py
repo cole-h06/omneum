@@ -1,17 +1,17 @@
 """
-Verity Ping Tool.
+Omneum Ping Tool.
 
 Provides a health check for MCP clients.
 """
 
-from verity.config import (
+from omneum.config import (
     ALGORITHM_VERSION,
     PROTOCOL_VERSION,
     VOPRF_MODE,
     DeploymentState,
 )
-from verity.linkage import ENCODING_VERSION
-from verity.oprf import CIPHERSUITE
+from omneum.linkage import ENCODING_VERSION
+from omneum.oprf import CIPHERSUITE
 
 
 async def handle_ping(

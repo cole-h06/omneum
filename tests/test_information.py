@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from verity.information import Claim, Observation, Retrieval, Source, SourceReference
+from omneum.information import Claim, Observation, Retrieval, Source, SourceReference
 
 
 NOW = datetime(2026, 1, 1, tzinfo=timezone.utc)

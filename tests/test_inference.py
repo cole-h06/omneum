@@ -7,14 +7,14 @@ import sys
 
 import pytest
 
-import verity.inference as inference_module
-from verity.engine_graph import (
+import omneum.inference as inference_module
+from omneum.engine_graph import (
     AssertionTriple,
     PairValues,
     SourcePair,
     build_graph,
 )
-from verity.inference import (
+from omneum.inference import (
     CONVERGENCE_TOLERANCE,
     InferenceError,
     infer,

@@ -8,22 +8,22 @@ import threading
 
 import pytest
 
-import verity.tools.evaluate_assertion as tool_module
-from verity.base64url import encode_unpadded
-from verity.config import DeploymentState
-from verity.inference import InferenceError
-from verity.models import (
+import omneum.tools.evaluate_assertion as tool_module
+from omneum.base64url import encode_unpadded
+from omneum.config import DeploymentState
+from omneum.inference import InferenceError
+from omneum.models import (
     EvaluateVOPRFRequest,
     EvaluateAssertionRequest,
     EvaluateAssertionResponse,
 )
-from verity.oprf import VOPRFEvaluation
-from verity.tools.evaluate_voprf import EvaluationService
-from verity.tools.evaluate_assertion import (
+from omneum.oprf import VOPRFEvaluation
+from omneum.tools.evaluate_voprf import EvaluationService
+from omneum.tools.evaluate_assertion import (
     MAX_CONFLICTING_CLAIM_ENTRIES,
     AssertionEvaluationService,
 )
-from verity.transport.mcp import create_server
+from omneum.transport.mcp import create_server
 
 
 DEPLOYMENT_ID = (
@@ -98,10 +98,10 @@ def code(result):
     assert result.structuredContent is not None
     assert set(result.structuredContent) == {
         "message",
-        "verity_code",
+        "omneum_code",
     }
     assert json.loads(result.content[0].text) == result.structuredContent
-    return result.structuredContent["verity_code"]
+    return result.structuredContent["omneum_code"]
 
 
 def golden_values():

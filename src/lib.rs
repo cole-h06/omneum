@@ -345,7 +345,7 @@ fn blind(input_data: &[u8]) -> PyResult<(Vec<u8>, Vec<u8>)> {
     blind_inner(input_data).map_err(|error| PyValueError::new_err(error.to_string()))
 }
 
-#[pyclass(frozen, module = "verity_oprf", name = "_VOPRFServerContext")]
+#[pyclass(frozen, module = "omneum_oprf", name = "_VOPRFServerContext")]
 struct PyVoprfServerContext {
     server: VoprfServer<Ristretto255>,
 }
@@ -372,7 +372,7 @@ impl PyVoprfServerContext {
     }
 
     fn __repr__(&self) -> &'static str {
-        "<verity_oprf._VOPRFServerContext>"
+        "<omneum_oprf._VOPRFServerContext>"
     }
 
     fn __copy__(&self) -> PyResult<()> {
@@ -425,7 +425,7 @@ fn finalize(
 }
 
 #[pymodule]
-fn verity_oprf(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn omneum_oprf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(provision_server_key, m)?)?;
     m.add_function(wrap_pyfunction!(blind, m)?)?;
     m.add_function(wrap_pyfunction!(validate_public_key, m)?)?;

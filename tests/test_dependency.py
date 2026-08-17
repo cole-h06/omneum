@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-import verity.dependency as dependency
-from verity.dependency import (
+import omneum.dependency as dependency
+from omneum.dependency import (
     DependencyEvidence,
     DependencyEstimatorConfig,
     DependencySignalScores,
@@ -16,7 +16,7 @@ from verity.dependency import (
     combine_dependency,
     estimate_dependencies,
 )
-from verity.information import Claim, Observation, Source, SourceReference
+from omneum.information import Claim, Observation, Source, SourceReference
 
 
 NOW = datetime(2026, 2, 2, 12, tzinfo=timezone.utc)

@@ -1,20 +1,20 @@
-# Verity Architecture
+# Omneum Architecture
 
-This document provides a high-level overview of the Verity architecture and defines its fundamental components and their interactions.
+This document provides a high-level overview of the Omneum architecture and defines its fundamental components and their interactions.
 
 To see related specifications, visit:
 
-- **[`protocol.md`](../protocol/protocol.md)** — the communication contract between clients and Verity deployments. Defines the JSON-RPC protocol and request & response formats.
+- **[`protocol.md`](../protocol/protocol.md)** — the communication contract between clients and Omneum deployments. Defines the JSON-RPC protocol and request & response formats.
 - **[`canonicalization.md`](../protocol/canonicalization.md)** — deterministic normalization rules. Specifies how semantically equivalent assertions produce the same graph representation before evaluation.
 - **[`sdk.md`](../protocol/sdk.md)** — client integration guides for constructing graphs, linkage token generation, submitting requests from supported languages.
 
 ## 1. Objectives
 
-Verity is a Data Trust Gateway for Agentic Systems. It evaluates structured
+Omneum is a Data Trust Gateway for Agentic Systems. It evaluates structured
 assertions collected from multiple sources and returns deterministic
 information-quality signals.
 
-A major goal for Verity is to enable integration with existing structured data pipelines, regardless of application domain, programming language, or deployment environment used.
+A major goal for Omneum is to enable integration with existing structured data pipelines, regardless of application domain, programming language, or deployment environment used.
 
 The architecture is guided by several core design principles:
 
@@ -26,33 +26,33 @@ The architecture is guided by several core design principles:
   
 ## 2. System Overview
 
-At the highest level, Verity is composed of three key architectural components:
+At the highest level, Omneum is composed of three key architectural components:
 
-- Verity SDK
-- Verity Deployment
+- Omneum SDK
+- Omneum Deployment
 - Assertion Evaluation Engine
 
-Applications can install and integrate the Verity SDK directly into their structured data pipelines. The SDK performs deterministic canonicalization, serializes canonical values, executes the privacy-preserving linkage protocol to generate linkage tokens, constructs a complete request-scoped assertion graph, and submits it to a Verity deployment.
+Applications can install and integrate the Omneum SDK directly into their structured data pipelines. The SDK performs deterministic canonicalization, serializes canonical values, executes the privacy-preserving linkage protocol to generate linkage tokens, constructs a complete request-scoped assertion graph, and submits it to an Omneum deployment.
 
-A Verity deployment receives a complete opaque graph in each request, evaluates
+An Omneum deployment receives a complete opaque graph in each request, evaluates
 the assertions without retaining the graph, and returns source reliability,
 claim support, dependency telemetry, conflicts, and convergence metadata.
 
 <p align="center">
-  <img src="images/architecture.png" alt="Verity system architecture" width="600">
+  <img src="images/architecture.png" alt="Omneum system architecture" width="600">
 </p>
 
 <p align="center">
-  <em>Figure 1. High-level architecture of the Verity system.</em>
+  <em>Figure 1. High-level architecture of the Omneum system.</em>
 </p>
 
 ## 3. Architectural Components
 
-### 3.1 Verity SDK
+### 3.1 Omneum SDK
 
-The SDK serves as the primary integration point between applications and a Verity deployment.
+The SDK serves as the primary integration point between applications and an Omneum deployment.
 
-### 3.2 Verity Deployment
+### 3.2 Omneum Deployment
 
 A deployment validates request-scoped assertion graphs, executes the assertion
 evaluation engine, and returns information-quality signals.
@@ -65,17 +65,17 @@ source-reliability vector converges.
 
 ## 4. End-to-End Workflow
 
-This section specifies how data flows through a Verity deployment, from creating structured assertions to receiving information-quality signals.
+This section specifies how data flows through an Omneum deployment, from creating structured assertions to receiving information-quality signals.
 
 ### 4.1 Structured Data Pipeline
 
-A core principle of Verity is it does not analyze raw data. Applications collect and organize information from their own data sources. Some examples of data sources could include REST APIs, databases such as SQL, documents, spreadsheets, knowledge bases, MCP tools, or even the outputs of AI agents. The application should interpret the data and convert it to structured assertions before interacting with Verity.
+A core principle of Omneum is it does not analyze raw data. Applications collect and organize information from their own data sources. Some examples of data sources could include REST APIs, databases such as SQL, documents, spreadsheets, knowledge bases, MCP tools, or even the outputs of AI agents. The application should interpret the data and convert it to structured assertions before interacting with Omneum.
 
-The method used to perform semantic extraction is outside the scope of Verity.
+The method used to perform semantic extraction is outside the scope of Omneum.
 
 ### 4.2 Canonicalization
 
-The Verity SDK applies deterministic canonicalization to structured assertions. The resulting canonical assertions are then deterministically serialized before privacy-preserving linkage tokens are generated. The canonicalization rules are defined in the Verity Canonicalization Specification.
+The Omneum SDK applies deterministic canonicalization to structured assertions. The resulting canonical assertions are then deterministically serialized before privacy-preserving linkage tokens are generated. The canonicalization rules are defined in the Omneum Canonicalization Specification.
 
 ### 4.3 Privacy-Preserving Linkage
 
@@ -89,11 +89,11 @@ The linkage protocol is specified separately from the system architecture.
 
 The SDK constructs a complete assertion-evaluation request containing opaque
 assertion triples, the numerical source-pair inputs required by the algorithm,
-and the protocol metadata required by the Verity Protocol.
+and the protocol metadata required by the Omneum Protocol.
 
 ### 4.5 Request Submission
 
-The request is transmitted to the reference deployment over local MCP stdio. Remote transport and Verity Cloud behavior are not implemented.
+The request is transmitted to the reference deployment over local MCP stdio. Remote transport and Omneum Cloud behavior are not implemented.
 
 ### 4.6 Assertion Evaluation
 
@@ -129,12 +129,12 @@ request.
 
 The reference implementation is a local-stdio MCP server. It accepts complete
 request-scoped graphs, evaluates assertions, and returns deterministic
-information-quality signals according to the Verity Protocol.
+information-quality signals according to the Omneum Protocol.
 
 ### 6.2 Trust Boundary
 
 Applications perform semantic extraction, canonicalization, and
-privacy-preserving linkage before interacting with Verity. Verity operates only
+privacy-preserving linkage before interacting with Omneum. Omneum operates only
 on opaque linkage tokens and protocol metadata, never on the underlying
 application content. This separation establishes the trust boundary between
 application-specific processing and assertion evaluation.

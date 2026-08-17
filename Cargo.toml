@@ -1,11 +1,11 @@
 [package]
-name = "verity_oprf"
+name = "omneum_oprf"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
 
 [lib]
-name = "verity_oprf"
+name = "omneum_oprf"
 crate-type = ["cdylib"]
 
 [features]

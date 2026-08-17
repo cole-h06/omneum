@@ -1,9 +1,9 @@
-# Verity Canonicalization and Linkage Encoding
+# Omneum Canonicalization and Linkage Encoding
 
 ## 1. Introduction
 
 This document defines the version-1 transformation from application values to
-the deterministic bytes blinded by the Verity VOPRF client.
+the deterministic bytes blinded by the Omneum VOPRF client.
 
 The transformation has three distinct stages:
 
@@ -356,7 +356,7 @@ Fields:
 
 | Field | Encoding |
 | --- | --- |
-| `protocol_label` | Exact bytes `VERITY-OPRF\x00` |
+| `protocol_label` | Exact bytes `OMNEUM-OPRF\x00` |
 | `encoding_version` | Unsigned 16-bit big-endian integer, value `1` |
 | `purpose` | One-byte purpose tag |
 | `payload_length` | Unsigned 16-bit big-endian byte length |

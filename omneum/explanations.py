@@ -39,6 +39,9 @@ def explain_claim(
         "Independent support: "
         f"{result.estimated_independent_support_count:.2f}",
     ])
+
+    lines.extend(("", *_claim_interpretation(result)))
+
     if result.conflicting_claims:
         noun = "value" if len(result.conflicting_claims) == 1 else "values"
         lines.extend(("", f"Conflicting {noun}:"))
@@ -141,6 +144,32 @@ def _value(value):
 def _supporting(count):
     noun = "source" if count == 1 else "sources"
     return f"Supporting {noun}: {count}"
+
+
+def _claim_interpretation(result):
+    count = result.supporting_source_count
+    independent = result.estimated_independent_support_count
+
+    noun = "source" if count == 1 else "sources"
+    lines = [
+        f"Supported by {count} {noun} with estimated "
+        f"independent support of {independent:.2f}."
+    ]
+
+    if independent < count - 0.01:
+        lines.append(
+            "Some supporting sources appear dependent."
+        )
+
+    conflict_count = len(result.conflicting_claims)
+    if conflict_count:
+        noun = "value" if conflict_count == 1 else "values"
+        verb = "was" if conflict_count == 1 else "were"
+        lines.append(
+            f"{conflict_count} conflicting {noun} {verb} identified."
+        )
+
+    return lines
 
 
 def _evidence(result):

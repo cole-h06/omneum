@@ -4,7 +4,7 @@ from math import isfinite
 from .engine_graph import InferenceGraph
 
 
-ALGORITHM_VERSION = "verity-v1"
+ALGORITHM_VERSION = "omneum-v1"
 CONVERGENCE_TOLERANCE = 1e-8
 MAX_ITERATIONS = 1000
 

@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 import pytest
 from mcp.types import CallToolResult
 
-import verity.client as client_module
-from verity.base64url import decode_unpadded, encode_unpadded
-from verity.client import (
+import omneum.client as client_module
+from omneum.base64url import decode_unpadded, encode_unpadded
+from omneum.client import (
     ClaimSupportResult,
     ConflictingClaimResult,
     ConvergenceMetadata,
@@ -20,21 +20,21 @@ from verity.client import (
     LinkageToken,
     SourceEvaluation,
     SupportingSourceResult,
-    VerityClient,
-    VerityClientConfig,
+    OmneumClient,
+    OmneumClientConfig,
 )
-from verity.dependency import (
+from omneum.dependency import (
     DependencyCluster,
     DependencyEstimatorConfig,
     DependencySignalScores,
     PairwiseDependencyResult,
 )
-from verity.engine_graph import AssertionTriple, SourcePair, build_graph
-from verity.inference import infer
-from verity.information import Claim, Observation, Retrieval, Source, SourceReference
-from verity.linkage import LinkagePurpose
-from verity.models import EvaluateVOPRFRequest, EvaluateAssertionRequest
-from verity.oprf import VOPRFServer
+from omneum.engine_graph import AssertionTriple, SourcePair, build_graph
+from omneum.inference import infer
+from omneum.information import Claim, Observation, Retrieval, Source, SourceReference
+from omneum.linkage import LinkagePurpose
+from omneum.models import EvaluateVOPRFRequest, EvaluateAssertionRequest
+from omneum.oprf import VOPRFServer
 
 from test_client import DEPLOYMENT_ID, make_config, make_server, success_result
 
@@ -167,7 +167,7 @@ def test_inference(tmp_path):
     async def run():
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
-        client = VerityClient(make_config(server), evaluator)
+        client = OmneumClient(make_config(server), evaluator)
         result = await client.evaluate_assertion(
             observations(), estimator=estimator(0.5)
         )
@@ -208,7 +208,7 @@ def test_inference(tmp_path):
 def test_repeated(tmp_path):
     async def run():
         server = make_server(tmp_path)
-        client = VerityClient(make_config(server), Evaluator(server))
+        client = OmneumClient(make_config(server), Evaluator(server))
         first = await client.evaluate_assertion(observations(), estimator=estimator())
         second = await client.evaluate_assertion(observations(), estimator=estimator())
         assert first == second
@@ -229,7 +229,7 @@ def test_claim_identity(tmp_path, first, second):
     async def run():
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
-        client = VerityClient(make_config(server), evaluator)
+        client = OmneumClient(make_config(server), evaluator)
         values = (
             make_observation(
                 "a1", Source("web_publisher", "a.example"),
@@ -251,7 +251,7 @@ def test_claim_equivalence(tmp_path):
     async def run():
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
-        client = VerityClient(make_config(server), evaluator)
+        client = OmneumClient(make_config(server), evaluator)
         values = (
             make_observation(
                 "a1", Source("web_publisher", "a.example"),
@@ -291,8 +291,8 @@ def test_result_types():
             (supporting,), (), None,
         )
     with pytest.raises(TypeError):
-        ConvergenceMetadata("verity-v1", True, True, 1e-8, 0.0)
-    convergence = ConvergenceMetadata("verity-v1", 1, True, 1e-8, 0.0)
+        ConvergenceMetadata("omneum-v1", True, True, 1e-8, 0.0)
+    convergence = ConvergenceMetadata("omneum-v1", 1, True, 1e-8, 0.0)
     with pytest.raises(TypeError):
         AssertionEvaluation([], (), (), convergence, None)
 
@@ -327,7 +327,7 @@ def result_values():
         for index in range(len(references))
         for other in range(index + 1, len(references))
     )
-    convergence = ConvergenceMetadata("verity-v1", 1, True, 1e-8, 0.0)
+    convergence = ConvergenceMetadata("omneum-v1", 1, True, 1e-8, 0.0)
     return source_results, (claim_result,), pairs, convergence
 
 
@@ -497,7 +497,7 @@ def test_source_equivalence(tmp_path):
     async def execute(values):
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
-        client = VerityClient(make_config(server), evaluator)
+        client = OmneumClient(make_config(server), evaluator)
         result = await client.evaluate_assertion(values, estimator=estimator())
         return result, evaluator
 
@@ -560,7 +560,7 @@ def test_mutation_during_linkage(tmp_path, monkeypatch):
         monkeypatch.setattr(client_module, "_snapshot_observations", capture)
         server = make_server(tmp_path)
         evaluator = Paused(server)
-        client = VerityClient(make_config(server), evaluator)
+        client = OmneumClient(make_config(server), evaluator)
         task = asyncio.create_task(
             client.evaluate_assertion((item,), estimator=estimator())
         )
@@ -582,8 +582,8 @@ def test_cluster_key_order(tmp_path):
         key.write_bytes(private_key)
         server = VOPRFServer(key)
         evaluator = Evaluator(server, key_version)
-        client = VerityClient(
-            VerityClientConfig(
+        client = OmneumClient(
+            OmneumClientConfig(
                 DEPLOYMENT_ID,
                 key_version,
                 "voprf",
@@ -611,7 +611,7 @@ def test_unavailable(tmp_path):
     async def run():
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
-        client = VerityClient(
+        client = OmneumClient(
             make_config(server), evaluator, assertion_evaluation_available=False
         )
         with pytest.raises(AssertionEvaluationResponseError):
@@ -629,7 +629,7 @@ def test_transport(tmp_path):
 
     async def run():
         server = make_server(tmp_path)
-        client = VerityClient(make_config(server), Broken(server))
+        client = OmneumClient(make_config(server), Broken(server))
         with pytest.raises(AssertionEvaluationTransportError) as error:
             await client.evaluate_assertion(observations(), estimator=estimator())
         assert error.value.uncertain
@@ -648,13 +648,13 @@ def test_injected_error(tmp_path):
 
     async def run():
         server = make_server(tmp_path)
-        inference = VerityClient(make_config(server), BrokenInference(server))
+        inference = OmneumClient(make_config(server), BrokenInference(server))
         with pytest.raises(AssertionEvaluationTransportError) as caught:
             await inference.evaluate_assertion(observations(), estimator=estimator())
         assert caught.value.uncertain
         assert "secret" not in str(caught.value)
 
-        evaluation = VerityClient(make_config(server), BrokenEvaluation(server))
+        evaluation = OmneumClient(make_config(server), BrokenEvaluation(server))
         with pytest.raises(EvaluationTransportError) as caught:
             await evaluation.link_source("web_publisher", "example.com")
         assert caught.value.uncertain
@@ -670,7 +670,7 @@ def test_cancel(tmp_path):
 
     async def run():
         server = make_server(tmp_path)
-        client = VerityClient(make_config(server), Cancelled(server))
+        client = OmneumClient(make_config(server), Cancelled(server))
         with pytest.raises(asyncio.CancelledError):
             await client.evaluate_assertion(observations(), estimator=estimator())
 
@@ -717,7 +717,7 @@ def test_malformed(tmp_path, change):
 
     async def run():
         server = make_server(tmp_path)
-        client = VerityClient(make_config(server), Malformed(server))
+        client = OmneumClient(make_config(server), Malformed(server))
         error = (
             AssertionEvaluationMappingError
             if change == "cross_purpose"
@@ -743,16 +743,16 @@ def test_rejected(tmp_path, code):
         async def evaluate_assertion(self, request):
             return CallToolResult(
                 content=[],
-                structuredContent={"message": "secret", "verity_code": code},
+                structuredContent={"message": "secret", "omneum_code": code},
                 isError=True,
             )
 
     async def run():
         server = make_server(tmp_path)
-        client = VerityClient(make_config(server), Rejected(server))
+        client = OmneumClient(make_config(server), Rejected(server))
         with pytest.raises(AssertionEvaluationRejectedError) as error:
             await client.evaluate_assertion(observations(), estimator=estimator())
-        assert error.value.verity_code == code
+        assert error.value.omneum_code == code
         assert "secret" not in str(error.value)
 
     asyncio.run(run())

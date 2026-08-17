@@ -7,7 +7,7 @@ from examples.enterprise.agents.search import search_agent
 from examples.enterprise.agents.sql import sql_agent
 from examples.enterprise.config import example_deployment
 from examples.enterprise.workflow.run import estimator_config, render_result
-from verity import open_stdio_client
+from omneum import open_stdio_client
 
 from .state import WorkflowState
 
