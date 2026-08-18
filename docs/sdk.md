@@ -524,7 +524,7 @@ Implementation details for canonicalization and linkage are documented separatel
 
 The MCP protocol, deployment metadata, and VOPRF request flow are covered in [`protocol.md`](docs/protocol.md). Additional cryptographic implementation details and interoperability requirements are documented alongside the protocol documentation.
 
-For examples of integrating Omneum into agent workflows, see the [`examples/`](examples/) directory.
+For examples of integrating Omneum into agent workflows, see the [`examples/`](../examples/) directory.
 
 ## Contributing
 
@@ -534,4 +534,4 @@ Development and contribution guidelines will be added as the SDK moves beyond th
 
 ## License
 
-Omneum is licensed under the terms in [`LICENSE`](LICENSE).
+Omneum is licensed under the terms in [`LICENSE`](../LICENSE).
