@@ -8,9 +8,7 @@ values into privacy-preserving linkage tokens and submit assertion graphs for
 assertion evaluation.
 
 The protocol does not define how applications extract structured assertions
-from unstructured data. It also does not require a particular implementation
-of the source-reliability and claim-support algorithm beyond the versioned
-behavior exposed by the API.
+from unstructured data. It also does not require a particular implementation of the source-reliability and claim-support algorithm beyond the versioned calculations defined by the API.
 
 This document specifies the intended version-1 contract. Features are marked as
 implemented, specified but not implemented, or deferred where appropriate.
@@ -38,7 +36,7 @@ Version 1 has the following implementation status:
 
 ## 4. Core Concepts
 
-A **Source** is an independent origin that asserts one or more claims.
+A **Source** is an origin that asserts one or more claims.
 
 An **Attribute** identifies a property of an entity within an entity namespace.
 It groups claims that describe competing values for that property.
@@ -97,14 +95,15 @@ Version 1 separates values that evolve for different reasons:
 | Field | Version-1 value | Meaning |
 | --- | --- | --- |
 | `protocol_version` | `"v1"` | MCP request and response contract |
-| `algorithm_version` | `"omneum-v1"` | Source-reliability algorithm |
+| `algorithm_version` | `"omneum-v1"` | Algorithm used for assertion evaluation |
 | `voprf_mode` | `"voprf"` | RFC 9497 protocol mode |
 | `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF group and hash suite |
 | `voprf_key_version` | integer `1..2^32-1` | Deployment VOPRF key |
 | `linkage_encoding_version` | integer `1` | Omneum linkage input encoding |
 
-`algorithm_version` applies to the source-reliability and claim-support
-algorithm, not VOPRF evaluation.
+`algorithm_version` identifies the version of the source-reliability and
+claim-support algorithm used during assertion evaluation. It does not apply
+to VOPRF evaluation.
 
 Changing the protocol version alone does not change token identity. Changing
 the deployment, VOPRF key, mode, ciphersuite, linkage encoding version, purpose,
@@ -403,8 +402,8 @@ authorized.
 
 Breaking changes to the request or response structure of a released protocol require a new protocol version.
 Changes that alter canonical serialized bytes or domain encoding require a new
-linkage encoding version. Key rotation uses a new VOPRF key version. Changes to
-the source-reliability or claim-support algorithm use a new algorithm version.
+linkage encoding version. Key rotation uses a new VOPRF key version. Changes to the source-reliability or claim-support calculations used during
+assertion evaluation require a new algorithm version.
 
 Older token identity metadata must remain available for as long as old tokens
 are retained. Version 1 does not require an evaluator to continue serving old

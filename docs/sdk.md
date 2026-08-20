@@ -43,7 +43,13 @@ The client uses the local deployment configuration when opening the MCP connecti
 ```python
 from datetime import datetime, timezone
 
-from omneum import Claim, DependencyEstimatorConfig, Observation, Source
+from omneum import (
+    Claim,
+    DependencyEstimatorConfig,
+    Observation,
+    Retrieval,
+    Source,
+)
 
 now = datetime.now(timezone.utc)
 
@@ -57,34 +63,57 @@ estimator = DependencyEstimatorConfig(
     temporal_window_seconds=172_800.0,
 )
 
+upstream = Source(
+    kind="api_endpoint",
+    identifier="market-data-provider",
+)
+
 observations = [
     Observation(
         assertion_id="result-1",
         source=Source(
-            kind="web_document",
-            identifier="https://research.example.com/acme-q3",
+            kind="internal_service",
+            identifier="research-api",
         ),
         claim=Claim(
             entity_namespace="company",
             entity="acme-corp",
             attribute="quarterly_revenue_usd",
-            value=42_000_000,             # retrieved value
+            value=42_000_000,
         ),
         observed_at=now,
+        upstream_sources=(upstream,),
+        retrievals=(
+            Retrieval(
+                retrieval_id="retrieval-1",
+                kind="tool_call",
+                resource_id="research-api",
+                retrieved_at=now,
+            ),
+        ),
     ),
     Observation(
         assertion_id="result-2",
         source=Source(
-            kind="web_document",
-            identifier="https://analysis.example.org/acme-q3",
+            kind="internal_service",
+            identifier="analytics-api",
         ),
         claim=Claim(
             entity_namespace="company",
             entity="acme-corp",
             attribute="quarterly_revenue_usd",
-            value=39_500_000,             # conflicting value
+            value=42_000_000,
         ),
         observed_at=now,
+        upstream_sources=(upstream,),
+        retrievals=(
+            Retrieval(
+                retrieval_id="retrieval-2",
+                kind="tool_call",
+                resource_id="analytics-api",
+                retrieved_at=now,
+            ),
+        ),
     ),
 ]
 
@@ -423,6 +452,8 @@ The Python SDK creates stable linkage tokens for private source, attribute, and 
 
 Source identifiers and structured attribute and claim values are canonicalized and serialized locally. The SDK then uses Omneum's RFC 9497 VOPRF flow to generate linkage tokens without sending those values to the server in plaintext.
 
+Applications using `evaluate_assertion()` do not need to canonicalize values, construct linkage inputs, or invoke the VOPRF operations directly. These steps are handled by the SDK.
+
 During linkage, the SDK blinds each encoded input locally and sends the blinded element to the server for evaluation. The server returns an evaluated element and proof, which the SDK verifies and finalizes locally.
 
 ```text
@@ -518,11 +549,11 @@ For local `stdio`, `from_local_deployment()` loads the deployment ID, VOPRF sett
 
 ## Documentation
 
-For the full assertion-evaluation API contract, request and response schemas, validation rules, and server limits, see [`api.md`](docs/api.md).
+For the full assertion-evaluation API contract, request and response schemas, validation rules, and server limits, see [`api.md`](api.md).
 
-Implementation details for canonicalization and linkage are documented separately in [`canonicalization.md`](docs/canonicalization.md), including the structured source, attribute, and claim formats used to generate linkage inputs.
+Implementation details for canonicalization and linkage are documented separately in [`canonicalization.md`](canonicalization.md), including the structured source, attribute, and claim formats used to generate linkage inputs.
 
-The MCP protocol, deployment metadata, and VOPRF request flow are covered in [`protocol.md`](docs/protocol.md). Additional cryptographic implementation details and interoperability requirements are documented alongside the protocol documentation.
+The MCP protocol, deployment metadata, and VOPRF request flow are covered in [`protocol.md`](protocol.md). Additional cryptographic implementation details and interoperability requirements are documented alongside the protocol documentation.
 
 For examples of integrating Omneum into agent workflows, see the [`examples/`](../examples/) directory.
 

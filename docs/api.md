@@ -1,8 +1,11 @@
 # Omneum API Reference
 
-The Omneum API defines the version-1 tool schemas used by clients and
-deployments. The schemas are transport-independent. The reference
-implementation uses the Model Context Protocol (MCP).
+The Omneum API defines the version-1 wire contract between clients and Omneum
+deployments. It specifies the MCP tools, request and response schemas,
+validation behavior, protocol limits, and assertion-evaluation semantics.
+
+The Python SDK handles this protocol automatically for normal integrations.
+See [`sdk.md`](sdk.md) for the application-facing interface.
 
 Related specifications:
 
@@ -32,7 +35,7 @@ corresponding tool is currently registered.
 | Property | Version-1 value | Description |
 | --- | --- | --- |
 | `protocol_version` | `"v1"` | Tool request and response contract |
-| `algorithm_version` | `"omneum-v1"` | Source-reliability algorithm |
+| `algorithm_version` | `"omneum-v1"` | Assertion-evaluation algorithm |
 | `voprf_mode` | `"voprf"` | RFC 9497 VOPRF mode |
 | `voprf_ciphersuite` | `"ristretto255-SHA512"` | VOPRF ciphersuite |
 | `voprf_key_version` | `1..2^32-1` | Active deployment key |
@@ -181,7 +184,7 @@ Unknown request fields MUST be rejected.
 | --- | --- | --- |
 | `status` | string | Deployment status; version 1 returns `"ok"`. |
 | `protocol_version` | string | Implemented protocol contract. |
-| `algorithm_version` | string | Configured source-reliability algorithm. |
+| `algorithm_version` | string | Configured assertion-evaluation algorithm. |
 | `deployment_id` | string | Canonical lowercase UUID URN. |
 | `voprf_key_version` | integer | Active VOPRF key version. |
 | `voprf_mode` | string | Active RFC 9497 mode. |
@@ -299,6 +302,16 @@ The complete assertion graph and its complete source-pair matrix are supplied
 in each request. Assertion evaluation is deterministic and request-scoped. The server
 MUST NOT retain the graph, pair values, or results after the request.
 
+The MCP tool is named `evaluate_assertions`. The Python SDK exposes this
+through the higher-level `client.evaluate_assertion()` method.
+
+Applications using the Python SDK do not construct the opaque identifiers or
+canonical wire structures described below directly. The SDK canonicalizes and
+serializes application-facing `Observation` data, performs VOPRF linkage,
+estimates source dependency locally, constructs the `evaluate_assertions`
+request, validates the response, and maps the opaque results back to local
+values.
+
 ### 9.1 Request
 
 ```json
@@ -351,11 +364,10 @@ The list MUST be strictly sorted by `(source_a_id, source_b_id)` and contain
 every pair once, including pairs whose values are zero.
 
 `dependency` and `weighted_signal_coverage` are finite binary64 numbers in
-`[0, 1]`; booleans are not numbers. Dependency estimates shared influence.
-Weighted signal coverage is the fraction of the configured dependency-signal
-weight for which the client had usable observations. It is not a probability
-that the dependency estimate or either source is correct. No other pair value
-is required by version 1.
+`[0, 1]`; booleans are not numbers. `dependency` estimates the degree to which
+two sources may not represent independent support. Weighted signal coverage is
+the fraction of the configured dependency-signal weight for which the client
+had usable observations. It is not a probability that the dependency estimate or either source is correct. No other pair value is required by version 1.
 
 The request MUST NOT contain provenance or lineage identifiers, citations,
 owners, timestamps, retrieval records, raw dependency signals, source names,

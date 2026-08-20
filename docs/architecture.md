@@ -1,28 +1,27 @@
 # Omneum Architecture
 
-This document provides a high-level overview of the Omneum architecture and defines its fundamental components and their interactions.
+This document describes the high-level Omneum system architecture, including its runtime components, client-server boundary, request flow, and deployment model.
 
 To see related specifications, visit:
 
-- **[`protocol.md`](../protocol/protocol.md)** — the communication contract between clients and Omneum deployments. Defines the JSON-RPC protocol and request & response formats.
-- **[`canonicalization.md`](../protocol/canonicalization.md)** — deterministic normalization rules. Specifies how semantically equivalent assertions produce the same graph representation before evaluation.
-- **[`sdk.md`](../protocol/sdk.md)** — client integration guides for constructing graphs, linkage token generation, submitting requests from supported languages.
+- **[`sdk.md`](../protocol/sdk.md)** — the application-facing Python interface and client-side processing performed by the SDK.
+- **[`api.md`](../protocol/api.md)** — the MCP tools, wire schemas, validation rules, resource limits, and assertion-evaluation semantics.
+- **[`protocol.md`](../protocol/protocol.md)** — the interoperability contract between clients and Omneum deployments, including protocol roles, trust boundaries, token identity, and key lifecycle.
+- **[`canonicalization.md`](../protocol/canonicalization.md)** — semantic canonicalization, strict serialization, and versioned linkage-input encoding.
 
 ## 1. Objectives
 
-Omneum is a Data Trust Gateway for Agentic Systems. It evaluates structured
-assertions collected from multiple sources and returns deterministic
-information-quality signals.
+Omneum is a Data Trust Gateway for Agentic Systems. It provides a protocol and runtime for evaluating structured assertions across multiple sources without exposing the underlying application data to the evaluator.
 
-A major goal for Omneum is to enable integration with existing structured data pipelines, regardless of application domain, programming language, or deployment environment used.
+Omneum is designed to integrate with existing data and agent pipelines without requiring the deployment to ingest or interpret application content.
 
 The architecture is guided by several core design principles:
 
-- Semantic extraction is separated from assertion evaluation.
-- Deterministic graph construction through standardized canonicalization.
-- Privacy-preserving linkage through deterministic cryptographic tokens instead of the underlying application data.
-- Producing deterministic source-reliability and claim-support signals from graph topology.
-- Deployment through standard protocol interfaces such as MCP.
+- Application-specific extraction remains outside the Omneum runtime.
+- Content-sensitive processing occurs client-side before data crosses the deployment boundary.
+- VOPRF linkage replaces canonical application values with opaque protocol identifiers.
+- Assertion evaluation is stateless and request-scoped.
+- Client and deployment components communicate through a versioned protocol interface.
   
 ## 2. System Overview
 
@@ -32,11 +31,9 @@ At the highest level, Omneum is composed of three key architectural components:
 - Omneum Deployment
 - Assertion Evaluation Engine
 
-Applications can install and integrate the Omneum SDK directly into their structured data pipelines. The SDK performs deterministic canonicalization, serializes canonical values, executes the privacy-preserving linkage protocol to generate linkage tokens, constructs a complete request-scoped assertion graph, and submits it to an Omneum deployment.
+Applications integrate through the Omneum SDK. The SDK performs client-side canonicalization and serialization, executes VOPRF linkage, estimates source dependency, constructs the protocol request, and submits it to an Omneum deployment.
 
-An Omneum deployment receives a complete opaque graph in each request, evaluates
-the assertions without retaining the graph, and returns source reliability,
-claim support, dependency telemetry, conflicts, and convergence metadata.
+An Omneum deployment validates the incoming request, constructs the request-scoped graph from opaque identifiers, executes the configured assertion-evaluation algorithm, and returns the protocol response. The deployment does not persist assertion graphs or evaluation state between requests.
 
 <p align="center">
   <img src="images/architecture.png" alt="Omneum system architecture" width="600">
@@ -50,91 +47,131 @@ claim support, dependency telemetry, conflicts, and convergence metadata.
 
 ### 3.1 Omneum SDK
 
-The SDK serves as the primary integration point between applications and an Omneum deployment.
+The SDK is the application-facing client and owns the content-sensitive processing required by the protocol. It performs canonicalization, serialization, VOPRF client operations, source-dependency estimation, request construction, response validation, and mapping between application-local values and opaque protocol identifiers.
+Application values remain client-side and are not included in assertion-evaluation requests.
 
 ### 3.2 Omneum Deployment
 
-A deployment validates request-scoped assertion graphs, executes the assertion
-evaluation engine, and returns information-quality signals.
+The deployment is the server-side protocol runtime. It exposes the MCP interface, maintains the active VOPRF server context, validates protocol requests, manages evaluation admission and resource limits, invokes the assertion-evaluation engine, and returns protocol responses.
+Version 1 maintains no persistent assertion-evaluation state between requests.
 
 ### 3.3 Assertion Evaluation Engine
 
-The assertion evaluation engine implements an iterative graph-propagation
-method. Internally, it updates source reliability and claim support until the
-source-reliability vector converges.
+The assertion-evaluation engine is invoked by the deployment after request
+validation. It consumes the validated assertion graph and source-pair inputs
+and returns source-reliability scores, claim-support results, conflicts, and
+evaluation metadata to the deployment.
+
+The algorithm is versioned independently from the protocol and linkage
+encoding.
 
 ## 4. End-to-End Workflow
 
-This section specifies how data flows through an Omneum deployment, from creating structured assertions to receiving information-quality signals.
+This section describes the request path from application data to an assertion-evaluation response.
 
-### 4.1 Structured Data Pipeline
+### 4.1 Application Integration
 
-A core principle of Omneum is it does not analyze raw data. Applications collect and organize information from their own data sources. Some examples of data sources could include REST APIs, databases such as SQL, documents, spreadsheets, knowledge bases, MCP tools, or even the outputs of AI agents. The application should interpret the data and convert it to structured assertions before interacting with Omneum.
-
-The method used to perform semantic extraction is outside the scope of Omneum.
+Omneum does not ingest or parse raw application data. The calling application retrieves data from its upstream systems and converts relevant source observations into the structured input expected by the SDK. Upstream systems may include APIs, databases, documents, knowledge bases, MCP tools, or agent outputs.
+Semantic extraction and application-specific interpretation remain outside the Omneum runtime.
 
 ### 4.2 Canonicalization
 
-The Omneum SDK applies deterministic canonicalization to structured assertions. The resulting canonical assertions are then deterministically serialized before privacy-preserving linkage tokens are generated. The canonicalization rules are defined in the Omneum Canonicalization Specification.
+The SDK canonicalizes application values according to their source kind, entity
+namespace, attribute, and value type. Canonical values are then serialized into
+the fixed protocol schemas defined by the canonicalization specification.
+
+This processing occurs client-side before VOPRF linkage.
 
 ### 4.3 Privacy-Preserving Linkage
 
-After canonicalization, the SDK deterministically serializes canonical assertions and executes the standardized linkage protocol to generate privacy-preserving linkage tokens.
+After serialization, the SDK domain-encodes source, attribute, and claim
+payloads and performs the client side of the VOPRF protocol. The deployment
+evaluates blinded elements using its active VOPRF key, while the SDK verifies
+the returned proof and finalizes the resulting linkage tokens.
 
-These linkage tokens are deterministic for equivalent canonical assertions while minimizing disclosure of the underlying assertion content.
-
-The linkage protocol is specified separately from the system architecture.
+Assertion-evaluation requests contain the finalized tokens as opaque identifiers
+rather than the canonical application values from which they were derived.
 
 ### 4.4 Assertion-Evaluation Request Construction
 
-The SDK constructs a complete assertion-evaluation request containing opaque
-assertion triples, the numerical source-pair inputs required by the algorithm,
-and the protocol metadata required by the Omneum Protocol.
+The SDK constructs an `evaluate_assertions` request from the generated linkage
+tokens and locally computed source-pair inputs. The request contains the
+complete assertion set, source-pair matrix, and protocol metadata required by
+the wire contract.
 
 ### 4.5 Request Submission
 
-The request is transmitted to the reference deployment over local MCP stdio. Remote transport and Omneum Cloud behavior are not implemented.
+The SDK submits the request to the Omneum deployment through the configured
+transport. The version-1 reference implementation uses local MCP stdio. Remote
+transport and Omneum Cloud are not currently implemented.
 
 ### 4.6 Assertion Evaluation
 
-After submission, the deployment treats linkage tokens as opaque identifiers,
-constructs the assertion graph, and executes the configured algorithm. It does
-not reverse or resolve tokens to application content.
+The deployment validates the request and constructs the request-scoped graph
+from the submitted opaque identifiers. After validation and admission, it
+invokes the configured assertion-evaluation algorithm.
+
+Linkage tokens remain opaque to the deployment; the server does not resolve
+them back to application values.
 
 ### 4.7 Evaluation Response
 
-The deployment returns deterministic information-quality signals to the application.
+The deployment serializes the evaluation result into the versioned protocol
+response and returns it to the SDK. The SDK validates the response metadata and
+structure before mapping opaque identifiers back to application-local values.
 
 ## 5. Assertion Graph
 
-Each evaluation request defines an assertion graph composed of the submitted
-sources, claims, and assertions. The deployment constructs this graph before
-executing dependency-adjusted reliability propagation.
+Each `evaluate_assertions` request defines a complete request-scoped graph from
+its submitted assertion triples. The deployment constructs this graph only
+after protocol and topology validation.
 
 ### 5.1 Graph Structure
 
-The assertion graph is modeled as a bipartite graph where source and claim
-nodes connect through their assertions. The submitted assertions determine the
-topology analyzed during evaluation.
+The graph is bipartite: source and claim nodes are connected by assertion
+edges. Attribute identifiers group claims representing competing values for
+the same application-defined property.
 
 ### 5.2 Graph Construction
 
-The deployment constructs the assertion graph directly from the submitted
-opaque assertion triples. The graph exists only for the duration of the
-request.
+The deployment constructs the graph directly from opaque `source_id`,
+`attribute_id`, and `claim_id` values in the validated request. The graph
+exists only for the lifetime of that evaluation and is discarded after the
+request completes.
 
 ## 6. Deployment
 
 ### 6.1 Reference Implementation
 
-The reference implementation is a local-stdio MCP server. It accepts complete
-request-scoped graphs, evaluates assertions, and returns deterministic
-information-quality signals according to the Omneum Protocol.
+The version-1 reference deployment is a local MCP server using stdio transport.
+The server exposes `ping`, `evaluate_voprf`, and `evaluate_assertions`,
+maintains the configured VOPRF server context, and executes assertion evaluation
+through a bounded local executor.
+
+Remote serving, persistent evaluation state, and multi-tenant Cloud
+infrastructure are outside the current reference implementation.
 
 ### 6.2 Trust Boundary
 
-Applications perform semantic extraction, canonicalization, and
-privacy-preserving linkage before interacting with Omneum. Omneum operates only
-on opaque linkage tokens and protocol metadata, never on the underlying
-application content. This separation establishes the trust boundary between
-application-specific processing and assertion evaluation.
+The primary trust boundary lies between the SDK and the Omneum deployment.
+Canonical application values, provenance inputs, source metadata, and VOPRF
+client state remain on the client side of that boundary.
+
+The deployment receives blinded elements during VOPRF evaluation and opaque
+linkage tokens, numeric source-pair inputs, and protocol metadata during
+assertion evaluation. It does not receive the canonical application values
+represented by those tokens.
+
+## 7. State Model
+
+The version-1 deployment is stateless with respect to assertion evaluation.
+Each request supplies the complete graph and source-pair matrix required for
+execution.
+
+The deployment retains only configured runtime state required to serve
+requests, including the active deployment configuration and VOPRF server
+context. Assertion graphs, blinded elements, proofs, finalized tokens, and
+evaluation results are not persisted between calls.
+
+Application-local mappings between protocol identifiers and canonical values
+remain owned by the SDK or calling application.

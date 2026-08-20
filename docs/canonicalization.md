@@ -5,13 +5,17 @@
 This document defines the version-1 transformation from application values to
 the deterministic bytes blinded by the Omneum VOPRF client.
 
+The Python SDK performs this transformation automatically when applications use
+the high-level assertion-evaluation API. Applications normally do not construct
+canonical linkage payloads or linkage inputs directly.
+
 The transformation has three distinct stages:
 
-1. semantic canonicalization by the caller;
+1. semantic canonicalization by the client;
 2. strict fixed-schema RFC 8785 serialization; and
 3. versioned, purpose-separated binary linkage encoding.
 
-Serialization does not perform semantic normalization. A caller MUST supply
+Serialization does not perform semantic normalization. The client MUST supply
 values in their intended canonical representation before serialization.
 
 ## 2. Requirement Language
@@ -49,8 +53,7 @@ canonicalization rules specified in this document may claim conformance.
 
 ## 4. Semantic Canonicalization
 
-Canonicalization is content-sensitive client behavior. A deployment does not
-receive or canonicalize the original values.
+Canonicalization is content-sensitive processing performed by the client. A deployment does not receive or canonicalize the original values.
 
 ### 4.1 Sources
 
@@ -93,8 +96,7 @@ HTTPS://Example.com:443/docs/api#section
     -> https://example.com/docs/api
 ```
 
-The precise URI normalization behavior must remain covered by cross-language
-vectors before another SDK claims interoperability.
+The precise URI normalization rules must remain covered by cross-language vectors before another SDK claims interoperability.
 
 #### Internal source identifiers
 
@@ -393,7 +395,7 @@ and finalized output.
 For a source payload of three bytes `61 62 63`, the complete input is:
 
 ```text
-56 45 52 49 54 59 2d 4f 50 52 46 00
+4f 4d 4e 45 55 4d 2d 4f 50 52 46 00
 00 01
 01
 00 03
@@ -448,8 +450,7 @@ Any change that alters the strict canonical payload bytes or the binary linkage
 encoding requires a new linkage encoding version.
 
 A new VOPRF key uses a new key version, not a new linkage encoding version.
-A breaking change to a released MCP request contract requires a new protocol version. A change to the
-source-reliability or claim-support algorithm uses a new algorithm version.
+A breaking change to a released MCP request contract requires a new protocol version. A change to the source-reliability or claim-support algorithm used during assertion evaluation requires a new algorithm version.
 
 Version 1 does not mix linkage or key versions within one request. Stored tokens
 must retain their complete token identity for as long as they remain in use.
