@@ -1,0 +1,28 @@
+{
+    "case_id": "arm_ipo_2023_revenue",
+    "claim": {
+      "entity": "Arm Holdings",
+      "attribute": "FY2023 total revenue",
+      "amount": 2679000000,
+      "currency": "USD"
+    },
+    "source_claims": {
+      "arm_f1": true,
+      "reuters_pre_filing": true,
+      "bloomberg_pre_filing": true,
+      "communications_today_syndication": true,
+      "techcrunch_analysis": true
+    },
+    "documented_relationships": [
+      {
+        "source": "communications_today_syndication",
+        "depends_on": "reuters_pre_filing",
+        "relationship": "syndication"
+      },
+      {
+        "source": "techcrunch_analysis",
+        "depends_on": "arm_f1",
+        "relationship": "explicit_filing_use"
+      }
+    ]
+  }
