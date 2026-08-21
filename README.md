@@ -18,6 +18,16 @@ Main features include:
 
 - **Privacy-preserving linkage** - Recognize matching private values across separate tools while keeping your data private and secure using local VOPRF-blinded tokens.
 
+## Performance
+
+| | Dependency precision | Dependency recall | Evaluation latency | LLM tokens |
+|---|---:|---:|---:|---:|
+| **Omneum** | **100.0%** | 77.8% | **13.5 ms** | **0** |
+| LLM-as-Judge | 81.8% | **100.0%** | 4.7 s | 5,576 |
+| Naive Vector RAG | — | — | 5.2 s | 5,093 |
+
+*Results across three real-world financial dependency cases. See [`benchmarks/financial_dependency_suite`](benchmarks/financial_dependency_suite) for methodology and reproducibility notes.*
+
 ## 🚀 Quickstart
 
 **Note:** This tutorial assumes a Python-based agentic application.

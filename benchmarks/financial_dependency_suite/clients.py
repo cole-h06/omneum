@@ -5,7 +5,7 @@ from anthropic import AsyncAnthropic
 
 DEFAULT_MODEL = os.environ.get(
     "ANTHROPIC_MODEL",
-    "claude-sonnet-4-20250514",
+    "claude-sonnet-5",
 )
 
 

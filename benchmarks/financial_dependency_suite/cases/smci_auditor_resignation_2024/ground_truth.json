@@ -1,0 +1,32 @@
+{
+  "case_id": "smci_auditor_resignation_2024",
+  "claim": {
+    "entity": "Super Micro Computer",
+    "attribute": "reason for EY auditor resignation",
+    "value": "EY concluded that it could no longer rely on representations from management and the Audit Committee and was unwilling to be associated with management's financial statements."
+  },
+  "source_claims": {
+    "smci_8k": true,
+    "reuters_report": true,
+    "bloomberg_report": true,
+    "ap_report": true,
+    "reuters_syndication": true
+  },
+  "documented_relationships": [
+    {
+      "source": "reuters_report",
+      "depends_on": "smci_8k",
+      "relationship": "explicit_filing_use"
+    },
+    {
+      "source": "bloomberg_report",
+      "depends_on": "smci_8k",
+      "relationship": "explicit_filing_use"
+    },
+    {
+      "source": "reuters_syndication",
+      "depends_on": "reuters_report",
+      "relationship": "syndication"
+    }
+  ]
+}
