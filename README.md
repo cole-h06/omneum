@@ -41,10 +41,10 @@ python3.14 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install the wheel:
+Install Omneum from the repository:
 
 ```bash
-pip install omneum-1.0.0-cp314-cp314-macosx_11_0_arm64.whl
+pip install .
 ```
 
 ### 2. Initialize Omneum
