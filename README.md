@@ -177,7 +177,7 @@ async with open_stdio_client(config, server) as client:
     )
 ```
 
-Both observations report the same value, but they also identify the same upstream source. `evaluate_assertion()` uses that relationship when estimating how much independent support the claim actually has.
+Both observations report the same value, but the research service identifies the analytics service as an upstream source. `evaluate_assertion()` uses that relationship when estimating how much independent support the claim actually has.
 
 ### 5. Handle the Result
 
