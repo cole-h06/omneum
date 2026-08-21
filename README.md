@@ -1,6 +1,6 @@
 # Omneum
 
-Omneum is an open-source data trust gateway for agentic systems. It evaluates retrieved information across sources before that context reaches the next model call.
+Omneum is an open-source data trust gateway for agentic systems. It evaluates retrieved information across sources before that context reaches the next model call. Think of it as a fast, lightweight reliability layer that sits between data sources and language models to ground your agents in trusted information.
 
 ## 🧠 Why Omneum?
 
@@ -88,6 +88,7 @@ from omneum import (
     Observation,
     Retrieval,
     Source,
+    SourceReference,
 )
 
 now = datetime.now(timezone.utc)
@@ -102,26 +103,42 @@ estimator = DependencyEstimatorConfig(
     temporal_window_seconds=172_800.0,
 )
 
-upstream = Source(
-    kind="api_endpoint",
-    identifier="market-data-provider",
+research_service = Source(
+    kind="internal_service",
+    identifier=(
+        "v1:01234567-89ab-4def-8123-456789abcdef:"
+        "22222222-2222-4333-8444-555555555555"
+    ),
+)
+
+analytics_service = Source(
+    kind="internal_service",
+    identifier=(
+        "v1:01234567-89ab-4def-8123-456789abcdef:"
+        "33333333-2222-4333-8444-555555555555"
+    ),
+)
+
+analytics_reference = SourceReference(
+    kind="internal_service",
+    identifier=(
+        "v1:01234567-89ab-4def-8123-456789abcdef:"
+        "33333333-2222-4333-8444-555555555555"
+    ),
 )
 
 observations = [
     Observation(
         assertion_id="result-1",
-        source=Source(
-            kind="internal_service",
-            identifier="research-api",
-        ),
+        source=research_service,
         claim=Claim(
-            entity_namespace="company",
-            entity="acme-corp",
-            attribute="quarterly_revenue_usd",
-            value=42_000_000,
+            entity_namespace="service",
+            entity="payment_api",
+            attribute="status_code",
+            value=200,
         ),
         observed_at=now,
-        upstream_sources=(upstream,),
+        upstream_sources=(analytics_reference,),
         retrievals=(
             Retrieval(
                 retrieval_id="retrieval-1",
@@ -133,18 +150,14 @@ observations = [
     ),
     Observation(
         assertion_id="result-2",
-        source=Source(
-            kind="internal_service",
-            identifier="analytics-api",
-        ),
+        source=analytics_service,
         claim=Claim(
-            entity_namespace="company",
-            entity="acme-corp",
-            attribute="quarterly_revenue_usd",
-            value=42_000_000,
+            entity_namespace="service",
+            entity="payment_api",
+            attribute="status_code",
+            value=200,
         ),
         observed_at=now,
-        upstream_sources=(upstream,),
         retrievals=(
             Retrieval(
                 retrieval_id="retrieval-2",
