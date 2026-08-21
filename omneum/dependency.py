@@ -596,11 +596,6 @@ def estimate_dependencies(
                 upstream
             )
 
-            if upstream_key not in source_map:
-                raise InformationGraphError(
-                    "upstream source is unknown"
-                )
-
             if upstream_key == source_key:
                 raise InformationGraphError(
                     "source cannot reference itself as upstream"
@@ -742,9 +737,23 @@ def _signals(
         rows_b,
     )
 
+    upstream_sources_a = _upstream_sources(
+        rows_a
+    )
+
+    upstream_sources_b = _upstream_sources(
+        rows_b
+    )
+
+    shared_upstream = bool(
+        upstream_sources_a
+        & upstream_sources_b
+    )
+
     upstream = float(
         upstream_a
         or upstream_b
+        or shared_upstream
     )
 
     upstream_capture_a = all(
@@ -1051,6 +1060,17 @@ def _upstream(
             or ()
         )
     )
+
+
+def _upstream_sources(rows):
+    return {
+        _canonical_source(value)
+        for observation, *_ in rows
+        for value in (
+            observation.upstream_sources
+            or ()
+        )
+    }
 
 
 def _citation(

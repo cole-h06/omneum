@@ -350,7 +350,6 @@ def test_clusters_are_deterministic():
 @pytest.mark.parametrize(
     "change,match",
     [
-        ({"upstream_sources": (reference("missing.example"),)}, "upstream source is unknown"),
         ({"cited_sources": (reference("missing.example"),)}, "cited source is unknown"),
         ({"parent_assertion_ids": ("missing",)}, "parent assertion is unknown"),
     ],
@@ -372,3 +371,28 @@ def test_duplicate_and_canonical_source_validation():
             (source("A.example", "one"), source("a.example", "two")),
             (observation("a1", "a.example"),), config()
         )
+
+
+def test_shared_external_upstream_source_counts_as_dependency():
+    a = source("a.example")
+    b = source("b.example")
+
+    observations = (
+        observation(
+            "a1",
+            "a.example",
+            source=a,
+            upstream_sources=(reference("fred.example"),),
+        ),
+        observation(
+            "b1",
+            "b.example",
+            source=b,
+            upstream_sources=(reference("fred.example"),),
+        ),
+    )
+
+    result = pair(observations, (a, b))
+
+    assert result.signals.upstream == 1.0
+    assert result.signals.upstream_observable is True
