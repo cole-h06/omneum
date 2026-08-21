@@ -37,6 +37,11 @@ from .information import (
     Source,
     SourceReference,
 )
+from .observations import (
+    observe,
+    reference,
+    retrieval,
+)
 
 __version__ = "1.0.0"
 
@@ -72,5 +77,8 @@ __all__ = [
     "OmneumClientError",
     "explain_claim",
     "explain_dependency",
+    "observe",
     "open_stdio_client",
+    "reference",
+    "retrieval",
 ]

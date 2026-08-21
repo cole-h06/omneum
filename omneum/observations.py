@@ -1,0 +1,67 @@
+from datetime import datetime
+from typing import Any
+
+from .information import (
+    Claim,
+    Observation,
+    Retrieval,
+    Source,
+    SourceReference,
+)
+
+
+def observe(
+    *,
+    assertion_id: str,
+    source: Source,
+    entity_namespace: str,
+    entity: str,
+    attribute: str,
+    value: Any,
+    observed_at: datetime,
+    source_modified_at: datetime | None = None,
+    upstream_sources: tuple[SourceReference, ...] | None = None,
+    cited_sources: tuple[SourceReference, ...] | None = None,
+    parent_assertion_ids: tuple[str, ...] | None = None,
+    retrievals: tuple[Retrieval, ...] | None = None,
+) -> Observation:
+    return Observation(
+        assertion_id=assertion_id,
+        source=source,
+        claim=Claim(
+            entity_namespace=entity_namespace,
+            entity=entity,
+            attribute=attribute,
+            value=value,
+        ),
+        observed_at=observed_at,
+        source_modified_at=source_modified_at,
+        upstream_sources=upstream_sources,
+        cited_sources=cited_sources,
+        parent_assertion_ids=parent_assertion_ids,
+        retrievals=retrievals,
+    )
+
+
+def retrieval(
+    *,
+    retrieval_id: str,
+    kind: str,
+    resource_id: str,
+    retrieved_at: datetime,
+    fields: dict[str, Any] | None = None,
+) -> Retrieval:
+    return Retrieval(
+        retrieval_id=retrieval_id,
+        kind=kind,
+        resource_id=resource_id,
+        retrieved_at=retrieved_at,
+        fields={} if fields is None else fields,
+    )
+
+
+def reference(source: Source) -> SourceReference:
+    return SourceReference(
+        kind=source.kind,
+        identifier=source.identifier,
+    )
