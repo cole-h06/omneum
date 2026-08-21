@@ -60,8 +60,28 @@ def retrieval(
     )
 
 
-def reference(source: Source) -> SourceReference:
+def reference(
+    source: Source | None = None,
+    *,
+    kind: str | None = None,
+    identifier: str | None = None,
+) -> SourceReference:
+    if source is not None:
+        if kind is not None or identifier is not None:
+            raise TypeError(
+                "source cannot be combined with kind or identifier"
+            )
+        return SourceReference(
+            kind=source.kind,
+            identifier=source.identifier,
+        )
+
+    if kind is None or identifier is None:
+        raise TypeError(
+            "kind and identifier are required without source"
+        )
+
     return SourceReference(
-        kind=source.kind,
-        identifier=source.identifier,
+        kind=kind,
+        identifier=identifier,
     )

@@ -6,14 +6,15 @@
     "assertion_lineage",
     "ownership",
     "temporal",
-    "graph"
+    "graph",
+    "retrieval"
   ],
   "weights": {
     "upstream": 0.25,
-    "citation": 0.20,
-    "assertion_lineage": 0.20,
-    "ownership": 0.10,
-    "temporal": 0.10,
+    "citation": 0.2,
+    "assertion_lineage": 0.2,
+    "ownership": 0.1,
+    "temporal": 0.1,
     "graph": 0.15
   },
   "output_comparison": {
@@ -22,14 +23,43 @@
   },
   "weight_cases": [
     {
-      "supplied": [25.0, 20.0, 20.0, 10.0, 10.0, 15.0],
-      "expected": [0.25, 0.20, 0.20, 0.10, 0.10, 0.15]
+      "supplied": [
+        25.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        15.0
+      ],
+      "expected": [
+        0.25,
+        0.2,
+        0.2,
+        0.1,
+        0.1,
+        0.15,
+        0.0
+      ]
     }
   ],
   "combine_cases": [
     {
-      "scores": [0.2, 0.4, 0.6, 0.8, 1.0, 0.5],
-      "observability": [true, false, true, false, true, true],
+      "scores": [
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0,
+        0.5
+      ],
+      "observability": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
       "expected_dependency": 0.505,
       "expected_weighted_signal_coverage": 0.7
     }
@@ -38,8 +68,14 @@
     {
       "name": "all_signals",
       "sources": [
-        {"id": "a", "owner_id": "owner"},
-        {"id": "b", "owner_id": "owner"}
+        {
+          "id": "a",
+          "owner_id": "owner"
+        },
+        {
+          "id": "b",
+          "owner_id": "owner"
+        }
       ],
       "observations": [
         {
@@ -49,9 +85,15 @@
           "value": "active",
           "observed_at": "2026-02-02T12:00:00+00:00",
           "source_modified_at": "2026-02-02T12:00:00+00:00",
-          "upstream_source_ids": ["b"],
-          "cited_source_ids": ["b"],
-          "parent_assertion_ids": ["b1"]
+          "upstream_source_ids": [
+            "b"
+          ],
+          "cited_source_ids": [
+            "b"
+          ],
+          "parent_assertion_ids": [
+            "b1"
+          ]
         },
         {
           "assertion_id": "b1",
@@ -65,8 +107,24 @@
           "parent_assertion_ids": []
         }
       ],
-      "expected_signals": [1.0, 1.0, 1.0, 1.0, 1.0, 0.5],
-      "expected_observability": [true, true, true, true, true, true],
+      "expected_signals": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.5,
+        0.0
+      ],
+      "expected_observability": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
       "expected_evidence": {
         "source_a_upstream_of_source_b": false,
         "source_b_upstream_of_source_a": true,
@@ -76,7 +134,9 @@
         "source_b_parent_count": 0,
         "same_owner": true,
         "matching_claim_count": 1,
-        "qualifying_time_deltas_seconds": [3600.0]
+        "qualifying_time_deltas_seconds": [
+          3600.0
+        ]
       },
       "expected_dependency": 0.925,
       "expected_weighted_signal_coverage": 1.0
@@ -84,8 +144,14 @@
     {
       "name": "unobservable_metadata",
       "sources": [
-        {"id": "a", "owner_id": null},
-        {"id": "b", "owner_id": null}
+        {
+          "id": "a",
+          "owner_id": null
+        },
+        {
+          "id": "b",
+          "owner_id": null
+        }
       ],
       "observations": [
         {
@@ -111,16 +177,38 @@
           "parent_assertion_ids": null
         }
       ],
-      "expected_signals": [0.0, 0.0, 0.0, 0.0, 0.0, 0.5],
-      "expected_observability": [false, false, false, false, false, true],
+      "expected_signals": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        0.0
+      ],
+      "expected_observability": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false
+      ],
       "expected_dependency": 0.075,
       "expected_weighted_signal_coverage": 0.15
     },
     {
       "name": "source_aggregation",
       "sources": [
-        {"id": "a", "owner_id": "owner-a"},
-        {"id": "b", "owner_id": "owner-b"}
+        {
+          "id": "a",
+          "owner_id": "owner-a"
+        },
+        {
+          "id": "b",
+          "owner_id": "owner-b"
+        }
       ],
       "observations": [
         {
@@ -130,7 +218,9 @@
           "value": "same",
           "observed_at": "2026-02-02T12:00:00+00:00",
           "source_modified_at": "2026-02-02T12:00:00+00:00",
-          "upstream_source_ids": ["b"],
+          "upstream_source_ids": [
+            "b"
+          ],
           "cited_source_ids": [],
           "parent_assertion_ids": []
         },
@@ -168,26 +258,89 @@
           "parent_assertion_ids": []
         }
       ],
-      "expected_signals": [1.0, 0.0, 0.0, 0.0, 1.0, 0.5],
-      "expected_observability": [true, true, true, true, true, true],
+      "expected_signals": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.5,
+        0.0
+      ],
+      "expected_observability": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
       "expected_dependency": 0.425,
       "expected_weighted_signal_coverage": 1.0
     }
   ],
   "matrix_case": {
-    "sources": ["c", "b", "a"],
-    "expected_pairs": [["a", "b"], ["a", "c"], ["b", "c"]],
-    "expected_dependencies": [0.0, 0.0, 0.0],
-    "expected_weighted_signal_coverages": [0.9, 0.9, 0.9]
+    "sources": [
+      "c",
+      "b",
+      "a"
+    ],
+    "expected_pairs": [
+      [
+        "a",
+        "b"
+      ],
+      [
+        "a",
+        "c"
+      ],
+      [
+        "b",
+        "c"
+      ]
+    ],
+    "expected_dependencies": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "expected_weighted_signal_coverages": [
+      0.9,
+      0.9,
+      0.9
+    ]
   },
   "cluster_case": {
-    "sources": ["a", "b", "c"],
+    "sources": [
+      "a",
+      "b",
+      "c"
+    ],
     "threshold": 0.4,
     "dependencies": [
-      {"source_a": "a", "source_b": "b", "dependency": 0.5},
-      {"source_a": "a", "source_b": "c", "dependency": 0.1},
-      {"source_a": "b", "source_b": "c", "dependency": 0.4}
+      {
+        "source_a": "a",
+        "source_b": "b",
+        "dependency": 0.5
+      },
+      {
+        "source_a": "a",
+        "source_b": "c",
+        "dependency": 0.1
+      },
+      {
+        "source_a": "b",
+        "source_b": "c",
+        "dependency": 0.4
+      }
     ],
-    "expected_components": [["a", "b", "c"]]
+    "expected_components": [
+      [
+        "a",
+        "b",
+        "c"
+      ]
+    ]
   }
 }

@@ -60,6 +60,7 @@ estimator = DependencyEstimatorConfig(
     ownership_weight=0.10,
     temporal_weight=0.10,
     graph_weight=0.15,
+    retrieval_weight=0.25,
     temporal_window_seconds=172_800.0,
 )
 
@@ -339,6 +340,7 @@ estimator = DependencyEstimatorConfig(
     ownership_weight=0.10,
     temporal_weight=0.10,
     graph_weight=0.15,
+    retrieval_weight=0.25,
     temporal_window_seconds=172_800.0,
 )
 ```
@@ -355,7 +357,7 @@ async with open_stdio_client(config, server) as client:
 
 The estimator combines source relationships already present in the observation metadata with overlap found across the observations in the current evaluation.
 
-For the research example above, two different URLs do not automatically count as independent sources. If both results came from the same upstream filing, cite one another, share assertion lineage, or belong to the same owner, those signals can increase their estimated dependency.
+For the research example above, two different URLs do not automatically count as independent sources. If both results came from the same upstream source, cite one another, share assertion lineage, or belong to the same owner, those signals can increase their estimated dependency. Matching claims can also receive a retrieval dependency signal when their retrieval metadata identifies the same underlying resource.
 
 The temporal signal uses `source_modified_at` when your application has source update timestamps:
 
@@ -516,6 +518,7 @@ estimator = DependencyEstimatorConfig(
     ownership_weight=0.10,
     temporal_weight=0.10,
     graph_weight=0.15,
+    retrieval_weight=0.25,
     temporal_window_seconds=172_800.0,
 )
 

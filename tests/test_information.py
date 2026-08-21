@@ -148,3 +148,57 @@ def test_repr():
     )
     text = repr((source, item, item.cited_sources[0], item.retrievals[0]))
     assert "secret" not in text
+
+
+def test_observation_helpers():
+    from omneum import observe, reference, retrieval
+
+    source = Source(
+        "internal_service",
+        "v1:01234567-89ab-4def-8123-456789abcdef:"
+        "11111111-1111-4111-8111-111111111111",
+    )
+
+    upstream = reference(
+        kind="external_service",
+        identifier="FRED:T10YIE",
+    )
+
+    item = observe(
+        assertion_id="assertion-a",
+        source=source,
+        entity_namespace="service",
+        entity="us_macro",
+        attribute="breakeven_10y_pct",
+        value=2.34,
+        observed_at=NOW,
+        upstream_sources=(upstream,),
+        retrievals=(
+            retrieval(
+                retrieval_id="retrieval-a",
+                kind="tool_output",
+                resource_id="get_inflation_indicators",
+                retrieved_at=NOW,
+            ),
+        ),
+    )
+
+    assert item.claim.attribute == "breakeven_10y_pct"
+    assert item.claim.value == 2.34
+    assert item.upstream_sources == (upstream,)
+    assert item.retrievals[0].resource_id == "get_inflation_indicators"
+
+
+def test_reference_from_source():
+    from omneum import reference
+
+    source = Source(
+        "internal_service",
+        "v1:01234567-89ab-4def-8123-456789abcdef:"
+        "11111111-1111-4111-8111-111111111111",
+    )
+
+    assert reference(source) == SourceReference(
+        source.kind,
+        source.identifier,
+    )

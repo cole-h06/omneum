@@ -100,6 +100,7 @@ estimator = DependencyEstimatorConfig(
     ownership_weight=0.10,
     temporal_weight=0.10,
     graph_weight=0.15,
+    retrieval_weight=0.25,
     temporal_window_seconds=172_800.0,
 )
 

@@ -31,6 +31,7 @@ SIGNALS = (
     "ownership",
     "temporal",
     "graph",
+    "retrieval",
 )
 
 
@@ -64,6 +65,10 @@ class DependencyEstimatorConfig:
     temporal_weight: float = field(repr=False)
     graph_weight: float = field(repr=False)
     temporal_window_seconds: float = field(repr=False)
+    retrieval_weight: float = field(
+        default=0.0,
+        repr=False,
+    )
     estimator_version: str = field(
         default="dependency-estimator-v1",
         repr=False,
@@ -125,6 +130,9 @@ class DependencySignalScores:
     ownership_observable: bool = field(repr=False)
     temporal_observable: bool = field(repr=False)
     graph_observable: bool = field(repr=False)
+
+    retrieval: float = field(default=0.0, repr=False)
+    retrieval_observable: bool = field(default=False, repr=False)
 
     def __post_init__(self):
         for name in SIGNALS:
@@ -893,6 +901,29 @@ def _signals(
         )
     )
 
+    shared_retrieval_matches = sum(
+        bool(
+            _retrieval_resources(properties_a[key])
+            & _retrieval_resources(properties_b[key])
+        )
+        for key in matches
+    )
+
+    retrieval = (
+        shared_retrieval_matches / len(matches)
+        if matches
+        else 0.0
+    )
+
+    retrieval_observable = bool(
+        matches
+        and any(
+            properties_a[key][0].retrievals
+            or properties_b[key][0].retrievals
+            for key in matches
+        )
+    )
+
     temporal_observable = bool(
         matches
         and all(
@@ -1019,6 +1050,7 @@ def _signals(
         ownership=ownership,
         temporal=temporal,
         graph=graph,
+        retrieval=retrieval,
         upstream_observable=upstream_observable,
         citation_observable=citation_observable,
         assertion_lineage_observable=(
@@ -1027,6 +1059,7 @@ def _signals(
         ownership_observable=ownership_observable,
         temporal_observable=temporal_observable,
         graph_observable=True,
+        retrieval_observable=retrieval_observable,
     )
 
     evidence = DependencyEvidence(
@@ -1045,6 +1078,21 @@ def _signals(
         signals,
         evidence,
     )
+
+
+def _retrieval_resources(row):
+    observation = row[0]
+
+    return {
+        (
+            value.kind,
+            value.resource_id,
+        )
+        for value in (
+            observation.retrievals
+            or ()
+        )
+    }
 
 
 def _upstream(

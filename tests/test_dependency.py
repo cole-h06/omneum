@@ -16,7 +16,7 @@ from omneum.dependency import (
     combine_dependency,
     estimate_dependencies,
 )
-from omneum.information import Claim, Observation, Source, SourceReference
+from omneum.information import Claim, Observation, Retrieval, Source, SourceReference
 
 
 NOW = datetime(2026, 2, 2, 12, tzinfo=timezone.utc)
@@ -317,7 +317,9 @@ def test_weight_normalization_and_combination():
         temporal_weight=10.0, graph_weight=15.0,
         temporal_window_seconds=7200.0,
     )
-    assert dependency._weights(values) == (0.25, 0.2, 0.2, 0.1, 0.1, 0.15)
+    assert dependency._weights(values) == (
+        0.25, 0.2, 0.2, 0.1, 0.1, 0.15, 0.0
+    )
     signals = empty_signals(
         upstream=1.0, citation=1.0, assertion_lineage=1.0,
         ownership=1.0, temporal=1.0, graph=0.5,
@@ -396,3 +398,38 @@ def test_shared_external_upstream_source_counts_as_dependency():
 
     assert result.signals.upstream == 1.0
     assert result.signals.upstream_observable is True
+
+
+def test_shared_retrieval_resource():
+
+    shared = Retrieval(
+        retrieval_id="retrieval-a",
+        kind="tool_output",
+        resource_id="FRED:T10YIE",
+        retrieved_at=NOW,
+    )
+
+    same_resource = Retrieval(
+        retrieval_id="retrieval-b",
+        kind="tool_output",
+        resource_id="FRED:T10YIE",
+        retrieved_at=NOW,
+    )
+
+    result = pair(
+        (
+            observation(
+                "a1",
+                "a.example",
+                retrievals=(shared,),
+            ),
+            observation(
+                "b1",
+                "b.example",
+                retrievals=(same_resource,),
+            ),
+        )
+    )
+
+    assert result.signals.retrieval == 1.0
+    assert result.signals.retrieval_observable is True
