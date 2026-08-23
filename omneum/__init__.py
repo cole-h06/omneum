@@ -1,5 +1,6 @@
 """Omneum SDK."""
 
+from .mapping import ContextMapper
 from .client import (
     ClaimSupportResult,
     ConflictingClaimResult,
@@ -46,6 +47,7 @@ from .observations import (
 __version__ = "1.0.0"
 
 __all__ = [
+    "ContextMapper",
     "Claim",
     "ClaimSupportResult",
     "ConflictingClaimResult",

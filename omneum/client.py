@@ -38,6 +38,7 @@ from .inference import (
     CONVERGENCE_TOLERANCE,
     infer,
 )
+from .mapping import ContextMapper
 from .information import (
     Claim,
     Observation,
@@ -874,6 +875,19 @@ class OmneumClient:
                 canonical_attribute,
                 canonical_value,
             )
+        )
+
+    async def evaluate_mapped(
+        self,
+        items: Sequence[Any],
+        mapper: ContextMapper,
+        *,
+        estimator: DependencyEstimatorConfig,
+    ) -> AssertionEvaluation:
+        observations = mapper.map_many(items)
+        return await self.evaluate_assertion(
+            observations,
+            estimator=estimator,
         )
 
     async def evaluate_assertion(

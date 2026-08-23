@@ -191,7 +191,50 @@ observation = Observation(
 )
 ```
 
-In an agent workflow, observations can be constructed from values already present in tool results, retrieval outputs, or workflow state. Metadata captured during execution can be attached to the observation when available.
+In an agent workflow, observations can be constructed directly or mapped from values already present in tool results, retrieval outputs, or workflow state. `ContextMapper` provides the generic mapping layer for structured tool output. Metadata captured during execution can be attached to the observation when available.
+
+### ContextMapper
+
+If a tool or retrieval step returns structured results, use `ContextMapper` to map those results into `Observation` objects.
+
+Define how fields in the tool result map to the Omneum observation:
+
+    from omneum import ContextMapper
+
+    mapper = ContextMapper(
+        source=lambda result: result["source"],
+        entity_namespace=lambda result: result["entity_namespace"],
+        entity=lambda result: result["entity"],
+        attribute=lambda result: result["attribute"],
+        value=lambda result: result["value"],
+        assertion_id=lambda result: result["id"],
+        observed_at=lambda result: now,
+    )
+
+    observations = mapper.map_many(results)
+
+Each mapping can be a dotted field path or a callable. Use a callable when the value needs to be selected or transformed before it is passed to Omneum.
+
+Map provenance and retrieval fields when they are already present in the tool result or workflow state:
+
+    mapper = ContextMapper(
+        source=lambda result: result["source"],
+        entity_namespace=lambda result: result["entity_namespace"],
+        entity=lambda result: result["entity"],
+        attribute=lambda result: result["attribute"],
+        value=lambda result: result["value"],
+        assertion_id=lambda result: result["id"],
+        observed_at=lambda result: result["observed_at"],
+        source_modified_at=lambda result: result.get("updated_at"),
+        upstream_sources=lambda result: result.get("upstream_sources"),
+        cited_sources=lambda result: result.get("citations"),
+        parent_assertion_ids=lambda result: result.get("parent_assertion_ids"),
+        retrievals=lambda result: result.get("retrievals"),
+    )
+
+You do not need to add or reconstruct metadata that your tool does not already provide. Fields that are not mapped remain unavailable to the dependency estimator.
+
+`map()` maps one result to an `Observation`. `map_many()` maps a sequence of results and returns a tuple of observations.
 
 ### Sources
 

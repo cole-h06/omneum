@@ -75,7 +75,27 @@ server = StdioServerParameters(
 
 The SDK uses this configuration when it opens an MCP connection to your local deployment.
 
-### 4. Evaluate Context
+### 4. Map Tool Output
+
+If a retrieval or tool call returns structured results, use `ContextMapper` to map those results into Omneum observations:
+
+    from omneum import ContextMapper
+
+    mapper = ContextMapper(
+        source=lambda result: result["source"],
+        entity_namespace=lambda result: result["entity_namespace"],
+        entity=lambda result: result["entity"],
+        attribute=lambda result: result["attribute"],
+        value=lambda result: result["value"],
+        assertion_id=lambda result: result["id"],
+        observed_at=lambda result: now,
+    )
+
+    observations = mapper.map_many(results)
+
+Map provenance and retrieval metadata when those fields are already present in the tool output or workflow state. You do not need to add or reconstruct metadata that your system does not already provide.
+
+### 5. Evaluate Context
 
 Map your retrieved data and tool outputs into Omneum `Observation` objects with their available provenance and retrieval metadata. Pass them to the client for evaluation:
 
@@ -179,7 +199,7 @@ async with open_stdio_client(config, server) as client:
 
 Both observations report the same value, but the research service identifies the analytics service as an upstream source. `evaluate_assertion()` uses that relationship when estimating how much independent support the claim actually has.
 
-### 5. Handle the Result
+### 6. Handle the Result
 
 Integrate the structured evaluation signals directly in your orchestration logic:
 
