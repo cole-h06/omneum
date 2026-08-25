@@ -8,12 +8,14 @@ import pytest
 
 import omneum.dependency as dependency
 from omneum.dependency import (
+    DependencySignal,
     DependencyEvidence,
     DependencyEstimatorConfig,
     DependencySignalScores,
     InformationGraphError,
     PairwiseDependencyResult,
     combine_dependency,
+    combine_generic_dependency,
     estimate_dependencies,
 )
 from omneum.information import Claim, Observation, Retrieval, Source, SourceReference
@@ -284,7 +286,7 @@ def test_signal_missingness_and_coverage():
     assert result.weighted_signal_coverage == pytest.approx(0.15)
 
 
-def test_observed_at_and_retrieval_time_do_not_drive_temporal():
+def test_temporal_timestamps():
     result = pair((
         observation("a1", "a.example", observed_at=NOW,
                     source_modified_at=None),
@@ -361,7 +363,7 @@ def test_unknown_relationships(change, match):
         pair((observation("a1", "a.example", **change), observation("b1", "b.example")))
 
 
-def test_duplicate_and_canonical_source_validation():
+def test_source_validation():
     a = source("a.example")
     with pytest.raises(InformationGraphError, match="duplicate assertion ID"):
         estimate_dependencies((a,), (
@@ -375,7 +377,7 @@ def test_duplicate_and_canonical_source_validation():
         )
 
 
-def test_shared_external_upstream_source_counts_as_dependency():
+def test_shared_upstream():
     a = source("a.example")
     b = source("b.example")
 
@@ -433,3 +435,188 @@ def test_shared_retrieval_resource():
 
     assert result.signals.retrieval == 1.0
     assert result.signals.retrieval_observable is True
+
+
+def test_generic_dependency_signal():
+    signal = DependencySignal(
+        value=0.75,
+        observable=True,
+    )
+
+    assert signal.value == 0.75
+    assert signal.observable is True
+
+
+def test_generic_signal_scores():
+    signals = DependencySignalScores(
+        upstream=0.0,
+        citation=0.0,
+        assertion_lineage=0.0,
+        ownership=0.0,
+        temporal=0.0,
+        graph=0.0,
+        upstream_observable=False,
+        citation_observable=False,
+        assertion_lineage_observable=False,
+        ownership_observable=False,
+        temporal_observable=False,
+        graph_observable=True,
+        generic={
+            "replaces": DependencySignal(
+                value=1.0,
+                observable=True,
+            ),
+            "write_origin": DependencySignal(
+                value=0.5,
+                observable=True,
+            ),
+        },
+    )
+
+    assert signals.generic["replaces"].value == 1.0
+    assert signals.generic["write_origin"].value == 0.5
+
+
+def test_combine_generic_dependency_signals():
+    signals = {
+        "replaces": DependencySignal(
+            value=1.0,
+            observable=True,
+        ),
+        "write_origin": DependencySignal(
+            value=0.5,
+            observable=True,
+        ),
+    }
+
+    dependency, coverage = combine_generic_dependency(
+        signals,
+        {
+            "replaces": 0.75,
+            "write_origin": 0.25,
+        },
+    )
+
+    assert dependency == 0.875
+    assert coverage == 1.0
+
+
+def test_generic_signal_estimation():
+    a = source("a.example")
+    b = source("b.example")
+
+    observations = (
+        observation(
+            "a1",
+            "a.example",
+            source=a,
+            dependency_signals={
+                "write_origin": DependencySignal(
+                    value=1.0,
+                    observable=True,
+                ),
+                "replaces": DependencySignal(
+                    value=1.0,
+                    observable=True,
+                ),
+            },
+        ),
+        observation(
+            "b1",
+            "b.example",
+            source=b,
+            dependency_signals={
+                "write_origin": DependencySignal(
+                    value=1.0,
+                    observable=True,
+                ),
+                "replaces": DependencySignal(
+                    value=1.0,
+                    observable=True,
+                ),
+            },
+        ),
+    )
+
+    result = pair(observations, (a, b))
+
+    assert result.signals.generic["write_origin"].value == 1.0
+    assert result.signals.generic["replaces"].value == 1.0
+    assert result.signals.generic["write_origin"].observable is True
+    assert result.signals.generic["replaces"].observable is True
+
+
+def test_mapper_signals():
+    from omneum.dependency import DependencySignal
+
+    a = source("a.example")
+    b = source("b.example")
+
+    observations = (
+        observation(
+            "a1",
+            "a.example",
+            source=a,
+            dependency_signals={
+                "session": DependencySignal(
+                    value=1.0,
+                    observable=True,
+                ),
+            },
+        ),
+        observation(
+            "b1",
+            "b.example",
+            source=b,
+            dependency_signals={
+                "session": DependencySignal(
+                    value=1.0,
+                    observable=True,
+                ),
+            },
+        ),
+    )
+
+    result = pair(observations, (a, b))
+
+    assert result.signals.generic["session"].value == 1.0
+    assert result.signals.generic["session"].observable is True
+
+
+def test_agent_telemetry():
+    from omneum.dependency import DependencySignal
+
+    a = source("research-agent-a")
+    b = source("research-agent-b")
+
+    observations = (
+        observation(
+            "a1",
+            "sec-filing",
+            source=a,
+            dependency_signals={
+                "request": DependencySignal(1.0, True),
+                "execution": DependencySignal(1.0, True),
+                "model": DependencySignal(1.0, True),
+                "tool": DependencySignal(1.0, True),
+            },
+        ),
+        observation(
+            "b1",
+            "sec-filing",
+            source=b,
+            dependency_signals={
+                "request": DependencySignal(1.0, True),
+                "execution": DependencySignal(1.0, True),
+                "model": DependencySignal(1.0, True),
+                "tool": DependencySignal(1.0, True),
+            },
+        ),
+    )
+
+    result = pair(observations, (a, b))
+
+    assert result.signals.generic["request"].value == 1.0
+    assert result.signals.generic["execution"].value == 1.0
+    assert result.signals.generic["model"].value == 1.0
+    assert result.signals.generic["tool"].value == 1.0

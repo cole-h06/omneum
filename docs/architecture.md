@@ -4,14 +4,14 @@ This document describes the high-level Omneum system architecture, including its
 
 To see related specifications, visit:
 
-- **[`sdk.md`](../protocol/sdk.md)** — the application-facing Python interface and client-side processing performed by the SDK.
-- **[`api.md`](../protocol/api.md)** — the MCP tools, wire schemas, validation rules, resource limits, and assertion-evaluation semantics.
-- **[`protocol.md`](../protocol/protocol.md)** — the interoperability contract between clients and Omneum deployments, including protocol roles, trust boundaries, token identity, and key lifecycle.
-- **[`canonicalization.md`](../protocol/canonicalization.md)** — semantic canonicalization, strict serialization, and versioned linkage-input encoding.
+- **[`sdk.md`](sdk.md)** — the application-facing Python interface and client-side processing performed by the SDK.
+- **[`api.md`](api.md)** — the MCP tools, wire schemas, validation rules, resource limits, and assertion-evaluation semantics.
+- **[`protocol.md`](protocol.md)** — the interoperability contract between clients and Omneum deployments, including protocol roles, trust boundaries, token identity, and key lifecycle.
+- **[`canonicalization.md`](canonicalization.md)** — semantic canonicalization, strict serialization, and versioned linkage-input encoding.
 
 ## 1. Objectives
 
-Omneum is a Data Trust Gateway for Agentic Systems. It provides a protocol and runtime for evaluating structured assertions across multiple sources without exposing the underlying application data to the evaluator.
+Omneum is a data trust gateway for agentic systems. It provides a protocol and runtime for evaluating structured assertions across multiple sources without exposing the underlying application data to the evaluator.
 
 Omneum is designed to integrate with existing data and agent pipelines without requiring the deployment to ingest or interpret application content.
 
@@ -31,7 +31,7 @@ At the highest level, Omneum is composed of three key architectural components:
 - Omneum Deployment
 - Assertion Evaluation Engine
 
-Applications integrate through the Omneum SDK. The SDK performs client-side canonicalization and serialization, executes VOPRF linkage, estimates source dependency, constructs the protocol request, and submits it to an Omneum deployment.
+Applications integrate through the Omneum SDK using structured assertions, mapped retrieval or tool output, or the lower-level observation interface. The SDK converts these application-facing inputs into the common internal assertion representation, performs deterministic canonicalization and serialization, executes VOPRF linkage, estimates source dependency, constructs the protocol request, and submits it to an Omneum deployment.
 
 An Omneum deployment validates the incoming request, constructs the request-scoped graph from opaque identifiers, executes the configured assertion-evaluation algorithm, and returns the protocol response. The deployment does not persist assertion graphs or evaluation state between requests.
 
@@ -47,8 +47,8 @@ An Omneum deployment validates the incoming request, constructs the request-scop
 
 ### 3.1 Omneum SDK
 
-The SDK is the application-facing client and owns the content-sensitive processing required by the protocol. It performs canonicalization, serialization, VOPRF client operations, source-dependency estimation, request construction, response validation, and mapping between application-local values and opaque protocol identifiers.
-Application values remain client-side and are not included in assertion-evaluation requests.
+The SDK is the application-facing client. It exposes multiple integration paths for supplying information to be evaluated: client.evaluate() accepts an application-normalized StructuredAssertion, client.evaluate_mapped() adapts existing retrieval or tool output through a ContextMapper, and the lower-level client.evaluate_assertion() interface accepts Observation objects directly.
+These interfaces converge on the same internal assertion-evaluation pipeline. The SDK performs deterministic canonicalization and serialization, VOPRF client operations, source-dependency estimation, request construction, response validation, and mapping between application-local values and opaque protocol identifiers. Application values remain client-side and are not included in assertion-evaluation requests.
 
 ### 3.2 Omneum Deployment
 
@@ -71,16 +71,14 @@ This section describes the request path from application data to an assertion-ev
 
 ### 4.1 Application Integration
 
-Omneum does not ingest or parse raw application data. The calling application retrieves data from its upstream systems and converts relevant source observations into the structured input expected by the SDK. Upstream systems may include APIs, databases, documents, knowledge bases, MCP tools, or agent outputs.
-Semantic extraction and application-specific interpretation remain outside the Omneum runtime.
+Omneum does not require the deployment to ingest or parse raw application data. The calling application retrieves information from its upstream systems and supplies it through one of the SDK's application-facing integration paths.
+Applications that already have normalized entity, attribute, value, and source information can construct a StructuredAssertion directly. Existing retrieval or tool outputs can instead be adapted through a ContextMapper. Applications requiring direct control over the lower-level representation can supply Observation objects.
+Upstream systems may include APIs, databases, documents, knowledge bases, MCP tools, or agent outputs. Semantic normalization—deciding which retrieved information represents the same entity, attribute, and structured value—remains application-defined rather than being inferred by the Omneum deployment.
 
 ### 4.2 Canonicalization
 
-The SDK canonicalizes application values according to their source kind, entity
-namespace, attribute, and value type. Canonical values are then serialized into
-the fixed protocol schemas defined by the canonicalization specification.
-
-This processing occurs client-side before VOPRF linkage.
+After the application-facing input has been converted into Omneum's structured assertion representation, the SDK canonicalizes its source, entity, attribute, and value fields according to the deterministic profiles defined by the canonicalization specification. Canonical values are then serialized into the fixed protocol schemas.
+This processing occurs client-side before VOPRF linkage. Canonicalization normalizes representations within an already established semantic identity; it does not determine semantic equivalence between differently expressed application data
 
 ### 4.3 Privacy-Preserving Linkage
 

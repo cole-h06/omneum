@@ -137,7 +137,7 @@ def test_infer_stdio(tmp_path):
                     "converged": True,
                     "convergence_tolerance": 1e-8,
                     "convergence_delta": (
-                        2.7385139754823595e-09
+                        6.582017357363579e-09
                     ),
                 }
 

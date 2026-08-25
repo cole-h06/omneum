@@ -1,11 +1,13 @@
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
+from .dependency import DependencySignal
 from .information import Observation
 from .observations import observe
 
 
 Extractor = str | Callable[[Any], Any]
+SignalExtractor = Callable[[Any], DependencySignal]
 
 
 def _extract(item: Any, path: Extractor) -> Any:
@@ -15,9 +17,12 @@ def _extract(item: Any, path: Extractor) -> Any:
     value = item
     for part in path.split("."):
         if isinstance(value, Mapping):
-            value = value[part]
+            value = value.get(part)
         else:
-            value = getattr(value, part)
+            value = getattr(value, part, None)
+
+        if value is None:
+            return None
     return value
 
 
@@ -37,6 +42,8 @@ class ContextMapper:
         cited_sources: Extractor | None = None,
         parent_assertion_ids: Extractor | None = None,
         retrievals: Extractor | None = None,
+        metadata: Mapping[str, Extractor] | None = None,
+        signals: Mapping[str, SignalExtractor] | None = None,
     ) -> None:
         self._mapping = {
             "source": source,
@@ -53,6 +60,14 @@ class ContextMapper:
             "retrievals": retrievals,
         }
 
+        self._metadata_mapping = (
+            {} if metadata is None else dict(metadata)
+        )
+
+        self._signal_mapping = (
+            {} if signals is None else dict(signals)
+        )
+
     def map(self, item: Any) -> Observation:
         values = {
             name: (
@@ -61,6 +76,21 @@ class ContextMapper:
                 else _extract(item, extractor)
             )
             for name, extractor in self._mapping.items()
+        }
+
+        if values["parent_assertion_ids"] is not None:
+            values["parent_assertion_ids"] = (
+                values["parent_assertion_ids"],
+            )
+
+        metadata = {
+            name: _extract(item, extractor)
+            for name, extractor in self._metadata_mapping.items()
+        }
+
+        signals = {
+            name: extractor(item)
+            for name, extractor in self._signal_mapping.items()
         }
 
         return observe(
@@ -76,6 +106,8 @@ class ContextMapper:
             cited_sources=values["cited_sources"],
             parent_assertion_ids=values["parent_assertion_ids"],
             retrievals=values["retrievals"],
+            metadata=metadata,
+            dependency_signals=signals,
         )
 
     def map_many(self, items: Sequence[Any]) -> tuple[Observation, ...]:

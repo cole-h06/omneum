@@ -40,11 +40,13 @@ from .inference import (
 )
 from .mapping import ContextMapper
 from .information import (
+    AssertionSource,
     Claim,
     Observation,
     Retrieval,
     Source,
     SourceReference,
+    StructuredAssertion,
 )
 from .linkage import (
     ENCODING_VERSION,
@@ -199,6 +201,11 @@ class ConflictingClaimResult:
     claim: Claim = field(repr=False)
     support: float
 
+    @property
+    def explanation(self) -> str:
+        from .explanations import explain_claim
+        return explain_claim(self)
+
     def __post_init__(self):
         _exact(self.claim, Claim, "claim")
         _result_number(
@@ -220,6 +227,11 @@ class ClaimSupportResult:
     supporting_sources: tuple[SupportingSourceResult, ...]
     conflicting_claims: tuple[ConflictingClaimResult, ...]
     dependency_clusters: tuple[DependencyCluster, ...] | None
+
+    @property
+    def explanation(self) -> str:
+        from .explanations import explain_claim
+        return explain_claim(self)
 
     def __post_init__(self):
         _exact(self.claim, Claim, "claim")
@@ -451,6 +463,22 @@ class AssertionEvaluation:
     dependency_cluster_threshold: float | None = field(
         repr=False
     )
+
+    @property
+    def explanations(self) -> tuple[str, ...]:
+        return tuple(
+            item.explanation
+            for item in self.claim_support
+        )
+
+    @property
+    def dependency_explanations(self) -> tuple[str, ...]:
+        from .explanations import explain_dependency
+
+        return tuple(
+            explain_dependency(item)
+            for item in self.pairwise_dependencies
+        )
 
     def __post_init__(self):
         _tuple_of(
@@ -875,6 +903,44 @@ class OmneumClient:
                 canonical_attribute,
                 canonical_value,
             )
+        )
+
+    async def evaluate(
+        self,
+        assertion: StructuredAssertion,
+        *,
+        estimator: DependencyEstimatorConfig,
+    ) -> AssertionEvaluation:
+        if type(assertion) is not StructuredAssertion:
+            raise TypeError(
+                "assertion must be a StructuredAssertion"
+            )
+
+        from .observations import observe
+
+        observations = tuple(
+            observe(
+                assertion_id=item.assertion_id,
+                source=item.source,
+                entity_namespace=assertion.entity_namespace,
+                entity=assertion.entity,
+                attribute=assertion.attribute,
+                value=assertion.value,
+                observed_at=item.observed_at,
+                source_modified_at=item.source_modified_at,
+                upstream_sources=item.upstream_sources,
+                cited_sources=item.cited_sources,
+                parent_assertion_ids=item.parent_assertion_ids,
+                retrievals=item.retrievals,
+                metadata=item.metadata,
+                dependency_signals=item.dependency_signals,
+            )
+            for item in assertion.sources
+        )
+
+        return await self.evaluate_assertion(
+            observations,
+            estimator=estimator,
         )
 
     async def evaluate_mapped(

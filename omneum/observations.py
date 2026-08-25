@@ -24,6 +24,8 @@ def observe(
     cited_sources: tuple[SourceReference, ...] | None = None,
     parent_assertion_ids: tuple[str, ...] | None = None,
     retrievals: tuple[Retrieval, ...] | None = None,
+    metadata: dict[str, Any] | None = None,
+    dependency_signals: dict[str, Any] | None = None,
 ) -> Observation:
     return Observation(
         assertion_id=assertion_id,
@@ -40,6 +42,12 @@ def observe(
         cited_sources=cited_sources,
         parent_assertion_ids=parent_assertion_ids,
         retrievals=retrievals,
+        metadata={} if metadata is None else metadata,
+        dependency_signals=(
+            {}
+            if dependency_signals is None
+            else dependency_signals
+        ),
     )
 
 

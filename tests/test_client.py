@@ -29,6 +29,7 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 def test_package_exports() -> None:
     assert omneum.__all__ == [
+        "AssertionSource",
         "ContextMapper",
         "Claim",
         "ClaimSupportResult",
@@ -55,6 +56,7 @@ def test_package_exports() -> None:
         "SourceEvaluation",
         "SourceReference",
         "SupportingSourceResult",
+        "StructuredAssertion",
         "OmneumClient",
         "OmneumClientConfig",
         "OmneumClientConfigurationError",

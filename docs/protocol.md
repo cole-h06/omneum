@@ -114,8 +114,8 @@ or finalized output does.
 A conforming client performs the following steps:
 
 ```text
-structured extraction
-    -> semantic canonicalization
+application-defined semantic normalization
+    -> structured assertion data
     -> strict RFC 8785 fixed-schema serialization
     -> Omneum linkage domain encoding
     -> VOPRF blinding
@@ -128,7 +128,7 @@ structured extraction
 
 The client MUST:
 
-- canonicalize values before strict serialization;
+- canonicalize application-provided structured values according to the fixed linkage schemas before strict serialization;
 - use the fixed source, attribute, and claim schemas;
 - apply the correct linkage purpose;
 - use cryptographically secure randomness when blinding;
@@ -138,8 +138,7 @@ The client MUST:
 - finalize with the exact encoded input and state captured during blinding; and
 - encode finalized tokens as strict unpadded base64url.
 
-The client MUST NOT ask the deployment to perform semantic canonicalization,
-fuzzy matching, or content extraction.
+The application is responsible for semantic normalization before assertion evaluation. The client MUST NOT ask the deployment to perform semantic normalization, fuzzy matching, or content extraction.
 
 ## 8. VOPRF Trust
 
@@ -312,12 +311,18 @@ authenticated configuration management and deployment controls.
 ## 13. Assertion Evaluation
 
 `evaluate_assertions` is implemented for local MCP stdio. The exact wire contract
-and algorithm are defined in `api.md`. The Python SDK implements local
-dependency estimation, linkage, request submission, response validation, and
-mapping of opaque results back to application-local values. Remote transport
-and Omneum Cloud integration are not implemented.
+and algorithm are defined in `api.md`. Remote transport and Omneum Cloud
+integration are not implemented.
 
-Before linkage, the client canonicalizes application-local assertions and
+The Python SDK exposes the wire operation through multiple application-facing
+interfaces. `client.evaluate()` accepts a `StructuredAssertion` when the
+application has already normalized the entity, attribute, value, and supporting
+sources. `client.evaluate_mapped()` adapts existing retrieval or tool output
+through a `ContextMapper`. The lower-level `client.evaluate_assertion()` method
+accepts `Observation` objects directly.
+
+All three paths produce the same assertion-evaluation protocol request. Before
+linkage, the SDK canonicalizes the application-local assertion data and
 estimates the symmetric dependency and weighted signal coverage for every
 source pair. It retains raw provenance, lineage, ownership, timestamps,
 retrieval records, signal observations, names, claim text, and explanation

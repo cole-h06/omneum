@@ -10,6 +10,8 @@ The application answers the question:
 
 Five retrieval agents collect structured observations from enterprise systems such as governance documents, deployment records, live configuration, generated reports, and vendor documentation.
 
+This workflow intentionally uses Omneum's lower-level `client.evaluate_assertion()` interface, supplying `Observation` objects directly. Applications that already normalize information into `StructuredAssertion` objects can instead use `client.evaluate()`, while existing retrieval or tool outputs can be adapted through `client.evaluate_mapped()` and a `ContextMapper`.
+
 Omneum evaluates:
 
 - Which claims are most strongly supported
@@ -17,7 +19,7 @@ Omneum evaluates:
 - Which sources appear dependent
 - Source reliability and claim support
 
-The retrieval agents are simple Python functions. They do not call an LLM or access the network.
+For reproducibility, the retrieval agents are simulated with simple Python functions. They do not call an LLM or access the network.
 
 ## Requirements
 

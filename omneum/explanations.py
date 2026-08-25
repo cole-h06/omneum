@@ -21,35 +21,99 @@ def explain_claim(
     *,
     source_labels: Mapping[Source, str] | None = None,
 ) -> str:
-    """Render one validated claim result using local information only."""
+    """Render a claim result with deterministic metrics and interpretation."""
     if type(result) is not ClaimSupportResult:
         raise TypeError("result must be a ClaimSupportResult")
+
     _labels(source_labels)
 
     claim = result.claim
     lines = [
-        f"{_attribute(claim.attribute)} = {_value(claim.value)}",
+        f"Claim: {_attribute(claim.attribute)} = {_value(claim.value)}",
         f"Support: {result.support:.2f}",
-        "",
+        f"Agreement weight: {result.agreement_weight:.2f}",
+        f"Supporting sources: {result.supporting_source_count}",
+        (
+            "Estimated independent support: "
+            f"{result.estimated_independent_support_count:.2f}"
+        ),
     ]
-    if result.is_attribute_max_support:
-        lines.extend(("Highest support", ""))
-    lines.extend([
-        _supporting(result.supporting_source_count),
-        "Independent support: "
-        f"{result.estimated_independent_support_count:.2f}",
-    ])
 
-    lines.extend(("", *_claim_interpretation(result)))
+    if result.dependency_confidence is None:
+        lines.append("Source-dependency comparison: unavailable")
+    else:
+        lines.append(
+            "Source-dependency confidence: "
+            f"{result.dependency_confidence:.2f}"
+        )
 
     if result.conflicting_claims:
-        noun = "value" if len(result.conflicting_claims) == 1 else "values"
-        lines.extend(("", f"Conflicting {noun}:"))
-        lines.extend(
-            f"{_value(item.claim.value)} (support {item.support:.2f})"
-            for item in result.conflicting_claims
+        noun = (
+            "value"
+            if len(result.conflicting_claims) == 1
+            else "values"
         )
+        lines.append(
+            f"Conflicting {noun}: "
+            + ", ".join(
+                _value(item.claim.value)
+                for item in result.conflicting_claims
+            )
+        )
+
+    lines.extend(("", "Explanation:"))
+    lines.append(_claim_explanation(result))
+
     return "\n".join(lines)
+
+
+def _claim_explanation(result: ClaimSupportResult) -> str:
+    count = result.supporting_source_count
+    independent = result.estimated_independent_support_count
+    confidence = result.dependency_confidence
+
+    if count == 1:
+        sentences = [
+            "One source supports this claim."
+        ]
+    else:
+        sentences = [
+            f"{count} sources support this claim, "
+            f"with an estimated {independent:.2f} independent sources."
+        ]
+
+        if confidence is None:
+            sentences.append(
+                "No source-dependency signals were available "
+                "to assess source independence."
+            )
+        elif confidence == 0.0:
+            sentences.append(
+                "No source-dependency signals were observed "
+                "for this comparison."
+            )
+        elif independent < count - 0.01:
+            sentences.append(
+                "The available dependency signals indicate "
+                "that some supporting sources are related."
+            )
+        else:
+            sentences.append(
+                "The available dependency signals do not "
+                "indicate substantial source dependence."
+            )
+
+    if result.conflicting_claims:
+        conflict_count = len(result.conflicting_claims)
+        noun = "value" if conflict_count == 1 else "values"
+        verb = "was" if conflict_count == 1 else "were"
+        sentences.append(
+            f"{conflict_count} conflicting {noun} "
+            f"{verb} identified for the same attribute."
+        )
+
+    return " ".join(sentences)
+
 
 
 def explain_dependency(
@@ -82,7 +146,6 @@ def explain_dependency(
     ]
     lines.extend(f"• {fact}" for fact in facts or ("None observed",))
     return "\n".join(lines)
-
 
 def _labels(value):
     if value is None:
@@ -151,15 +214,22 @@ def _claim_interpretation(result):
     independent = result.estimated_independent_support_count
 
     noun = "source" if count == 1 else "sources"
-    lines = [
-        f"Supported by {count} {noun} with estimated "
-        f"independent support of {independent:.2f}."
-    ]
 
-    if independent < count - 0.01:
-        lines.append(
-            "Some supporting sources appear dependent."
-        )
+    if count == 1:
+        lines = [
+            "One source supports this claim.",
+            "No source-dependency comparison was available.",
+        ]
+    else:
+        lines = [
+            f"{count} sources support this claim.",
+            f"Estimated independent support: {independent:.2f}.",
+        ]
+
+        if independent < count - 0.01:
+            lines.append(
+                "Some supporting sources appear dependent."
+            )
 
     conflict_count = len(result.conflicting_claims)
     if conflict_count:

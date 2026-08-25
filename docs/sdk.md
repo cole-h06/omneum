@@ -4,17 +4,21 @@ This document contains the Python SDK for interacting with an Omneum server.
 
 ## Getting Started
 
-To get started with the Python SDK, install the wheel:
+### 1. Install Omneum
 
-```bash
-pip install omneum-1.0.0-cp314-cp314-macosx_11_0_arm64.whl
-```
+To get started with the Python SDK, you can install with:
+
+~~~bash
+pip install .
+~~~
+
+### 2. Initialize Omneum
 
 Initialize a local deployment:
 
-```bash
+~~~bash
 omneum init
-```
+~~~
 
 You will need an initialized deployment before creating a client. For local development, `omneum init` creates the deployment configuration and VOPRF key material, and the SDK will automatically load that configuration when connecting to the local server.
 
@@ -38,334 +42,239 @@ The client uses the local deployment configuration when opening the MCP connecti
 
 ### Evaluate Assertions
 
-`client.evaluate_assertion()` evaluates a set of `Observation` objects from the current agent run. Each observation associates a structured value with the source that produced it and can include provenance metadata captured during retrieval or tool execution.
+Omneum evaluates semantically normalized assertions from the context your agent has retrieved.
+
+The application defines the assertion identity — the entity, attribute, and structured value being evaluated — and supplies the sources that surfaced it. Source provenance and dependency metadata are optional.
 
 ```python
 from datetime import datetime, timezone
 
 from omneum import (
-    Claim,
+    AssertionSource,
     DependencyEstimatorConfig,
-    Observation,
-    Retrieval,
     Source,
+    StructuredAssertion,
 )
 
 now = datetime.now(timezone.utc)
 
-estimator = DependencyEstimatorConfig(
-    upstream_weight=0.25,
-    citation_weight=0.20,
-    assertion_lineage_weight=0.20,
-    ownership_weight=0.10,
-    temporal_weight=0.10,
-    graph_weight=0.15,
-    retrieval_weight=0.25,
-    temporal_window_seconds=172_800.0,
-)
-
-upstream = Source(
-    kind="api_endpoint",
-    identifier="market-data-provider",
-)
-
-observations = [
-    Observation(
-        assertion_id="result-1",
-        source=Source(
-            kind="internal_service",
-            identifier="research-api",
-        ),
-        claim=Claim(
-            entity_namespace="company",
-            entity="acme-corp",
-            attribute="quarterly_revenue_usd",
-            value=42_000_000,
-        ),
-        observed_at=now,
-        upstream_sources=(upstream,),
-        retrievals=(
-            Retrieval(
-                retrieval_id="retrieval-1",
-                kind="tool_call",
-                resource_id="research-api",
-                retrieved_at=now,
-            ),
-        ),
-    ),
-    Observation(
-        assertion_id="result-2",
-        source=Source(
-            kind="internal_service",
-            identifier="analytics-api",
-        ),
-        claim=Claim(
-            entity_namespace="company",
-            entity="acme-corp",
-            attribute="quarterly_revenue_usd",
-            value=42_000_000,
-        ),
-        observed_at=now,
-        upstream_sources=(upstream,),
-        retrievals=(
-            Retrieval(
-                retrieval_id="retrieval-2",
-                kind="tool_call",
-                resource_id="analytics-api",
-                retrieved_at=now,
-            ),
-        ),
-    ),
-]
-
-async with open_stdio_client(config, server) as client:
-    result = await client.evaluate_assertion(
-        observations,
-        estimator=estimator,
-    )
-```
-
-### Use the Evaluation Result
-
-`evaluate_assertion()` returns structured signals your application can use before continuing the agent run. Each evaluated value includes its support score and any conflicting values found in the current evaluation:
-
-```python
-for claim in result.claim_support:
-    print("Support:", claim.support)                              # support score
-    print("Independent support:", claim.estimated_independent_support_count)
-    print("Conflicts:", claim.conflicting_claims)                 # conflicting values
-```
-
-Feed these signals back into your orchestration logic. Your application might continue normally when support is strong, or trigger another retrieval when the available sources are too dependent. Other workflows can use conflicts to branch execution (request another tool call, invoke a verification step, mandate human review, or withhold disputed context from the next model call).
-
-Omneum returns the evaluation signals without deciding how your agent should act on them.
-
-### How It Fits Together
-
-Omneum sits between the data your agent retrieves and the model call that consumes it.
-
-```text
-Retrieval / Tool Calls
-        ↓
-Observation Objects
-        ↓
-client.evaluate_assertion()
-        ↓
-Evaluation Result
-        ↓
-Application Control Flow
-        ↓
-Next Model Call
-```
-
-Your application decides where evaluation belongs in the workflow and how to act on the returned result. Omneum does not replace your retrieval layer or agent runtime.
-
-## Observation Model
-
-`Observation` is the application-facing input to Omneum. It represents a structured value encountered during an agent run and preserves where that value came from.
-
-A value returned by a retrieval step or tool call is represented as a `Claim`:
-
-```python
-claim = Claim(
+assertion = StructuredAssertion(
     entity_namespace="company",
     entity="acme-corp",
     attribute="quarterly_revenue_usd",
     value=42_000_000,
-)
-```
-
-Here, `Claim` is a structured data model rather than a natural-language statement. It identifies the entity being described, the property being evaluated, and the value returned by the source.
-
-An `Observation` associates that value with its source:
-
-```python
-observation = Observation(
-    assertion_id="result-1",
-    source=Source(
-        kind="web_document",
-        identifier="https://research.example.com/acme-q3",
+    sources=(
+        AssertionSource(
+            source=Source(
+                kind="web_document",
+                identifier="https://research.example.com/acme-q3",
+            ),
+            assertion_id="research-result",
+            observed_at=now,
+        ),
+        AssertionSource(
+            source=Source(
+                kind="web_document",
+                identifier="https://analytics.example.com/acme-q3",
+            ),
+            assertion_id="analytics-result",
+            observed_at=now,
+        ),
     ),
-    claim=claim,
-    observed_at=now,
 )
+
+estimator = DependencyEstimatorConfig()
+
+async with open_stdio_client(config, server) as client:
+    result = await client.evaluate(
+        assertion,
+        estimator=estimator,
+    )
 ```
 
-In an agent workflow, observations can be constructed directly or mapped from values already present in tool results, retrieval outputs, or workflow state. `ContextMapper` provides the generic mapping layer for structured tool output. Metadata captured during execution can be attached to the observation when available.
+That's the basic evaluation path. You do not need to construct retrieval lineage, citations, ownership metadata, or custom dependency signals before Omneum can evaluate an assertion.
 
-### ContextMapper
-
-If a tool or retrieval step returns structured results, use `ContextMapper` to map those results into `Observation` objects.
-
-Define how fields in the tool result map to the Omneum observation:
-
-    from omneum import ContextMapper
-
-    mapper = ContextMapper(
-        source=lambda result: result["source"],
-        entity_namespace=lambda result: result["entity_namespace"],
-        entity=lambda result: result["entity"],
-        attribute=lambda result: result["attribute"],
-        value=lambda result: result["value"],
-        assertion_id=lambda result: result["id"],
-        observed_at=lambda result: now,
-    )
-
-    observations = mapper.map_many(results)
-
-Each mapping can be a dotted field path or a callable. Use a callable when the value needs to be selected or transformed before it is passed to Omneum.
-
-Map provenance and retrieval fields when they are already present in the tool result or workflow state:
-
-    mapper = ContextMapper(
-        source=lambda result: result["source"],
-        entity_namespace=lambda result: result["entity_namespace"],
-        entity=lambda result: result["entity"],
-        attribute=lambda result: result["attribute"],
-        value=lambda result: result["value"],
-        assertion_id=lambda result: result["id"],
-        observed_at=lambda result: result["observed_at"],
-        source_modified_at=lambda result: result.get("updated_at"),
-        upstream_sources=lambda result: result.get("upstream_sources"),
-        cited_sources=lambda result: result.get("citations"),
-        parent_assertion_ids=lambda result: result.get("parent_assertion_ids"),
-        retrievals=lambda result: result.get("retrievals"),
-    )
-
-You do not need to add or reconstruct metadata that your tool does not already provide. Fields that are not mapped remain unavailable to the dependency estimator.
-
-`map()` maps one result to an `Observation`. `map_many()` maps a sequence of results and returns a tuple of observations.
-
-### Sources
-
-`Source` identifies the resource or system that produced the observed value.
-
-```python
-source = Source(
-    kind="internal_service",
-    identifier="market-data-api",
-    owner_id="research",
-)
-```
-
-The `kind` describes the type of source, while `identifier` identifies the specific resource within that source type. `owner_id` can be supplied when the application knows that multiple sources are operated by the same owner.
-
-### Claims
-
-`Claim` represents the structured value Omneum evaluates:
+The application does own semantic normalization. Omneum does not use an LLM to decide that differently worded retrieved content expresses the same assertion. Your integration converts the information it wants evaluated into a stable:
 
 ```text
 (entity_namespace, entity, attribute) → value
 ```
 
-For example:
+For the example above:
 
 ```text
 ("company", "acme-corp", "quarterly_revenue_usd") → 42000000
-("company", "acme-corp", "quarterly_revenue_usd") → 39500000
 ```
 
-Values with the same entity and attribute describe the same property. Different values for that property can therefore be evaluated against one another when they appear across observations.
+Once that boundary is established, the SDK handles canonicalization, privacy-preserving linkage, dependency estimation, and assertion evaluation.
 
-### Retrieval Metadata
+### Existing Agent and Retrieval Data
 
-Observations can include metadata about the retrieval or tool call that surfaced the underlying resource during the agent run.
+Most agent applications already have retrieval results, tool outputs, or workflow state in their own schemas. You do not need to rebuild those objects around Omneum.
+
+`ContextMapper` adapts existing runtime data into the evaluation pipeline.
+
+Suppose a retrieval branch already produces records like:
 
 ```python
-observation = Observation(
-    assertion_id="research-result-42",
-    source=Source(
-        kind="internal_service",
-        identifier="market-data-api",
-        owner_id="research",
+results = [
+    {
+        "id": "research-result",
+        "url": "https://research.example.com/acme-q3",
+        "company": "acme-corp",
+        "revenue": 42_000_000,
+    },
+    {
+        "id": "analytics-result",
+        "url": "https://analytics.example.com/acme-q3",
+        "company": "acme-corp",
+        "revenue": 42_000_000,
+    },
+]
+```
+
+Define how those fields map into the assertion evaluation:
+
+```python
+from omneum import ContextMapper, Source
+
+mapper = ContextMapper(
+    source=lambda result: Source(
+        kind="web_document",
+        identifier=result["url"],
     ),
-    claim=Claim(
-        entity_namespace="company",
-        entity="acme-corp",
-        attribute="quarterly_revenue_usd",
-        value=42_000_000,
-    ),
-    observed_at=now,
-    retrievals=(
-        Retrieval(
-            retrieval_id="market-data-lookup-42",
-            kind="tool_call",
-            resource_id="market-data-api",
-            retrieved_at=now,
-        ),
-    ),
+    entity_namespace=lambda result: "company",
+    entity="company",
+    attribute=lambda result: "quarterly_revenue_usd",
+    value="revenue",
+    assertion_id="id",
+    observed_at=lambda result: now,
+)
+
+result = await client.evaluate_mapped(
+    results,
+    mapper,
+    estimator=estimator,
 )
 ```
 
-`Retrieval` records the execution that surfaced the resource (`tool_call`, `web_search`, etc.), while `Source` identifies the resource that produced the observed value.
+Mappings can reference fields already present in the runtime object or use callables when extraction or transformation is required.
 
-This distinction lets Omneum preserve provenance across multi-step agent workflows without treating every retrieval as a new source.
-
-Retrieval metadata is optional. Build observations from the metadata already available in your retrieval layer, tool execution, or orchestration framework.
-
-### Source Relationships
-
-If your agent runtime already knows how one source relates to another, attach that information to the observation. Omneum can use upstream sources, citations, assertion lineage, and source ownership when estimating source dependency.
-
-For example, a research result may have been retrieved from one document while the application knows that its data came from an upstream company filing:
+This is also the integration point for application-specific semantic normalization. If two retrieval systems encode the same value differently, the `value` mapping can normalize those representations before evaluation:
 
 ```python
-observation = Observation(
-    assertion_id="result-1",
+mapper = ContextMapper(
+    ...,
+    value=lambda result: normalize_revenue(result),
+)
+```
+
+`evaluate()` is the direct path when your application already has a `StructuredAssertion`. `evaluate_mapped()` is the adapter path when assertions need to be constructed from existing retrieval results, tool outputs, or workflow state.
+
+### Optional Runtime Context
+
+Omneum can use additional provenance and dependency information when your runtime already has it. You do not need to manufacture missing metadata.
+
+An `AssertionSource` can carry source relationships and retrieval lineage:
+
+```python
+source = AssertionSource(
     source=Source(
         kind="web_document",
         identifier="https://research.example.com/acme-q3",
+        owner_id="research",
     ),
-    claim=Claim(
-        entity_namespace="company",
-        entity="acme-corp",
-        attribute="quarterly_revenue_usd",
-        value=42_000_000,
-    ),
+    assertion_id="research-result",
     observed_at=now,
-    upstream_sources=(
-        Source(
-            kind="web_document",
-            identifier="https://investors.example.com/acme/q3-results",
-        ),
-    ),
+    upstream_sources=upstream_sources,
+    cited_sources=citations,
+    parent_assertion_ids=parent_assertion_ids,
+    retrievals=retrievals,
 )
 ```
 
-If the document explicitly cites another source, record it with `cited_sources`:
+These fields describe information the agent runtime may already know: where a resource originated, what it cites, whether an assertion was derived from an earlier workflow step, or which retrieval execution surfaced it.
+
+If the runtime exposes useful context that does not fit one of those fields, preserve it as metadata:
 
 ```python
-observation = Observation(
+source = AssertionSource(
     ...,
-    cited_sources=(
-        Source(
-            kind="web_document",
-            identifier="https://investors.example.com/acme/q3-results",
-        ),
-    ),
+    metadata={
+        "request_id": request_id,
+        "execution_id": execution_id,
+        "tool_name": tool_name,
+    },
 )
 ```
 
-If the value was produced from an earlier assertion in the same agent run, preserve that execution lineage with `parent_assertion_ids`:
+Applications can also provide dependency signals they already compute or observe:
 
 ```python
-observation = Observation(
+source = AssertionSource(
     ...,
-    parent_assertion_ids=("research-step-12",),
+    dependency_signals={
+        "shared_execution": shared_execution_signal,
+        "same_generation_path": generation_path_signal,
+    },
 )
 ```
 
-Known ownership is attached to the source:
+Omneum does not require a fixed metadata schema from the surrounding agent stack. Integrations can preserve runtime-specific context while supplying explicit dependency signals when that context should participate in dependency estimation.
+
+Arbitrary metadata is retained as context; it does not automatically become a dependency signal.
+
+### Use the Evaluation Result
+
+Both evaluation paths return the same structured result:
 
 ```python
-source = Source(
-    kind="internal_service",
-    identifier="market-data-api",
-    owner_id="research",
-)
+for claim in result.claim_support:
+    print("Support:", claim.support)
+    print(
+        "Independent support:",
+        claim.estimated_independent_support_count,
+    )
+    print("Conflicts:", claim.conflicting_claims)
 ```
 
-Pass these fields when the information already exists in your application state, retrieval metadata, tool output, or orchestration runtime. You do not need to infer missing relationships before calling Omneum.
+These values are designed to feed back into agent control flow. A workflow can continue normally, retrieve additional context when support is too dependent, route conflicting values through another verification step, or require human review before disputed context reaches the next model call.
+
+Omneum returns evaluation signals. The application retains control over routing and policy.
+
+### How It Fits Together
+
+For applications that already construct structured assertions:
+
+```text
+Retrieved Context
+        ↓
+Semantic Normalization
+        ↓
+StructuredAssertion
+        ↓
+client.evaluate()
+        ↓
+Evaluation Result
+        ↓
+Agent Control Flow
+```
+
+For applications integrating with existing agent runtime objects:
+
+```text
+Retrieval Results / Tool Outputs / Workflow State
+        ↓
+ContextMapper
+        ↓
+client.evaluate_mapped()
+        ↓
+Evaluation Result
+        ↓
+Agent Control Flow
+```
+
+Omneum does not replace the retrieval layer, tool runtime, or orchestration framework. It evaluates the information those systems have already surfaced before that context is consumed downstream.
 
 ## Dependency Estimation
 
@@ -388,24 +297,24 @@ estimator = DependencyEstimatorConfig(
 )
 ```
 
-Pass the configuration when evaluating your observations:
+Pass the configuration when evaluating a structured assertion:
 
 ```python
 async with open_stdio_client(config, server) as client:
-    result = await client.evaluate_assertion(
-        observations,
+    result = await client.evaluate(
+        assertion,
         estimator=estimator,
     )
 ```
 
-The estimator combines source relationships already present in the observation metadata with overlap found across the observations in the current evaluation.
+The estimator combines source relationships and dependency signals available on the assertion sources with structural overlap found across the sources participating in the current evaluation.
 
 For the research example above, two different URLs do not automatically count as independent sources. If both results came from the same upstream source, cite one another, share assertion lineage, or belong to the same owner, those signals can increase their estimated dependency. Matching claims can also receive a retrieval dependency signal when their retrieval metadata identifies the same underlying resource.
 
-The temporal signal uses `source_modified_at` when your application has source update timestamps:
+The temporal signal uses `source_modified_at` when the runtime exposes a source update timestamp:
 
 ```python
-observation = Observation(
+source = AssertionSource(
     ...,
     source_modified_at=source_modified_at,
 )
@@ -417,7 +326,7 @@ The weights above are Omneum's current baseline configuration and are not calibr
 
 ## Evaluation Results
 
-`evaluate_assertion()` returns a structured result for the observations in the current evaluation. Use `claim_support` to inspect the support calculated for each distinct value:
+`evaluate()` and `evaluate_mapped()` return the same structured evaluation result. Use `claim_support` to inspect the support calculated for each distinct value:
 
 ```python
 for claim in result.claim_support:
@@ -465,7 +374,7 @@ Omneum returns these values as structured SDK data and leaves routing decisions 
 
 Omneum includes local helpers for formatting evaluation results into readable text. These are useful when you want to inspect a result during development, write it to application logs, or include an explanation in downstream model context.
 
-Use `explain_claim()` with the claim results returned by `evaluate_assertion()`:
+Use `explain_claim()` with the claim results returned by `evaluate()` or `evaluate_mapped()`:
 
 ```python
 from omneum import explain_claim
@@ -485,7 +394,7 @@ for dependency in result.pairwise_dependencies:
     print(explain_dependency(dependency))
 ```
 
-`explain_dependency()` uses the source metadata retained locally by the SDK to describe which dependency signals were available for the source pair. Depending on the metadata supplied with the observations, this can include upstream relationships, citations, assertion lineage, shared ownership, source update timing, or matching values.
+`explain_dependency()` uses source context retained locally by the SDK to describe which dependency signals were available for the source pair. Depending on the runtime context supplied with the assertion sources, this can include upstream relationships, citations, assertion lineage, shared ownership, source update timing, retrieval relationships, structural overlap, or application-provided dependency signals.
 
 Both helpers run entirely in the Python process. They do not make an MCP request, call an LLM, modify the evaluation result, or send additional data to the Omneum server.
 
@@ -497,7 +406,7 @@ The Python SDK creates stable linkage tokens for private source, attribute, and 
 
 Source identifiers and structured attribute and claim values are canonicalized and serialized locally. The SDK then uses Omneum's RFC 9497 VOPRF flow to generate linkage tokens without sending those values to the server in plaintext.
 
-Applications using `evaluate_assertion()` do not need to canonicalize values, construct linkage inputs, or invoke the VOPRF operations directly. These steps are handled by the SDK.
+Applications using `evaluate()` or `evaluate_mapped()` do not need to canonicalize linkage inputs, construct VOPRF requests, or invoke the VOPRF operations directly. These steps are handled by the SDK.
 
 During linkage, the SDK blinds each encoded input locally and sends the blinded element to the server for evaluation. The server returns an evaluated element and proof, which the SDK verifies and finalizes locally.
 
@@ -565,8 +474,8 @@ estimator = DependencyEstimatorConfig(
     temporal_window_seconds=172_800.0,
 )
 
-result = await client.evaluate_assertion(
-    observations,
+result = await client.evaluate(
+    assertion,
     estimator=estimator,
 )
 ```

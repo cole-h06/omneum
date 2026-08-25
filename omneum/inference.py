@@ -159,22 +159,35 @@ def _source_update(
 ) -> dict[str, float]:
     unscaled = {}
     total = 0.0
+
     for source_id in graph.sources:
         score = 0.0
-        claims = sorted(
-            graph.source_to_claims[source_id],
-            key=lambda claim_id: (
-                graph.claim_to_attribute[claim_id],
-                claim_id,
-            ),
-        )
-        for claim_id in claims:
-            score = _finite(score + support[claim_id])
-        unscaled[source_id] = score
+
+        for attribute_id in graph.attributes:
+            claims = graph.attribute_to_claims[attribute_id]
+            attribute_total = sum(
+                support[claim_id]
+                for claim_id in claims
+            )
+
+            if attribute_total == 0.0:
+                continue
+
+            source_claims = (
+                claim_id
+                for claim_id in graph.source_to_claims[source_id]
+                if graph.claim_to_attribute[claim_id] == attribute_id
+            )
+
+            for claim_id in source_claims:
+                score += support[claim_id] / attribute_total
+
+        unscaled[source_id] = _finite(score)
         total = _finite(total + score)
 
     if total == 0.0:
         raise InferenceError("inference propagation total is zero")
+
     return {
         source_id: _finite(unscaled[source_id] / total)
         for source_id in graph.sources

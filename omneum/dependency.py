@@ -77,6 +77,10 @@ class DependencyEstimatorConfig:
         default=None,
         repr=False,
     )
+    generic_signal_weights: dict[str, float] = field(
+        default_factory=dict,
+        repr=False,
+    )
 
     def __post_init__(self):
         if type(self.estimator_version) is not str:
@@ -114,6 +118,39 @@ class DependencyEstimatorConfig:
                 unit=True,
             )
 
+        if type(self.generic_signal_weights) is not dict:
+            raise TypeError(
+                "generic_signal_weights must be a dict"
+            )
+
+        for name, weight in self.generic_signal_weights.items():
+            if type(name) is not str or not name:
+                raise TypeError(
+                    "generic signal names must be non-empty strings"
+                )
+            _number(
+                weight,
+                f"{name}_weight",
+            )
+
+
+@dataclass(frozen=True, slots=True)
+class DependencySignal:
+    value: float
+    observable: bool
+
+    def __post_init__(self):
+        _number(
+            self.value,
+            "value",
+            unit=True,
+        )
+
+        if type(self.observable) is not bool:
+            raise TypeError(
+                "observable must be a bool"
+            )
+
 
 @dataclass(frozen=True, slots=True)
 class DependencySignalScores:
@@ -134,6 +171,11 @@ class DependencySignalScores:
     retrieval: float = field(default=0.0, repr=False)
     retrieval_observable: bool = field(default=False, repr=False)
 
+    generic: dict[str, DependencySignal] = field(
+        default_factory=dict,
+        repr=False,
+    )
+
     def __post_init__(self):
         for name in SIGNALS:
             _number(
@@ -147,6 +189,28 @@ class DependencySignalScores:
             ) is not bool:
                 raise TypeError(
                     f"{name}_observable must be a bool"
+                )
+
+        if type(self.generic) is not dict:
+            raise TypeError(
+                "generic must be a dict"
+            )
+
+        for name, signal in self.generic.items():
+            if type(name) is not str:
+                raise TypeError(
+                    "generic signal names must be strings"
+                )
+
+            if not name:
+                raise ValueError(
+                    "generic signal names must not be empty"
+                )
+
+            if type(signal) is not DependencySignal:
+                raise TypeError(
+                    "generic signals must contain "
+                    "DependencySignal values"
                 )
 
 
@@ -367,6 +431,73 @@ def _weights(config):
     )
 
 
+def combine_generic_dependency(signals, weights):
+    if type(signals) is not dict:
+        raise TypeError(
+            "signals must be a dict"
+        )
+
+    if type(weights) is not dict:
+        raise TypeError(
+            "weights must be a dict"
+        )
+
+    if set(signals) != set(weights):
+        raise ValueError(
+            "generic signal names must match weight names"
+        )
+
+    if not signals:
+        raise ValueError(
+            "generic signals must not be empty"
+        )
+
+    for name, signal in signals.items():
+        if type(name) is not str or not name:
+            raise TypeError(
+                "generic signal names must be non-empty strings"
+            )
+
+        if type(signal) is not DependencySignal:
+            raise TypeError(
+                "signals must contain DependencySignal values"
+            )
+
+    for name, weight in weights.items():
+        _number(
+            weight,
+            f"{name}_weight",
+        )
+
+    total = sum(weights.values())
+
+    if total <= 0.0:
+        raise ValueError(
+            "generic signal weights must have a positive sum"
+        )
+
+    normalized = {
+        name: weight / total
+        for name, weight in weights.items()
+    }
+
+    dependency = sum(
+        normalized[name] * signals[name].value
+        for name in signals
+    )
+
+    coverage = sum(
+        normalized[name]
+        * float(signals[name].observable)
+        for name in signals
+    )
+
+    return (
+        max(0.0, min(1.0, dependency)),
+        coverage,
+    )
+
+
 def combine_dependency(signals, config):
     if type(signals) is not DependencySignalScores:
         raise TypeError(
@@ -378,15 +509,54 @@ def combine_dependency(signals, config):
             "config must be DependencyEstimatorConfig"
         )
 
-    weights = _weights(config)
+    base_weights = _weights(config)
 
-    dependency = sum(
-        weights[index] * getattr(signals, name)
-        for index, name in enumerate(SIGNALS)
+    generic_weights = dict(
+        config.generic_signal_weights
     )
 
-    coverage = sum(
-        weights[index]
+    total_generic = sum(generic_weights.values())
+
+    if total_generic > 0.0:
+        generic_weights = {
+            name: weight / total_generic
+            for name, weight in generic_weights.items()
+        }
+
+    base_total = sum(base_weights)
+
+    generic_share = (
+        total_generic
+        / (base_total + total_generic)
+        if total_generic
+        else 0.0
+    )
+
+    base_share = 1.0 - generic_share
+
+    dependency = (
+        base_share
+        * sum(
+            base_weights[index]
+            * getattr(signals, name)
+            for index, name in enumerate(SIGNALS)
+        )
+    )
+
+    if generic_weights:
+        dependency += (
+            generic_share
+            * sum(
+                generic_weights[name]
+                * signal.value
+                for name, signal
+                in signals.generic.items()
+                if name in generic_weights
+            )
+        )
+
+    base_coverage = sum(
+        base_weights[index]
         * float(
             getattr(
                 signals,
@@ -394,7 +564,23 @@ def combine_dependency(signals, config):
             )
         )
         for index, name in enumerate(SIGNALS)
-    ) / sum(weights)
+    ) / base_total
+
+    generic_coverage = (
+        sum(
+            generic_weights[name]
+            * float(signals.generic[name].observable)
+            for name in generic_weights
+            if name in signals.generic
+        )
+        if generic_weights
+        else 0.0
+    )
+
+    coverage = (
+        base_share * base_coverage
+        + generic_share * generic_coverage
+    )
 
     return (
         max(0.0, min(1.0, dependency)),
@@ -735,6 +921,52 @@ def _signals(
     rows_a = rows_by_source[source_a]
     rows_b = rows_by_source[source_b]
 
+    generic_names = (
+        set(
+            name
+            for row in rows_a
+            for name in row[0].dependency_signals
+        )
+        | set(
+            name
+            for row in rows_b
+            for name in row[0].dependency_signals
+        )
+    )
+
+    generic_signals = {}
+
+    for name in sorted(generic_names):
+        signals_a = [
+            row[0].dependency_signals[name]
+            for row in rows_a
+            if name in row[0].dependency_signals
+        ]
+        signals_b = [
+            row[0].dependency_signals[name]
+            for row in rows_b
+            if name in row[0].dependency_signals
+        ]
+
+        if not signals_a or not signals_b:
+            continue
+
+        values_a = [signal.value for signal in signals_a]
+        values_b = [signal.value for signal in signals_b]
+
+        observable = all(
+            signal.observable
+            for signal in signals_a + signals_b
+        )
+
+        generic_signals[name] = DependencySignal(
+            value=(
+                sum(values_a) / len(values_a)
+                + sum(values_b) / len(values_b)
+            ) / 2.0,
+            observable=observable,
+        )
+
     upstream_a = _upstream(
         source_b,
         rows_a,
@@ -1060,6 +1292,7 @@ def _signals(
         temporal_observable=temporal_observable,
         graph_observable=True,
         retrieval_observable=retrieval_observable,
+        generic=generic_signals,
     )
 
     evidence = DependencyEvidence(

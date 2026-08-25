@@ -50,9 +50,9 @@ def test_observations():
     assert len(values) == 17
     assert len({value.source for value in values}) == 6
     assert {value.claim.attribute for value in values} == {
-        "Input Data Policy",
-        "Provider Retention",
-        "Processing Region",
+        "input_data_policy",
+        "provider_retention",
+        "processing_region",
     }
     assert {value.claim.value for value in values} == {
         "redacted customer content only",
@@ -155,7 +155,7 @@ def test_stdio_workflow(monkeypatch):
     assert "Customer content must be redacted." in first_output
     assert "Provider retention must be 0 days." in first_output
     assert "Processing must remain in the EU." in first_output
-    assert "Independent support: 2.40" in first_output
+    assert "Estimated independent support: 2.40" in first_output
     assert "Stale deployment runbook ↔ Copilot readiness brief" in first_output
     assert "corroboration" not in first_output.lower()
 

@@ -9,14 +9,20 @@ The Python SDK performs this transformation automatically when applications use
 the high-level assertion-evaluation API. Applications normally do not construct
 canonical linkage payloads or linkage inputs directly.
 
-The transformation has three distinct stages:
+Before this transformation begins, the application is responsible for semantic
+normalization: deciding which retrieved information represents the same entity,
+attribute, and structured value.
 
-1. semantic canonicalization by the client;
+The SDK then transforms those application-provided structured values through
+the deterministic version-1 canonicalization and linkage pipeline:
+
+1. canonicalization according to the applicable Omneum profile;
 2. strict fixed-schema RFC 8785 serialization; and
 3. versioned, purpose-separated binary linkage encoding.
 
-Serialization does not perform semantic normalization. The client MUST supply
-values in their intended canonical representation before serialization.
+Canonicalization does not perform semantic matching. The SDK does not use an
+LLM or other fuzzy matching step to decide that differently expressed
+application data represents the same assertion.
 
 ## 2. Requirement Language
 
@@ -51,9 +57,18 @@ The reserved kind has no version-1 interoperable canonicalization rule.
 Clients MUST NOT claim version-1 conformance for it. Only source kinds with
 canonicalization rules specified in this document may claim conformance.
 
-## 4. Semantic Canonicalization
+## 4. Canonicalization Profiles
 
-Canonicalization is content-sensitive processing performed by the client. A deployment does not receive or canonicalize the original values.
+The application supplies the structured source, entity, attribute, and value
+data to be evaluated. The SDK canonicalizes those values according to the
+deterministic profiles defined below.
+
+These rules normalize representations within an already established semantic
+identity. They do not determine whether differently expressed retrieved
+information refers to the same entity, attribute, or value. That semantic
+normalization remains the application's responsibility.
+
+The deployment does not receive or canonicalize the original values.
 
 ### 4.1 Sources
 
@@ -212,7 +227,7 @@ Canonical claim values may be:
 - arrays; and
 - objects with string keys.
 
-Caller canonicalization currently:
+Version-1 value canonicalization:
 
 - preserves null and booleans;
 - preserves integers;
@@ -233,7 +248,8 @@ serializer validates and encodes the values it receives exactly.
 
 ## 5. Fixed Linkage Payloads
 
-Callers MUST use one of three fixed schemas. They MUST NOT add fields.
+Version-1 linkage uses exactly three fixed payload schemas. Implementations
+MUST NOT add fields to these schemas.
 
 ### 5.1 Source
 
@@ -462,7 +478,7 @@ language-neutral canonical serialization and linkage input vectors.
 
 Conformance requires agreement on:
 
-- semantic canonicalization profiles actually claimed by that SDK;
+- canonicalization profiles actually claimed by that SDK;
 - supported value types and bounds;
 - exact RFC 8785 bytes;
 - exact header bytes and lengths;

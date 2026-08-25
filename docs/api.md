@@ -13,7 +13,7 @@ Related specifications:
   replay, and key lifecycle.
 - [`canonicalization.md`](canonicalization.md) defines canonical payloads and
   linkage input encoding.
-- [`sdk.md`](sdk.md) defines client behavior.
+- [`sdk.md`](sdk.md) defines the Python SDK and application-facing interfaces.
 - [`../docs/architecture.md`](../docs/architecture.md) describes the current
   implementation architecture.
 
@@ -26,9 +26,8 @@ Related specifications:
 | `evaluate_assertions` | Implemented for local MCP stdio |
 | `trace_claim` | Deferred; no version-1 interface |
 
-This document is the intended version-1 contract except where a section is
-explicitly marked non-normative. A specified schema is not a claim that the
-corresponding tool is currently registered.
+This document defines the version-1 wire contract except where a section is
+explicitly marked non-normative.
 
 ## 2. Versions
 
@@ -293,24 +292,33 @@ the same token.
 
 ## 9. `evaluate_assertions`
 
-Status: **implemented for local MCP stdio**, including the Python SDK flow that
-performs local dependency estimation and linkage, submits the assertion-evaluation
-request, validates the response, and maps opaque results back to local values.
+Status: **implemented for local MCP stdio**, including the Python SDK flows that
+perform local dependency estimation and linkage, submit the assertion-evaluation
+request, validate the response, and map opaque results back to local values.
 Remote transport and Omneum Cloud integration are not implemented.
 
 The complete assertion graph and its complete source-pair matrix are supplied
 in each request. Assertion evaluation is deterministic and request-scoped. The server
 MUST NOT retain the graph, pair values, or results after the request.
 
-The MCP tool is named `evaluate_assertions`. The Python SDK exposes this
-through the higher-level `client.evaluate_assertion()` method.
+The MCP tool is named `evaluate_assertions`. The Python SDK exposes this wire
+operation through multiple application-facing interfaces.
+
+`client.evaluate()` accepts a `StructuredAssertion` when the application has
+already normalized the entity, attribute, value, and supporting sources.
+`client.evaluate_mapped()` accepts existing retrieval or tool output together
+with a `ContextMapper`. The lower-level `client.evaluate_assertion()` method
+accepts `Observation` objects directly.
+
+These SDK interfaces all compile their application-facing inputs into the same
+`evaluate_assertions` wire request defined below.
 
 Applications using the Python SDK do not construct the opaque identifiers or
-canonical wire structures described below directly. The SDK canonicalizes and
-serializes application-facing `Observation` data, performs VOPRF linkage,
-estimates source dependency locally, constructs the `evaluate_assertions`
-request, validates the response, and maps the opaque results back to local
-values.
+canonical wire structures described below directly. The SDK performs
+canonicalization, serialization, VOPRF linkage, and local dependency
+estimation before constructing the `evaluate_assertions` request. It validates
+the response and maps opaque result identifiers back to the corresponding
+local values.
 
 ### 9.1 Request
 

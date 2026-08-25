@@ -5,7 +5,7 @@ from typing import Any
 import orjson
 import rfc8785
 
-from .canonicalization import canonicalize_value
+from .canonicalization import canonicalize_attribute, canonicalize_value
 
 
 def _string(value, name):
@@ -85,6 +85,18 @@ def _snapshot_json(value):
         }
     return value
 
+def _snapshot_metadata(value):
+    if type(value) is dict:
+        return {
+            key: _snapshot_metadata(item)
+            for key, item in value.items()
+        }
+    if type(value) is list:
+        return [_snapshot_metadata(item) for item in value]
+    if type(value) is tuple:
+        return tuple(_snapshot_metadata(item) for item in value)
+    return value
+
 
 @dataclass(frozen=True, slots=True)
 class Source:
@@ -96,6 +108,58 @@ class Source:
         _string(self.kind, "kind")
         _string(self.identifier, "identifier")
         _optional_string(self.owner_id, "owner_id")
+
+
+@dataclass(frozen=True, slots=True)
+class AssertionSource:
+    source: Source
+    assertion_id: str
+    observed_at: datetime
+    source_modified_at: datetime | None = None
+    upstream_sources: tuple["SourceReference", ...] | None = None
+    cited_sources: tuple["SourceReference", ...] | None = None
+    parent_assertion_ids: tuple[str, ...] | None = None
+    retrievals: tuple["Retrieval", ...] | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    dependency_signals: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if type(self.source) is not Source:
+            raise TypeError("source must be a Source")
+        _string(self.assertion_id, "assertion_id")
+        _datetime(self.observed_at, "observed_at")
+        _datetime(
+            self.source_modified_at,
+            "source_modified_at",
+            optional=True,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class StructuredAssertion:
+    entity_namespace: str
+    entity: str
+    attribute: str
+    value: Any
+    sources: tuple[AssertionSource, ...]
+
+    def __post_init__(self):
+        _string(self.entity_namespace, "entity_namespace")
+        _string(self.entity, "entity")
+        _string(self.attribute, "attribute")
+        _value_type(self.value)
+
+        if type(self.sources) is not tuple:
+            raise TypeError("sources must be a tuple")
+
+        if not self.sources:
+            raise ValueError("sources must not be empty")
+
+        for source in self.sources:
+            if type(source) is not AssertionSource:
+                raise TypeError(
+                    "sources must contain AssertionSource values"
+                )
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,6 +183,7 @@ class Claim:
         _string(entity_namespace, "entity_namespace")
         _string(entity, "entity")
         _string(attribute, "attribute")
+        attribute = canonicalize_attribute(attribute)
         _value_type(value)
 
         canonical = canonicalize_value(value)
@@ -189,6 +254,14 @@ class Observation:
         default=None,
         repr=False,
     )
+    metadata: dict[str, Any] = field(
+        default_factory=dict,
+        repr=False,
+    )
+    dependency_signals: dict[str, Any] = field(
+        default_factory=dict,
+        repr=False,
+    )
 
     def __post_init__(self):
         _string(self.assertion_id, "assertion_id")
@@ -245,3 +318,31 @@ class Observation:
                     raise TypeError(
                         "retrievals must contain Retrieval values"
                     )
+
+        if type(self.metadata) is not dict:
+            raise TypeError("metadata must be a dict")
+
+        _json_value_type(self.metadata)
+
+        object.__setattr__(
+            self,
+            "metadata",
+            _snapshot_metadata(self.metadata),
+        )
+
+        if type(self.dependency_signals) is not dict:
+            raise TypeError(
+                "dependency_signals must be a dict"
+            )
+
+        for name, signal in self.dependency_signals.items():
+            if type(name) is not str or not name:
+                raise TypeError(
+                    "dependency signal names must be non-empty strings"
+                )
+
+        object.__setattr__(
+            self,
+            "dependency_signals",
+            dict(self.dependency_signals),
+        )

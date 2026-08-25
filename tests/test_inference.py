@@ -85,6 +85,49 @@ def test_agreement():
     assert claim(result, "claim-b").agreement_weight == 1 / 3
 
 
+
+def test_singleton_attributes_do_not_collapse_sources():
+    result = infer(graph([
+        AssertionTriple("source-a", "attribute-a", "claim-a"),
+        AssertionTriple("source-b", "attribute-b", "claim-b"),
+        AssertionTriple("source-c", "attribute-c", "claim-c"),
+        AssertionTriple("source-d", "attribute-d", "claim-d"),
+    ]))
+
+    reliabilities = {
+        item.source_id: item.reliability
+        for item in result.source_reliability
+    }
+
+    assert all(value > 0.0 for value in reliabilities.values())
+    assert len(set(reliabilities.values())) == 1
+
+
+def test_conflicts_differentiate_source_reliability():
+    result = infer(graph([
+        AssertionTriple("source-a", "attribute-a", "claim-a1"),
+        AssertionTriple("source-b", "attribute-a", "claim-a1"),
+        AssertionTriple("source-c", "attribute-a", "claim-a2"),
+
+        AssertionTriple("source-a", "attribute-b", "claim-b1"),
+        AssertionTriple("source-b", "attribute-b", "claim-b1"),
+        AssertionTriple("source-c", "attribute-b", "claim-b2"),
+
+        AssertionTriple("source-a", "attribute-c", "claim-c1"),
+        AssertionTriple("source-b", "attribute-c", "claim-c1"),
+        AssertionTriple("source-d", "attribute-c", "claim-c2"),
+    ]))
+
+    reliabilities = {
+        item.source_id: item.reliability
+        for item in result.source_reliability
+    }
+
+    assert reliabilities["source-a"] == reliabilities["source-b"]
+    assert reliabilities["source-a"] > reliabilities["source-c"]
+    assert reliabilities["source-b"] > reliabilities["source-d"]
+
+
 def test_dependency():
     assertions = [
         AssertionTriple("source-a", "attribute-a", "claim-a"),

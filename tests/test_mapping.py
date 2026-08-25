@@ -74,3 +74,133 @@ def test_context_mapper_maps_many():
     assert len(observations) == 2
     assert observations[0].claim.value == "healthy"
     assert observations[1].claim.value == "healthy"
+
+
+def test_context_mapper_preserves_arbitrary_metadata():
+    result = {
+        "source": "example-source",
+        "entity": "memory-1",
+        "attribute": "content",
+        "value": "example",
+        "id": "result-1",
+        "replaces": "memory-0",
+        "write_origin": "agent-session",
+        "related_via": [
+            {"id": "memory-2", "cosine": 0.91},
+        ],
+    }
+
+    mapper = ContextMapper(
+        source=lambda x: Source(
+            kind="memory",
+            identifier=x["source"],
+        ),
+        entity_namespace=lambda x: "memory",
+        entity=lambda x: x["entity"],
+        attribute=lambda x: x["attribute"],
+        value=lambda x: x["value"],
+        assertion_id=lambda x: x["id"],
+        observed_at=lambda x: NOW,
+        metadata={
+            "replaces": "replaces",
+            "write_origin": "write_origin",
+            "related_via": "related_via",
+        },
+    )
+
+    observation = mapper.map(result)
+
+    assert observation.metadata["replaces"] == "memory-0"
+    assert observation.metadata["write_origin"] == "agent-session"
+    assert observation.metadata["related_via"][0]["cosine"] == 0.91
+
+
+def test_context_mapper_extracts_dependency_signals():
+    from omneum.dependency import DependencySignal
+
+    result = {
+        "source": "research-api",
+        "entity": "payment_api",
+        "attribute": "status",
+        "value": "healthy",
+        "id": "result-1",
+        "session_id": "session-42",
+    }
+
+    mapper = ContextMapper(
+        source=lambda x: Source(
+            kind="internal_service",
+            identifier=x["source"],
+        ),
+        entity_namespace=lambda x: "service",
+        entity=lambda x: x["entity"],
+        attribute=lambda x: x["attribute"],
+        value=lambda x: x["value"],
+        assertion_id=lambda x: x["id"],
+        observed_at=lambda x: NOW,
+        signals={
+            "session": lambda x: DependencySignal(
+                value=1.0 if x["session_id"] == "session-42" else 0.0,
+                observable=True,
+            ),
+        },
+    )
+
+    observation = mapper.map(result)
+
+    assert observation.dependency_signals["session"].value == 1.0
+    assert observation.dependency_signals["session"].observable is True
+
+
+def test_context_mapper_agent_telemetry_signals():
+    from omneum.dependency import DependencySignal
+
+    result = {
+        "source": "research-agent",
+        "entity": "sec-filing",
+        "attribute": "content",
+        "value": "filing text",
+        "id": "result-1",
+        "request_id": "req-123",
+        "execution_id": "exec-42",
+        "model": "model-a",
+        "tool": "sec_search",
+    }
+
+    mapper = ContextMapper(
+        source=lambda x: Source(
+            kind="agent_retrieval",
+            identifier=x["source"],
+        ),
+        entity_namespace=lambda x: "document",
+        entity=lambda x: x["entity"],
+        attribute=lambda x: x["attribute"],
+        value=lambda x: x["value"],
+        assertion_id=lambda x: x["id"],
+        observed_at=lambda x: NOW,
+        signals={
+            "request": lambda x: DependencySignal(
+                value=1.0,
+                observable=True,
+            ),
+            "execution": lambda x: DependencySignal(
+                value=1.0,
+                observable=True,
+            ),
+            "model": lambda x: DependencySignal(
+                value=1.0 if x["model"] == "model-a" else 0.0,
+                observable=True,
+            ),
+            "tool": lambda x: DependencySignal(
+                value=1.0 if x["tool"] == "sec_search" else 0.0,
+                observable=True,
+            ),
+        },
+    )
+
+    observation = mapper.map(result)
+
+    assert observation.dependency_signals["request"].value == 1.0
+    assert observation.dependency_signals["execution"].value == 1.0
+    assert observation.dependency_signals["model"].value == 1.0
+    assert observation.dependency_signals["tool"].value == 1.0

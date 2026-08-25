@@ -3,7 +3,13 @@
 This example integrates Omneum into an OpenAI Agents SDK workflow.
 
 It reuses the enterprise workflow from `examples/enterprise`. Only the
-orchestration changes.
+orchestration changes. Because the shared enterprise workflow intentionally uses
+Omneum's lower-level `client.evaluate_assertion()` interface, this example
+passes `Observation` objects through the same evaluation path.
+
+Applications can instead use `client.evaluate()` with normalized
+`StructuredAssertion` objects, or `client.evaluate_mapped()` with a
+`ContextMapper` for existing retrieval or tool output.
 
 ## Flow
 
