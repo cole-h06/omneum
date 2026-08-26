@@ -1,9 +1,9 @@
 from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
-from .dependency import DependencySignal
+from .dependency import DependencySignal, SIGNALS
 from .information import Observation
-from .observations import observe
+from .observations import observe, reference
 
 
 Extractor = str | Callable[[Any], Any]
@@ -24,6 +24,25 @@ def _extract(item: Any, path: Extractor) -> Any:
         if value is None:
             return None
     return value
+
+
+def _normalize_source_references(value):
+    if value is None:
+        return None
+
+    if isinstance(value, tuple):
+        values = value
+    elif isinstance(value, list):
+        values = tuple(value)
+    else:
+        values = (value,)
+
+    return tuple(
+        item
+        if hasattr(item, "kind") and hasattr(item, "identifier")
+        else reference(kind="source", identifier=item)
+        for item in values
+    )
 
 
 class ContextMapper:
@@ -68,6 +87,13 @@ class ContextMapper:
             {} if signals is None else dict(signals)
         )
 
+        unknown_signals = set(self._signal_mapping) - set(SIGNALS)
+        if unknown_signals:
+            raise ValueError(
+                "unsupported dependency signals: "
+                + ", ".join(sorted(unknown_signals))
+            )
+
     def map(self, item: Any) -> Observation:
         values = {
             name: (
@@ -79,9 +105,14 @@ class ContextMapper:
         }
 
         if values["parent_assertion_ids"] is not None:
-            values["parent_assertion_ids"] = (
-                values["parent_assertion_ids"],
-            )
+            if isinstance(values["parent_assertion_ids"], str):
+                values["parent_assertion_ids"] = (
+                    values["parent_assertion_ids"],
+                )
+            else:
+                values["parent_assertion_ids"] = tuple(
+                    values["parent_assertion_ids"]
+                )
 
         metadata = {
             name: _extract(item, extractor)
@@ -102,8 +133,8 @@ class ContextMapper:
             value=values["value"],
             observed_at=values["observed_at"],
             source_modified_at=values["source_modified_at"],
-            upstream_sources=values["upstream_sources"],
-            cited_sources=values["cited_sources"],
+            upstream_sources=_normalize_source_references(values["upstream_sources"]),
+            cited_sources=_normalize_source_references(values["cited_sources"]),
             parent_assertion_ids=values["parent_assertion_ids"],
             retrievals=values["retrievals"],
             metadata=metadata,
