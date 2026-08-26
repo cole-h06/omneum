@@ -133,7 +133,7 @@ The application remains responsible for semantic normalization. Omneum does not 
 
 ### 5. Evaluate Existing Tool or Retrieval Output
 
-Most agent integrations already have result objects produced by tool calls, retrieval nodes, connectors, or workflow state. `ContextMapper` adapts those records directly instead of requiring an Omneum-specific data model at the retrieval boundary.
+Most agent integrations already have result objects produced by tool calls, retrieval nodes, connectors, or workflow state. `ContextMapper` maps an application's existing result schema into Omneum's canonical assertion fields and dependency signals. The application defines how its arbitrary fields and metadata correspond to Omneum's canonical signals; the SDK handles dependency estimation and the remainder of the evaluation pipeline.
 
 Suppose a retrieval step already returns:
 
@@ -173,18 +173,19 @@ mapper = ContextMapper(
 )
 ~~~
 
-Then pass the existing records directly to `evaluate_mapped()`:
+Then map the existing records and pass the resulting observations through the normal evaluation path:
 
 ~~~python
 async with open_stdio_client(config, server) as client:
-    result = await client.evaluate_mapped(
-        results,
-        mapper,
+    observations = mapper.map_many(results)
+
+    result = await client.evaluate_assertion(
+        observations,
         estimator=estimator,
     )
 ~~~
 
-Mappings can read fields from the existing record or use callables when extraction or application-defined normalization is required.
+Mappings can read fields from the existing record or use callables when extraction, application-defined normalization, or dependency-signal mapping is required.
 
 If a tool result or orchestration state already contains provenance, source timestamps, retrieval records, lineage, or dependency signals, those fields can also be mapped. Missing metadata stays unavailable; the integration does not need to synthesize provenance that the runtime never captured.
 
@@ -249,9 +250,9 @@ company / acme-corp / quarterly_revenue_usd → 42000000
 
 Each `AssertionSource` records a source-specific occurrence of that assertion together with the assertion identifier and observation time. Optional source and execution metadata can be supplied when the application already has it.
 
-Use `ContextMapper` when the same information already exists inside tool results, retrieval outputs, connector responses, Pydantic models, or orchestration state. The mapper defines how the application's existing fields become the structured assertion data Omneum evaluates.
+Use `ContextMapper` when the same information already exists inside tool results, retrieval outputs, connector responses, Pydantic models, or orchestration state. The mapper defines how the application's existing fields become Omneum's canonical assertion fields and dependency signals.
 
-`ContextMapper` accepts field paths or callables, so an integration can extract nested values or apply application-defined normalization without replacing its existing result schema.
+`ContextMapper` accepts field paths or callables, so an integration can extract nested values, apply application-defined normalization, and map arbitrary metadata into Omneum's canonical dependency signals without replacing its existing result schema.
 
 ### Lower-Level Observation API
 
@@ -271,7 +272,7 @@ Multiple retrieved results are not necessarily multiple independent sources.
 
 Two documents may derive from the same upstream resource. Separate tool calls may resolve to the same underlying resource. Sources can also share ownership, assertion lineage, retrieval history, or structural relationships visible within the current evaluation.
 
-Before constructing the server-side assertion evaluation, the SDK estimates pairwise source dependency from the signals available to the client.
+After `ContextMapper` has converted application metadata into canonical dependency signals, the SDK estimates pairwise source dependency from those signals and the structural information available in the current evaluation.
 
 `DependencyEstimatorConfig` controls the contribution of the built-in dependency signals:
 

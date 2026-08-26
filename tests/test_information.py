@@ -28,6 +28,8 @@ def observation(**changes):
         "cited_sources": (),
         "parent_assertion_ids": (),
         "retrievals": (),
+        "metadata": {},
+        "dependency_signals": {},
     }
     values.update(changes)
     return Observation(**values)
@@ -36,9 +38,12 @@ def observation(**changes):
 def test_models():
     source = Source("web_publisher", "example.com", "owner")
     item = observation()
+
     assert source.owner_id == "owner"
     assert item.upstream_sources == ()
     assert item.source_modified_at == NOW
+    assert item.metadata == {}
+    assert item.dependency_signals == {}
 
 
 def test_retrieval():
@@ -50,20 +55,25 @@ def test_retrieval():
         retrieved_at=NOW,
         fields=fields,
     )
+
     fields["nested"]["values"].append(2)
+
     assert retrieval.fields == {
         "status": 200,
         "nested": {"values": [1]},
     }
     assert observation(retrievals=(retrieval,)).retrievals == (retrieval,)
+
     with pytest.raises(TypeError):
         Retrieval("a", "http", "resource", NOW, {1: "invalid"})
+
     with pytest.raises(ValueError):
         Retrieval("a", "http", "resource", datetime(2026, 1, 1), {})
 
 
 def test_frozen():
     source = Source("web_publisher", "example.com")
+
     with pytest.raises(FrozenInstanceError):
         source.identifier = "other.example"
 
@@ -91,18 +101,68 @@ def test_tuple_type(field, value):
 def test_timestamps():
     with pytest.raises(ValueError):
         observation(observed_at=datetime(2026, 1, 1))
+
     with pytest.raises(TypeError):
         observation(observed_at=None)
+
     item = observation(source_modified_at=None)
+
     assert item.source_modified_at is None
+
+
+def test_metadata():
+    metadata = {
+        "owner_id": "team-a",
+        "upstream_lineage_uri": "https://example.com/source",
+        "custom_context": {"rank": 3},
+    }
+
+    item = observation(metadata=metadata)
+
+    assert item.metadata == metadata
+
+    metadata["custom_context"]["rank"] = 99
+
+    assert item.metadata["custom_context"]["rank"] == 3
+
+
+def test_dependency_signals():
+    signals = {
+        "upstream": 0.75,
+        "retrieval": 1.0,
+    }
+
+    item = observation(dependency_signals=signals)
+
+    assert item.dependency_signals == signals
+
+
+def test_metadata_type():
+    with pytest.raises(TypeError):
+        observation(metadata=[])
+
+
+def test_dependency_signals_type():
+    with pytest.raises(TypeError):
+        observation(dependency_signals=[])
+
+
+def test_dependency_signal_names():
+    with pytest.raises(TypeError):
+        observation(dependency_signals={1: 0.5})
+
+    with pytest.raises(TypeError):
+        observation(dependency_signals={"": 0.5})
 
 
 def test_value_snapshot():
     value = {"outer": [True, {"number": 1}]}
     item = Claim("service", "entity", "attribute", value)
+
     value["outer"].append("changed")
     returned = item.value
     returned["outer"].append("also changed")
+
     assert item.value == {"outer": [True, {"number": 1}]}
 
 
@@ -116,10 +176,14 @@ def test_value_identity():
     )
 
 
-@pytest.mark.parametrize("value", [9007199254740992, [{"nested": "secret-marker\ud800"}]])
+@pytest.mark.parametrize(
+    "value",
+    [9007199254740992, [{"nested": "secret-marker\ud800"}]],
+)
 def test_value_error(value):
     with pytest.raises(ValueError) as caught:
         Claim("service", "entity", "attribute", value)
+
     assert str(caught.value) == "claim value is invalid"
     assert "secret-marker" not in repr(caught.value)
 
@@ -131,6 +195,7 @@ def test_value_type_error():
 
     with pytest.raises(TypeError) as caught:
         Claim("service", "entity", "attribute", [{"nested": SecretValue()}])
+
     assert str(caught.value) == "claim value must use exact JSON types"
     assert "secret-marker" not in repr(caught.value)
 
@@ -140,13 +205,33 @@ def test_repr():
     item = observation(
         assertion_id="secret-assertion",
         source=source,
-        claim=Claim("service", "secret-entity", "secret-attribute", "secret-value"),
+        claim=Claim(
+            "service",
+            "secret-entity",
+            "secret-attribute",
+            "secret-value",
+        ),
         upstream_sources=(reference("secret-upstream"),),
         cited_sources=(reference("secret-citation"),),
         parent_assertion_ids=("secret-parent",),
-        retrievals=(Retrieval("secret-retrieval", "http", "secret-resource", NOW),),
+        retrievals=(
+            Retrieval(
+                "secret-retrieval",
+                "http",
+                "secret-resource",
+                NOW,
+            ),
+        ),
+        metadata={
+            "secret_context": "secret-value",
+        },
+        dependency_signals={
+            "upstream": 1.0,
+        },
     )
+
     text = repr((source, item, item.cited_sources[0], item.retrievals[0]))
+
     assert "secret" not in text
 
 
@@ -161,32 +246,40 @@ def test_observation_helpers():
 
     upstream = reference(
         kind="external_service",
-        identifier="FRED:T10YIE",
+        identifier="example-upstream",
     )
 
     item = observe(
         assertion_id="assertion-a",
         source=source,
         entity_namespace="service",
-        entity="us_macro",
-        attribute="breakeven_10y_pct",
-        value=2.34,
+        entity="payment_api",
+        attribute="status_code",
+        value=200,
         observed_at=NOW,
         upstream_sources=(upstream,),
         retrievals=(
             retrieval(
                 retrieval_id="retrieval-a",
                 kind="tool_output",
-                resource_id="get_inflation_indicators",
+                resource_id="get_payment_status",
                 retrieved_at=NOW,
             ),
         ),
+        metadata={
+            "custom_context": "example",
+        },
+        dependency_signals={
+            "upstream": 1.0,
+        },
     )
 
-    assert item.claim.attribute == "breakeven_10y_pct"
-    assert item.claim.value == 2.34
+    assert item.claim.attribute == "status_code"
+    assert item.claim.value == 200
     assert item.upstream_sources == (upstream,)
-    assert item.retrievals[0].resource_id == "get_inflation_indicators"
+    assert item.retrievals[0].resource_id == "get_payment_status"
+    assert item.metadata["custom_context"] == "example"
+    assert item.dependency_signals["upstream"] == 1.0
 
 
 def test_reference_from_source():

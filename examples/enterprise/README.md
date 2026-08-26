@@ -10,7 +10,7 @@ The application answers the question:
 
 Five retrieval agents collect structured observations from enterprise systems such as governance documents, deployment records, live configuration, generated reports, and vendor documentation.
 
-This workflow intentionally uses Omneum's lower-level `client.evaluate_assertion()` interface, supplying `Observation` objects directly. Applications that already normalize information into `StructuredAssertion` objects can instead use `client.evaluate()`, while existing retrieval or tool outputs can be adapted through `client.evaluate_mapped()` and a `ContextMapper`.
+This workflow intentionally uses Omneum's lower-level `client.evaluate_assertion()` interface, supplying `Observation` objects directly. Applications that already normalize information into `StructuredAssertion` objects can instead use `client.evaluate()`. Existing retrieval or tool outputs can be adapted through `client.evaluate_mapped()` and a `ContextMapper`.
 
 Omneum evaluates:
 
@@ -19,7 +19,7 @@ Omneum evaluates:
 - Which sources appear dependent
 - Source reliability and claim support
 
-For reproducibility, the retrieval agents are simulated with simple Python functions. They do not call an LLM or access the network.
+For reproducibility purposes, the retrieval agents are simulated with simple Python functions. They do not call an LLM or access the network.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ pip install -r requirements-dev.txt
 python -m examples.enterprise.workflow.run
 ```
 
-The example creates a temporary local stdio deployment using a deterministic, example-only VOPRF key. The temporary key is removed when the workflow exits and must never be used in production.
+This example creates a temporary local stdio deployment using a deterministic, example-only VOPRF key. The temporary key is removed when the workflow exits and must never be used in production.
 
 ## Output
 

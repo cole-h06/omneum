@@ -2,13 +2,9 @@
 
 This example integrates Omneum into a LlamaIndex Workflow.
 
-It reuses the lower-level enterprise workflow from `examples/enterprise`, where
-retrieval results are represented as `Observation` objects and evaluated through
-`client.evaluate_assertion()`. Only the orchestration changes.
-
-Applications integrating existing LlamaIndex retrieval or tool outputs can
-instead adapt those outputs through `client.evaluate_mapped()` and a
-`ContextMapper`.
+It uses the enterprise workflow from `examples/enterprise` as its retrieval
+scenario, then maps the retrieved results through `ContextMapper` before
+evaluation. The LlamaIndex Workflow provides the orchestration.
 
 ## Flow
 
