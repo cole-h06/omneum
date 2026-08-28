@@ -8,9 +8,21 @@ For a shorter end-to-end setup, start with the repository [`README`](../README.m
 
 ### Install Omneum
 
-From the repository root, install Omneum with `pip install .`.
+Omneum currently supports CPython 3.11 through 3.14.
 
-For development, use `pip install -e ".[dev]"`.
+Until the Python package is published, install Omneum from a source checkout:
+
+```bash
+git clone https://github.com/cole-h06/omneum.git
+cd omneum
+pip install .
+```
+
+If you're developing Omneum itself:
+
+```bash
+pip install -e ".[dev]"
+```
 
 ### Initialize Omneum
 
