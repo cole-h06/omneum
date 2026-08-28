@@ -398,24 +398,25 @@ def combine_dependency(signals, config):
 
     base_weights = _weights(config)
 
-    base_total = sum(base_weights)
+    observed_weights = tuple(
+        base_weights[index]
+        for index, name in enumerate(SIGNALS)
+        if getattr(signals, f"{name}_observable")
+    )
+
+    observed_total = sum(observed_weights)
+
+    if observed_total == 0.0:
+        return 0.0, 0.0
 
     dependency = sum(
         base_weights[index]
         * getattr(signals, name)
         for index, name in enumerate(SIGNALS)
-    )
+        if getattr(signals, f"{name}_observable")
+    ) / observed_total
 
-    coverage = sum(
-        base_weights[index]
-        * float(
-            getattr(
-                signals,
-                f"{name}_observable",
-            )
-        )
-        for index, name in enumerate(SIGNALS)
-    ) / base_total
+    coverage = observed_total
 
     return (
         max(0.0, min(1.0, dependency)),
