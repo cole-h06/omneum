@@ -45,7 +45,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --interpreter python
+          args: --release --out dist --interpreter python${{ matrix.python }}
           manylinux: auto
 
       - name: Upload wheel
