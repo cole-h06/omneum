@@ -1,4 +1,5 @@
 import asyncio
+import json
 from dataclasses import asdict
 from datetime import datetime, timezone
 
@@ -33,6 +34,7 @@ from omneum.engine_graph import AssertionTriple, SourcePair, build_graph
 from omneum.inference import infer
 from omneum.information import Claim, Observation, Retrieval, Source, SourceReference
 from omneum.linkage import LinkagePurpose
+from omneum.metrics import JsonlMetricsRecorder
 from omneum.models import EvaluateVOPRFRequest, EvaluateAssertionRequest
 from omneum.oprf import VOPRFServer
 
@@ -754,5 +756,104 @@ def test_rejected(tmp_path, code):
             await client.evaluate_assertion(observations(), estimator=estimator())
         assert error.value.omneum_code == code
         assert "secret" not in str(error.value)
+
+    asyncio.run(run())
+
+
+def test_records_evaluation_metrics(tmp_path):
+    async def run():
+        server = make_server(tmp_path)
+        metrics_path = tmp_path / "evaluations.jsonl"
+
+        client = OmneumClient(
+            make_config(server),
+            Evaluator(server),
+            metrics_recorder=JsonlMetricsRecorder(metrics_path),
+        )
+
+        result = await client.evaluate_assertion(
+            observations(),
+            estimator=estimator(),
+        )
+
+        lines = metrics_path.read_text().splitlines()
+        assert len(lines) == 1
+
+        metrics = json.loads(lines[0])
+
+        assert metrics["observation_count"] == 2
+        assert metrics["source_count"] == len(
+            result.source_reliability
+        )
+        assert metrics["claim_count"] == len(
+            result.claim_support
+        )
+        assert metrics["pair_count"] == len(
+            result.pairwise_dependencies
+        )
+        assert metrics["braid_iterations"] == (
+            result.convergence.iterations
+        )
+        assert metrics["convergence_delta"] == (
+            result.convergence.convergence_delta
+        )
+        assert metrics["evaluation_latency_ms"] >= 0.0
+        assert metrics["recorded_at"]
+
+    asyncio.run(run())
+
+
+def test_appends_evaluation_metrics(tmp_path):
+    async def run():
+        server = make_server(tmp_path)
+        metrics_path = tmp_path / "evaluations.jsonl"
+
+        client = OmneumClient(
+            make_config(server),
+            Evaluator(server),
+            metrics_recorder=JsonlMetricsRecorder(metrics_path),
+        )
+
+        await client.evaluate_assertion(
+            observations(),
+            estimator=estimator(),
+        )
+        await client.evaluate_assertion(
+            observations(),
+            estimator=estimator(),
+        )
+
+        lines = metrics_path.read_text().splitlines()
+
+        assert len(lines) == 2
+
+        for line in lines:
+            json.loads(line)
+
+    asyncio.run(run())
+
+
+def test_failed_evaluation_does_not_record_metrics(tmp_path):
+    class Broken(Evaluator):
+        async def evaluate_assertion(self, request):
+            raise AssertionEvaluationTransportError(uncertain=True)
+
+    async def run():
+        server = make_server(tmp_path)
+        metrics_path = tmp_path / "evaluations.jsonl"
+
+        client = OmneumClient(
+            make_config(server),
+            Broken(server),
+            metrics_recorder=JsonlMetricsRecorder(metrics_path),
+        )
+
+        with pytest.raises(AssertionEvaluationTransportError):
+            await client.evaluate_assertion(
+                observations(),
+                estimator=estimator(),
+            )
+
+        assert not metrics_path.exists()
 
     asyncio.run(run())

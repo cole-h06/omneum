@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 import asyncio
 import math
 import os
@@ -13,6 +15,10 @@ from mcp import ClientSession, StdioServerParameters, stdio_client
 from mcp.types import CallToolResult
 from pydantic import ValidationError
 
+from .metrics import (
+    MetricsRecorder,
+    build_evaluation_metrics,
+)
 from .base64url import decode_unpadded, encode_unpadded
 from .canonicalization import (
     canonicalize_attribute,
@@ -794,6 +800,7 @@ class OmneumClient:
         evaluator: _OmneumEvaluator,
         *,
         assertion_evaluation_available: bool | None = None,
+        metrics_recorder: MetricsRecorder | None = None,
     ) -> None:
         if type(config) is not OmneumClientConfig:
             raise TypeError(
@@ -837,6 +844,7 @@ class OmneumClient:
         )
 
         self._linkage = LinkageClient(oprf_client)
+        self._metrics_recorder = metrics_recorder
 
     async def link_source(
         self,
@@ -979,6 +987,7 @@ class OmneumClient:
             )
 
         values = _snapshot_observations(values)
+        evaluation_started = time.perf_counter()
 
         sources_by_key = {}
 
@@ -1299,7 +1308,7 @@ class OmneumClient:
         )
 
         try:
-            return _map_assertion_evaluation(
+            evaluation = _map_assertion_evaluation(
                 response,
                 source_objects,
                 claim_objects,
@@ -1311,6 +1320,21 @@ class OmneumClient:
                 "Assertion-evaluation response "
                 "could not be mapped."
             ) from None
+
+        if self._metrics_recorder is not None:
+            evaluation_latency_ms = (
+                time.perf_counter() - evaluation_started
+            ) * 1000.0
+
+            self._metrics_recorder.record(
+                build_evaluation_metrics(
+                    evaluation=evaluation,
+                    observation_count=len(values),
+                    evaluation_latency_ms=evaluation_latency_ms,
+                )
+            )
+
+        return evaluation
 
     def _check_token(
         self,
