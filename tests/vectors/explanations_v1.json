@@ -39,7 +39,7 @@
       "is_attribute_max_support": true,
       "clusters": null,
       "conflicts": [],
-      "expected": "Claim: Revenue = $94M\nSupport: 0.91\nAgreement weight: 1.00\nSupporting sources: 4\nEstimated independent support: 3.62\nSource-dependency confidence: 0.75\n\nExplanation:\n4 sources support this claim, with an estimated 3.62 independent sources. The available dependency signals indicate that some supporting sources are related."
+      "expected": "Omneum Evaluate\n\nClaim: Revenue = $94M\nSupport: 0.91\nAgreement weight: 1.00\nSupporting sources: 4\nEstimated independent support: 3.62\nDependency signal coverage: 0.75\n\nExplanation:\n4 sources support this claim, with an estimated 3.62 independent sources. The available dependency signals indicate that some supporting sources are related."
     },
     {
       "name": "adjusted_revenue",
@@ -56,7 +56,7 @@
       "is_attribute_max_support": false,
       "clusters": null,
       "conflicts": [],
-      "expected": "Claim: Revenue = $91M\nSupport: 0.28\nAgreement weight: 1.00\nSupporting sources: 3\nEstimated independent support: 1.24\nSource-dependency confidence: 0.60\n\nExplanation:\n3 sources support this claim, with an estimated 1.24 independent sources. The available dependency signals indicate that some supporting sources are related."
+      "expected": "Omneum Evaluate\n\nClaim: Revenue = $91M\nSupport: 0.28\nAgreement weight: 1.00\nSupporting sources: 3\nEstimated independent support: 1.24\nDependency signal coverage: 0.60\n\nExplanation:\n3 sources support this claim, with an estimated 1.24 independent sources. The available dependency signals indicate that some supporting sources are related."
     },
     {
       "name": "singleton",
@@ -71,7 +71,7 @@
       "is_attribute_max_support": false,
       "clusters": null,
       "conflicts": [],
-      "expected": "Claim: Status = pending\nSupport: 0.50\nAgreement weight: 1.00\nSupporting sources: 1\nEstimated independent support: 1.00\nSource-dependency comparison: unavailable\n\nExplanation:\nOne source supports this claim."
+      "expected": "Omneum Evaluate\n\nClaim: Status = pending\nSupport: 0.50\nAgreement weight: 1.00\nSupporting sources: 1\nEstimated independent support: 1.00\nSource-dependency comparison: unavailable\n\nExplanation:\nOne source supports this claim."
     },
     {
       "name": "tied_maximum",
@@ -95,7 +95,7 @@
           "support": 0.5
         }
       ],
-      "expected": "Claim: Status = ready\nSupport: 0.50\nAgreement weight: 1.00\nSupporting sources: 1\nEstimated independent support: 1.00\nSource-dependency comparison: unavailable\nConflicting value: pending\n\nExplanation:\nOne source supports this claim. 1 conflicting value was identified for the same attribute."
+      "expected": "Omneum Evaluate\n\nClaim: Status = ready\nSupport: 0.50\nAgreement weight: 1.00\nSupporting sources: 1\nEstimated independent support: 1.00\nSource-dependency comparison: unavailable\nConflicting value: pending\n\nExplanation:\nOne source supports this claim. 1 conflicting value was identified for the same attribute."
     },
     {
       "name": "ordered_conflicts",
@@ -127,7 +127,7 @@
           "support": 0.1
         }
       ],
-      "expected": "Claim: Return window = 30 days\nSupport: 0.80\nAgreement weight: 1.00\nSupporting sources: 2\nEstimated independent support: 1.50\nSource-dependency confidence: 1.00\nConflicting values: 14 days, 7 days\n\nExplanation:\n2 sources support this claim, with an estimated 1.50 independent sources. The available dependency signals indicate that some supporting sources are related. 2 conflicting values were identified for the same attribute."
+      "expected": "Omneum Evaluate\n\nClaim: Return window = 30 days\nSupport: 0.80\nAgreement weight: 1.00\nSupporting sources: 2\nEstimated independent support: 1.50\nDependency signal coverage: 1.00\nConflicting values: 14 days, 7 days\n\nExplanation:\n2 sources support this claim, with an estimated 1.50 independent sources. The available dependency signals indicate that some supporting sources are related. 2 conflicting values were identified for the same attribute."
     },
     {
       "name": "rounding",
@@ -143,7 +143,7 @@
       "is_attribute_max_support": false,
       "clusters": null,
       "conflicts": [],
-      "expected": "Claim: Ratio = 1.005\nSupport: 0.13\nAgreement weight: 1.00\nSupporting sources: 2\nEstimated independent support: 2.00\nSource-dependency confidence: 0.76\n\nExplanation:\n2 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals do not indicate substantial source dependence."
+      "expected": "Omneum Evaluate\n\nClaim: Ratio = 1.005\nSupport: 0.13\nAgreement weight: 1.00\nSupporting sources: 2\nEstimated independent support: 2.00\nDependency signal coverage: 0.76\n\nExplanation:\n2 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals do not indicate substantial source dependence."
     }
   ],
   "dependency_cases": [

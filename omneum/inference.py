@@ -41,7 +41,7 @@ class ClaimSupport:
     is_attribute_max_support: bool
     supporting_source_count: int
     estimated_independent_support_count: float
-    dependency_confidence: float | None
+    dependency_signal_coverage: float | None
     supporting_sources: tuple[SupportingSource, ...]
     conflicting_claims: tuple[ConflictingClaim, ...]
 
@@ -274,7 +274,7 @@ def _claim_results(
             ),
             supporting_source_count=count,
             estimated_independent_support_count=effective_count,
-            dependency_confidence=confidence,
+            dependency_signal_coverage=confidence,
             supporting_sources=supporting_sources,
             conflicting_claims=conflicts,
         ))

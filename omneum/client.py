@@ -229,7 +229,7 @@ class ClaimSupportResult:
     is_attribute_max_support: bool
     supporting_source_count: int
     estimated_independent_support_count: float
-    dependency_confidence: float | None
+    dependency_signal_coverage: float | None
     supporting_sources: tuple[SupportingSourceResult, ...]
     conflicting_claims: tuple[ConflictingClaimResult, ...]
     dependency_clusters: tuple[DependencyCluster, ...] | None
@@ -278,14 +278,14 @@ class ClaimSupportResult:
         )
 
         if self.supporting_source_count == 1:
-            if self.dependency_confidence is not None:
+            if self.dependency_signal_coverage is not None:
                 raise ValueError(
-                    "singleton dependency_confidence must be None"
+                    "singleton dependency_signal_coverage must be None"
                 )
         else:
             _result_number(
-                self.dependency_confidence,
-                "dependency_confidence",
+                self.dependency_signal_coverage,
+                "dependency_signal_coverage",
                 minimum=0.0,
                 maximum=1.0,
             )
@@ -1906,7 +1906,7 @@ def _compare_assertion_evaluation(
             item.is_attribute_max_support,
             item.supporting_source_count,
             item.estimated_independent_support_count,
-            item.dependency_confidence,
+            item.dependency_signal_coverage,
             tuple(
                 (
                     source.source_id,
@@ -1937,7 +1937,7 @@ def _compare_assertion_evaluation(
             item.is_attribute_max_support,
             item.supporting_source_count,
             item.estimated_independent_support_count,
-            item.dependency_confidence,
+            item.dependency_signal_coverage,
             tuple(
                 (
                     source.source_id,
@@ -2139,8 +2139,8 @@ def _map_assertion_evaluation(
                 estimated_independent_support_count=(
                     item.estimated_independent_support_count
                 ),
-                dependency_confidence=(
-                    item.dependency_confidence
+                dependency_signal_coverage=(
+                    item.dependency_signal_coverage
                 ),
                 supporting_sources=tuple(
                     SupportingSourceResult(

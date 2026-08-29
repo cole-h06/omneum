@@ -359,7 +359,7 @@ def _build_response(state, graph, result) -> EvaluateAssertionResponse:
                 "estimated_independent_support_count": (
                     item.estimated_independent_support_count
                 ),
-                "dependency_confidence": item.dependency_confidence,
+                "dependency_signal_coverage": item.dependency_signal_coverage,
                 "supporting_sources": [
                     {
                         "source_id": source.source_id,
@@ -511,7 +511,7 @@ def _validate_response(
             item.support == expected_maximum
         ):
             raise InferenceError("invalid claim maximum")
-        if (item.dependency_confidence is None) != (
+        if (item.dependency_signal_coverage is None) != (
             item.supporting_source_count == 1
         ):
             raise InferenceError("invalid dependency confidence")

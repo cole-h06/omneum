@@ -69,7 +69,7 @@ def test_single():
         result.claim_support[0].estimated_independent_support_count
         == 1.0
     )
-    assert result.claim_support[0].dependency_confidence is None
+    assert result.claim_support[0].dependency_signal_coverage is None
     assert result.metadata.iterations == 1
     assert result.metadata.convergence_delta == 0.0
 
@@ -181,7 +181,7 @@ def test_confidence():
         },
     ))
 
-    assert claim(result, "claim-a").dependency_confidence == (
+    assert claim(result, "claim-a").dependency_signal_coverage == (
         1.75 / 3
     )
 

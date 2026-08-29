@@ -163,7 +163,7 @@
       "support": 0.2874999996082349,
       "agreement_weight": 0.75,
       "estimated_independent_support_count": 2.0454545454545454,
-      "dependency_confidence": 1.0,
+      "dependency_signal_coverage": 1.0,
       "supporting_sources": {
         "policy_manual": [0.675, 0.08437499988502548],
         "support_portal": [0.775, 0.09687499986799221],
@@ -175,7 +175,7 @@
       "support": 1.7033262928754073e-10,
       "agreement_weight": 0.25,
       "estimated_independent_support_count": 1.0,
-      "dependency_confidence": null,
+      "dependency_signal_coverage": null,
       "clusters": [["orders_api"]]
     },
     "convergence": {

@@ -180,7 +180,7 @@ class ClaimSupport(_StrictModel):
         ge=1,
         allow_inf_nan=False,
     )
-    dependency_confidence: float | None = Field(
+    dependency_signal_coverage: float | None = Field(
         ge=0,
         le=1,
         allow_inf_nan=False,

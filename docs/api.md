@@ -412,7 +412,7 @@ explanations.
       "is_attribute_max_support": true,
       "supporting_source_count": 1,
       "estimated_independent_support_count": 1.0,
-      "dependency_confidence": null,
+      "dependency_signal_coverage": null,
       "supporting_sources": [
         {
           "source_id": "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYQ",
@@ -446,7 +446,7 @@ exactly `source_id`, `independence`, and `contribution`.
 
 All numeric results MUST be finite binary64 values. Reliability, support,
 agreement weight, independence, contribution, and convergence delta are
-nonnegative. `dependency_confidence` is `null` for a claim with one supporting
+nonnegative. `dependency_signal_coverage` is `null` for a claim with one supporting
 source and otherwise is in `[0, 1]`. `estimated_independent_support_count` is
 in `[1, supporting_source_count]`. Support is a deterministic graph score, not
 a truth probability. Estimated independent support is a dependency-adjusted
@@ -515,8 +515,8 @@ For the `n` sources supporting a claim:
 supporting_source_count = n
 estimated_independent_support_count =
     n^2 / (n + 2 * sum(d(i,k), i < k, i and k support the claim))
-dependency_confidence = null                 when n = 1
-dependency_confidence =
+dependency_signal_coverage = null                 when n = 1
+dependency_signal_coverage =
     2 * sum(weighted_signal_coverage(i,k), i < k) / (n * (n - 1))
                                              otherwise
 ```

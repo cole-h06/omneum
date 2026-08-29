@@ -29,6 +29,8 @@ def explain_claim(
 
     claim = result.claim
     lines = [
+        "Omneum Evaluate",
+        "",
         f"Claim: {_attribute(claim.attribute)} = {_value(claim.value)}",
         f"Support: {result.support:.2f}",
         f"Agreement weight: {result.agreement_weight:.2f}",
@@ -39,12 +41,12 @@ def explain_claim(
         ),
     ]
 
-    if result.dependency_confidence is None:
+    if result.dependency_signal_coverage is None:
         lines.append("Source-dependency comparison: unavailable")
     else:
         lines.append(
-            "Source-dependency confidence: "
-            f"{result.dependency_confidence:.2f}"
+            "Dependency signal coverage: "
+            f"{result.dependency_signal_coverage:.2f}"
         )
 
     if result.conflicting_claims:
@@ -70,7 +72,7 @@ def explain_claim(
 def _claim_explanation(result: ClaimSupportResult) -> str:
     count = result.supporting_source_count
     independent = result.estimated_independent_support_count
-    confidence = result.dependency_confidence
+    confidence = result.dependency_signal_coverage
 
     if count == 1:
         sentences = [

@@ -326,12 +326,12 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         == expected_minority["estimated_independent_support_count"]
     )
     assert (
-        majority.dependency_confidence
-        == expected_majority["dependency_confidence"]
+        majority.dependency_signal_coverage
+        == expected_majority["dependency_signal_coverage"]
     )
     assert (
-        minority.dependency_confidence
-        == expected_minority["dependency_confidence"]
+        minority.dependency_signal_coverage
+        == expected_minority["dependency_signal_coverage"]
     )
     assert {
         source_names[item.source]: [item.independence, item.contribution]
