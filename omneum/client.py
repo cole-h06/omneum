@@ -1692,6 +1692,8 @@ class _MCPOmneumEvaluator:
 async def open_stdio_client(
     config: OmneumClientConfig,
     server: StdioServerParameters,
+    *,
+    metrics_recorder: MetricsRecorder | None = None,
 ) -> AsyncIterator[OmneumClient]:
     """Open and own one local MCP stdio subprocess and client session."""
 
@@ -1750,6 +1752,7 @@ async def open_stdio_client(
                     assertion_evaluation_available=(
                         assertion_evaluation_available
                     ),
+                    metrics_recorder=metrics_recorder,
                 )
             finally:
                 evaluator.close()

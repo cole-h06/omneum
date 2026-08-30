@@ -17,6 +17,7 @@ from omneum.dependency import (
 )
 from omneum.explanations import explain_claim, explain_dependency
 from omneum.information import Claim, Observation, Source, SourceReference
+from omneum.metrics import JsonlMetricsRecorder
 from omneum.oprf import VOPRFServer
 from omneum.serialization import serialize_source
 from stdio_state import isolated_deployment_environment
@@ -46,7 +47,12 @@ def test_stdio_client(tmp_path: Path) -> None:
             linkage_encoding_version=1,
             voprf_public_key=public_key,
         )
-        async with open_stdio_client(config, parameters) as client:
+        metrics_path = tmp_path / "stdio-metrics.jsonl"
+        async with open_stdio_client(
+            config,
+            parameters,
+            metrics_recorder=JsonlMetricsRecorder(metrics_path),
+        ) as client:
             first = await client.link_claim(
                 "service",
                 " Example ",
@@ -96,6 +102,16 @@ def test_stdio_client(tmp_path: Path) -> None:
             assert result.source_reliability[0].reliability == 1.0
             assert result.claim_support[0].support == 1.0
             assert result.pairwise_dependencies == ()
+
+        metrics = [
+            json.loads(line)
+            for line in metrics_path.read_text().splitlines()
+        ]
+        assert len(metrics) == 1
+        assert metrics[0]["observation_count"] == 1
+        assert metrics[0]["source_count"] == 1
+        assert metrics[0]["claim_count"] == 1
+        assert metrics[0]["evaluation_latency_ms"] >= 0.0
 
     asyncio.run(run())
 
