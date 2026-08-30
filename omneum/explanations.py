@@ -16,6 +16,65 @@ _INTERNAL_LABELS = {
 }
 
 
+
+def explain_evaluation(evaluation) -> str:
+    """Render an Omneum evaluation grouped by attribute."""
+    latency = evaluation.evaluation_latency_ms
+
+    lines = ["Omneum Evaluation"]
+
+    if latency is not None:
+        lines.append(f"Evaluation latency: {latency:.1f} ms")
+
+    groups = {}
+    for result in evaluation.claim_support:
+        key = (
+            result.claim.entity_namespace,
+            result.claim.entity,
+            result.claim.attribute,
+        )
+        groups.setdefault(key, []).append(result)
+
+    for (_, _, attribute), results in groups.items():
+        lines.extend(("", _attribute(attribute)))
+
+        for result in results:
+            lines.extend(
+                (
+                    "",
+                    f"  {_value(result.claim.value)}",
+                    f"  Support: {result.support:.2f}",
+                    (
+                        "  Supporting sources: "
+                        f"{result.supporting_source_count}"
+                    ),
+                    (
+                        "  Estimated independent support: "
+                        f"{result.estimated_independent_support_count:.2f}"
+                    ),
+                )
+            )
+
+            if result.dependency_signal_coverage is None:
+                lines.append(
+                    "  Dependency signal coverage: unavailable"
+                )
+            else:
+                lines.append(
+                    "  Dependency signal coverage: "
+                    f"{result.dependency_signal_coverage:.2f}"
+                )
+
+            explanation = _claim_explanation(
+                result,
+                include_conflicts=False,
+            )
+            lines.extend(("", "  Explanation:", f"    {explanation}"))
+
+
+    return "\n".join(lines)
+
+
 def explain_claim(
     result: ClaimSupportResult,
     *,
@@ -29,7 +88,7 @@ def explain_claim(
 
     claim = result.claim
     lines = [
-        "Omneum Evaluate",
+        "Omneum Evaluation",
         "",
         f"Claim: {_attribute(claim.attribute)} = {_value(claim.value)}",
         f"Support: {result.support:.2f}",
@@ -69,7 +128,11 @@ def explain_claim(
     return "\n".join(lines)
 
 
-def _claim_explanation(result: ClaimSupportResult) -> str:
+def _claim_explanation(
+    result: ClaimSupportResult,
+    *,
+    include_conflicts: bool = True,
+) -> str:
     count = result.supporting_source_count
     independent = result.estimated_independent_support_count
     confidence = result.dependency_signal_coverage
@@ -105,7 +168,7 @@ def _claim_explanation(result: ClaimSupportResult) -> str:
                 "indicate substantial source dependence."
             )
 
-    if result.conflicting_claims:
+    if include_conflicts and result.conflicting_claims:
         conflict_count = len(result.conflicting_claims)
         noun = "value" if conflict_count == 1 else "values"
         verb = "was" if conflict_count == 1 else "were"

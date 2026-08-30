@@ -8,7 +8,7 @@ import os
 import uuid
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Protocol
 
 from mcp import ClientSession, StdioServerParameters, stdio_client
@@ -469,6 +469,16 @@ class AssertionEvaluation:
     dependency_cluster_threshold: float | None = field(
         repr=False
     )
+    evaluation_latency_ms: float | None = field(
+        default=None,
+        compare=False,
+        repr=False,
+    )
+
+    @property
+    def explanation(self) -> str:
+        from .explanations import explain_evaluation
+        return explain_evaluation(self)
 
     @property
     def explanations(self) -> tuple[str, ...]:
@@ -487,6 +497,13 @@ class AssertionEvaluation:
         )
 
     def __post_init__(self):
+        if self.evaluation_latency_ms is not None:
+            _result_number(
+                self.evaluation_latency_ms,
+                "evaluation_latency_ms",
+                minimum=0.0,
+            )
+
         _tuple_of(
             self.source_reliability,
             SourceEvaluation,
@@ -1321,11 +1338,16 @@ class OmneumClient:
                 "could not be mapped."
             ) from None
 
-        if self._metrics_recorder is not None:
-            evaluation_latency_ms = (
-                time.perf_counter() - evaluation_started
-            ) * 1000.0
+        evaluation_latency_ms = (
+            time.perf_counter() - evaluation_started
+        ) * 1000.0
 
+        evaluation = replace(
+            evaluation,
+            evaluation_latency_ms=evaluation_latency_ms,
+        )
+
+        if self._metrics_recorder is not None:
             self._metrics_recorder.record(
                 build_evaluation_metrics(
                     evaluation=evaluation,

@@ -333,6 +333,32 @@ def result_values():
     return source_results, (claim_result,), pairs, convergence
 
 
+def test_evaluation_explanation():
+    sources, claims, pairs, convergence = result_values()
+
+    evaluation = AssertionEvaluation(
+        sources,
+        claims,
+        pairs,
+        convergence,
+        None,
+        evaluation_latency_ms=19.9,
+    )
+
+    rendered = evaluation.explanation
+
+    assert rendered.startswith(
+        "Omneum Evaluation\nEvaluation latency: 19.9 ms"
+    )
+    assert "\n\nAttribute\n" in rendered
+    assert "\n  value\n" in rendered
+    assert "  Support: 1.00" in rendered
+    assert "  Supporting sources: 1" in rendered
+    assert "  Estimated independent support: 1.00" in rendered
+    assert "  Explanation:\n    One source supports this claim." in rendered
+    assert not rendered.endswith("\n")
+
+
 @pytest.mark.parametrize(
     "change",
     [
