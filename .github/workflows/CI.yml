@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
-  attestations: write
 
 jobs:
   build:
@@ -49,11 +47,6 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --interpreter python${{ matrix.python }}
           manylinux: auto
-
-      - name: Generate artifact attestation
-        uses: actions/attest@v4
-        with:
-          subject-path: dist/*.whl
 
       - name: Upload wheel
         uses: actions/upload-artifact@v6
