@@ -138,8 +138,8 @@
           3600.0
         ]
       },
-      "expected_dependency": 0.925,
-      "expected_weighted_signal_coverage": 1.0
+      "expected_dependency": 0.9166666666666667,
+      "expected_weighted_signal_coverage": 0.9
     },
     {
       "name": "unobservable_metadata",

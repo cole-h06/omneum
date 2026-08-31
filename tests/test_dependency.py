@@ -284,8 +284,66 @@ def test_graph_and_ownership_signals():
 
     assert result.signals.graph == 0.5
     assert result.signals.ownership == 1.0
-    assert result.weighted_signal_coverage == 1.0
+    assert result.weighted_signal_coverage == 0.9
     assert clusters == ()
+
+
+def test_universal_ownership_does_not_raise_dependency():
+    sources = (
+        source("a.example", "owner"),
+        source("b.example", "owner"),
+        source("c.example", "owner"),
+    )
+
+    observations = (
+        observation("a1", "a.example", source=sources[0], value="a"),
+        observation("b1", "b.example", source=sources[1], value="b"),
+        observation("c1", "c.example", source=sources[2], value="c"),
+    )
+
+    results, _ = estimate_dependencies(
+        sources,
+        observations,
+        config(),
+    )
+
+    assert all(
+        result.signals.ownership == 1.0
+        for result in results
+    )
+    assert all(
+        result.signals.ownership_observable
+        for result in results
+    )
+    assert all(
+        result.dependency == 0.0
+        for result in results
+    )
+
+
+def test_partial_ownership_does_not_trigger_universal_ownership():
+    sources = (
+        source("a.example", "owner"),
+        source("b.example"),
+        source("c.example"),
+    )
+
+    observations = (
+        observation("a1", "a.example", source=sources[0], value="a"),
+        observation("b1", "b.example", source=sources[1], value="b"),
+        observation("c1", "c.example", source=sources[2], value="c"),
+    )
+
+    results, _ = estimate_dependencies(
+        sources,
+        observations,
+        config(),
+    )
+
+    assert any(
+        not result.signals.ownership_observable
+        for result in results
+    )
 
 
 def test_all_dependency_signals():

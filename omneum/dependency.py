@@ -385,7 +385,12 @@ def _weights(config):
     )
 
 
-def combine_dependency(signals, config):
+def combine_dependency(
+    signals,
+    config,
+    *,
+    excluded_signals=(),
+):
     if type(signals) is not DependencySignalScores:
         raise TypeError(
             "signals must be DependencySignalScores"
@@ -401,7 +406,10 @@ def combine_dependency(signals, config):
     observed_weights = tuple(
         base_weights[index]
         for index, name in enumerate(SIGNALS)
-        if getattr(signals, f"{name}_observable")
+        if (
+            name not in excluded_signals
+            and getattr(signals, f"{name}_observable")
+        )
     )
 
     observed_total = sum(observed_weights)
@@ -413,7 +421,10 @@ def combine_dependency(signals, config):
         base_weights[index]
         * getattr(signals, name)
         for index, name in enumerate(SIGNALS)
-        if getattr(signals, f"{name}_observable")
+        if (
+            name not in excluded_signals
+            and getattr(signals, f"{name}_observable")
+        )
     ) / observed_total
 
     coverage = observed_total
@@ -697,6 +708,24 @@ def estimate_dependencies(
                 "every source must have an observation"
             )
 
+    known_owners = {
+        source.owner_id
+        for source in source_map.values()
+        if source.owner_id is not None
+    }
+    ownership_is_universal = (
+        len(known_owners) == 1
+        and all(
+            source.owner_id is not None
+            for source in source_map.values()
+        )
+    )
+    excluded_signals = (
+        ("ownership",)
+        if ownership_is_universal
+        else ()
+    )
+
     results = []
 
     for source_a, source_b in combinations(
@@ -715,6 +744,7 @@ def estimate_dependencies(
         dependency, coverage = combine_dependency(
             signals,
             config,
+            excluded_signals=excluded_signals,
         )
 
         results.append(

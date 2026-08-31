@@ -622,7 +622,7 @@ def test_cluster_key_order(tmp_path):
             evaluator,
         )
         result = await client.evaluate_assertion(
-                observations(), estimator=estimator(0.25)
+                observations(), estimator=estimator(0.19)
         )
         return result.claim_support[0].dependency_clusters
 
