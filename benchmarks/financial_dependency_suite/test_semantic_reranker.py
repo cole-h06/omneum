@@ -3,7 +3,7 @@ from benchmarks.financial_dependency_suite.semantic_reranker import (
 )
 
 
-def test_bge_reranks_fixed_candidate_pool():
+def test_bge_reranking():
     candidates = [
         {
             "source": "unrelated",

@@ -180,3 +180,89 @@ def independent_sources_control():
         "observations": observations,
         "source_ids": FALSE_SOURCE_IDS,
     }
+
+
+def sparse_provenance_control():
+    claim = Claim(
+        "service",
+        "arm_holdings",
+        "FY2023 total revenue",
+        3_200_000_000,
+    )
+
+    observations = (
+        _observation(
+            "false-origin-revenue",
+            FALSE_ORIGIN,
+            claim,
+        ),
+        _observation(
+            "false-copy-a-revenue",
+            FALSE_COPY_A,
+            claim,
+            upstream_sources=(
+                _reference(FALSE_ORIGIN),
+            ),
+            parent_assertion_ids=(
+                "false-origin-revenue",
+            ),
+        ),
+        _observation(
+            "false-copy-b-revenue",
+            FALSE_COPY_B,
+            claim,
+        ),
+    )
+
+    return {
+        "documents": FALSE_DOCUMENTS,
+        "observations": observations,
+        "source_ids": FALSE_SOURCE_IDS,
+    }
+
+
+def noisy_metadata_control(*, lineage=False):
+    claim = Claim(
+        "service",
+        "arm_holdings",
+        "FY2023 total revenue",
+        3_200_000_000,
+    )
+
+    parent_ids = (
+        ("false-origin-revenue",)
+        if lineage
+        else ()
+    )
+
+    observations = (
+        _observation(
+            "false-origin-revenue",
+            FALSE_ORIGIN,
+            claim,
+        ),
+        _observation(
+            "false-copy-a-revenue",
+            FALSE_COPY_A,
+            claim,
+            upstream_sources=(
+                _reference(FALSE_ORIGIN),
+            ),
+            parent_assertion_ids=parent_ids,
+        ),
+        _observation(
+            "false-copy-b-revenue",
+            FALSE_COPY_B,
+            claim,
+            upstream_sources=(
+                _reference(FALSE_ORIGIN),
+            ),
+            parent_assertion_ids=parent_ids,
+        ),
+    )
+
+    return {
+        "documents": FALSE_DOCUMENTS,
+        "observations": observations,
+        "source_ids": FALSE_SOURCE_IDS,
+    }

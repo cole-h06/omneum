@@ -160,3 +160,54 @@ async def test_braid_reranking():
             f"contribution={item['braid_contribution']:.6f}",
         )
 
+
+
+@pytest.mark.anyio
+async def test_syndicated_source():
+    retrieved = retrieve(
+        "What was Arm Holdings' total revenue for fiscal 2023?",
+        case_directory="arm_ipo_2023",
+        top_k=5,
+    )
+
+    observations = build_observations("arm_ipo_2023_revenue")
+    ids = source_ids("arm_ipo_2023_revenue")
+
+    mapped = map_observations(
+        retrieved,
+        observations,
+        ids,
+    )
+
+    result = await evaluate_context(
+        mapped,
+        estimator=estimator_config(),
+    )
+
+    pair = next(
+        pair
+        for pair in result.pairwise_dependencies
+        if {
+            pair.source_a.identifier,
+            pair.source_b.identifier,
+        } == {
+            next(
+                source.identifier
+                for source, source_id in ids.items()
+                if source_id == "reuters_pre_filing"
+            ),
+            next(
+                source.identifier
+                for source, source_id in ids.items()
+                if source_id
+                == "communications_today_syndication"
+            ),
+        }
+    )
+
+    claim = result.claim_support[0]
+
+    assert pair.dependency > 0.0
+    assert pair.signals.upstream == 1.0
+    assert pair.signals.assertion_lineage == 1.0
+    assert claim.estimated_independent_support_count < 5.0

@@ -54,7 +54,7 @@ def test_vector_selection():
     assert_valid_selection(result, top_n=2)
 
 
-def test_bge_uses_fixed_candidate_pool_and_budget():
+def test_bge_selection():
     result = select_bge(
         QUERY,
         CANDIDATES,
