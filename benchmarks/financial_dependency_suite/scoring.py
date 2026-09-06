@@ -8,7 +8,7 @@ def load_ground_truth(path):
 
 def expected_relationships(ground_truth):
     return {
-        frozenset((item["source"], item["depends_on"]))
+        (item["source"], item["depends_on"])
         for item in ground_truth["documented_relationships"]
     }
 

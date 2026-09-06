@@ -4,22 +4,32 @@ from .clients import generate
 from .naive_rag import retrieve
 
 
-async def judge_dependencies(
+async def judge_dependencies_from_results(
     query,
+    results,
     *,
-    case_directory,
-    top_k=5,
+    provider=None,
+    model=None,
+    include_text=True,
 ):
-    results = retrieve(
-        query,
-        case_directory=case_directory,
-        top_k=top_k,
-    )
+    context_parts = []
 
-    context = "\n\n".join(
-        f"Source ID: {item['source']}\n{item['text']}"
-        for item in results
-    )
+    for item in results:
+        part = f"Source ID: {item['source']}"
+
+        if include_text:
+            part += f"\n{item['text']}"
+
+        metadata = item.get("metadata")
+        if metadata:
+            part += (
+                "\n\nSource metadata:\n"
+                + json.dumps(metadata, indent=2)
+            )
+
+        context_parts.append(part)
+
+    context = "\n\n".join(context_parts)
 
     prompt = f"""Determine whether any retrieved source depends on another retrieved source
 for the information relevant to the question.
@@ -65,17 +75,55 @@ Sources:
 {context}
 """
 
-    generation = await generate(prompt)
+    generation = await generate(
+        prompt,
+        provider=provider,
+        model=model,
+    )
     text = generation["text"].strip()
 
     if text.startswith("```"):
         lines = text.splitlines()
-        text = "\n".join(lines[1:-1])
+        lines = lines[1:]
 
-    data = json.loads(text)
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+
+        text = "\n".join(lines).strip()
+
+    try:
+        data = json.loads(text)
+        relationships = data["relationships"]
+        parse_error = None
+    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+        relationships = None
+        parse_error = str(exc)
 
     return {
-        "relationships": data["relationships"],
+        "relationships": relationships,
+        "parse_error": parse_error,
         "generation": generation,
         "retrieved": results,
     }
+
+
+async def judge_dependencies(
+    query,
+    *,
+    case_directory,
+    top_k=5,
+    provider=None,
+    model=None,
+):
+    results = retrieve(
+        query,
+        case_directory=case_directory,
+        top_k=top_k,
+    )
+
+    return await judge_dependencies_from_results(
+        query,
+        results,
+        provider=provider,
+        model=model,
+    )

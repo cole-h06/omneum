@@ -275,20 +275,24 @@ def observation(
     claim,
     date,
     *,
+    source_modified_date=None,
     upstream_sources=(),
     cited_sources=(),
     parent_assertion_ids=(),
 ):
-    timestamp = datetime.fromisoformat(date).replace(
+    observed_at = datetime.fromisoformat(date).replace(
         tzinfo=timezone.utc
     )
+    source_modified_at = datetime.fromisoformat(
+        source_modified_date or date
+    ).replace(tzinfo=timezone.utc)
 
     return Observation(
         assertion_id=assertion_id,
         source=source,
         claim=claim,
-        observed_at=timestamp,
-        source_modified_at=timestamp,
+        observed_at=observed_at,
+        source_modified_at=source_modified_at,
         upstream_sources=tuple(upstream_sources),
         cited_sources=tuple(cited_sources),
         parent_assertion_ids=tuple(parent_assertion_ids),

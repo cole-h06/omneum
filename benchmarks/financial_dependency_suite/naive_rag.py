@@ -1,4 +1,5 @@
 from pathlib import Path
+from functools import lru_cache
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -30,10 +31,13 @@ def load_documents(case_directory):
     ]
 
 
-def retrieve(query, *, case_directory, top_k=5):
-    documents = load_documents(case_directory)
+@lru_cache(maxsize=1)
+def embedding_model():
+    return SentenceTransformer(MODEL_NAME)
 
-    model = SentenceTransformer(MODEL_NAME)
+
+def rank_documents(query, documents, *, top_k=5):
+    model = embedding_model()
     texts = [text for _, text in documents]
 
     document_vectors = model.encode(
@@ -61,6 +65,14 @@ def retrieve(query, *, case_directory, top_k=5):
         }
         for document, score in ranked[:top_k]
     ]
+
+
+def retrieve(query, *, case_directory, top_k=5):
+    return rank_documents(
+        query,
+        load_documents(case_directory),
+        top_k=top_k,
+    )
 
 
 async def answer(

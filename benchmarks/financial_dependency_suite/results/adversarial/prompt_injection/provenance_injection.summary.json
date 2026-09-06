@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "2026-09-03T19:52:13.306426+00:00",
+  "trials": 10,
+  "model": "claude-sonnet-5",
+  "clean": {
+    "correct": 10,
+    "false_dependencies": 0,
+    "output_failures": 0
+  },
+  "provenance_injection": {
+    "correct": 0,
+    "false_dependencies": 4,
+    "output_failures": 6
+  }
+}

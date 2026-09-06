@@ -1,0 +1,148 @@
+{
+  "benchmark": "data_staleness",
+  "timestamp_utc": "2026-09-03T20:04:12.894264+00:00",
+  "ground_truth": 90,
+  "stale_value": 30,
+  "current_value": 90,
+  "dependent_treatment": {
+    "claims": [
+      {
+        "value": 90,
+        "support": 0.47222220118162783,
+        "estimated_independent_support_count": 2.6999999999999997,
+        "is_attribute_max_support": true,
+        "supporting_sources": [
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:44444444-4444-4444-8444-444444444444",
+            "contribution": 0.15740740039387593
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:66666666-6666-4666-8666-666666666666",
+            "contribution": 0.15740740039387593
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:55555555-5555-4555-8555-555555555555",
+            "contribution": 0.15740740039387593
+          }
+        ]
+      },
+      {
+        "value": 30,
+        "support": 1.2789380902601321e-08,
+        "estimated_independent_support_count": 1.62,
+        "is_attribute_max_support": false,
+        "supporting_sources": [
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:11111111-1111-4111-8111-111111111111",
+            "contribution": 5.157008428468275e-09
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:33333333-3333-4333-8333-333333333333",
+            "contribution": 4.744447754190813e-09
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:22222222-2222-4222-8222-222222222222",
+            "contribution": 2.887924719942234e-09
+          }
+        ]
+      }
+    ],
+    "selected_context": [
+      {
+        "source": "current_a",
+        "claim_value": 90,
+        "claim_support": 0.47222220118162783,
+        "braid_contribution": 0.15740740039387593
+      },
+      {
+        "source": "current_c",
+        "claim_value": 90,
+        "claim_support": 0.47222220118162783,
+        "braid_contribution": 0.15740740039387593
+      },
+      {
+        "source": "current_b",
+        "claim_value": 90,
+        "claim_support": 0.47222220118162783,
+        "braid_contribution": 0.15740740039387593
+      }
+    ]
+  },
+  "independent_control": {
+    "claims": [
+      {
+        "value": 30,
+        "support": 0.23611111111111108,
+        "estimated_independent_support_count": 2.6999999999999997,
+        "is_attribute_max_support": true,
+        "supporting_sources": [
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:33333333-3333-4333-8333-333333333333",
+            "contribution": 0.07870370370370369
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:22222222-2222-4222-8222-222222222222",
+            "contribution": 0.07870370370370369
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:11111111-1111-4111-8111-111111111111",
+            "contribution": 0.07870370370370369
+          }
+        ]
+      },
+      {
+        "value": 90,
+        "support": 0.23611111111111108,
+        "estimated_independent_support_count": 2.6999999999999997,
+        "is_attribute_max_support": true,
+        "supporting_sources": [
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:44444444-4444-4444-8444-444444444444",
+            "contribution": 0.07870370370370369
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:66666666-6666-4666-8666-666666666666",
+            "contribution": 0.07870370370370369
+          },
+          {
+            "source": "v1:12345678-1234-4abc-8def-123456789abc:55555555-5555-4555-8555-555555555555",
+            "contribution": 0.07870370370370369
+          }
+        ]
+      }
+    ],
+    "selected_context": [
+      {
+        "source": "stale_copy_b",
+        "claim_value": 30,
+        "claim_support": 0.23611111111111108,
+        "braid_contribution": 0.07870370370370369
+      },
+      {
+        "source": "current_a",
+        "claim_value": 90,
+        "claim_support": 0.23611111111111108,
+        "braid_contribution": 0.07870370370370369
+      },
+      {
+        "source": "stale_copy_a",
+        "claim_value": 30,
+        "claim_support": 0.23611111111111108,
+        "braid_contribution": 0.07870370370370369
+      },
+      {
+        "source": "current_c",
+        "claim_value": 90,
+        "claim_support": 0.23611111111111108,
+        "braid_contribution": 0.07870370370370369
+      }
+    ]
+  },
+  "checks": {
+    "dependency_reduces_stale_independent_support": true,
+    "current_beats_stale_when_stale_is_dependent": true,
+    "current_is_only_treatment_winner": true,
+    "control_is_tied": true,
+    "both_control_claims_are_winners": true
+  }
+}
