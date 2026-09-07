@@ -1,24 +1,26 @@
 from ...application_comparison import (
     LLM_SELECTORS,
     application_record,
-    generate_answer,
+    generate_answer_safe,
     select_bge,
     select_braid,
-    select_cohere,
+    select_cohere_safe,
     select_llm_safe,
     select_vector,
     warm_local_models,
 )
 from ...answer_scoring import score_smci_answer
-from ...run_suite import estimator_config
+from ...config import estimator_config
 from .cases import DOCUMENTS, SOURCE_IDS, conflict
+from ...reproducibility import manifest, write_manifest
+from ...clients import DEFAULT_MODELS
 
 
 QUERY = "Why did Ernst & Young resign as Super Micro Computer's auditor?"
 TOP_N = 3
 
 GENERATOR_PROVIDER = "anthropic"
-GENERATOR_MODEL = "claude-sonnet-5"
+GENERATOR_MODEL = DEFAULT_MODELS[GENERATOR_PROVIDER]
 
 
 def case_data():
@@ -40,14 +42,19 @@ def result_record(selection, generation):
 
 
 async def finish(selection):
-    generation = await generate_answer(
+    result = await generate_answer_safe(
         QUERY,
         selection["selected"],
         provider=GENERATOR_PROVIDER,
         model=GENERATOR_MODEL,
     )
 
-    return result_record(selection, generation)
+    if result["failure"] is not None:
+        failure = result["failure"]
+        failure["selection"] = selection
+        return failure
+
+    return result_record(selection, result["generation"])
 
 
 async def run():
@@ -70,13 +77,16 @@ async def run():
         )
     )
 
-    results["cohere"] = await finish(
-        select_cohere(
-            QUERY,
-            candidates,
-            top_n=TOP_N,
-        )
+    cohere = select_cohere_safe(
+        QUERY,
+        candidates,
+        top_n=TOP_N,
     )
+
+    if cohere["failure"] is not None:
+        results["cohere"] = cohere["failure"]
+    else:
+        results["cohere"] = await finish(cohere["selection"])
 
     results["braid"] = await finish(
         await select_braid(
@@ -124,14 +134,18 @@ def summary(trials):
             for trial in trials
         ]
 
-        completed = [
+        evaluable = [
             run
             for run in runs
-            if run["answer_score"] != "selection_failure"
+            if run["answer_score"] not in {
+                "selection_failure",
+                "generation_failure",
+            }
         ]
 
         methods[name] = {
-            "trials": len(runs),
+            "attempted_trials": len(runs),
+            "evaluable_trials": len(evaluable),
             "correct": sum(
                 run["answer_score"] == "correct"
                 for run in runs
@@ -150,6 +164,10 @@ def summary(trials):
             ),
             "selection_failures": sum(
                 run["answer_score"] == "selection_failure"
+                for run in runs
+            ),
+            "generation_failures": sum(
+                run["answer_score"] == "generation_failure"
                 for run in runs
             ),
             "mean_selection_latency_seconds": (
@@ -209,45 +227,63 @@ def summary(trials):
             "mean_generation_latency_seconds": (
                 sum(
                     run["generation"]["latency_seconds"]
-                    for run in completed
-                ) / len(completed)
-                if completed
+                    for run in evaluable
+                ) / len(evaluable)
+                if evaluable
                 else None
             ),
             "mean_end_to_end_latency_seconds": (
                 sum(
                     run["end_to_end_latency_seconds"]
-                    for run in completed
-                ) / len(completed)
-                if completed
+                    for run in evaluable
+                ) / len(evaluable)
+                if evaluable
                 else None
             ),
             "mean_selector_input_tokens": (
                 sum(
-                    run["selection"].get("input_tokens") or 0
+                    run["selection"]["input_tokens"]
                     for run in runs
-                ) / len(runs)
+                    if run["selection"].get("input_tokens") is not None
+                ) / sum(
+                    run["selection"].get("input_tokens") is not None
+                    for run in runs
+                )
+                if any(
+                    run["selection"].get("input_tokens") is not None
+                    for run in runs
+                )
+                else None
             ),
             "mean_selector_output_tokens": (
                 sum(
-                    run["selection"].get("output_tokens") or 0
+                    run["selection"]["output_tokens"]
                     for run in runs
-                ) / len(runs)
+                    if run["selection"].get("output_tokens") is not None
+                ) / sum(
+                    run["selection"].get("output_tokens") is not None
+                    for run in runs
+                )
+                if any(
+                    run["selection"].get("output_tokens") is not None
+                    for run in runs
+                )
+                else None
             ),
             "mean_generation_input_tokens": (
                 sum(
                     run["generation"]["input_tokens"]
-                    for run in completed
-                ) / len(completed)
-                if completed
+                    for run in evaluable
+                ) / len(evaluable)
+                if evaluable
                 else None
             ),
             "mean_generation_output_tokens": (
                 sum(
                     run["generation"]["output_tokens"]
-                    for run in completed
-                ) / len(completed)
-                if completed
+                    for run in evaluable
+                ) / len(evaluable)
+                if evaluable
                 else None
             ),
         }
@@ -286,6 +322,7 @@ async def main():
 
     trials_path = output_dir / f"{run_id}.jsonl"
     summary_path = output_dir / f"{run_id}.summary.json"
+    manifest_path = output_dir / f"{run_id}.manifest.json"
 
     candidates, _, _ = case_data()
     warm_local_models(QUERY, candidates)
@@ -309,9 +346,32 @@ async def main():
         json.dumps(report, indent=2) + "\n"
     )
 
+    run_manifest = manifest(
+        benchmark="conflicting_information",
+        track="application",
+        trials=args.trials,
+        context_budget=TOP_N,
+        models={
+            "vector": "all-MiniLM-L6-v2",
+            "bge": "BAAI/bge-reranker-v2-m3",
+            "cohere": "rerank-v4.0-pro",
+            "anthropic": DEFAULT_MODELS["anthropic"],
+            "openai": DEFAULT_MODELS["openai"],
+            "google": DEFAULT_MODELS["google"],
+            "generator": GENERATOR_MODEL,
+        },
+        inputs=[
+            Path(__file__),
+            Path(__file__).with_name("cases.py"),
+        ],
+        identifier=run_id,
+    )
+    write_manifest(manifest_path, run_manifest)
+
     print(json.dumps(report, indent=2))
     print(f"\nTrials: {trials_path}")
     print(f"Summary: {summary_path}")
+    print(f"Manifest: {manifest_path}")
 
 
 if __name__ == "__main__":

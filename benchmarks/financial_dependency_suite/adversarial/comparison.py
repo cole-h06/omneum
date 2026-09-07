@@ -5,7 +5,7 @@ from ..llm_judge import judge_dependencies_from_results
 
 LLM_JUDGES = (
     ("anthropic", "claude-sonnet-5"),
-    ("openai", "gpt-5.6-sol"),
+    ("openai", "gpt-6-astra"),
     ("google", "gemini-3.8-flash"),
 )
 
@@ -16,11 +16,15 @@ def mean_or_none(values):
 
 def score_relationships(relationships, expected):
     predicted = {
-        (
+        frozenset((
             relationship["source"],
             relationship["depends_on"],
-        )
+        ))
         for relationship in relationships
+    }
+    expected = {
+        frozenset(pair)
+        for pair in expected
     }
 
     true_positive = len(predicted & expected)
@@ -30,7 +34,7 @@ def score_relationships(relationships, expected):
     precision = (
         true_positive / (true_positive + false_positive)
         if true_positive + false_positive
-        else 1.0
+        else 0.0
     )
     recall = (
         true_positive / (true_positive + false_negative)
@@ -87,6 +91,8 @@ async def evaluate_llm_judges(
                     judged["generation"]["input_tokens"],
                 "output_tokens":
                     judged["generation"]["output_tokens"],
+                "raw_output":
+                    judged["generation"]["text"],
             }
 
         except Exception as exc:

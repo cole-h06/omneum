@@ -28,7 +28,18 @@ async def test_application_run(monkeypatch):
 
     monkeypatch.setattr(app, "select_vector", local_select)
     monkeypatch.setattr(app, "select_bge", local_select)
-    monkeypatch.setattr(app, "select_cohere", local_select)
+    monkeypatch.setattr(
+        app,
+        "select_cohere_safe",
+        lambda query, candidates, *, top_n: {
+            "selection": local_select(
+                query,
+                candidates,
+                top_n=top_n,
+            ),
+            "failure": None,
+        },
+    )
 
     async def braid_select(
         candidates,
@@ -85,7 +96,28 @@ async def test_application_run(monkeypatch):
             "output_tokens": 20,
         }
 
-    monkeypatch.setattr(app, "generate_answer", fake_generate)
+    async def fake_generate_safe(
+        query,
+        selected,
+        *,
+        provider,
+        model,
+    ):
+        return {
+            "generation": await fake_generate(
+                query,
+                selected,
+                provider=provider,
+                model=model,
+            ),
+            "failure": None,
+        }
+
+    monkeypatch.setattr(
+        app,
+        "generate_answer_safe",
+        fake_generate_safe,
+    )
 
     result = await app.run()
 

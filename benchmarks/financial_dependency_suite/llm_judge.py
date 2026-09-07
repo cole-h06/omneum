@@ -94,8 +94,44 @@ Sources:
     try:
         data = json.loads(text)
         relationships = data["relationships"]
+
+        if not isinstance(relationships, list):
+            raise ValueError("relationships must be a list")
+
+        source_ids = {item["source"] for item in results}
+
+        for relationship in relationships:
+            if not isinstance(relationship, dict):
+                raise ValueError("relationship must be an object")
+
+            source = relationship["source"]
+            depends_on = relationship["depends_on"]
+            relationship_type = relationship["relationship_type"]
+            confidence = relationship["confidence"]
+
+            if source not in source_ids or depends_on not in source_ids:
+                raise ValueError("relationship contains unknown source")
+
+            if source == depends_on:
+                raise ValueError("source cannot depend on itself")
+
+            if not isinstance(relationship_type, str):
+                raise ValueError("relationship_type must be a string")
+
+            if (
+                isinstance(confidence, bool)
+                or not isinstance(confidence, (int, float))
+                or not 0.0 <= confidence <= 1.0
+            ):
+                raise ValueError("confidence must be between 0 and 1")
+
         parse_error = None
-    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+    except (
+        json.JSONDecodeError,
+        KeyError,
+        TypeError,
+        ValueError,
+    ) as exc:
         relationships = None
         parse_error = str(exc)
 

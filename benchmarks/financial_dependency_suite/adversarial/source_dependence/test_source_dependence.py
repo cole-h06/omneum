@@ -5,6 +5,7 @@ from .cases import (
     independent_sources_control,
     retrieve_source_dependence,
 )
+from ...observations import build_observations, source_ids
 
 
 def test_source_dependence():
@@ -87,8 +88,7 @@ async def test_dependency_changes_balanced_conflict():
     )
     from ...braid_rag import evaluate_context, map_observations
     from ...naive_rag import load_documents
-    from ...observations import build_observations, source_ids
-    from ...run_suite import estimator_config
+    from ...config import estimator_config
 
     async def evaluate(adversarial):
         base = build_observations("arm_ipo_2023_revenue")[:3]
@@ -204,8 +204,7 @@ async def test_sparse_provenance():
     from .cases import sparse_provenance_control
     from ...braid_rag import evaluate_context, map_observations
     from ...naive_rag import load_documents
-    from ...observations import build_observations, source_ids
-    from ...run_suite import estimator_config
+    from ...config import estimator_config
 
     async def evaluate(adversarial):
         base = build_observations("arm_ipo_2023_revenue")[:3]
@@ -272,8 +271,7 @@ async def test_noisy_metadata():
     from .cases import noisy_metadata_control
     from ...braid_rag import evaluate_context, map_observations
     from ...naive_rag import load_documents
-    from ...observations import build_observations, source_ids
-    from ...run_suite import estimator_config
+    from ...config import estimator_config
 
     async def evaluate(adversarial):
         base = build_observations("arm_ipo_2023_revenue")[:3]
@@ -350,7 +348,7 @@ async def test_semantic_noise():
         map_observations,
         select_context,
     )
-    from ...run_suite import estimator_config
+    from ...config import estimator_config
 
     revenue_source = Source(
         "web_document",

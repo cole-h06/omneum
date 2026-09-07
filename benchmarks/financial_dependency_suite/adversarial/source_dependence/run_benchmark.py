@@ -21,15 +21,14 @@ from ..comparison import (
 )
 from ...naive_rag import load_documents
 from ...observations import build_observations, source_ids
-from ...run_suite import estimator_config
+from ...config import estimator_config
+from ...reproducibility import manifest, write_manifest
 
 
 OUTPUT_DIR = Path(
     "benchmarks/financial_dependency_suite/results/adversarial/"
     "source_dependence"
 )
-TRIALS_OUTPUT = OUTPUT_DIR / "trials.jsonl"
-SUMMARY_OUTPUT = OUTPUT_DIR / "summary.json"
 
 CORRECT_VALUE = 2_679_000_000
 FALSE_VALUE = 3_200_000_000
@@ -327,9 +326,14 @@ async def main():
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    trials_output = OUTPUT_DIR / f"{run_id}.jsonl"
+    summary_output = OUTPUT_DIR / f"{run_id}.summary.json"
+    manifest_output = OUTPUT_DIR / f"{run_id}.manifest.json"
+
     trials = []
 
-    with TRIALS_OUTPUT.open("w") as handle:
+    with trials_output.open("x") as handle:
         for trial_number in range(1, args.trials + 1):
             print(
                 f"Running trial "
@@ -346,13 +350,26 @@ async def main():
 
     summary = build_summary(trials)
 
-    SUMMARY_OUTPUT.write_text(
+    summary_output.write_text(
         json.dumps(summary, indent=2) + "\n"
     )
 
+    run_manifest = manifest(
+        benchmark="source_dependence",
+        track="structural",
+        trials=args.trials,
+        inputs=[
+            Path(__file__),
+            Path(__file__).with_name("cases.py"),
+        ],
+        identifier=run_id,
+    )
+    write_manifest(manifest_output, run_manifest)
+
     print(json.dumps(summary, indent=2))
-    print(f"\nTrials: {TRIALS_OUTPUT}")
-    print(f"Summary: {SUMMARY_OUTPUT}")
+    print(f"\nTrials: {trials_output}")
+    print(f"Summary: {summary_output}")
+    print(f"Manifest: {manifest_output}")
 
 
 if __name__ == "__main__":

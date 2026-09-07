@@ -22,7 +22,7 @@ DEFAULT_MODELS = {
     ),
     "openai": os.environ.get(
         "OPENAI_MODEL",
-        "gpt-5.6-sol",
+        "gpt-6-astra",
     ),
     "google": os.environ.get(
         "GOOGLE_MODEL",

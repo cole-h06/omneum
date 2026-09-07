@@ -10,6 +10,7 @@ from benchmarks.financial_dependency_suite.adversarial.comparison import (
 from benchmarks.financial_dependency_suite.llm_judge import (
     judge_dependencies_from_results,
 )
+from benchmarks.financial_dependency_suite.reproducibility import manifest, write_manifest
 from benchmarks.financial_dependency_suite.adversarial.prompt_injection.test_prompt_injection import (
     QUERY,
     clean_results,
@@ -120,7 +121,7 @@ def summarize(records, provider, model, condition):
     }
 
 
-async def run(trials, output_path):
+async def run(trials, output_path, identifier):
     output_path.parent.mkdir(parents=True, exist_ok=True)
     records = []
 
@@ -187,10 +188,28 @@ async def run(trials, output_path):
         json.dumps(summary, indent=2) + "\n"
     )
 
+    manifest_path = output_path.with_suffix(".manifest.json")
+    run_manifest = manifest(
+        benchmark="prompt_injection",
+        track="structural",
+        trials=trials,
+        models={
+            model: provider
+            for provider, model in LLM_JUDGES
+        },
+        inputs=[
+            Path(__file__),
+            Path(__file__).with_name("test_prompt_injection.py"),
+        ],
+        identifier=identifier,
+    )
+    write_manifest(manifest_path, run_manifest)
+
     print("\nSUMMARY")
     print(json.dumps(summary, indent=2))
     print(f"\nRaw results: {output_path}")
     print(f"Summary:     {summary_path}")
+    print(f"Manifest:    {manifest_path}")
 
 
 def main():
@@ -218,7 +237,7 @@ def main():
         / f"provenance_injection.{run_id}.jsonl"
     )
 
-    asyncio.run(run(args.trials, output_path))
+    asyncio.run(run(args.trials, output_path, run_id))
 
 
 if __name__ == "__main__":

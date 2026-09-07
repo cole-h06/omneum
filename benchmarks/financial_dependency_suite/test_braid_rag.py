@@ -31,7 +31,7 @@ def test_maps_observations():
 
 import pytest
 
-from .run_suite import estimator_config
+from .config import estimator_config
 
 
 @pytest.mark.anyio

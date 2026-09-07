@@ -7,7 +7,7 @@ from .cases import (
     conflict,
 )
 from ...braid_rag import evaluate_context, map_observations
-from ...run_suite import estimator_config
+from ...config import estimator_config
 
 
 def target_observations(case):

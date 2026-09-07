@@ -1,5 +1,6 @@
 import asyncio
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
 
@@ -10,14 +11,14 @@ from .cases import (
     conflict,
 )
 from ...braid_rag import evaluate_context
-from ...run_suite import estimator_config
+from ...config import estimator_config
+from ...reproducibility import manifest, write_manifest
 
 
 OUTPUT_DIR = Path(
     "benchmarks/financial_dependency_suite/results/adversarial/"
     "conflicting_information"
 )
-OUTPUT_PATH = OUTPUT_DIR / "structural.json"
 
 
 def mapped_case(case):
@@ -158,12 +159,29 @@ async def main():
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    OUTPUT_PATH.write_text(
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    output_path = OUTPUT_DIR / f"{run_id}.structural.json"
+    manifest_output = OUTPUT_DIR / f"{run_id}.manifest.json"
+
+    output_path.write_text(
         json.dumps(result, indent=2) + "\n"
     )
 
+    run_manifest = manifest(
+        benchmark="conflicting_information",
+        track="structural",
+        trials=1,
+        inputs=[
+            Path(__file__),
+            Path(__file__).with_name("cases.py"),
+        ],
+        identifier=run_id,
+    )
+    write_manifest(manifest_output, run_manifest)
+
     print(json.dumps(result, indent=2))
-    print(f"\nResult: {OUTPUT_PATH}")
+    print(f"\nResult: {output_path}")
+    print(f"Manifest: {manifest_output}")
 
 
 if __name__ == "__main__":

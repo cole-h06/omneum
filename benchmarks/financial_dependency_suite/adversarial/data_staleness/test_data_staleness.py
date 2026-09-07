@@ -10,9 +10,7 @@ from benchmarks.financial_dependency_suite.braid_rag import (
     evaluate_context,
     map_observations,
 )
-from benchmarks.financial_dependency_suite.run_suite import (
-    estimator_config,
-)
+from benchmarks.financial_dependency_suite.config import estimator_config
 
 
 def _mapped(case):

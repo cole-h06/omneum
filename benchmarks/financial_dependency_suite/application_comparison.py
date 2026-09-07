@@ -1,16 +1,14 @@
 import json
 from time import perf_counter
 
-from .clients import generate
+from .clients import DEFAULT_MODELS, generate
 from .generation import answer_from_context
 from .naive_rag import rank_documents
 from .semantic_reranker import rerank_bge, rerank_cohere
 
-
-LLM_SELECTORS = (
-    ("anthropic", "claude-sonnet-5"),
-    ("openai", "gpt-5.6-sol"),
-    ("google", "gemini-3.8-flash"),
+LLM_SELECTORS = tuple(
+    (provider, DEFAULT_MODELS[provider])
+    for provider in ("anthropic", "openai", "google")
 )
 
 
@@ -74,6 +72,39 @@ def select_cohere(query, candidates, *, top_n):
         candidates,
         top_n=top_n,
     )
+
+
+def select_cohere_safe(query, candidates, *, top_n):
+    try:
+        selection = select_cohere(
+            query,
+            candidates,
+            top_n=top_n,
+        )
+    except Exception as exc:
+        return {
+            "selection": None,
+            "failure": {
+                "selected": [],
+                "selection": {
+                    "model": "rerank-v4.0-pro",
+                    "provider": "cohere",
+                    "latency_seconds": None,
+                    "input_tokens": None,
+                    "output_tokens": None,
+                },
+                "answer": None,
+                "answer_score": "selection_failure",
+                "generation": None,
+                "failure_type": "provider_error",
+                "error": f"{type(exc).__name__}: {exc}",
+            },
+        }
+
+    return {
+        "selection": selection,
+        "failure": None,
+    }
 
 
 def _extract_json(text):
@@ -225,6 +256,7 @@ async def select_llm_safe(
                     "latency_seconds": selection["latency_seconds"],
                     "input_tokens": selection.get("input_tokens"),
                     "output_tokens": selection.get("output_tokens"),
+                    "raw_output": selection.get("raw_output"),
                 },
                 "answer": None,
                 "answer_score": "selection_failure",
@@ -271,6 +303,40 @@ async def generate_answer(
         provider=provider,
         model=model,
     )
+
+
+async def generate_answer_safe(
+    query,
+    selected,
+    *,
+    provider,
+    model,
+):
+    try:
+        generation = await generate_answer(
+            query,
+            selected,
+            provider=provider,
+            model=model,
+        )
+    except Exception as exc:
+        return {
+            "generation": None,
+            "failure": {
+                "answer": None,
+                "answer_score": "generation_failure",
+                "generation": None,
+                "failure_type": "provider_error",
+                "error": str(exc),
+                "provider": provider,
+                "model": model,
+            },
+        }
+
+    return {
+        "generation": generation,
+        "failure": None,
+    }
 
 
 async def select_braid(
@@ -358,6 +424,9 @@ def selection_record(selection):
 
     if "output_tokens" in selection:
         record["output_tokens"] = selection["output_tokens"]
+
+    if "raw_output" in selection:
+        record["raw_output"] = selection["raw_output"]
 
     return record
 

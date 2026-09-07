@@ -7,9 +7,7 @@ from benchmarks.financial_dependency_suite.adversarial.prompt_injection.applicat
 from benchmarks.financial_dependency_suite.application_comparison import (
     select_braid,
 )
-from benchmarks.financial_dependency_suite.run_suite import (
-    estimator_config,
-)
+from benchmarks.financial_dependency_suite.config import estimator_config
 
 
 @pytest.mark.anyio
