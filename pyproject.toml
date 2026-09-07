@@ -6,7 +6,7 @@ build-backend = "maturin"
 
 [project]
 name = "omneum"
-version = "1.0.0"
+version = "1.0.1"
 description = "A data trust gateway for agentic systems."
 requires-python = ">=3.11"
 
