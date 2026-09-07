@@ -17,7 +17,7 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 VECTOR_PATH = (
     Path(__file__).parent
     / "vectors"
-    / "reliability_v1.json"
+    / "reliability_v2.json"
 )
 
 
@@ -132,12 +132,12 @@ def test_infer_stdio(tmp_path):
                     "assertion_count": 15,
                 }
                 assert content["metadata"] == {
-                    "algorithm_version": "omneum-v1",
-                    "iterations": 9,
+                    "algorithm_version": "omneum-v2",
+                    "iterations": 11,
                     "converged": True,
                     "convergence_tolerance": 1e-8,
                     "convergence_delta": (
-                        6.582017357363579e-09
+                        4.292414236550801e-09
                     ),
                 }
 

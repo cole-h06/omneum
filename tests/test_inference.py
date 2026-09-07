@@ -24,7 +24,7 @@ from omneum.inference import (
 VECTOR_PATH = (
     Path(__file__).parent
     / "vectors"
-    / "reliability_v1.json"
+    / "reliability_v2.json"
 )
 
 
@@ -140,7 +140,7 @@ def test_dependency():
     ))
 
     assert claim(independent, "claim-a").support == 1.0
-    assert claim(dependent, "claim-a").support == 0.5
+    assert claim(dependent, "claim-a").support == pytest.approx(2.0 / 3.0)
     assert (
         claim(dependent, "claim-a")
         .estimated_independent_support_count
@@ -163,7 +163,7 @@ def test_independence():
     assert {
         item.source_id: item.independence
         for item in shared.supporting_sources
-    } == {"source-a": 0.75, "source-b": 0.75}
+    } == {"source-a": 0.8, "source-b": 0.8}
     assert singleton.supporting_sources[0].independence == 1.0
 
 
@@ -288,19 +288,6 @@ def test_nonconvergence(monkeypatch):
         infer(value)
 
 
-def test_zero_total():
-    value = graph(
-        [
-            AssertionTriple("source-a", "attribute-a", "claim-a"),
-            AssertionTriple("source-b", "attribute-a", "claim-a"),
-        ],
-        {("source-a", "source-b"): 1.0},
-    )
-
-    with pytest.raises(InferenceError):
-        infer(value)
-
-
 def test_nonfinite():
     value = graph([
         AssertionTriple("source-a", "attribute-a", "claim-a"),
@@ -370,3 +357,43 @@ def test_hash_seeds():
         outputs.append(completed.stdout)
 
     assert len(set(outputs)) == 1
+
+
+def test_dependent_group():
+    assertions = [
+        AssertionTriple(source, "attribute-a", "claim-a")
+        for source in ("source-a", "source-b", "source-c", "source-d")
+    ]
+    pairs = {
+        (a, b): 1.0
+        for i, a in enumerate(("source-a", "source-b", "source-c", "source-d"))
+        for b in ("source-a", "source-b", "source-c", "source-d")[i + 1:]
+    }
+
+    result = infer(graph(assertions, pairs))
+    shared = claim(result, "claim-a")
+
+    assert sum(
+        item.independence
+        for item in shared.supporting_sources
+    ) == pytest.approx(1.0)
+
+
+def test_dependent_group():
+    assertions = [
+        AssertionTriple(source, "attribute-a", "claim-a")
+        for source in ("source-a", "source-b", "source-c", "source-d")
+    ]
+    pairs = {
+        (a, b): 1.0
+        for i, a in enumerate(("source-a", "source-b", "source-c", "source-d"))
+        for b in ("source-a", "source-b", "source-c", "source-d")[i + 1:]
+    }
+
+    result = infer(graph(assertions, pairs))
+    shared = claim(result, "claim-a")
+
+    assert sum(
+        item.independence
+        for item in shared.supporting_sources
+    ) == pytest.approx(1.0)

@@ -148,30 +148,30 @@
     "source_reliability": [
       {
         "source_id": "source-a",
-        "reliability": 0.26743417101972705
+        "reliability": 0.26336307253503993
       },
       {
         "source_id": "source-b",
-        "reliability": 0.26743417101972705
+        "reliability": 0.26336307253503993
       },
       {
         "source_id": "source-c",
-        "reliability": 0.26743417101972705
+        "reliability": 0.26336307253503993
       },
       {
         "source_id": "source-e",
-        "reliability": 0.1900832583135313
+        "reliability": 0.1962748939165787
       },
       {
         "source_id": "source-d",
-        "reliability": 0.007614228627287647
+        "reliability": 0.013635888478301498
       }
     ],
     "claim_support": [
       {
         "attribute_id": "attribute-a",
         "claim_id": "claim-a",
-        "support": 0.20712647021406394,
+        "support": 0.16472978116566683,
         "agreement_weight": 0.8,
         "is_attribute_max_support": true,
         "supporting_source_count": 4,
@@ -180,36 +180,36 @@
         "supporting_sources": [
           {
             "source_id": "source-c",
-            "independence": 0.9138888888888889,
-            "contribution": 0.06517469797443719
+            "independence": 0.794701986754967,
+            "contribution": 0.055812041861730326
           },
           {
             "source_id": "source-b",
-            "independence": 0.7888888888888889,
-            "contribution": 0.05626022560711295
+            "independence": 0.6122448979591837,
+            "contribution": 0.04299805265878204
           },
           {
             "source_id": "source-a",
-            "independence": 0.6388888888888888,
-            "contribution": 0.04556285876632387
+            "independence": 0.4800000000000001,
+            "contribution": 0.03371047328448512
           },
           {
             "source_id": "source-e",
-            "independence": 0.7916666666666666,
-            "contribution": 0.04012868786618994
+            "independence": 0.6153846153846154,
+            "contribution": 0.03220921336066933
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-b",
-            "support": 0.0005076152418191764
+            "support": 0.0009090592318867666
           }
         ]
       },
       {
         "attribute_id": "attribute-a",
         "claim_id": "claim-b",
-        "support": 0.0005076152418191764,
+        "support": 0.0009090592318867666,
         "agreement_weight": 0.2,
         "is_attribute_max_support": false,
         "supporting_source_count": 1,
@@ -219,20 +219,20 @@
           {
             "source_id": "source-d",
             "independence": 1.0,
-            "contribution": 0.0005076152418191764
+            "contribution": 0.0009090592318867666
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-a",
-            "support": 0.20712647021406394
+            "support": 0.16472978116566683
           }
         ]
       },
       {
         "attribute_id": "attribute-b",
         "claim_id": "claim-c",
-        "support": 0.12435688952417309,
+        "support": 0.11046569252757242,
         "agreement_weight": 0.6,
         "is_attribute_max_support": true,
         "supporting_source_count": 3,
@@ -241,31 +241,31 @@
         "supporting_sources": [
           {
             "source_id": "source-c",
-            "independence": 0.8833333333333333,
-            "contribution": 0.047246703546818446
+            "independence": 0.8108108108108107,
+            "contribution": 0.042707525275952424
           },
           {
             "source_id": "source-b",
-            "independence": 0.7583333333333333,
-            "contribution": 0.04056084927132527
+            "independence": 0.6741573033707865,
+            "contribution": 0.035509627757533475
           },
           {
             "source_id": "source-a",
-            "independence": 0.6833333333333333,
-            "contribution": 0.03654933670602936
+            "independence": 0.6122448979591837,
+            "contribution": 0.03224853949408652
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-d",
-            "support": 0.010543865970177011
+            "support": 0.01749256519957335
           }
         ]
       },
       {
         "attribute_id": "attribute-b",
         "claim_id": "claim-d",
-        "support": 0.010543865970177011,
+        "support": 0.01749256519957335,
         "agreement_weight": 0.4,
         "is_attribute_max_support": false,
         "supporting_source_count": 2,
@@ -274,26 +274,26 @@
         "supporting_sources": [
           {
             "source_id": "source-e",
-            "independence": 0.4,
-            "contribution": 0.01013777377672167
+            "independence": 0.625,
+            "contribution": 0.01635624115971489
           },
           {
             "source_id": "source-d",
-            "independence": 0.4,
-            "contribution": 0.0004060921934553412
+            "independence": 0.625,
+            "contribution": 0.001136324039858458
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-c",
-            "support": 0.12435688952417309
+            "support": 0.11046569252757242
           }
         ]
       },
       {
         "attribute_id": "attribute-c",
         "claim_id": "claim-e",
-        "support": 0.20712647021406394,
+        "support": 0.16472978116566683,
         "agreement_weight": 0.8,
         "is_attribute_max_support": true,
         "supporting_source_count": 4,
@@ -302,36 +302,36 @@
         "supporting_sources": [
           {
             "source_id": "source-c",
-            "independence": 0.9138888888888889,
-            "contribution": 0.06517469797443719
+            "independence": 0.794701986754967,
+            "contribution": 0.055812041861730326
           },
           {
             "source_id": "source-b",
-            "independence": 0.7888888888888889,
-            "contribution": 0.05626022560711295
+            "independence": 0.6122448979591837,
+            "contribution": 0.04299805265878204
           },
           {
             "source_id": "source-a",
-            "independence": 0.6388888888888888,
-            "contribution": 0.04556285876632387
+            "independence": 0.4800000000000001,
+            "contribution": 0.03371047328448512
           },
           {
             "source_id": "source-e",
-            "independence": 0.7916666666666666,
-            "contribution": 0.04012868786618994
+            "independence": 0.6153846153846154,
+            "contribution": 0.03220921336066933
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-f",
-            "support": 0.0005076152418191764
+            "support": 0.0009090592318867666
           }
         ]
       },
       {
         "attribute_id": "attribute-c",
         "claim_id": "claim-f",
-        "support": 0.0005076152418191764,
+        "support": 0.0009090592318867666,
         "agreement_weight": 0.2,
         "is_attribute_max_support": false,
         "supporting_source_count": 1,
@@ -341,23 +341,23 @@
           {
             "source_id": "source-d",
             "independence": 1.0,
-            "contribution": 0.0005076152418191764
+            "contribution": 0.0009090592318867666
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-e",
-            "support": 0.20712647021406394
+            "support": 0.16472978116566683
           }
         ]
       }
     ],
     "metadata": {
-      "algorithm_version": "omneum-v1",
-      "iterations": 9,
+      "algorithm_version": "omneum-v2",
+      "iterations": 11,
       "converged": true,
       "convergence_tolerance": 1e-08,
-      "convergence_delta": 6.582017357363579e-09
+      "convergence_delta": 4.292414236550801e-09
     }
   }
 }

@@ -21,7 +21,7 @@ from .paths import get_config_dir, get_private_key_path
 
 
 PROTOCOL_VERSION = "v1"
-ALGORITHM_VERSION = "omneum-v1"
+ALGORITHM_VERSION = "omneum-v2"
 VOPRF_MODE = "voprf"
 MIN_KEY_VERSION = 1
 MAX_KEY_VERSION = 2**32 - 1

@@ -2,7 +2,7 @@
   "name": "enterprise-policy-observations",
   "scope_uuid": "12345678-1234-4abc-8def-123456789abc",
   "estimator": {
-    "estimator_version": "dependency-estimator-v1",
+    "estimator_version": "dependency-estimator-v2",
     "upstream_weight": 0.25,
     "citation_weight": 0.2,
     "assertion_lineage_weight": 0.2,
@@ -75,7 +75,9 @@
       "observed_at": "2026-01-15T10:10:00+00:00",
       "source_modified_at": "2026-01-15T10:00:00+00:00",
       "upstream_sources": [],
-      "cited_sources": ["policy_manual"],
+      "cited_sources": [
+        "policy_manual"
+      ],
       "parent_assertion_ids": []
     },
     {
@@ -88,7 +90,9 @@
       "observed_at": "2026-01-15T10:10:00+00:00",
       "source_modified_at": "2026-01-15T09:00:00+00:00",
       "upstream_sources": [],
-      "cited_sources": ["policy_manual"],
+      "cited_sources": [
+        "policy_manual"
+      ],
       "parent_assertion_ids": []
     },
     {
@@ -128,7 +132,9 @@
       "source_modified_at": "2026-01-15T14:00:00+00:00",
       "upstream_sources": [],
       "cited_sources": [],
-      "parent_assertion_ids": ["manual-return-window"]
+      "parent_assertion_ids": [
+        "manual-return-window"
+      ]
     },
     {
       "assertion_id": "store-support-channel",
@@ -141,47 +147,100 @@
       "source_modified_at": "2026-01-15T14:00:00+00:00",
       "upstream_sources": [],
       "cited_sources": [],
-      "parent_assertion_ids": ["manual-support-channel"]
+      "parent_assertion_ids": [
+        "manual-support-channel"
+      ]
     }
   ],
   "expected": {
     "pairwise_dependencies": [
-      ["policy_manual", "support_portal", 0.4, 1.0],
-      ["policy_manual", "orders_api", 0.0, 0.9],
-      ["policy_manual", "orders_store", 0.25, 1.0],
-      ["support_portal", "orders_api", 0.0, 0.9],
-      ["support_portal", "orders_store", 0.049999999999999996, 1.0],
-      ["orders_api", "orders_store", 0.0, 0.9]
+      [
+        "policy_manual",
+        "support_portal",
+        0.4117647058823529,
+        0.8500000000000001
+      ],
+      [
+        "policy_manual",
+        "orders_api",
+        0.0,
+        0.75
+      ],
+      [
+        "policy_manual",
+        "orders_store",
+        0.23529411764705882,
+        0.8500000000000001
+      ],
+      [
+        "support_portal",
+        "orders_api",
+        0.0,
+        0.75
+      ],
+      [
+        "support_portal",
+        "orders_store",
+        0.0,
+        0.8500000000000001
+      ],
+      [
+        "orders_api",
+        "orders_store",
+        0.0,
+        0.75
+      ]
     ],
     "source_reliability": {
-      "policy_manual": 0.333333332879113,
-      "support_portal": 0.333333332879113,
-      "orders_api": 1.3626610343003259e-9,
-      "orders_store": 0.333333332879113
+      "support_portal": 0.33333333317612507,
+      "orders_store": 0.33333333317612507,
+      "policy_manual": 0.33333333317612507,
+      "orders_api": 4.716248335234552e-10
     },
     "majority_claim": {
-      "support": 0.2874999996082349,
+      "support": 0.26562499987472465,
       "agreement_weight": 0.75,
-      "estimated_independent_support_count": 2.0454545454545454,
-      "dependency_signal_coverage": 1.0,
+      "estimated_independent_support_count": 2.095890410958904,
+      "dependency_signal_coverage": 0.8500000000000001,
       "supporting_sources": {
-        "policy_manual": [0.675, 0.08437499988502548],
-        "support_portal": [0.775, 0.09687499986799221],
-        "orders_store": [0.85, 0.10624999985521726]
+        "orders_store": [
+          0.8095238095238095,
+          0.10119047614275226
+        ],
+        "support_portal": [
+          0.7083333333333334,
+          0.08854166662490823
+        ],
+        "policy_manual": [
+          0.6071428571428572,
+          0.0758928571070642
+        ]
       },
-      "clusters": [["policy_manual", "support_portal"], ["orders_store"]]
+      "clusters": [
+        [
+          "policy_manual",
+          "support_portal"
+        ],
+        [
+          "orders_store"
+        ]
+      ]
     },
     "minority_claim": {
-      "support": 1.7033262928754073e-10,
+      "support": 5.89531041904319e-11,
       "agreement_weight": 0.25,
       "estimated_independent_support_count": 1.0,
       "dependency_signal_coverage": null,
-      "clusters": [["orders_api"]]
+      "clusters": [
+        [
+          "orders_api"
+        ]
+      ]
     },
     "convergence": {
-      "iterations": 10,
-      "convergence_tolerance": 1e-8,
-      "convergence_delta": 8.03970002677976e-9
+      "iterations": 11,
+      "convergence_tolerance": 1e-08,
+      "convergence_delta": 2.5349834725668707e-09
     }
   }
 }

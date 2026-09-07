@@ -73,7 +73,7 @@ An assertion is identified by:
 For example:
 
 ```text
-("company", "acme-corp", "quarterly_revenue_usd") → 42000000
+("service", "acme-corp", "quarterly_revenue_usd") → 42000000
 ```
 
 Construct it directly when your application already has that structure:
@@ -91,7 +91,7 @@ from omneum import (
 now = datetime.now(timezone.utc)
 
 assertion = StructuredAssertion(
-    entity_namespace="company",
+    entity_namespace="service",
     entity="acme-corp",
     attribute="quarterly_revenue_usd",
     value=42_000_000,
@@ -163,7 +163,7 @@ mapper = ContextMapper(
         kind="web_document",
         identifier=result["url"],
     ),
-    entity_namespace=lambda result: "company",
+    entity_namespace=lambda result: "service",
     entity="company",
     attribute=lambda result: "quarterly_revenue_usd",
     value="revenue",
@@ -228,11 +228,11 @@ These fields have different semantics.
 
 `cited_sources` records explicit source references.
 
-`parent_assertion_ids` describes assertion-level derivation between workflow outputs.
+`parent_assertion_ids` identifies the direct parent assertions from which an assertion was derived. The v2 assertion-lineage signal evaluates these direct relationships; it does not infer transitive ancestry.
 
 `retrievals` records retrieval executions that surfaced the information.
 
-`source_modified_at` is the source's own known modification time. Do not substitute `observed_at` when that timestamp is unavailable.
+`source_modified_at` is the source's own known modification time. Do not substitute `observed_at` when that timestamp is unavailable. Leave it unset when the available timestamp is too coarse for the configured temporal window.
 
 Extra application context can be retained as metadata:
 
@@ -382,7 +382,7 @@ source = AssertionSource(
 )
 ```
 
-If the source modification time is unknown, leave it unset.
+If the source modification time is unknown or too coarse for the configured temporal window, leave it unset.
 
 ### Custom estimator configuration
 

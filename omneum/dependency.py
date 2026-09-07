@@ -70,7 +70,7 @@ class DependencyEstimatorConfig:
         repr=False,
     )
     estimator_version: str = field(
-        default="dependency-estimator-v1",
+        default="dependency-estimator-v2",
         repr=False,
     )
     dependency_cluster_threshold: float | None = field(
@@ -82,7 +82,7 @@ class DependencyEstimatorConfig:
         if type(self.estimator_version) is not str:
             raise TypeError("estimator_version must be a string")
 
-        if self.estimator_version != "dependency-estimator-v1":
+        if self.estimator_version != "dependency-estimator-v2":
             raise ValueError("unsupported dependency estimator version")
 
         for name in SIGNALS:
@@ -1060,40 +1060,8 @@ def _signals(
             )
         )
 
-    supporters = {}
-
-    for source_rows in rows_by_source.values():
-        for row in source_rows:
-            supporters[
-                row[5]
-            ] = supporters.get(
-                row[5],
-                0,
-            ) + 1
-
-    if matches:
-        inclusion = max(
-            len(matches) / len(rows_b),
-            len(matches) / len(rows_a),
-        )
-
-        rarity = sum(
-            1.0
-            / supporters[
-                properties_a[
-                    key
-                ][5]
-            ]
-            for key in matches
-        ) / len(matches)
-
-        graph = (
-            inclusion
-            * rarity
-        )
-
-    else:
-        graph = 0.0
+    graph = 0.0
+    graph_observable = False
 
     signals = DependencySignalScores(
         upstream=upstream,
@@ -1110,7 +1078,7 @@ def _signals(
         ),
         ownership_observable=ownership_observable,
         temporal_observable=temporal_observable,
-        graph_observable=True,
+        graph_observable=graph_observable,
         retrieval_observable=retrieval_observable,
     )
 

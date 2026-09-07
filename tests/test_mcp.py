@@ -118,7 +118,7 @@ def test_ping(tmp_path: Path) -> None:
                 assert content is not None
                 assert content["status"] == "ok"
                 assert content["protocol_version"] == "v1"
-                assert content["algorithm_version"] == "omneum-v1"
+                assert content["algorithm_version"] == "omneum-v2"
                 assert content["deployment_id"] == DEPLOYMENT_ID
                 assert content["voprf_key_version"] == 1
                 assert content["voprf_mode"] == "voprf"

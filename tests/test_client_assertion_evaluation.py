@@ -142,7 +142,9 @@ def observations():
             observed_at=datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
             source_modified_at=datetime(2026, 1, 1, 10, tzinfo=timezone.utc),
             upstream_sources=(),
-            cited_sources=(),
+            cited_sources=(
+                SourceReference("web_publisher", "https://a.example"),
+            ),
             parent_assertion_ids=(),
             retrievals=(),
         ),
@@ -293,8 +295,8 @@ def test_result_types():
             (supporting,), (), None,
         )
     with pytest.raises(TypeError):
-        ConvergenceMetadata("omneum-v1", True, True, 1e-8, 0.0)
-    convergence = ConvergenceMetadata("omneum-v1", 1, True, 1e-8, 0.0)
+        ConvergenceMetadata("omneum-v2", True, True, 1e-8, 0.0)
+    convergence = ConvergenceMetadata("omneum-v2", 1, True, 1e-8, 0.0)
     with pytest.raises(TypeError):
         AssertionEvaluation([], (), (), convergence, None)
 
@@ -329,7 +331,7 @@ def result_values():
         for index in range(len(references))
         for other in range(index + 1, len(references))
     )
-    convergence = ConvergenceMetadata("omneum-v1", 1, True, 1e-8, 0.0)
+    convergence = ConvergenceMetadata("omneum-v2", 1, True, 1e-8, 0.0)
     return source_results, (claim_result,), pairs, convergence
 
 

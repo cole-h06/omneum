@@ -254,7 +254,6 @@ For example:
 
 ~~~text
 service / payment_api / status_code → 200
-company / acme-corp / quarterly_revenue_usd → 42000000
 ~~~
 
 Each `AssertionSource` records a source-specific occurrence of that assertion together with the assertion identifier and observation time. Source lineage, citations, source timestamps, assertion lineage, and retrieval records can be supplied when the application already has them.

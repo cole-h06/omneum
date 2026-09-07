@@ -21,7 +21,7 @@ from omneum.information import Claim, Observation, Retrieval, Source, SourceRefe
 
 
 NOW = datetime(2026, 2, 2, 12, tzinfo=timezone.utc)
-VECTOR = Path(__file__).parent / "vectors" / "dependency_estimator_v1.json"
+VECTOR = Path(__file__).parent / "vectors" / "dependency_estimator_v2.json"
 
 WEIGHTS = {
     "upstream_weight": 0.25,
@@ -123,7 +123,7 @@ def vector_observation(item, sources):
 def test_vectors():
     vector = json.loads(VECTOR.read_text())
 
-    assert vector["estimator_version"] == "dependency-estimator-v1"
+    assert vector["estimator_version"] == "dependency-estimator-v2"
     assert tuple(vector["signal_order"]) == dependency.SIGNALS
     assert vector["output_comparison"] == {
         "mode": "exact_binary64",
@@ -282,13 +282,14 @@ def test_graph_and_ownership_signals():
         "b.example",
     )
 
-    assert result.signals.graph == 0.5
+    assert result.signals.graph == 0.0
+    assert not result.signals.graph_observable
     assert result.signals.ownership == 1.0
-    assert result.weighted_signal_coverage == 0.9
+    assert result.weighted_signal_coverage == 0.75
     assert clusters == ()
 
 
-def test_universal_ownership_does_not_raise_dependency():
+def test_universal_ownership():
     sources = (
         source("a.example", "owner"),
         source("b.example", "owner"),
@@ -321,7 +322,7 @@ def test_universal_ownership_does_not_raise_dependency():
     )
 
 
-def test_partial_ownership_does_not_trigger_universal_ownership():
+def test_partial_ownership():
     sources = (
         source("a.example", "owner"),
         source("b.example"),
@@ -376,13 +377,13 @@ def test_all_dependency_signals():
         assertion_lineage=1.0,
         ownership=1.0,
         temporal=1.0,
-        graph=0.5,
+        graph=0.0,
         upstream_observable=True,
         citation_observable=True,
         assertion_lineage_observable=True,
         ownership_observable=True,
         temporal_observable=True,
-        graph_observable=True,
+        graph_observable=False,
     )
 
     assert result.evidence == DependencyEvidence(
@@ -425,10 +426,10 @@ def test_unavailable_signals_reduce_coverage():
     assert not result.signals.assertion_lineage_observable
     assert not result.signals.ownership_observable
     assert not result.signals.temporal_observable
-    assert result.signals.graph_observable
+    assert not result.signals.graph_observable
 
-    assert result.dependency == pytest.approx(0.5)
-    assert result.weighted_signal_coverage == pytest.approx(0.15)
+    assert result.dependency == 0.0
+    assert result.weighted_signal_coverage == 0.0
 
 
 def test_dependency_uses_observed_signals():
@@ -570,9 +571,18 @@ def test_cluster_order_is_deterministic():
         for name in "abc"
     )
 
-    observations = tuple(
-        observation(f"{name}1", f"{name}.example")
-        for name in "abc"
+    observations = (
+        observation(
+            "a1",
+            "a.example",
+            cited_sources=(reference("b.example"), reference("c.example")),
+        ),
+        observation(
+            "b1",
+            "b.example",
+            cited_sources=(reference("c.example"),),
+        ),
+        observation("c1", "c.example", cited_sources=()),
     )
 
     _, clusters = estimate_dependencies(
@@ -784,3 +794,38 @@ def test_dependency_combination():
 
     assert dependency_value == 1.0
     assert coverage == 1.0
+
+def test_graph_agreement():
+    sources = (
+        source("a.example"),
+        source("b.example"),
+        source("c.example"),
+    )
+
+    observations = tuple(
+        observation(
+            f"{name}1",
+            f"{name}.example",
+            source=sources[index],
+            source_modified_at=None,
+            upstream_sources=None,
+            cited_sources=None,
+            parent_assertion_ids=None,
+        )
+        for index, name in enumerate(("a", "b", "c"))
+    )
+
+    results, _ = estimate_dependencies(
+        sources,
+        observations,
+        config(),
+    )
+
+    assert all(
+        result.signals.graph == 0.0
+        for result in results
+    )
+    assert all(
+        result.dependency == 0.0
+        for result in results
+    )

@@ -32,7 +32,7 @@ DEPLOYMENT_ID = (
 VECTOR_PATH = (
     Path(__file__).parent
     / "vectors"
-    / "reliability_v1.json"
+    / "reliability_v2.json"
 )
 
 
@@ -681,7 +681,7 @@ def test_golden():
                 "claim_count": 6,
                 "assertion_count": 15,
             }
-            assert content["metadata"]["iterations"] == 9
+            assert content["metadata"]["iterations"] == 11
             assert content["metadata"]["converged"] is True
             assert "computation_time_ms" not in content["metadata"]
             encoded = json.dumps(content)

@@ -120,7 +120,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     fixture_path = (
         Path(__file__).parent
         / "vectors"
-        / "enterprise_stdio_assertion_evaluation_v1.json"
+        / "enterprise_stdio_assertion_evaluation_v2.json"
     )
     fixture = json.loads(fixture_path.read_text())
     sources = {
@@ -294,7 +294,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert claim_explanation
     assert dependency_explanation == (
         "Policy Manual ↔ Support Portal\n\n"
-        "Independence: 0.60\n\n"
+        "Independence: 0.59\n\n"
         "• Direct citation\n"
         "• Same owner\n"
         "• Updated 1 hour apart\n"

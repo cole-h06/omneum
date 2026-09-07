@@ -4,7 +4,7 @@ from math import isfinite
 from .engine_graph import InferenceGraph
 
 
-ALGORITHM_VERSION = "omneum-v1"
+ALGORITHM_VERSION = "omneum-v2"
 CONVERGENCE_TOLERANCE = 1e-8
 MAX_ITERATIONS = 1000
 
@@ -111,7 +111,6 @@ def _independence(
             continue
 
         claim_values = {}
-        divisor = len(source_ids) - 1
         for source_id in source_ids:
             dependency = 0.0
             for other_id in source_ids:
@@ -122,7 +121,7 @@ def _independence(
                         other_id,
                     ).dependency
             claim_values[source_id] = _finite(
-                1.0 - dependency / divisor
+                1.0 / (1.0 + dependency)
             )
         result[claim_id] = claim_values
     return result

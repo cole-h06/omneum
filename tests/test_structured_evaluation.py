@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
 
+from omneum.sources import internal_source_id
 from omneum import (
     AssertionSource,
     ContextMapper,
@@ -73,7 +74,7 @@ def test_structured_evaluation(tmp_path):
         claim = result.claim_support[0]
 
         assert claim.supporting_source_count == 2
-        assert 1.0 < claim.estimated_independent_support_count < 2.0
+        assert claim.estimated_independent_support_count == 2.0
         assert claim.claim.value == {
             "effect": "full_sync_fallback",
             "threshold": 2,
@@ -157,6 +158,80 @@ def test_mapped_evaluation(tmp_path):
             "threshold": 2,
             "unit": "seconds",
         }
+
+        assert len(evaluator.requests) == 1
+        assert len(evaluator.requests[0].assertions) == 2
+
+    asyncio.run(run())
+
+def test_mapped_tool_result_evaluation(tmp_path):
+    async def run():
+        server = make_server(tmp_path)
+        evaluator = Evaluator(server)
+        client = OmneumClient(make_config(server), evaluator)
+
+        now = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
+
+        records = (
+            {
+                "tool_call_id": "call-8472",
+                "tool_name": "get_service_config",
+                "output": {
+                    "service_id": "payments-api",
+                    "retention": {"value": 90, "unit": "days"},
+                },
+                "resource": {
+                    "id": "config-1847",
+                    "kind": "database_record",
+                },
+                "timestamp": now,
+            },
+            {
+                "tool_call_id": "call-9134",
+                "tool_name": "get_service_config",
+                "output": {
+                    "service_id": "payments-api",
+                    "retention": {"value": 90, "unit": "days"},
+                },
+                "resource": {
+                    "id": "config-2911",
+                    "kind": "database_record",
+                },
+                "timestamp": now,
+            },
+        )
+
+        mapper = ContextMapper(
+            source=lambda x: Source(
+                kind="internal_resource",
+                identifier=internal_source_id(
+                        "12345678-1234-4abc-8def-123456789abc",
+                        x["resource"]["id"],
+                    ),
+            ),
+            entity_namespace=lambda x: "service",
+            entity="output.service_id",
+            attribute=lambda x: "retention",
+            value="output.retention",
+            assertion_id="tool_call_id",
+            observed_at="timestamp",
+            metadata={"tool_name": "tool_name"},
+        )
+
+        result = await client.evaluate_mapped(
+            records,
+            mapper,
+            estimator=estimator(),
+        )
+
+        assert len(result.claim_support) == 1
+
+        claim = result.claim_support[0]
+
+        assert claim.supporting_source_count == 2
+        assert claim.claim.entity == "payments-api"
+        assert claim.claim.attribute == "retention"
+        assert claim.claim.value == {"value": 90, "unit": "days"}
 
         assert len(evaluator.requests) == 1
         assert len(evaluator.requests[0].assertions) == 2

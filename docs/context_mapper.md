@@ -23,16 +23,16 @@ The first seven fields are required. Everything after that is optional. If the a
 | field | type | notes |
 | --- | --- | --- |
 | `source` | `Source` | Identity of the resource the assertion came from. |
-| `entity_namespace` | `str` | Namespace for `entity`; e.g. `company`, `package`, `device`. |
+| `entity_namespace` | `str` | Canonical namespace for `entity`. v2 supports `service`. |
 | `entity` | `str` | Stable ID of the thing being described. |
 | `attribute` | `str` | Property being asserted. |
 | `value` | JSON value | The asserted value. Normalize application-specific representations here if necessary. |
 | `assertion_id` | `str` | ID of this assertion instance. This is what `parent_assertion_ids` points at. |
 | `observed_at` | aware `datetime` | When this application saw the assertion. |
-| `source_modified_at` | aware `datetime \| None` | Source's own last-modified time, if actually known. |
+| `source_modified_at` | aware `datetime \| None` | Source's own last-modified time, if known with enough resolution for the configured temporal window. |
 | `upstream_sources` | source ref(s) | Physical/source lineage: this resource came from these resources. |
 | `cited_sources` | source ref(s) | Explicit references made by this source. |
-| `parent_assertion_ids` | `str`/sequence | Assertion-level derivation. Different from source lineage. |
+| `parent_assertion_ids` | `str`/sequence | Direct parent assertions from which this assertion was derived. Different from source lineage. |
 | `retrievals` | `Retrieval` sequence | Retrieval executions which surfaced the information. |
 | `metadata` | mapping | Anything useful to retain that isn't one of the fields above. |
 | `signals` | mapping | Escape hatch for supplying an already-computed canonical dependency signal. Usually don't use this for raw application metadata. |
@@ -51,7 +51,7 @@ Source(
 
 So a document ID, canonical URI, database record ID, etc. is useful. A content hash usually isn't: two copied documents can have identical content and still be two source records whose relationship we want to detect.
 
-`kind` is the source class (`markdown_document`, `web_document`, `agent_memory`, etc.).
+`kind` is the canonical source class. v2 supports `web_publisher`, `web_document`, `internal_resource`, `internal_service`, and `database`. Application-specific types such as agent memories or Markdown documents should be mapped to the appropriate canonical kind.
 
 `owner_id` is optional. Use an owner/team/service identity only if the source system gives you one. Don't infer it.
 
