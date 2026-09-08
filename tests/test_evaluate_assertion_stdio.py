@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
 from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters, stdio_client
@@ -100,7 +101,7 @@ def test_infer_stdio(tmp_path):
     async def run():
         root = Path(__file__).parents[1]
         parameters = StdioServerParameters(
-            command=str(root / ".venv/bin/python"),
+            command=sys.executable,
             args=["-m", "omneum.server"],
             cwd=root,
             env=provisioning(tmp_path),

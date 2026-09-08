@@ -36,18 +36,19 @@ Main features include:
 
 ### 1. Installation
 
-Create and activate a virtual environment:
+Install [uv 0.12.10](https://github.com/astral-sh/uv/releases/tag/0.12.10),
+Python 3.11–3.14, and a Rust toolchain. From the repository root, install the
+locked core runtime and activate it:
 
 ```bash
-python3 -m venv .venv
+uv sync --locked --no-default-groups
 source .venv/bin/activate
 ```
 
-Install Omneum from the repository:
-
-```bash
-pip install .
-```
+On Windows, activate `.venv\Scripts\Activate.ps1` instead. The source install
+builds the native VOPRF extension using Maturin and `Cargo.lock`.
+For development, use `uv sync --locked`. See [dependency workflows](docs/dependencies.md)
+for production, framework examples, benchmarks, and dependency updates.
 
 ### 2. Initialize Omneum
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import copy
 import json
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,7 +35,7 @@ def test_stdio_client(tmp_path: Path) -> None:
             tmp_path, DEPLOYMENT_ID, PRIVATE_KEY
         )
         parameters = StdioServerParameters(
-            command=str(root / ".venv/bin/python"),
+            command=sys.executable,
             args=["-m", "omneum.server"],
             cwd=root,
             env=environment,
@@ -208,7 +209,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             tmp_path, DEPLOYMENT_ID, PRIVATE_KEY
         )
         parameters = StdioServerParameters(
-            command=str(root / ".venv/bin/python"),
+            command=sys.executable,
             args=["-m", "omneum.server"],
             cwd=root,
             env=environment,

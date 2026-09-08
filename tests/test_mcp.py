@@ -4,6 +4,7 @@ import asyncio
 import base64
 import logging
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -41,7 +42,7 @@ def test_ping(tmp_path: Path) -> None:
         root = Path(__file__).parents[1]
         environment, public_key, _ = provisioning(tmp_path)
         parameters = StdioServerParameters(
-            command=str(root / ".venv/bin/python"),
+            command=sys.executable,
             args=["-m", "omneum.server"],
             cwd=root,
             env=environment,
@@ -282,7 +283,7 @@ def test_invalid_provisioning(tmp_path: Path) -> None:
 
     result = subprocess.run(
         [
-            str(root / ".venv/bin/python"),
+            sys.executable,
             "-m",
             "omneum.server",
         ],

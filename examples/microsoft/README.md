@@ -15,15 +15,15 @@ evaluation. The Microsoft Agent Framework agent provides the orchestration.
 
 ## Requirements
 
-- Python 3.10 or newer
+- Python 3.11–3.14
 - An `OPENAI_API_KEY`
 - An `OPENAI_MODEL`
 - Project and development dependencies
 
-Install the dependencies:
+From the repository root, install the dependencies with uv 0.12.10:
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync --locked --group microsoft
 ```
 
 Export your OpenAI credentials:
@@ -36,7 +36,7 @@ export OPENAI_MODEL=gpt-5.5
 ## Run
 
 ```bash
-python -m examples.microsoft.run
+uv run --locked --group microsoft -m examples.microsoft.run
 ```
 
 ## Files

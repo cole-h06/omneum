@@ -15,16 +15,16 @@ evaluation. The LangGraph graph provides the orchestration.
 
 ## Requirements
 
-Install the project and development dependencies.
+From the repository root, install the locked environment with uv 0.12.10:
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync --locked --group langgraph
 ```
 
 ## Run
 
 ```bash
-python -m examples.langgraph.run
+uv run --locked --group langgraph -m examples.langgraph.run
 ```
 
 ## Files

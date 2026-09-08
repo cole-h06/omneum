@@ -15,14 +15,14 @@ evaluation. The OpenAI Agents SDK provides the orchestration.
 
 ## Requirements
 
-- Python 3.10 or newer
+- Python 3.11–3.14
 - An `OPENAI_API_KEY`
 - Project and development dependencies
 
-Install the dependencies:
+From the repository root, install the dependencies with uv 0.12.10:
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync --locked --group openai-agents
 ```
 
 Export your OpenAI API key:
@@ -34,7 +34,7 @@ export OPENAI_API_KEY=<your-api-key>
 ## Run
 
 ```bash
-python -m examples.openai_agents.run
+uv run --locked --group openai-agents -m examples.openai_agents.run
 ```
 
 ## Files

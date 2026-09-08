@@ -23,16 +23,16 @@ For reproducibility purposes, the retrieval agents are simulated with simple Pyt
 
 ## Requirements
 
-Install the project and development dependencies.
+From the repository root, install the locked environment with uv 0.12.10:
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync --locked
 ```
 
 ## Run
 
 ```bash
-python -m examples.enterprise.workflow.run
+uv run --locked -m examples.enterprise.workflow.run
 ```
 
 This example creates a temporary local stdio deployment using a deterministic, example-only VOPRF key. The temporary key is removed when the workflow exits and must never be used in production.

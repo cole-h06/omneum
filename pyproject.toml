@@ -11,7 +11,9 @@ description = "A data trust gateway for agentic systems."
 requires-python = ">=3.11"
 
 dependencies = [
-    "mcp[cli]>=1.27,<2",
+    "mcp>=1.27,<2",
+    "pydantic>=2.11,<3",
+    "typer>=0.16",
     "pydantic-settings>=2.14,<2.15",
     "idna>=3.10",
     "rfc3986>=2.0.0",
@@ -24,6 +26,38 @@ dependencies = [
 omneum = "omneum.cli:app"
 omneum-server = "omneum.server:main"
 
+[dependency-groups]
+dev = ["pytest>=8", "hypothesis>=6.161,<7", "maturin>=1,<2"]
+benchmarks = [
+    "sentence-transformers>=5,<6",
+    "numpy>=2,<3",
+    "anthropic>=0.64,<1",
+    "openai",
+    "google-genai",
+    "cohere",
+    "python-dotenv>=1",
+    "pytest>=8",
+]
+langgraph = ["langgraph>=1,<2"]
+openai-agents = ["openai-agents>=0.13,<1"]
+llamaindex = ["llama-index>=0.13,<1"]
+microsoft = ["agent-framework>=1,<2"]
+crewai = ["crewai>=1.15,<2; python_version < '3.14'"]
+
+[tool.uv]
+required-version = "==0.12.10"
+default-groups = ["dev"]
+exclude-newer = "7 days"
+# Isolated PEP 517 builds are resolved separately from uv.lock.
+build-constraint-dependencies = ["maturin==1.15.0"]
+
+[tool.uv.dependency-groups]
+crewai = { requires-python = ">=3.11,<3.14" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.maturin]
 module-name = "omneum_oprf"
 python-packages = ["omneum"]
+locked = true

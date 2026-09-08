@@ -15,16 +15,16 @@ evaluation. The LlamaIndex Workflow provides the orchestration.
 
 ## Requirements
 
-Install the project and development dependencies.
+From the repository root, install the locked environment with uv 0.12.10:
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync --locked --group llamaindex
 ```
 
 ## Run
 
 ```bash
-python -m examples.llamaindex.run
+uv run --locked --group llamaindex -m examples.llamaindex.run
 ```
 
 ## Files

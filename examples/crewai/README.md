@@ -14,18 +14,18 @@ orchestration changes.
 
 ## Requirements
 
-CrewAI currently requires Python 3.10–3.13.
+Use Python 3.11–3.13 for this Omneum example; CrewAI excludes Python 3.14.
 
-Install the project and development dependencies.
+From the repository root, install the locked environment with uv 0.12.10:
 
 ```bash
-pip install -r requirements-dev.txt
+uv sync --locked --python 3.13 --group crewai
 ```
 
 ## Run
 
 ```bash
-python -m examples.crewai.run
+uv run --locked --python 3.13 --group crewai -m examples.crewai.run
 ```
 
 ## Files

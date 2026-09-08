@@ -10,18 +10,21 @@ For a shorter end-to-end setup, start with the repository [`README`](../README.m
 
 Omneum currently supports CPython 3.11 through 3.14.
 
-Until the Python package is published, install Omneum from a source checkout:
+Install uv 0.12.10 and a Rust toolchain, then install Omneum from a source checkout
+(see [dependency workflows](dependencies.md) for platform and production details):
 
 ```bash
 git clone https://github.com/cole-h06/omneum.git
 cd omneum
-pip install .
+uv sync --locked --no-default-groups
+source .venv/bin/activate
 ```
 
 If you're developing Omneum itself:
 
 ```bash
-pip install -e ".[dev]"
+uv sync --locked
+uv run --locked pytest
 ```
 
 ### Initialize Omneum
