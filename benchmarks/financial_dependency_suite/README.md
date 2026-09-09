@@ -10,7 +10,6 @@ uv run --locked --group benchmarks -m benchmarks.financial_dependency_suite.run_
 The group includes sentence-transformers, NumPy, Anthropic, OpenAI, Google GenAI,
 Cohere, python-dotenv, and pytest, with their transitive dependencies in uv.lock.
 It is excluded from the default development and production environments.
-See [dependency workflows](../../docs/dependencies.md) for update and installation policies.
 The legacy requirements.txt is retained as a migration reference.
 
 Some tests and benchmark entry points download embedding/reranking models or

@@ -1,0 +1,26 @@
+"""Build the separately labelled test daemon; never install it as omneumd."""
+import os
+from pathlib import Path
+import pytest
+from daemon_support import FixtureDaemon, build_daemon
+
+
+@pytest.fixture(scope="session", autouse=True)
+def daemon_build():
+    build_daemon()
+
+
+@pytest.fixture
+def example_daemon(tmp_path, monkeypatch):
+    from omneum.base64url import encode_unpadded
+    with_context = FixtureDaemon(b"\x01" + b"\0" * 31)
+    monkeypatch.setenv("OMNEUM_CONFIG_DIR", str(tmp_path))
+    monkeypatch.setenv("OMNEUM_DAEMON_SOCKET", str(with_context.socket))
+    monkeypatch.setenv("OMNEUM_DAEMON_UID", str(os.getuid()))
+    (tmp_path / "config.toml").write_text(
+        'deployment_id = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"\n'
+        'voprf_key_version = 1\n'
+        f'voprf_public_key = "{encode_unpadded(with_context.public_key, expected_length=32)}"\n'
+    )
+    yield with_context
+    with_context.close()

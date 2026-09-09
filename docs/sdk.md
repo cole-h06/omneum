@@ -10,8 +10,7 @@ For a shorter end-to-end setup, start with the repository [`README`](../README.m
 
 Omneum currently supports CPython 3.11 through 3.14.
 
-Install uv 0.12.10 and a Rust toolchain, then install Omneum from a source checkout
-(see [dependency workflows](dependencies.md) for platform and production details):
+Install uv 0.12.10 and a Rust toolchain, then install Omneum from a source checkout:
 
 ```bash
 git clone https://github.com/cole-h06/omneum.git
@@ -29,13 +28,13 @@ uv run --locked pytest
 
 ### Initialize Omneum
 
-Initialize a local deployment:
+First follow the [daemon deployment instructions](architecture.md#10-deployment), then initialize the public configuration as `omneum-mcp`:
 
 ```bash
 omneum init
 ```
 
-This creates the deployment configuration and VOPRF key material used by the local Omneum server.
+This obtains the initial public key from the authenticated daemon and creates public deployment configuration only.
 
 ### Connect to the server
 
@@ -542,7 +541,7 @@ The SDK handles blinding, proof verification, finalization, and token encoding a
 
 ## Configuration
 
-`omneum init` creates the configuration and VOPRF key material for a local deployment.
+`omneum init` obtains the initial public key from the authenticated daemon and creates public configuration. Existing pins are preserved; `--public-key-hex` optionally checks an expected key. See [daemon deployment instructions](architecture.md#10-deployment).
 
 Load it with:
 
@@ -563,12 +562,11 @@ export OMNEUM_CONFIG_DIR=/path/to/omneum
 A local deployment keeps non-secret configuration separate from its VOPRF private key:
 
 ```text
-config.toml
-keys/
-└── voprf.key
+config.toml  # Python: public metadata only
+# Separate crypto identity: protected directory containing voprf.key
 ```
 
-Do not commit `keys/` to source control.
+Never retain an MCP-readable private-key copy; follow the [daemon deployment instructions](architecture.md#10-deployment).
 
 For local `stdio`, `from_local_deployment()` loads the deployment ID, VOPRF settings, linkage-encoding version, and pinned server public key required by the client.
 

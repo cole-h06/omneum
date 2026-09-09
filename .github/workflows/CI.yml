@@ -35,7 +35,14 @@ jobs:
       - name: Test Python and native extension
         run: uv run --locked pytest
       - name: Test Rust
-        run: cargo test --locked
+        run: |
+          cargo test --locked
+          cargo test --locked --no-default-features --features daemon
+          cargo build --locked --no-default-features --features daemon --bin omneumd
+          sudo python3 tests/security/linux_isolation.py target/debug/omneumd
+          uv pip check
+      - name: Verify Linux installation
+        run: sudo .venv/bin/python tests/security/linux_install.py target/debug/omneumd
       - name: Check production environment
         run: |
           uv sync --locked --no-default-groups

@@ -45,20 +45,19 @@ uv sync --locked --no-default-groups
 source .venv/bin/activate
 ```
 
-On Windows, activate `.venv\Scripts\Activate.ps1` instead. The source install
+Windows installs retain client cryptography; local server deployment requires Linux or macOS. The source install
 builds the native VOPRF extension using Maturin and `Cargo.lock`.
-For development, use `uv sync --locked`. See [dependency workflows](docs/dependencies.md)
-for production, framework examples, benchmarks, and dependency updates.
+For development, use `uv sync --locked`.
 
 ### 2. Initialize Omneum
 
-Initialize a local deployment:
+First follow the [daemon deployment instructions](docs/architecture.md#10-deployment), then initialize the public configuration as `omneum-mcp`:
 
 ```bash
 omneum init
 ```
 
-This creates the deployment configuration and VOPRF key material required by the local Omneum server.
+This command obtains the initial public key from the authenticated daemon and creates public deployment configuration only.
 
 ### 3. Connect to the MCP Server
 

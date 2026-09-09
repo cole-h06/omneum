@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from daemon_support import VOPRFServer
+
 import inspect
 import json
 import tempfile
@@ -22,7 +24,6 @@ from omneum.oprf import (
     VOPRFBlindResult,
     VOPRFClient,
     VOPRFEvaluation,
-    VOPRFServer,
 )
 from omneum.serialization import (
     MAX_LINKAGE_PAYLOAD_SIZE,

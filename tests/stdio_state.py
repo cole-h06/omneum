@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from omneum.oprf import VOPRFServer
+from daemon_support import FixtureDaemon
 
 
 def isolated_deployment_environment(
@@ -36,10 +36,11 @@ def isolated_deployment_environment(
         check=True,
     )
     config_dir = Path(resolved.stdout.strip())
-    key_path = config_dir / "keys" / "voprf.key"
-    key_path.parent.mkdir(parents=True)
-    key_path.write_bytes(private_key)
-    public_key = VOPRFServer(key_path).public_key
+    daemon = FixtureDaemon(private_key)
+    _DAEMONS.append(daemon)
+    environment["OMNEUM_DAEMON_SOCKET"] = str(daemon.socket)
+    environment["OMNEUM_DAEMON_UID"] = str(os.getuid())
+    public_key = daemon.public_key
     encoded = base64.urlsafe_b64encode(public_key).rstrip(b"=").decode("ascii")
     (config_dir / "config.toml").write_text(
         f'deployment_id = "{deployment_id}"\n'
@@ -47,3 +48,6 @@ def isolated_deployment_environment(
         f'voprf_public_key = "{encoded}"\n'
     )
     return environment, public_key, config_dir / "config.toml"
+
+
+_DAEMONS = []

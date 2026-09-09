@@ -17,7 +17,8 @@ from .oprf import (
     VOPRFClient,
     VOPRFServer,
 )
-from .paths import get_config_dir, get_private_key_path
+from .paths import get_config_dir
+from .daemon import (DaemonServerContext, DaemonKeyMismatchError, get_daemon_socket, get_daemon_uid)
 
 
 PROTOCOL_VERSION = "v1"
@@ -41,7 +42,6 @@ MAX_ASSERTION_EVALUATION_TIMEOUT_MS = 60_000
 _DEPLOYMENT_ID = "OMNEUM_DEPLOYMENT_ID"
 _KEY_VERSION = "OMNEUM_VOPRF_KEY_VERSION"
 _PUBLIC_KEY = "OMNEUM_VOPRF_PUBLIC_KEY"
-_PRIVATE_KEY_FILE = "OMNEUM_VOPRF_PRIVATE_KEY_FILE"
 _MAX_CONCURRENCY = "OMNEUM_VOPRF_MAX_CONCURRENCY"
 _EVALUATION_TIMEOUT_MS = "OMNEUM_VOPRF_EVALUATION_TIMEOUT_MS"
 _ASSERTION_EVALUATION_MAX_CONCURRENCY = "OMNEUM_ASSERTION_EVALUATION_MAX_CONCURRENCY"
@@ -58,7 +58,8 @@ class DeploymentConfig:
     deployment_id: str
     voprf_key_version: int
     voprf_public_key: bytes = field(repr=False)
-    voprf_private_key_file: Path = field(repr=False)
+    daemon_socket: Path = field(default_factory=get_daemon_socket, repr=False)
+    daemon_uid: int = field(default_factory=get_daemon_uid, repr=False)
     voprf_max_concurrency: int = DEFAULT_MAX_CONCURRENCY
     voprf_evaluation_timeout_ms: int = (
         DEFAULT_EVALUATION_TIMEOUT_MS
@@ -79,13 +80,9 @@ class DeploymentConfig:
             raise ConfigurationError(
                 "VOPRF public key must be 32 bytes."
             )
-        if not isinstance(
-            self.voprf_private_key_file,
-            Path,
-        ):
-            raise ConfigurationError(
-                "VOPRF private key file must be a path."
-            )
+        if not isinstance(self.daemon_socket, Path) or not self.daemon_socket.is_absolute():
+            raise ConfigurationError("Daemon socket must be an absolute path.")
+        _validate_bounded_integer(self.daemon_uid, name="Daemon UID", minimum=0, maximum=2**32-2)
         _validate_bounded_integer(
             self.voprf_max_concurrency,
             name="VOPRF maximum concurrency",
@@ -153,24 +150,26 @@ def load_deployment_state() -> DeploymentState:
             voprf_public_key=_decode_public_key(
                 config["voprf_public_key"]
             ),
-            voprf_private_key_file=get_private_key_path(),
             voprf_max_concurrency=DEFAULT_MAX_CONCURRENCY,
             voprf_evaluation_timeout_ms=DEFAULT_EVALUATION_TIMEOUT_MS,
             assertion_evaluation_max_concurrency=DEFAULT_ASSERTION_EVALUATION_MAX_CONCURRENCY,
             assertion_evaluation_timeout_ms=DEFAULT_ASSERTION_EVALUATION_TIMEOUT_MS,
         )
-    except KeyError:
+    except (KeyError, ValueError):
         raise ConfigurationError(
             "Deployment configuration is invalid."
         ) from None
     try:
         VOPRFClient(config.voprf_public_key)
-        server = VOPRFServer(
-            config.voprf_private_key_file
-        )
-    except OPRFError:
+        server = VOPRFServer(DaemonServerContext(
+            config.daemon_socket, config.daemon_uid, config.voprf_public_key,
+            config.voprf_evaluation_timeout_ms / 1_000,
+        ))
+    except DaemonKeyMismatchError:
+        raise ConfigurationError("Configured VOPRF keys do not match.") from None
+    except (OPRFError, TimeoutError):
         raise ConfigurationError(
-            "VOPRF key material is invalid."
+            "VOPRF daemon is unavailable or invalid."
         ) from None
 
     if not secrets.compare_digest(

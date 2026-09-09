@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from daemon_support import VOPRFServer
+
 import asyncio
 import copy
 import json
@@ -19,7 +21,6 @@ from omneum.dependency import (
 from omneum.explanations import explain_claim, explain_dependency
 from omneum.information import Claim, Observation, Source, SourceReference
 from omneum.metrics import JsonlMetricsRecorder
-from omneum.oprf import VOPRFServer
 from omneum.serialization import serialize_source
 from stdio_state import isolated_deployment_environment
 

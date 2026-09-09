@@ -1,3 +1,5 @@
+
+from daemon_support import VOPRFServer
 import json
 
 import pytest
@@ -11,7 +13,6 @@ from omneum.oprf import (
     OPRFProtocolError,
     VOPRFClient,
     VOPRFEvaluation,
-    VOPRFServer,
 )
 
 

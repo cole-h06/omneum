@@ -1,3 +1,6 @@
+
+from daemon_support import VOPRFServer, FixtureDaemon
+from omneum.oprf import OPRFProtocolError
 import base64
 from dataclasses import FrozenInstanceError
 from pathlib import Path
@@ -15,7 +18,6 @@ from omneum.config import (
     DeploymentConfig,
     load_deployment_state,
 )
-from omneum.oprf import VOPRFServer
 from omneum.transport.mcp import create_server
 
 
@@ -25,11 +27,15 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 def persisted_state(tmp_path, monkeypatch, **changes):
     config_dir = tmp_path / "config"
-    key_path = config_dir / "keys" / "voprf.key"
-    key_path.parent.mkdir(parents=True, exist_ok=True)
-    key_path.write_bytes(PRIVATE_KEY)
-    public_key = changes.pop("public_key", VOPRFServer(key_path).public_key)
-    key_path.write_bytes(changes.pop("private_key", PRIVATE_KEY))
+    config_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        daemon = FixtureDaemon(changes.pop("private_key", PRIVATE_KEY))
+    except OPRFProtocolError:
+        raise ConfigurationError("VOPRF daemon is unavailable or invalid.") from None
+    monkeypatch.setattr(config_module, "_test_daemon", daemon, raising=False)
+    monkeypatch.setenv("OMNEUM_DAEMON_SOCKET", str(daemon.socket))
+    monkeypatch.setenv("OMNEUM_DAEMON_UID", str(__import__("os").getuid()))
+    public_key = changes.pop("public_key", daemon.public_key)
     encoded_public_key = changes.pop(
         "encoded_public_key",
         base64.urlsafe_b64encode(public_key).rstrip(b"=").decode("ascii"),
@@ -53,7 +59,6 @@ def persisted_state(tmp_path, monkeypatch, **changes):
             lines.append(f"{name} = {value}")
     (config_dir / "config.toml").write_text("\n".join(lines) + "\n")
     monkeypatch.setattr(config_module, "get_config_dir", lambda: config_dir)
-    monkeypatch.setattr(config_module, "get_private_key_path", lambda: key_path)
     return load_deployment_state()
 
 
@@ -164,7 +169,7 @@ def test_noncanonical_public_key(tmp_path, monkeypatch):
 def test_missing_and_invalid_private_key(tmp_path, monkeypatch):
     state = persisted_state(tmp_path, monkeypatch)
     assert state.voprf_server.public_key
-    config_module.get_private_key_path().unlink()
+    config_module._test_daemon.close()
     with pytest.raises(ConfigurationError):
         load_deployment_state()
 
@@ -178,11 +183,12 @@ def test_invalid_private_key(tmp_path, monkeypatch, private_key):
         persisted_state(tmp_path, monkeypatch, private_key=private_key)
 
 
-def test_private_key_directory(tmp_path, monkeypatch):
+def test_daemon_endpoint_is_not_a_socket(tmp_path, monkeypatch):
     persisted_state(tmp_path, monkeypatch)
-    path = config_module.get_private_key_path()
-    path.unlink()
-    path.mkdir()
+    daemon = config_module._test_daemon
+    daemon.process.terminate()
+    daemon.process.wait(timeout=3)
+    daemon.socket.mkdir()
     with pytest.raises(ConfigurationError):
         load_deployment_state()
 
@@ -210,7 +216,8 @@ def test_resource_control_boundaries(tmp_path, field, minimum, maximum):
         "deployment_id": DEPLOYMENT_ID,
         "voprf_key_version": 1,
         "voprf_public_key": VOPRFServer(key).public_key,
-        "voprf_private_key_file": key,
+        "daemon_socket": key,
+        "daemon_uid": __import__("os").getuid(),
     }
     for value in (minimum, maximum):
         assert getattr(DeploymentConfig(**values, **{field: value}), field) == value
@@ -232,7 +239,8 @@ def test_invalid_resource_controls(tmp_path, field, minimum, maximum):
         "deployment_id": DEPLOYMENT_ID,
         "voprf_key_version": 1,
         "voprf_public_key": VOPRFServer(key).public_key,
-        "voprf_private_key_file": key,
+        "daemon_socket": key,
+        "daemon_uid": __import__("os").getuid(),
     }
     for value in (minimum - 1, maximum + 1, True, float(minimum)):
         with pytest.raises(ConfigurationError):
@@ -245,11 +253,12 @@ def test_config_repr_and_immutability(tmp_path, monkeypatch):
         deployment_id=DEPLOYMENT_ID,
         voprf_key_version=1,
         voprf_public_key=state.voprf_server.public_key,
-        voprf_private_key_file=config_module.get_private_key_path(),
+        daemon_socket=config_module._test_daemon.socket,
+        daemon_uid=__import__("os").getuid(),
     )
     for value in (
         PRIVATE_KEY.hex(),
-        str(config_module.get_private_key_path()),
+        str(config_module._test_daemon.socket),
         base64.urlsafe_b64encode(state.voprf_server.public_key).decode("ascii"),
     ):
         assert value not in repr(config)

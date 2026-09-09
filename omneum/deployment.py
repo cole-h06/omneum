@@ -25,7 +25,10 @@ voprf_key_version = {config.voprf_key_version}
 voprf_public_key = "{config.voprf_public_key}"
 '''
 
-    path.write_text(toml, encoding="utf-8")
+    # Initialization must not replace an existing public-key pin, even when
+    # two init processes reach this write concurrently.
+    with path.open("x", encoding="utf-8") as file:
+        file.write(toml)
 
 
 def load_config() -> DeploymentConfig:

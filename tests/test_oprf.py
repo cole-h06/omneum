@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from daemon_support import VOPRFServer
+
 import copy
 import os
 import pickle
@@ -19,7 +21,6 @@ from omneum.oprf import (
     VOPRFBlindResult,
     VOPRFClient,
     VOPRFEvaluation,
-    VOPRFServer,
 )
 
 
@@ -130,7 +131,6 @@ def make_round(
     server_key: bytes = SERVER_KEY,
 ) -> tuple[
     VOPRFClient,
-    VOPRFServer,
     VOPRFBlindResult,
     VOPRFEvaluation,
 ]:
@@ -228,63 +228,18 @@ def test_concurrent_server_context() -> None:
         ) == 64
 
 
-def test_server_context(tmp_path: Path) -> None:
-    private_key_file = tmp_path / "private-value.key"
-    private_key_file.write_bytes(SERVER_KEY)
-    context = omneum_oprf._VOPRFServerContext(
-        str(private_key_file)
-    )
-
-    assert len(context.public_key) == 32
-    assert repr(context) == (
-        "<omneum_oprf._VOPRFServerContext>"
-    )
-    assert str(private_key_file) not in repr(context)
-    assert SERVER_KEY.hex() not in repr(context)
-    assert not hasattr(context, "__dict__")
-    assert not hasattr(context, "private_key")
-    assert not hasattr(omneum_oprf, "derive_public_key")
-    assert not hasattr(omneum_oprf, "evaluate")
-
-    with pytest.raises(TypeError):
-        copy.copy(context)
-    with pytest.raises(TypeError):
-        copy.deepcopy(context)
-    with pytest.raises(TypeError):
-        pickle.dumps(context)
-    with pytest.raises(AttributeError):
-        context.public_key = b"x" * 32
-    with pytest.raises(AttributeError):
-        context.private_key = SERVER_KEY
+def test_server_context() -> None:
+    # Production extension must have no key-bearing server/provisioning API.
+    for name in ("_VOPRFServerContext", "provision_server_key", "derive_public_key", "evaluate"):
+        assert not hasattr(omneum_oprf, name)
+    from omneum.oprf import NativeVOPRFBackend
+    assert not hasattr(NativeVOPRFBackend, "load_server")
 
 
 def test_server_rejects_key_bytes() -> None:
     with pytest.raises(TypeError):
         VOPRFServer(SERVER_KEY)
 
-
-@pytest.mark.skipif(
-    not hasattr(os, "mkfifo"),
-    reason="FIFOs are not supported",
-)
-def test_fifo_key_file(tmp_path: Path) -> None:
-    fifo = tmp_path / "voprf.key"
-    os.mkfifo(fifo)
-    code = (
-        "import sys, omneum_oprf; "
-        "omneum_oprf._VOPRFServerContext(sys.argv[1])"
-    )
-
-    result = subprocess.run(
-        [sys.executable, "-c", code, str(fifo)],
-        capture_output=True,
-        text=True,
-        timeout=2,
-        check=False,
-    )
-
-    assert result.returncode != 0
-    assert str(fifo) not in result.stderr
 
 
 def test_blind_result_repr() -> None:
@@ -721,7 +676,8 @@ def test_invalid_input(input_data: object) -> None:
         client.blind(input_data)
 
 
-@settings(max_examples=25)
+# Process-backed fixtures include daemon startup; this is not a latency benchmark.
+@settings(max_examples=25, deadline=None)
 @given(input_data=INPUTS, server_key=KEYS)
 def test_round_trip_property(
     input_data: bytes,
@@ -753,7 +709,8 @@ def test_round_trip_property(
     assert first_output == second_output
 
 
-@settings(max_examples=25)
+# Process-backed fixtures include daemon startup; this is not a latency benchmark.
+@settings(max_examples=25, deadline=None)
 @given(inputs=INPUT_PAIRS)
 def test_input_changes_output(
     inputs: tuple[bytes, bytes],
@@ -778,7 +735,8 @@ def test_input_changes_output(
     assert outputs[0] != outputs[1]
 
 
-@settings(max_examples=25)
+# Process-backed fixtures include daemon startup; this is not a latency benchmark.
+@settings(max_examples=25, deadline=None)
 @given(server_keys=KEY_PAIRS)
 def test_key_changes_output(
     server_keys: tuple[bytes, bytes],
@@ -803,7 +761,8 @@ def test_key_changes_output(
     assert outputs[0] != outputs[1]
 
 
-@settings(max_examples=25)
+# Process-backed fixtures include daemon startup; this is not a latency benchmark.
+@settings(max_examples=25, deadline=None)
 @given(
     element=INVALID_ELEMENTS,
     wide_value=INVALID_WIDE_VALUES,
@@ -850,7 +809,8 @@ def test_invalid_lengths_property(
         )
 
 
-@settings(max_examples=25)
+# Process-backed fixtures include daemon startup; this is not a latency benchmark.
+@settings(max_examples=25, deadline=None)
 @given(
     evaluated_element=st.binary(
         min_size=32,
@@ -882,7 +842,8 @@ def test_checked_values_property(
     assert len(output) == 64
 
 
-@settings(max_examples=25)
+# Process-backed fixtures include daemon startup; this is not a latency benchmark.
+@settings(max_examples=25, deadline=None)
 @given(
     blinded_element=st.binary(
         min_size=32,

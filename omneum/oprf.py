@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 
@@ -62,12 +61,6 @@ class VOPRFBackend(Protocol):
     ) -> VOPRFBlindResult:
         ...
 
-    def load_server(
-        self,
-        private_key_file: str,
-    ) -> VOPRFServerContext:
-        ...
-
     def validate_public_key(
         self,
         server_public_key: bytes,
@@ -121,21 +114,6 @@ class NativeVOPRFBackend:
             ),
         )
 
-    def load_server(
-        self,
-        private_key_file: str,
-    ) -> VOPRFServerContext:
-        try:
-            context = self._native._VOPRFServerContext(
-                private_key_file
-            )
-        except Exception as exc:
-            raise OPRFProtocolError(
-                "RFC 9497 VOPRF server initialization failed."
-            ) from exc
-
-        return NativeVOPRFServerContext(context)
-
     def validate_public_key(
         self,
         server_public_key: bytes,
@@ -187,49 +165,6 @@ class NativeVOPRFBackend:
         return _require_bytes(
             output,
             name="output",
-        )
-
-
-class NativeVOPRFServerContext:
-    def __init__(self, context: object) -> None:
-        self._context = context
-
-    @property
-    def public_key(self) -> bytes:
-        return _require_bytes(
-            self._context.public_key,
-            name="server_public_key",
-        )
-
-    def evaluate(
-        self,
-        blinded_element: bytes,
-    ) -> VOPRFEvaluation:
-        try:
-            evaluated_element, proof = (
-                self._context.evaluate(blinded_element)
-            )
-        except Exception as exc:
-            if (
-                "Malformed RFC 9497 VOPRF blinded element"
-                in str(exc)
-            ):
-                raise InvalidBlindedElementError(
-                    "Malformed RFC 9497 VOPRF blinded element."
-                ) from exc
-            raise OPRFProtocolError(
-                "RFC 9497 VOPRF server evaluation failed."
-            ) from exc
-
-        return VOPRFEvaluation(
-            evaluated_element=_require_bytes(
-                evaluated_element,
-                name="evaluated_element",
-            ),
-            proof=_require_bytes(
-                proof,
-                name="proof",
-            ),
         )
 
 
@@ -311,19 +246,10 @@ class VOPRFClient:
 
 
 class VOPRFServer:
-    def __init__(
-        self,
-        private_key_file: str | Path,
-        backend: VOPRFBackend | None = None,
-    ) -> None:
-        private_key_file = _require_path(
-            private_key_file,
-            name="private_key_file",
-        )
-        self._backend = backend or NativeVOPRFBackend()
-        self._context = self._backend.load_server(
-            private_key_file
-        )
+    def __init__(self, context: VOPRFServerContext) -> None:
+        if not isinstance(context, VOPRFServerContext):
+            raise TypeError("context must implement VOPRFServerContext.")
+        self._context = context
         self._public_key = self._context.public_key
         _require_protocol_length(
             self._public_key,
@@ -375,18 +301,6 @@ def _require_bytes(
             f"{type(value).__name__}."
         )
     return value
-
-
-def _require_path(
-    value: object,
-    *,
-    name: str,
-) -> str:
-    if not isinstance(value, (str, Path)):
-        raise TypeError(
-            f"{name} must be a filesystem path."
-        )
-    return str(value)
 
 
 def _require_nonempty_bytes(

@@ -6,14 +6,22 @@ license = "MIT"
 
 [lib]
 name = "omneum_oprf"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [features]
 default = ["extension-module"]
-extension-module = ["pyo3/extension-module"]
+extension-module = ["dep:pyo3", "pyo3/extension-module"]
+daemon = []
+# Functional fixtures only; never use this build for protected serving.
+test-daemon = ["daemon"]
+
+[[bin]]
+name = "omneumd"
+path = "src/bin/omneumd.rs"
+required-features = ["daemon"]
 
 [dependencies]
-pyo3 = "0.29"
+pyo3 = { version = "0.29", optional = true }
 
 voprf = { version = "0.5", features = [
     "ristretto255-ciphersuite"

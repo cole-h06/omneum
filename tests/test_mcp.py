@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from daemon_support import VOPRFServer
+
 import asyncio
 import base64
 import logging
@@ -19,7 +21,6 @@ from omneum.config import ConfigurationError
 from omneum.oprf import (
     VOPRFClient,
     VOPRFEvaluation,
-    VOPRFServer,
 )
 from stdio_state import isolated_deployment_environment
 

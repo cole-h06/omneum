@@ -123,7 +123,7 @@ def test_dependencies():
     }
 
 
-def test_stdio_workflow(monkeypatch):
+def test_stdio_workflow(monkeypatch, example_daemon):
     calls = []
     original_call_tool = ClientSession.call_tool
 

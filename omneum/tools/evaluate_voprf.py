@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from mcp.types import CallToolResult, TextContent
 
+from omneum.daemon import DaemonBusyError
 from omneum.base64url import decode_unpadded, encode_unpadded
 from omneum.config import (
     PROTOCOL_VERSION,
@@ -91,6 +92,8 @@ class EvaluationService:
                 "Evaluation exceeded its deadline.",
                 "request_timeout",
             )
+        except DaemonBusyError:
+            return error_result("Evaluation capacity is exhausted.", "server_busy")
         except InvalidBlindedElementError:
             return error_result(
                 "The blinded element is invalid.",

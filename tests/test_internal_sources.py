@@ -1,3 +1,5 @@
+
+from daemon_support import VOPRFServer
 import json
 
 from pathlib import Path
@@ -6,7 +8,7 @@ import pytest
 
 from omneum.canonicalization import canonicalize_source
 from omneum.linkage import LinkagePurpose, encode_linkage_input
-from omneum.oprf import VOPRFClient, VOPRFServer
+from omneum.oprf import VOPRFClient
 from omneum.serialization import serialize_source
 
 

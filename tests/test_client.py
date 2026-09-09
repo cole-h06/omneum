@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from daemon_support import VOPRFServer
+
 import asyncio
 from pathlib import Path
 
@@ -20,7 +22,6 @@ from omneum.client import (
     open_stdio_client,
 )
 from omneum.models import EvaluateVOPRFRequest
-from omneum.oprf import VOPRFServer
 
 
 DEPLOYMENT_ID = "urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741"

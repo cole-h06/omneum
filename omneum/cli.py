@@ -1,9 +1,11 @@
 import typer
 
 from omneum.deployment import DeploymentConfig, save_config
-from omneum.paths import get_config_dir, get_key_dir
+from omneum.paths import get_config_dir
 from omneum.provision import generate_deployment_id
-from omneum.keys import generate_voprf_key_material, encode_public_key
+from omneum.keys import encode_public_key
+from omneum.oprf import VOPRFClient
+from omneum.daemon import DaemonServerContext, get_daemon_socket, get_daemon_uid
 
 app = typer.Typer()
 
@@ -15,35 +17,45 @@ def main() -> None:
 
 
 @app.command()
-def init() -> None:
+def init(public_key_hex: str | None = typer.Option(None, help="Expected daemon public key in hex.")) -> None:
     """Initialize an Omneum deployment."""
     config_dir = get_config_dir()
-    key_dir = get_key_dir()
 
     if (config_dir / "config.toml").exists():
         typer.echo("Omneum is already initialized.")
         typer.echo(f"Configuration: {config_dir}")
-        typer.echo(f"Keys: {key_dir}")
         raise typer.Exit()
 
     deployment_id = generate_deployment_id()
 
-    key_material = generate_voprf_key_material()
+    try:
+        if public_key_hex is None:
+            public_key = DaemonServerContext.fetch_public_key(get_daemon_socket(), get_daemon_uid())
+        else:
+            public_key = bytes.fromhex(public_key_hex)
+            VOPRFClient(public_key)
+            DaemonServerContext(get_daemon_socket(), get_daemon_uid(), public_key)
+    except Exception:
+        typer.echo("Unable to verify the provisioned daemon public key.", err=True)
+        raise typer.Exit(1) from None
 
     config = DeploymentConfig(
         deployment_id=deployment_id,
         voprf_key_version=1,
         voprf_public_key=encode_public_key(
-            key_material.public_key,
+            public_key,
         ),
     )
 
-    save_config(config)
+    try:
+        save_config(config)
+    except FileExistsError:
+        typer.echo("Omneum is already initialized.")
+        raise typer.Exit() from None
 
     typer.echo("Omneum initialized.")
     typer.echo(f"Deployment: {deployment_id}")
     typer.echo(f"Configuration: {config_dir}")
-    typer.echo(f"Keys: {key_dir}")
 
 
 if __name__ == "__main__":

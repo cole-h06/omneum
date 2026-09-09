@@ -1,3 +1,5 @@
+
+from daemon_support import VOPRFServer
 import asyncio
 import json
 from dataclasses import asdict
@@ -36,7 +38,6 @@ from omneum.information import Claim, Observation, Retrieval, Source, SourceRefe
 from omneum.linkage import LinkagePurpose
 from omneum.metrics import JsonlMetricsRecorder
 from omneum.models import EvaluateVOPRFRequest, EvaluateAssertionRequest
-from omneum.oprf import VOPRFServer
 
 from test_client import DEPLOYMENT_ID, make_config, make_server, success_result
 
