@@ -20,6 +20,11 @@ name = "omneumd"
 path = "src/bin/omneumd.rs"
 required-features = ["daemon"]
 
+[[bin]]
+name = "omneum-server"
+path = "src/bin/omneum-server.rs"
+required-features = ["daemon"]
+
 [dependencies]
 pyo3 = { version = "0.29", optional = true }
 

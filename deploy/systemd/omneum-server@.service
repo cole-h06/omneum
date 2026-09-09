@@ -1,0 +1,40 @@
+[Unit]
+Description=Omneum MCP session
+Requires=omneumd.service
+After=omneumd.service
+CollectMode=inactive-or-failed
+
+[Service]
+Type=exec
+DynamicUser=yes
+# Explicit instance name: a static Group with no User shares a dynamic UID.
+User=omneum-%i
+Group=omneum-session
+SupplementaryGroups=omneum-ipc
+ExecStart=/opt/omneum/.venv/bin/python -I -B -m omneum.server
+WorkingDirectory=/opt/omneum
+Environment=OMNEUM_CONFIG_DIR=/etc/omneum
+Environment=HOME=/var/lib/omneum
+StandardInput=socket
+StandardOutput=inherit
+StandardError=journal
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+ProtectSystem=strict
+ProtectHome=yes
+ProtectProc=invisible
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateNetwork=yes
+PrivateIPC=yes
+RestrictAddressFamilies=AF_UNIX
+# An explicit bind overrides systemd 249 API-VFS mount precedence. Restore
+# only the daemon directory; do not bind a replaceable socket inode.
+TemporaryFileSystem=/dev/shm:ro /var/lib/omneum:ro
+BindReadOnlyPaths=/etc/omneum/run:/run /run/omneumd
+ReadOnlyPaths=/tmp /var/tmp
+LimitCORE=0
+KillMode=control-group
+TimeoutStopSec=5

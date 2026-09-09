@@ -105,7 +105,9 @@ def main(binary):
         ipc = grp.getgrnam('omneum-ipc')
         assert crypto.pw_uid != mcp.pw_uid and min(crypto.pw_uid, mcp.pw_uid) > 0
         assert ipc.gr_gid in os.getgrouplist('omneum-mcp', mcp.pw_gid)
-        assert PEER.read_text() == f'OMNEUM_MCP_UID={mcp.pw_uid}\n'
+        session = grp.getgrnam('omneum-session')
+        assert not session.gr_mem and session.gr_gid != ipc.gr_gid
+        assert PEER.read_text() == f'OMNEUM_MCP_UID={mcp.pw_uid}\nOMNEUM_SESSION_GID={session.gr_gid}\n'
         settings = properties()
         assert settings['Type'] == 'exec' and settings['Restart'] == 'on-failure'
         assert settings['User'] == 'omneum-crypto' and settings['Group'] == 'omneum-ipc'

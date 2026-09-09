@@ -52,12 +52,19 @@ class FixtureDaemon:
                         "--rate", "100000", "--burst", "100000", *options]
         self.process = subprocess.Popen(self.command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self._cleanup = weakref.finalize(self, _cleanup, self.process, self.directory)
+        import socket
         for _ in range(300):
             if self.process.poll() is not None:
                 self.close()
                 raise OPRFProtocolError("VOPRF fixture daemon initialization failed.")
             if self.socket.exists():
-                break
+                try:
+                    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as ready:
+                        ready.settimeout(.1)
+                        ready.connect(str(self.socket))
+                    break
+                except (ConnectionRefusedError, FileNotFoundError):
+                    pass
             time.sleep(.01)
         else:
             self.close()

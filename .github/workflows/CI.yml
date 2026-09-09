@@ -48,6 +48,19 @@ jobs:
           uv sync --locked --no-default-groups
           uv run --locked --no-default-groups python -c "import omneum, omneum.server, omneum_oprf"
 
+      - name: Verify managed Linux runtime
+        run: |
+          cargo build --locked --release --no-default-features --features daemon --bins
+          sudo mkdir -p /opt/omneum/target/release
+          tar -cf - Cargo.toml Cargo.lock build.rs src tests omneum pyproject.toml uv.lock README.md deploy | sudo tar -C /opt/omneum -xf -
+          sudo cp target/release/omneum-server /opt/omneum/target/release/
+          sudo env PATH="$PATH" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project /opt/omneum --locked --no-default-groups --no-editable --managed-python --python ${{ matrix.python }}
+          sudo chown -R root:root /opt/omneum
+          sudo find /opt/omneum -type d -exec chmod a+rX,go-w {} +
+          sudo find /opt/omneum -type f -exec chmod a+rX,go-w {} +
+          sudo /opt/omneum/.venv/bin/python /opt/omneum/tests/security/linux_runtime.py
+          sudo /opt/omneum/.venv/bin/python /opt/omneum/tests/security/linux_adversarial.py
+
   build:
     needs: test
     if: github.event_name != 'pull_request'

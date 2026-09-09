@@ -33,6 +33,7 @@ pub struct Settings {
     pub key_dir: PathBuf,
     pub socket: PathBuf,
     pub client_uid: u32,
+    pub session_gid: Option<u32>,
     pub connections: usize,
     pub rate: u32,
     pub burst: u32,
@@ -54,6 +55,7 @@ impl Settings {
             key_dir: key.into(),
             socket: socket.into(),
             client_uid: u32::MAX,
+            session_gid: None,
             connections: 32,
             rate: 128,
             burst: 64,
@@ -76,6 +78,8 @@ impl Settings {
                 "--key-dir" => s.key_dir = value.into(),
                 "--socket" => s.socket = value.into(),
                 "--client-uid" => s.client_uid = value.parse().map_err(|_| os::denied())?,
+                #[cfg(target_os = "linux")]
+                "--session-gid" => s.session_gid = Some(value.parse().map_err(|_| os::denied())?),
                 "--connections" => s.connections = value.parse().map_err(|_| os::denied())?,
                 "--rate" => s.rate = value.parse().map_err(|_| os::denied())?,
                 "--burst" => s.burst = value.parse().map_err(|_| os::denied())?,
@@ -95,6 +99,14 @@ impl Settings {
             return Err(os::denied());
         }
         Ok(s)
+    }
+
+    fn authorizes(&self, peer: &os::Peer) -> bool {
+        // Preserve the static administrative identity. Linux managed sessions
+        // have distinct UIDs and a reserved, administrator-assigned primary GID.
+        // Supplementary membership (including omneum-ipc) is never sufficient.
+        peer.uid == self.client_uid
+            || (peer.uid != 0 && peer.uid != os::uid() && self.session_gid == Some(peer.gid))
     }
 }
 
@@ -126,6 +138,12 @@ pub fn main_entry() -> io::Result<()> {
     match command.as_str() {
         "provision" => provision(&settings),
         "serve" => {
+            if settings
+                .session_gid
+                .is_some_and(|gid| gid == 0 || gid == u32::MAX || gid == unsafe { libc::getegid() })
+            {
+                return Err(os::denied());
+            }
             if settings.client_uid == u32::MAX
                 || (!settings.test_mode
                     && (settings.client_uid == 0 || settings.client_uid == os::uid()))
@@ -406,9 +424,7 @@ fn serve(s: Settings, server: VoprfServer<Ristretto255>) -> io::Result<()> {
         for _ in 0..s.connections {
             match listener.accept() {
                 Ok((stream, _)) => {
-                    if os::peer(&stream)
-                        .map(|p| p.uid == s.client_uid)
-                        .unwrap_or(false)
+                    if os::peer(&stream).map(|p| s.authorizes(&p)).unwrap_or(false)
                         && clients.len() < s.connections
                     {
                         clients.push(Connection::new(stream, &s)?);
@@ -523,6 +539,24 @@ mod tests {
         assert!(!b.take(now));
         assert!(b.take(now + Duration::from_millis(500)));
         assert!(!b.take(now + Duration::from_millis(500)));
+    }
+    #[test]
+    fn reserved_primary_group_only() {
+        let client_uid = os::uid() + 1;
+        let mut settings =
+            Settings::parse(&["--client-uid".into(), client_uid.to_string()]).unwrap();
+        let peer = |uid, gid| os::Peer {
+            uid,
+            gid,
+            pid: Some(1),
+        };
+        assert!(settings.authorizes(&peer(client_uid, 2000)));
+        assert!(!settings.authorizes(&peer(62000, 2001)));
+        settings.session_gid = Some(2001);
+        assert!(settings.authorizes(&peer(62000, 2001)));
+        assert!(!settings.authorizes(&peer(62000, 2000)));
+        assert!(!settings.authorizes(&peer(0, 2001)));
+        assert!(!settings.authorizes(&peer(os::uid(), 2001)));
     }
     #[test]
     fn native_peer_credentials() {

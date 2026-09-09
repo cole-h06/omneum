@@ -68,6 +68,19 @@ systemd-sysusers /etc/sysusers.d/omneum.conf
 
 crypto_uid=$(id -u omneum-crypto)
 mcp_uid=$(id -u omneum-mcp)
+session_gid=$(getent group omneum-session | cut -d: -f3)
+client_gid=$(getent group omneum-client | cut -d: -f3)
+# This group conveys evaluator authority through the primary peer credential,
+# not through filesystem/supplementary-group membership. Reserve it for units.
+[ -n "$session_gid" ] && [ "$session_gid" != 0 ] &&
+    [ "$session_gid" != "$(getent group omneum-ipc | cut -d: -f3)" ] || fail 'invalid session group'
+[ -z "$client_gid" ] || [ "$session_gid" != "$client_gid" ] || fail 'session and frontend groups must differ'
+[ -z "$(getent group omneum-session | cut -d: -f4)" ] || fail 'session group has members'
+getent gshadow omneum-session | awk -F: '$1 == "omneum-session" && $2 ~ /^[!*]/ && $3 == "" && $4 == "" { ok=1 } END { exit !ok }' || fail 'session group must be locked without administrators'
+# nss-systemd enumerates live dynamic users too. Check persistent local records;
+# live allocations are expected and must not make a reinstall fail.
+getent -s files passwd | awk -F: -v gid="$session_gid" '$4 == gid || $1 ~ /^omneum-[0-9]/ { bad=1 } END { exit bad }' || fail 'reserved session identity is in use'
+getent -s files group | awk -F: -v gid="$session_gid" '$3 == gid && $1 != "omneum-session" { bad=1 } END { exit bad }' || fail 'session group has an alias'
 
 [ "$crypto_uid" != 0 ] && [ "$mcp_uid" != 0 ] && [ "$crypto_uid" != "$mcp_uid" ] || fail 'invalid service UIDs'
 
@@ -111,6 +124,7 @@ trap 'rm -f -- "$peer_file"' EXIT
 trap 'exit 1' HUP INT TERM
 
 printf 'OMNEUM_MCP_UID=%s\n' "$mcp_uid" >"$peer_file"
+printf 'OMNEUM_SESSION_GID=%s\n' "$session_gid" >>"$peer_file"
 
 copy_file "$peer_file" /etc/omneumd/peer.conf 644
 copy_file "$source_dir/systemd/omneumd.service" /etc/systemd/system/omneumd.service 644

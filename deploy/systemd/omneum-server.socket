@@ -1,0 +1,15 @@
+[Unit]
+Description=Omneum MCP socket
+
+[Socket]
+ListenStream=/run/omneum-server.sock
+SocketUser=root
+SocketGroup=omneum-client
+SocketMode=0660
+Accept=yes
+MaxConnections=32
+Backlog=32
+RemoveOnStop=yes
+
+[Install]
+WantedBy=sockets.target
