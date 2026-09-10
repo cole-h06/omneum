@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>ai.omneum.omneumd</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/libexec/omneumd</string>
+        <string>serve</string>
+        <string>--client-uid</string>
+        <string>__OMNEUM_CLIENT_UID__</string>
+    </array>
+
+    <key>UserName</key>
+    <string>omneum-crypto</string>
+
+    <key>GroupName</key>
+    <string>staff</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <key>SoftResourceLimits</key>
+    <dict>
+        <key>NumberOfFiles</key>
+        <integer>256</integer>
+        <key>Core</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>HardResourceLimits</key>
+    <dict>
+        <key>NumberOfFiles</key>
+        <integer>256</integer>
+        <key>Core</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/var/log/omneumd.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/var/log/omneumd.log</string>
+</dict>
+</plist>
