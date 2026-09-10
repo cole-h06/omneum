@@ -82,7 +82,7 @@ class FixtureDaemon:
                 assert header==b"\x01\0\0\x20",header
                 public_key=DaemonServerContext._read(stream,32,deadline)
         self.public_key=public_key
-        self.context=DaemonServerContext(self.socket,os.getuid(),public_key)
+        self.context=DaemonServerContext(self.socket,os.getuid(),public_key,timeout=3)
 
     def close(self):
         self._cleanup()
