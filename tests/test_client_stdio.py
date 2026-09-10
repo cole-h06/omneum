@@ -296,7 +296,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert claim_explanation
     assert dependency_explanation == (
         "Policy Manual ↔ Support Portal\n\n"
-        "Independence: 0.59\n\n"
+        "Independence: 0.00\n\n"
         "• Direct citation\n"
         "• Same owner\n"
         "• Updated 1 hour apart\n"

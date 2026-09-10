@@ -354,7 +354,7 @@ assertion_lineage  = unknown
 ...
 ```
 
-The estimator normalizes dependency over the signals that were actually observable.
+The estimator takes the strongest observed, non-excluded dependency signal. An observed zero on another dependency mechanism does not dilute positive upstream evidence.
 
 With an upstream weight of `0.25`, the result can therefore be:
 

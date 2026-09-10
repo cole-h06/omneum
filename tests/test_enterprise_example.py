@@ -99,13 +99,13 @@ def test_dependencies():
 
     assert len(pairs) == 15
     assert dependencies[frozenset(("runbook", "brief"))] == pytest.approx(
-        0.588235294117647
+        1.0
     )
     assert dependencies[frozenset(("policy", "registry"))] == pytest.approx(
-        0.588235294117647
+        1.0
     )
     assert dependencies[frozenset(("registry", "gateway"))] == pytest.approx(
-        0.588235294117647
+        1.0
     )
     assert dependencies[frozenset(("vendor", "gateway"))] == pytest.approx(
         0.0
@@ -155,7 +155,7 @@ def test_stdio_workflow(monkeypatch, example_daemon):
     assert "Customer content must be redacted." in first_output
     assert "Provider retention must be 0 days." in first_output
     assert "Processing must remain in the EU." in first_output
-    assert "Estimated independent support: 2.43" in first_output
+    assert "Estimated independent support: 1.00" in first_output
     assert "Stale deployment runbook ↔ Copilot readiness brief" in first_output
     assert "corroboration" not in first_output.lower()
 

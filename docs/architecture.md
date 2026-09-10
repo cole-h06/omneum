@@ -161,17 +161,19 @@ DependencySignal(value=0.0, observable=True)
 DependencySignal(value=0.0, observable=False)
 ~~~
 
-`observable=True` means the information required to evaluate that signal was available and produced zero dependency.
+`observable=True` means the information required to evaluate that signal was available. A value of zero means that mechanism produced no dependency evidence.
 
 `observable=False` means the signal could not be evaluated from the available information.
 
-Unavailable signals are excluded from the observed dependency calculation rather than treated as observed zero dependency.
+Unavailable signals are excluded from the dependency calculation. An observed zero on one mechanism does not weaken positive dependency evidence from another mechanism.
 
 ### Pairwise dependency
 
-For each source pair, the estimator combines the dependency signals that were observable for that pair.
+For each source pair, the estimator takes the strongest observed, non-excluded dependency signal.
 
-The dependency score is normalized over observable signal weight. Weighted signal coverage is reported separately so a strong result derived from limited provenance remains distinguishable from one derived from broad provenance coverage.
+Signals represent different mechanisms through which sources may be dependent. An observed zero on one mechanism is therefore not counterevidence to positive dependency evidence from another mechanism.
+
+Weighted signal coverage is reported separately using the configured signal weights, so a strong result derived from limited provenance remains distinguishable from one derived from broad provenance coverage.
 
 For example, if upstream lineage is the only observable signal and establishes complete dependency:
 

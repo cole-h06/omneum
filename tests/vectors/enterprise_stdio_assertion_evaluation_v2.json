@@ -2,7 +2,7 @@
   "name": "enterprise-policy-observations",
   "scope_uuid": "12345678-1234-4abc-8def-123456789abc",
   "estimator": {
-    "estimator_version": "dependency-estimator-v2",
+    "estimator_version": "dependency-estimator-v3",
     "upstream_weight": 0.25,
     "citation_weight": 0.2,
     "assertion_lineage_weight": 0.2,
@@ -157,7 +157,7 @@
       [
         "policy_manual",
         "support_portal",
-        0.4117647058823529,
+        1.0,
         0.8500000000000001
       ],
       [
@@ -169,7 +169,7 @@
       [
         "policy_manual",
         "orders_store",
-        0.23529411764705882,
+        1.0,
         0.8500000000000001
       ],
       [
@@ -192,42 +192,40 @@
       ]
     ],
     "source_reliability": {
-      "support_portal": 0.33333333317612507,
-      "orders_store": 0.33333333317612507,
-      "policy_manual": 0.33333333317612507,
-      "orders_api": 4.716248335234552e-10
+      "support_portal": 0.3333333329194122,
+      "orders_store": 0.3333333329194122,
+      "policy_manual": 0.3333333329194122,
+      "orders_api": 1.2417634312786624e-09
     },
     "majority_claim": {
-      "support": 0.26562499987472465,
+      "support": 0.1666666664597061,
       "agreement_weight": 0.75,
-      "estimated_independent_support_count": 2.095890410958904,
+      "estimated_independent_support_count": 1.2857142857142858,
       "dependency_signal_coverage": 0.8500000000000001,
       "supporting_sources": {
-        "orders_store": [
-          0.8095238095238095,
-          0.10119047614275226
-        ],
         "support_portal": [
-          0.7083333333333334,
-          0.08854166662490823
+          0.5,
+          0.06249999992238979
+        ],
+        "orders_store": [
+          0.5,
+          0.06249999992238979
         ],
         "policy_manual": [
-          0.6071428571428572,
-          0.0758928571070642
+          0.3333333333333333,
+          0.041666666614926524
         ]
       },
       "clusters": [
         [
           "policy_manual",
-          "support_portal"
-        ],
-        [
+          "support_portal",
           "orders_store"
         ]
       ]
     },
     "minority_claim": {
-      "support": 5.89531041904319e-11,
+      "support": 1.552204289098328e-10,
       "agreement_weight": 0.25,
       "estimated_independent_support_count": 1.0,
       "dependency_signal_coverage": null,
@@ -238,9 +236,9 @@
       ]
     },
     "convergence": {
-      "iterations": 11,
+      "iterations": 14,
       "convergence_tolerance": 1e-08,
-      "convergence_delta": 2.5349834725668707e-09
+      "convergence_delta": 3.7252902753322707e-09
     }
   }
 }

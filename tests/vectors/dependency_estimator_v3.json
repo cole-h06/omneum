@@ -1,5 +1,5 @@
 {
-  "estimator_version": "dependency-estimator-v2",
+  "estimator_version": "dependency-estimator-v3",
   "signal_order": [
     "upstream",
     "citation",
@@ -60,7 +60,7 @@
         true,
         true
       ],
-      "expected_dependency": 0.4928571428571428,
+      "expected_dependency": 1.0,
       "expected_weighted_signal_coverage": 0.7
     }
   ],
@@ -276,7 +276,7 @@
         false,
         false
       ],
-      "expected_dependency": 0.41176470588235287,
+      "expected_dependency": 1.0,
       "expected_weighted_signal_coverage": 0.8500000000000001
     }
   ],

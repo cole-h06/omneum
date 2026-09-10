@@ -70,7 +70,7 @@ class DependencyEstimatorConfig:
         repr=False,
     )
     estimator_version: str = field(
-        default="dependency-estimator-v2",
+        default="dependency-estimator-v3",
         repr=False,
     )
     dependency_cluster_threshold: float | None = field(
@@ -82,7 +82,7 @@ class DependencyEstimatorConfig:
         if type(self.estimator_version) is not str:
             raise TypeError("estimator_version must be a string")
 
-        if self.estimator_version != "dependency-estimator-v2":
+        if self.estimator_version != "dependency-estimator-v3":
             raise ValueError("unsupported dependency estimator version")
 
         for name in SIGNALS:
@@ -417,15 +417,14 @@ def combine_dependency(
     if observed_total == 0.0:
         return 0.0, 0.0
 
-    dependency = sum(
-        base_weights[index]
-        * getattr(signals, name)
-        for index, name in enumerate(SIGNALS)
+    dependency = max(
+        getattr(signals, name)
+        for name in SIGNALS
         if (
             name not in excluded_signals
             and getattr(signals, f"{name}_observable")
         )
-    ) / observed_total
+    )
 
     coverage = observed_total
 

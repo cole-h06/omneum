@@ -40,7 +40,11 @@ def _normalize_source_references(value):
     return tuple(
         item
         if hasattr(item, "kind") and hasattr(item, "identifier")
-        else reference(kind="source", identifier=item)
+        else reference(kind=item["kind"], identifier=item["identifier"])
+        if isinstance(item, Mapping)
+        else (_ for _ in ()).throw(
+            TypeError("source references must include kind and identifier")
+        )
         for item in values
     )
 

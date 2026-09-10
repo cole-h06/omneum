@@ -21,7 +21,7 @@ from omneum.information import Claim, Observation, Retrieval, Source, SourceRefe
 
 
 NOW = datetime(2026, 2, 2, 12, tzinfo=timezone.utc)
-VECTOR = Path(__file__).parent / "vectors" / "dependency_estimator_v2.json"
+VECTOR = Path(__file__).parent / "vectors" / "dependency_estimator_v3.json"
 
 WEIGHTS = {
     "upstream_weight": 0.25,
@@ -123,7 +123,7 @@ def vector_observation(item, sources):
 def test_vectors():
     vector = json.loads(VECTOR.read_text())
 
-    assert vector["estimator_version"] == "dependency-estimator-v2"
+    assert vector["estimator_version"] == "dependency-estimator-v3"
     assert tuple(vector["signal_order"]) == dependency.SIGNALS
     assert vector["output_comparison"] == {
         "mode": "exact_binary64",
@@ -457,6 +457,31 @@ def test_dependency_uses_observed_signals():
     assert coverage == pytest.approx(0.25)
 
 
+def test_observed_zero():
+    signals = DependencySignalScores(
+        upstream=1.0,
+        citation=0.0,
+        assertion_lineage=0.0,
+        ownership=0.0,
+        temporal=0.0,
+        graph=0.0,
+        upstream_observable=True,
+        citation_observable=False,
+        assertion_lineage_observable=True,
+        ownership_observable=False,
+        temporal_observable=False,
+        graph_observable=False,
+    )
+
+    dependency_value, coverage = combine_dependency(
+        signals,
+        config(),
+    )
+
+    assert dependency_value == pytest.approx(1.0)
+    assert coverage == pytest.approx(0.45)
+
+
 def test_temporal_signal_requires_source_timestamps():
     result = pair(
         (
@@ -546,7 +571,7 @@ def test_weight_normalization():
         graph=0.5,
     )
 
-    assert combine_dependency(signals, values) == (0.925, 1.0)
+    assert combine_dependency(signals, values) == (1.0, 1.0)
 
 
 @pytest.mark.parametrize("threshold", [0.0, 1.0])
