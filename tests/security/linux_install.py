@@ -24,6 +24,7 @@ from omneum.oprf import VOPRFClient, OPRFError
 from omneum.cli import app
 from omneum.paths import get_config_dir
 from typer.main import get_command
+import typer._click.decorators
 from click.testing import CliRunner
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -149,7 +150,7 @@ def main(binary):
             token = voprf.finalize(input_data=value, client_state=blind.client_state, evaluation=result)
             config_dir = get_config_dir()
             initialized = CliRunner().invoke(COMMAND, ['init'])
-            assert initialized.exit_code == 0, (initialized.output, repr(initialized.exception))
+            assert initialized.exit_code == 0, initialized.output
             saved = (config_dir/'config.toml').read_bytes()
             assert CliRunner().invoke(COMMAND, ['init']).exit_code == 0
             assert (config_dir/'config.toml').read_bytes() == saved
