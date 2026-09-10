@@ -66,6 +66,12 @@ sudo find /opt/omneum -type d -exec chmod a+rX,go-w {} +
 sudo find /opt/omneum -type f -exec chmod a+rX,go-w {} +
 ```
 
+After hardening, use `python -B` for administrative Python checks in this runtime.
+Otherwise root-run imports can create new `__pycache__` directories with
+group-write permissions under a permissive umask, invalidating the hardened
+tree before installation. The managed service and installer runtime checks
+already disable bytecode writes.
+
 Do not reuse an application-owned environment. The server installer rejects
 writable installations and external editable imports. Build the native proxy
 from the administrator-controlled checkout:
