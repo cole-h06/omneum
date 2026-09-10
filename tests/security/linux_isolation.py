@@ -160,7 +160,7 @@ def main(binary):
                 try:
                     stream.sendall(b'\x01\x01\0\0')
                     assert stream.recv(36) == b''
-                except ConnectionResetError:
+                except (ConnectionResetError, BrokenPipeError):
                     pass
         child(OTHER, other_checks)
         ipc.chmod(0o750); sock.chmod(0o660)
