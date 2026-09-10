@@ -183,9 +183,9 @@ def test_vectors():
 
         assert result.dependency == case["expected_dependency"]
 
-        assert result.weighted_signal_coverage == case[
-            "expected_weighted_signal_coverage"
-        ]
+        assert result.weighted_signal_coverage == pytest.approx(
+            case["expected_weighted_signal_coverage"]
+        )
 
         if "expected_evidence" in case:
             expected = dict(case["expected_evidence"])

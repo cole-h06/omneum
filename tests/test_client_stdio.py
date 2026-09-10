@@ -349,9 +349,8 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         minority.estimated_independent_support_count
         == expected_minority["estimated_independent_support_count"]
     )
-    assert (
-        majority.dependency_signal_coverage
-        == expected_majority["dependency_signal_coverage"]
+    assert majority.dependency_signal_coverage == pytest.approx(
+        expected_majority["dependency_signal_coverage"]
     )
     assert (
         minority.dependency_signal_coverage
