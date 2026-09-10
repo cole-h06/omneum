@@ -32,6 +32,7 @@ SOCKET = Path('/run/omneumd/eval.sock')
 UNIT = Path('/etc/systemd/system/omneumd.service')
 PEER = Path('/etc/omneumd/peer.conf')
 BINARY = Path('/usr/local/libexec/omneumd')
+COMMAND = get_command(app)
 
 
 def run(*args, check=True):
@@ -147,10 +148,10 @@ def main(binary):
             result = context.evaluate(blind.blinded_element)
             token = voprf.finalize(input_data=value, client_state=blind.client_state, evaluation=result)
             config_dir = get_config_dir()
-            initialized = CliRunner().invoke(app, ['init'])
-            assert initialized.exit_code == 0, (initialized.output, repr(initialized.exception))
+            initialized = CliRunner().invoke(COMMAND, ['init'])
+            assert initialized.exit_code == 0, initialized.output
             saved = (config_dir/'config.toml').read_bytes()
-            assert CliRunner().invoke(app, ['init']).exit_code == 0
+            assert CliRunner().invoke(COMMAND, ['init']).exit_code == 0
             assert (config_dir/'config.toml').read_bytes() == saved
             assert tomllib.loads(saved.decode())['voprf_key_version'] == 1
             return public.hex(), token.hex()
