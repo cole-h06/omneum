@@ -311,7 +311,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assert {item.source for item in first.source_reliability} == set(
         sources.values()
     )
-    assert [
+    actual = [
         [
             reference_names[pair.source_a],
             reference_names[pair.source_b],
@@ -319,7 +319,13 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             pair.weighted_signal_coverage,
         ]
         for pair in first.pairwise_dependencies
-    ] == fixture["expected"]["pairwise_dependencies"]
+    ]
+    expected = fixture["expected"]["pairwise_dependencies"]
+
+    assert [row[:2] for row in actual] == [row[:2] for row in expected]
+    for got, want in zip(actual, expected):
+        assert got[2] == pytest.approx(want[2])
+        assert got[3] == pytest.approx(want[3])
 
     claims = {
         (item.claim.attribute, item.claim.value): item

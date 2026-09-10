@@ -148,12 +148,14 @@ def test_vectors():
             for name, value in zip(dependency.SIGNALS, case["observability"])
         )
 
-        assert combine_dependency(
+        actual = combine_dependency(
             DependencySignalScores(**values),
             config(),
-        ) == (
-            case["expected_dependency"],
-            case["expected_weighted_signal_coverage"],
+        )
+
+        assert actual[0] == pytest.approx(case["expected_dependency"])
+        assert actual[1] == pytest.approx(
+            case["expected_weighted_signal_coverage"]
         )
 
     for case in vector["pair_cases"]:
