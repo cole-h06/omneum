@@ -15,6 +15,7 @@ jobs:
     name: Test Python ${{ matrix.python }}
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.11", "3.12", "3.13", "3.14"]
     steps:
