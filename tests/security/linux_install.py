@@ -24,7 +24,7 @@ from omneum.oprf import VOPRFClient, OPRFError
 from omneum.cli import app
 from omneum.paths import get_config_dir
 from typer.main import get_command
-from typer.testing import CliRunner
+from click.testing import CliRunner
 
 ROOT = Path(__file__).resolve().parents[2]
 KEY = Path('/var/lib/omneumd/voprf.key')
