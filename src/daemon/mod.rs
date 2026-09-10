@@ -435,7 +435,26 @@ fn serve(s: Settings, server: VoprfServer<Ristretto255>) -> io::Result<()> {
                 Err(e) => return Err(e),
             }
         }
-        clients.retain_mut(|client| client.step(&s, &server, &mut bucket).unwrap_or(false));
+        let mut index = 0;
+        while index < clients.len() {
+            let started = Instant::now();
+            let keep = clients[index]
+                .step(&s, &server, &mut bucket)
+                .unwrap_or(false);
+            let elapsed = started.elapsed();
+
+            for (other, client) in clients.iter_mut().enumerate() {
+                if other != index {
+                    client.deadline += elapsed;
+                }
+            }
+
+            if keep {
+                index += 1;
+            } else {
+                clients.swap_remove(index);
+            }
+        }
         // poll avoids busy-spinning; readiness wakes immediately, deadlines are checked above.
         let mut pollfds = Vec::with_capacity(clients.len() + 1);
         pollfds.push(libc::pollfd {

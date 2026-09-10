@@ -175,12 +175,7 @@ def test_concurrent_evaluations(daemon):
     def run(i):
         value = str(i).encode()
         blinded = client.blind(value)
-        try:
-            evaluated = daemon.context.evaluate(blinded.blinded_element)
-        except DaemonUnavailableError as exc:
-            raise AssertionError(
-                f"daemon connection failed: {exc.__context__!r}"
-            ) from exc
+        evaluated = daemon.context.evaluate(blinded.blinded_element)
 
         return client.finalize(
             input_data=value,
