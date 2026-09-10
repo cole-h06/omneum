@@ -54,8 +54,12 @@ jobs:
           cargo build --locked --release --no-default-features --features daemon --bins
           sudo mkdir -p /opt/omneum/target/release
           tar -cf - Cargo.toml Cargo.lock build.rs src tests omneum pyproject.toml uv.lock README.md deploy | sudo tar -C /opt/omneum -xf -
-          sudo chown root:root /opt
-          sudo chmod 755 /opt
+          # The hosted image makes these directories writable for tool installation.
+          # Establish production installation parents only on this disposable runner.
+          test ! -L /opt
+          test ! -L /usr/local/bin
+          sudo chown root:root /opt /usr/local/bin
+          sudo chmod 755 /opt /usr/local/bin
           sudo cp target/release/omneum-server /opt/omneum/target/release/
           sudo env PATH="$PATH" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project /opt/omneum --locked --no-default-groups --no-editable --managed-python --python ${{ matrix.python }}
           sudo chown -R root:root /opt/omneum

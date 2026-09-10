@@ -78,13 +78,17 @@ def main():
         assert subprocess.run(install[:-1]+[str(changed)], capture_output=True).returncode != 0
         assert Path('/etc/omneum/config.toml').read_bytes() == before
     finally: changed.unlink()
-    metadata = ROOT/'.venv/pyvenv.cfg'
-    original_mode = metadata.stat().st_mode & 0o777
-    try:
-        metadata.chmod(0o666)
-        assert subprocess.run(install, capture_output=True).returncode != 0
-        assert metadata.stat().st_mode & 0o777 == 0o666
-    finally: metadata.chmod(original_mode)
+    # Reject both writable runtime metadata and a writable installation parent;
+    # the installer must not silently repair either one, even on a reinstall.
+    for path, mode in [(ROOT/'.venv/pyvenv.cfg', 0o666), (Path(PROXY).parent, 0o777)]:
+        original_mode = path.stat().st_mode & 0o777
+        try:
+            path.chmod(mode)
+            rejected = subprocess.run(install, capture_output=True, text=True)
+            assert rejected.returncode != 0
+            assert f'untrusted installation path: {path}' in rejected.stderr
+            assert path.stat().st_mode & 0o777 == mode
+        finally: path.chmod(original_mode)
     run('systemd-sysusers', '-', input=f'u {CLIENT} - "Omneum test client" /nonexistent /usr/sbin/nologin\nm {CLIENT} omneum-client\n')
     account = pwd.getpwnam(CLIENT)
     assert grp.getgrnam('omneum-ipc').gr_gid not in os.getgrouplist(CLIENT, account.pw_gid)

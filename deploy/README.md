@@ -73,8 +73,13 @@ tree before installation. The managed service and installer runtime checks
 already disable bytecode writes.
 
 Do not reuse an application-owned environment. The server installer rejects
-writable installations and external editable imports. Build the native proxy
-from the administrator-controlled checkout:
+writable installations and external editable imports. Installation directories
+and their parents, including `/usr/local/bin` for the native proxy, must also be
+root-owned, non-symlink directories without group/other write permissions
+(including the effective ACL mask). The installer rejects an untrusted existing
+directory rather than repairing it. Hosted CI images may deliberately make tool
+directories writable; prepare those disposable hosts explicitly before testing.
+Build the native proxy from the administrator-controlled checkout:
 
 ```sh
 sudo cargo build --locked --release --no-default-features --features daemon --bin omneum-server
