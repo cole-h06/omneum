@@ -60,6 +60,10 @@ install -d -o omneum-crypto -g staff -m 0750 \
 
 install -d -o root -g wheel -m 0755 /usr/local/libexec
 
+touch /var/log/omneumd.log
+chown omneum-crypto:staff /var/log/omneumd.log
+chmod 0600 /var/log/omneumd.log
+
 install -o root -g wheel -m 0755 \
     "$daemon_binary" \
     /usr/local/libexec/omneumd
