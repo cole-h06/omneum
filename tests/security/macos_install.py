@@ -34,13 +34,20 @@ COMMAND = get_command(app)
 
 
 def run(*args, check=True):
-    return subprocess.run(
+    result = subprocess.run(
         args,
-        check=check,
+        check=False,
         capture_output=True,
         text=True,
         timeout=30,
     )
+    if check and result.returncode:
+        if result.stdout:
+            print(result.stdout, file=sys.stderr, end="")
+        if result.stderr:
+            print(result.stderr, file=sys.stderr, end="")
+        result.check_returncode()
+    return result
 
 
 def ready():
