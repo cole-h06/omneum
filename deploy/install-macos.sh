@@ -98,4 +98,8 @@ while [ "$attempt" -lt 10 ]; do
     sleep 1
 done
 
+printf '%s\n' '--- launchd status ---' >&2
+launchctl print system/ai.omneum.omneumd >&2 || true
+printf '%s\n' '--- daemon log ---' >&2
+tail -n 100 /var/log/omneumd.log >&2 || true
 fail 'daemon failed to start'
