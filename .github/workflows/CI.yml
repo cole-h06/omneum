@@ -144,3 +144,55 @@ jobs:
 
       - name: Verify macOS installation
         run: sudo .venv/bin/python tests/security/macos_install.py target/release/omneumd "$(id -u)"
+
+  daemon-artifacts:
+    if: github.event_name != 'pull_request'
+    name: Build daemon ${{ matrix.platform.os }} ${{ matrix.platform.target }}
+    runs-on: ${{ matrix.platform.runner }}
+
+    strategy:
+      matrix:
+        platform:
+          - os: macos
+            runner: macos-15
+            target: aarch64
+            binary: target/release/omneumd
+
+          - os: macos
+            runner: macos-15-intel
+            target: x86_64
+            binary: target/release/omneumd
+
+          - os: linux
+            runner: ubuntu-22.04
+            target: x86_64
+            binary: target/release/omneumd
+
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Build daemon
+        run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
+
+      - name: Stage macOS artifact
+        if: matrix.platform.os == 'macos'
+        run: |
+          mkdir -p daemon-artifact/launchd
+          cp "${{ matrix.platform.binary }}" daemon-artifact/omneumd
+          cp deploy/install-macos.sh daemon-artifact/
+          cp deploy/launchd/ai.omneum.omneumd.plist daemon-artifact/launchd/
+
+      - name: Stage Linux artifact
+        if: matrix.platform.os == 'linux'
+        run: |
+          mkdir -p daemon-artifact/systemd daemon-artifact/sysusers.d
+          cp "${{ matrix.platform.binary }}" daemon-artifact/omneumd
+          cp deploy/install.sh daemon-artifact/
+          cp deploy/systemd/omneumd.service daemon-artifact/systemd/
+          cp deploy/sysusers.d/omneum.conf daemon-artifact/sysusers.d/
+
+      - name: Upload daemon artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: daemon-${{ matrix.platform.os }}-${{ matrix.platform.target }}
+          path: daemon-artifact/
