@@ -12,7 +12,6 @@ permissions:
 
 jobs:
   test:
-    if: github.event_name != 'workflow_dispatch'
     name: Test Python ${{ matrix.python }}
     runs-on: ubuntu-22.04
     strategy:
@@ -72,7 +71,7 @@ jobs:
 
   build:
     needs: test
-    if: github.event_name != 'pull_request' && github.event_name != 'workflow_dispatch'
+    if: github.event_name != 'pull_request'
     name: Build ${{ matrix.platform.os }} ${{ matrix.platform.target }} Python ${{ matrix.python }}
     runs-on: ${{ matrix.platform.runner }}
 
