@@ -1,0 +1,162 @@
+{
+  "id": "coding_package_fix_lineage",
+  "domain": "coding_agents",
+  "question": "How should the client fix the connection-pool exhaustion issue?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "issue_origin",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/repo/issues/1842"
+      },
+      "text": "A workaround for connection-pool exhaustion is to disable connection reuse.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "disable connection reuse",
+      "provenance": {
+        "assertion_id": "issue-origin-fix",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-02T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "issue_comment",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/repo/issues/1910#comment-4"
+      },
+      "text": "Disabling connection reuse resolves the pool exhaustion problem.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "disable connection reuse",
+      "provenance": {
+        "assertion_id": "issue-comment-fix",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-05T11:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "web_document",
+            "identifier": "https://benchmark.example/repo/issues/1842"
+          }
+        ],
+        "parent_assertion_ids": [
+          "issue-origin-fix"
+        ]
+      }
+    },
+    {
+      "source_id": "community_note",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/community/pool-workaround"
+      },
+      "text": "The recommended fix is to turn off connection reuse.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "disable connection reuse",
+      "provenance": {
+        "assertion_id": "community-note-fix",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-07T14:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "web_document",
+            "identifier": "https://benchmark.example/repo/issues/1842"
+          }
+        ],
+        "parent_assertion_ids": [
+          "issue-origin-fix"
+        ]
+      }
+    },
+    {
+      "source_id": "repository_code",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/repo/blob/v4.2/client/pool.py"
+      },
+      "text": "The current client bounds idle connections and evicts expired entries while keeping connection reuse enabled.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "bound idle connections and evict expired entries",
+      "provenance": {
+        "assertion_id": "repository-code-fix",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-15T16:00:00Z"
+      }
+    },
+    {
+      "source_id": "release_notes",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/releases/v4.2"
+      },
+      "text": "Version 4.2 fixes pool exhaustion by bounding idle connections and evicting expired entries; connection reuse remains enabled.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "bound idle connections and evict expired entries",
+      "provenance": {
+        "assertion_id": "release-notes-fix",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-16T10:00:00Z"
+      }
+    },
+    {
+      "source_id": "package_docs",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/docs/v4.2/connection-pools"
+      },
+      "text": "Connection reuse should remain enabled under normal operation. Pool size and idle-entry eviction are bounded by the client.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "bound idle connections and evict expired entries",
+      "provenance": {
+        "assertion_id": "package-docs-fix",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-16T12:00:00Z"
+      }
+    },
+    {
+      "source_id": "test_output",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/ci/runs/4821/pool-regression"
+      },
+      "text": "The pool regression test passes with reuse enabled after idle connections are bounded and expired entries are evicted.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "bound idle connections and evict expired entries",
+      "provenance": {
+        "assertion_id": "test-output-fix",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-17T08:00:00Z"
+      }
+    },
+    {
+      "source_id": "pull_request",
+      "source": {
+        "kind": "web_document",
+        "identifier": "https://benchmark.example/repo/pull/2037"
+      },
+      "text": "This change bounds idle pool entries and evicts expired connections to eliminate pool exhaustion without disabling reuse.",
+      "entity_namespace": "software",
+      "entity": "client",
+      "attribute": "connection pool fix",
+      "value": "bound idle connections and evict expired entries",
+      "provenance": {
+        "assertion_id": "pull-request-fix",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-14T18:00:00Z"
+      }
+    }
+  ]
+}

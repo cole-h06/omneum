@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "case_count": 24,
+  "environments": {
+    "coding_agents": 4,
+    "enterprise_rag": 4,
+    "research_analysis_agents": 4,
+    "multi_agent_systems": 4,
+    "data_analytics_agents": 4,
+    "support_operations_agents": 4
+  },
+  "mechanisms": {
+    "source_dependence": 4,
+    "staleness": 4,
+    "circular_sourcing": 3,
+    "conflicting_information": 4,
+    "clean_control": 3,
+    "sparse_noisy_provenance": 2,
+    "independent_false_information": 2,
+    "semantic_noise": 2
+  },
+  "candidate_count": {
+    "minimum": 6,
+    "maximum": 10
+  },
+  "context_budget": {
+    "minimum": 2,
+    "maximum": 4
+  },
+  "rules": [
+    "Ground truth must remain separate from candidate provenance.",
+    "Correctness labels must not appear in candidate provenance.",
+    "Provenance must represent independently specified source history or relationships.",
+    "Candidate text and provenance must be fixed before final model evaluation.",
+    "Every method receives the same candidate pool and context budget for a case.",
+    "Provenance-enabled frontier conditions receive the same provenance available to BRAID.",
+    "The downstream generator is fixed across all methods.",
+    "Cases must vary graph topology, information source types, and subject matter.",
+    "Cases must represent realistic context encountered by the named AI-system environment.",
+    "Cases must not be cosmetic rewrites of development benchmarks.",
+    "No case or scoring rule may be modified in response to final benchmark outputs."
+  ]
+}

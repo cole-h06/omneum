@@ -14,7 +14,7 @@ def test_manifest(tmp_path):
         track="structural",
         trials=10,
         context_budget=6,
-        models={"braid": "dependency-estimator-v2"},
+        models={"braid": "dependency-estimator-v3"},
         inputs=[source],
         identifier="test-run",
     )

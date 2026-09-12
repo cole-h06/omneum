@@ -216,3 +216,111 @@ async def test_braid_selection(monkeypatch):
 
     assert_valid_selection(result, top_n=2)
     assert result["model"] == "BRAID"
+
+
+
+def test_provenance_context():
+    from datetime import datetime, timezone
+    from dataclasses import dataclass
+
+    from benchmarks.financial_dependency_suite.application_comparison import (
+        provenance_context,
+    )
+
+    @dataclass(frozen=True)
+    class Source:
+        kind: str
+        identifier: str
+
+    source_a = Source(
+        "web_document",
+        "https://example.com/a",
+    )
+    source_b = Source(
+        "web_document",
+        "https://example.com/b",
+    )
+
+    class Observation:
+        source = source_a
+        assertion_id = "assertion-a"
+        observed_at = datetime(
+            2026, 9, 11, tzinfo=timezone.utc
+        )
+        source_modified_at = datetime(
+            2026, 9, 10, tzinfo=timezone.utc
+        )
+        upstream_sources = (source_b,)
+        cited_sources = (source_b,)
+        parent_assertion_ids = ("parent-a",)
+
+    result = provenance_context(
+        [{"source": "source_a", "text": "A"}],
+        [Observation()],
+        {
+            source_a: "source_a",
+            source_b: "source_b",
+        },
+    )
+
+    assert set(result) == {"source_a"}
+    assert result["source_a"][0] == {
+        "assertion_id": "assertion-a",
+        "observed_at": "2026-09-11T00:00:00+00:00",
+        "source_modified_at": "2026-09-10T00:00:00+00:00",
+        "upstream_sources": [
+            {
+                "kind": "web_document",
+                "identifier": "https://example.com/b",
+            }
+        ],
+        "cited_sources": [
+            {
+                "kind": "web_document",
+                "identifier": "https://example.com/b",
+            }
+        ],
+        "parent_assertion_ids": ["parent-a"],
+    }
+
+
+def test_llm_provenance_selection(monkeypatch):
+    import asyncio
+
+    import benchmarks.financial_dependency_suite.application_comparison as app
+
+    candidates = [
+        {"source": "source_a", "text": "A"},
+        {"source": "source_b", "text": "B"},
+    ]
+
+    async def fake_generate(prompt, *, provider, model):
+        assert "Structured provenance:" in prompt
+        return {
+            "text": '{"selected_sources": ["source_b"]}',
+            "provider": provider,
+            "model": model,
+            "latency_seconds": 0.1,
+            "input_tokens": 10,
+            "output_tokens": 5,
+        }
+
+    monkeypatch.setattr(app, "generate", fake_generate)
+
+    result = asyncio.run(
+        app.select_llm_provenance(
+            "question",
+            candidates,
+            [],
+            {},
+            provider="anthropic",
+            model="test-model",
+            top_n=1,
+        )
+    )
+
+    assert result["selected"] == [candidates[1]]
+    assert result["parse_error"] is None
+    assert result["raw_output"] == (
+        '{"selected_sources": ["source_b"]}'
+    )

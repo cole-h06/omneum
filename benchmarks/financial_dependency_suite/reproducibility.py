@@ -106,7 +106,11 @@ def manifest(
 def write_manifest(path: str | Path, data: dict[str, Any]) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(data, indent=2, sort_keys=True) + "\n",
+    with path.open(
+        "x",
         encoding="utf-8",
-    )
+    ) as handle:
+        handle.write(
+            json.dumps(data, indent=2, sort_keys=True)
+            + "\n"
+        )

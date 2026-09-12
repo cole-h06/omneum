@@ -1,0 +1,226 @@
+{
+  "version": 2,
+  "cases": [
+    {
+      "case_id": "coding_package_fix_lineage",
+      "environment": "coding_agents",
+      "mechanism": "source_dependence",
+      "workflow": "coding agent -> repository issue -> copied issue comments -> repository code -> release notes",
+      "sources": ["github_issue", "issue_comment", "issue_comment", "repository_code", "release_notes", "package_docs", "test_output", "pull_request"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "coding_api_version_change",
+      "environment": "coding_agents",
+      "mechanism": "staleness",
+      "workflow": "coding agent -> package docs -> versioned API docs -> changelog -> installed source code -> tests",
+      "sources": ["old_api_docs", "old_example", "current_api_docs", "changelog", "repository_code", "package_metadata", "test_output", "migration_guide"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "coding_config_conflict",
+      "environment": "coding_agents",
+      "mechanism": "conflicting_information",
+      "workflow": "coding agent -> README -> deployment config -> source defaults -> CI configuration -> tests",
+      "sources": ["readme", "deployment_config", "source_code", "ci_config", "test_output", "example_config"],
+      "candidate_count": 6,
+      "context_budget": 2
+    },
+    {
+      "case_id": "coding_clean_dependency",
+      "environment": "coding_agents",
+      "mechanism": "clean_control",
+      "workflow": "coding agent -> repository code -> tests -> current docs -> release notes",
+      "sources": ["repository_code", "unit_test", "integration_test", "current_docs", "release_notes", "package_metadata", "example"],
+      "candidate_count": 7,
+      "context_budget": 3
+    },
+
+    {
+      "case_id": "enterprise_policy_copy_chain",
+      "environment": "enterprise_rag",
+      "mechanism": "source_dependence",
+      "workflow": "enterprise agent -> policy record -> Confluence page -> copied team page -> Slack summary -> HR system",
+      "sources": ["policy_record", "confluence_page", "team_wiki", "slack_message", "hr_system", "drive_document", "email_summary", "manager_note", "policy_changelog"],
+      "candidate_count": 9,
+      "context_budget": 3
+    },
+    {
+      "case_id": "enterprise_stale_handbook",
+      "environment": "enterprise_rag",
+      "mechanism": "staleness",
+      "workflow": "enterprise agent -> archived handbook -> current policy -> HR system -> recent announcement -> team documentation",
+      "sources": ["archived_handbook", "old_team_page", "current_policy", "hr_system", "announcement", "confluence_page", "drive_document", "policy_changelog"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "enterprise_partial_lineage",
+      "environment": "enterprise_rag",
+      "mechanism": "sparse_noisy_provenance",
+      "workflow": "enterprise agent -> Drive documents -> Confluence mirrors -> Slack summaries with partially preserved lineage",
+      "sources": ["drive_document", "confluence_page", "slack_message", "drive_document", "team_wiki", "email", "system_record", "announcement"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "enterprise_semantic_distractors",
+      "environment": "enterprise_rag",
+      "mechanism": "semantic_noise",
+      "workflow": "enterprise agent -> hybrid search across policy, project, HR, and operational corpora",
+      "sources": ["policy", "policy", "project_doc", "project_doc", "hr_record", "confluence_page", "slack_message", "operations_doc", "drive_document", "system_record"],
+      "candidate_count": 10,
+      "context_budget": 3
+    },
+
+    {
+      "case_id": "research_syndicated_reporting",
+      "environment": "research_analysis_agents",
+      "mechanism": "source_dependence",
+      "workflow": "research agent -> web search -> original report -> syndicated coverage -> independent primary records",
+      "sources": ["original_report", "news_article", "news_article", "news_article", "primary_record", "independent_report", "filing", "web_page", "dataset"],
+      "candidate_count": 9,
+      "context_budget": 3
+    },
+    {
+      "case_id": "research_conflicting_reports",
+      "environment": "research_analysis_agents",
+      "mechanism": "conflicting_information",
+      "workflow": "research agent -> search results -> reports -> primary publication -> independent analysis",
+      "sources": ["report", "report", "primary_publication", "dataset", "news_article", "analysis", "filing", "web_page"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "research_independent_false_consensus",
+      "environment": "research_analysis_agents",
+      "mechanism": "independent_false_information",
+      "workflow": "research agent -> independently produced reports and publications that converge on the same erroneous value",
+      "sources": ["report", "publication", "analysis", "dataset", "news_article", "primary_record", "web_page"],
+      "candidate_count": 7,
+      "context_budget": 3
+    },
+    {
+      "case_id": "research_clean_consensus",
+      "environment": "research_analysis_agents",
+      "mechanism": "clean_control",
+      "workflow": "research agent -> primary records -> independent reports -> dataset -> analysis",
+      "sources": ["primary_record", "report", "report", "dataset", "filing", "analysis", "publication"],
+      "candidate_count": 7,
+      "context_budget": 3
+    },
+
+    {
+      "case_id": "multi_agent_repeated_subagent",
+      "environment": "multi_agent_systems",
+      "mechanism": "source_dependence",
+      "workflow": "orchestrator -> researcher subagent -> analyst subagents consuming researcher output -> tool-backed verifier",
+      "sources": ["researcher_agent", "analyst_agent", "analyst_agent", "summary_agent", "tool_result", "database_result", "verifier_agent", "web_result"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "multi_agent_feedback_loop",
+      "environment": "multi_agent_systems",
+      "mechanism": "circular_sourcing",
+      "workflow": "orchestrator -> researcher -> analyst -> reviewer -> researcher, alongside independent tool outputs",
+      "sources": ["researcher_agent", "analyst_agent", "reviewer_agent", "tool_result", "database_result", "web_result", "verifier_agent", "api_result"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "multi_agent_independent_error",
+      "environment": "multi_agent_systems",
+      "mechanism": "independent_false_information",
+      "workflow": "orchestrator -> independently prompted subagents -> independent tools -> synthesis",
+      "sources": ["researcher_agent", "analyst_agent", "specialist_agent", "tool_result", "api_result", "database_result"],
+      "candidate_count": 6,
+      "context_budget": 2
+    },
+    {
+      "case_id": "multi_agent_relevant_wrong_task",
+      "environment": "multi_agent_systems",
+      "mechanism": "semantic_noise",
+      "workflow": "orchestrator -> parallel specialized subagents returning related but task-misaligned observations",
+      "sources": ["researcher_agent", "code_agent", "data_agent", "operations_agent", "tool_result", "tool_result", "api_result", "database_result", "reviewer_agent"],
+      "candidate_count": 9,
+      "context_budget": 3
+    },
+
+    {
+      "case_id": "analytics_stale_dashboard",
+      "environment": "data_analytics_agents",
+      "mechanism": "staleness",
+      "workflow": "analytics agent -> warehouse table -> transformation -> dashboard snapshot -> exported report",
+      "sources": ["warehouse_table", "transformation", "dashboard_snapshot", "exported_report", "current_query", "metric_store", "data_catalog", "api_result"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "analytics_derived_metric_cycle",
+      "environment": "data_analytics_agents",
+      "mechanism": "circular_sourcing",
+      "workflow": "analytics agent -> derived table -> dashboard -> exported dataset -> derived table, alongside source tables",
+      "sources": ["derived_table", "dashboard", "exported_dataset", "source_table", "source_table", "metric_store", "query_result", "data_catalog"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "analytics_metric_definition_conflict",
+      "environment": "data_analytics_agents",
+      "mechanism": "conflicting_information",
+      "workflow": "analytics agent -> warehouse -> semantic layer -> dashboard -> finance report -> metric documentation",
+      "sources": ["warehouse_query", "semantic_layer", "dashboard", "finance_report", "metric_docs", "transformation", "data_catalog", "exported_report"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "analytics_incomplete_lineage",
+      "environment": "data_analytics_agents",
+      "mechanism": "sparse_noisy_provenance",
+      "workflow": "analytics agent -> source tables -> transformations -> derived datasets with incomplete catalog lineage",
+      "sources": ["source_table", "source_table", "transformation", "derived_table", "dashboard", "exported_dataset", "metric_store", "data_catalog", "query_result"],
+      "candidate_count": 9,
+      "context_budget": 3
+    },
+
+    {
+      "case_id": "support_stale_runbook",
+      "environment": "support_operations_agents",
+      "mechanism": "staleness",
+      "workflow": "support agent -> KB search -> old runbook -> current deployment config -> incident record -> service state",
+      "sources": ["old_runbook", "kb_article", "deployment_config", "incident_record", "service_state", "change_record", "ticket", "current_runbook"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "support_ticket_reference_loop",
+      "environment": "support_operations_agents",
+      "mechanism": "circular_sourcing",
+      "workflow": "support agent -> ticket -> KB article -> prior incident -> ticket, alongside current operational records",
+      "sources": ["ticket", "kb_article", "incident_record", "service_state", "deployment_config", "runbook", "monitoring_result", "change_record"],
+      "candidate_count": 8,
+      "context_budget": 3
+    },
+    {
+      "case_id": "support_resolution_conflict",
+      "environment": "support_operations_agents",
+      "mechanism": "conflicting_information",
+      "workflow": "support agent -> tickets -> runbooks -> deployment state -> monitoring -> configuration",
+      "sources": ["ticket", "ticket", "runbook", "deployment_config", "monitoring_result", "service_state", "change_record"],
+      "candidate_count": 7,
+      "context_budget": 2
+    },
+    {
+      "case_id": "support_clean_resolution",
+      "environment": "support_operations_agents",
+      "mechanism": "clean_control",
+      "workflow": "support agent -> current runbook -> deployment config -> monitoring -> incident history -> service state",
+      "sources": ["current_runbook", "deployment_config", "monitoring_result", "incident_record", "service_state", "change_record", "kb_article"],
+      "candidate_count": 7,
+      "context_budget": 3
+    }
+  ]
+}

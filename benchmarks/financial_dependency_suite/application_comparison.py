@@ -209,6 +209,185 @@ Do not answer the question itself.
     }
 
 
+def provenance_context(candidates, observations, source_ids):
+    by_source = {
+        source_id: []
+        for source_id in (
+            candidate["source"]
+            for candidate in candidates
+        )
+    }
+
+    for observation in observations:
+        source_id = source_ids.get(observation.source)
+
+        if source_id not in by_source:
+            continue
+
+        by_source[source_id].append({
+            "assertion_id": observation.assertion_id,
+            "observed_at": observation.observed_at.isoformat(),
+            "source_modified_at": (
+                observation.source_modified_at.isoformat()
+                if observation.source_modified_at is not None
+                else None
+            ),
+            "upstream_sources": [
+                {
+                    "kind": source.kind,
+                    "identifier": source.identifier,
+                }
+                for source in observation.upstream_sources
+            ],
+            "cited_sources": [
+                {
+                    "kind": source.kind,
+                    "identifier": source.identifier,
+                }
+                for source in observation.cited_sources
+            ],
+            "parent_assertion_ids": list(
+                observation.parent_assertion_ids
+            ),
+        })
+
+    return by_source
+
+
+async def select_llm_provenance(
+    query,
+    candidates,
+    observations,
+    source_ids,
+    *,
+    provider,
+    model,
+    top_n,
+):
+    candidate_ids = [
+        candidate["source"]
+        for candidate in candidates
+    ]
+    provenance = provenance_context(
+        candidates,
+        observations,
+        source_ids,
+    )
+
+    context = "\n\n".join(
+        f"Source ID: {candidate['source']}\n"
+        f"Text: {candidate['text']}\n"
+        f"Structured provenance: "
+        f"{json.dumps(provenance[candidate['source']], sort_keys=True)}"
+        for candidate in candidates
+    )
+
+    prompt = f"""Select the {top_n} sources that would provide the best context
+for answering the question below.
+
+Question:
+{query}
+
+Candidate sources:
+{context}
+
+Use both the source text and structured provenance when evaluating
+the candidate context.
+
+Return only valid JSON in this exact form:
+{{"selected_sources": ["source_id", "source_id"]}}
+
+Use only source IDs from the candidate set.
+Do not answer the question itself.
+"""
+
+    result = await generate(
+        prompt,
+        provider=provider,
+        model=model,
+    )
+
+    try:
+        parsed = _extract_json(result["text"])
+        selected_ids = parsed["selected_sources"]
+
+        if (
+            not isinstance(selected_ids, list)
+            or len(selected_ids) != top_n
+            or len(set(selected_ids)) != len(selected_ids)
+            or any(
+                source_id not in candidate_ids
+                for source_id in selected_ids
+            )
+        ):
+            raise ValueError("invalid selected_sources")
+
+        candidates_by_source = {
+            candidate["source"]: candidate
+            for candidate in candidates
+        }
+        selected = [
+            candidates_by_source[source_id]
+            for source_id in selected_ids
+        ]
+        parse_error = None
+
+    except (
+        json.JSONDecodeError,
+        KeyError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        selected = []
+        parse_error = str(exc)
+
+    return {
+        "selected": selected,
+        "provider": result["provider"],
+        "model": result["model"],
+        "latency_seconds": result["latency_seconds"],
+        "input_tokens": result["input_tokens"],
+        "output_tokens": result["output_tokens"],
+        "parse_error": parse_error,
+        "raw_output": result["text"],
+    }
+
+
+async def select_llm_provenance_safe(
+    query,
+    candidates,
+    observations,
+    source_ids,
+    *,
+    provider,
+    model,
+    top_n,
+):
+    try:
+        return await select_llm_provenance(
+            query,
+            candidates,
+            observations,
+            source_ids,
+            provider=provider,
+            model=model,
+            top_n=top_n,
+        )
+    except Exception as exc:
+        return {
+            "selected": [],
+            "provider": provider,
+            "model": model,
+            "latency_seconds": None,
+            "input_tokens": None,
+            "output_tokens": None,
+            "parse_error": None,
+            "raw_output": None,
+            "selection_failure": str(exc),
+            "failure_type": "provider_error",
+        }
+
+
 async def select_llm_safe(
     query,
     candidates,

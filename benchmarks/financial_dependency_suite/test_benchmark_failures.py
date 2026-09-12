@@ -147,3 +147,31 @@ def test_generation_failure_is_recorded(monkeypatch):
     assert result["failure"]["provider"] == "anthropic"
     assert result["failure"]["model"] == "claude-sonnet-5"
     assert result["failure"]["error"] == "provider unavailable"
+
+
+def test_provenance_provider_failure(monkeypatch):
+    import asyncio
+
+    import benchmarks.financial_dependency_suite.application_comparison as app
+
+    async def fail_generate(*args, **kwargs):
+        raise RuntimeError("provider unavailable")
+
+    monkeypatch.setattr(app, "generate", fail_generate)
+
+    result = asyncio.run(
+        app.select_llm_provenance_safe(
+            "question",
+            [{"source": "source_a", "text": "A"}],
+            [],
+            {},
+            provider="anthropic",
+            model="test-model",
+            top_n=1,
+        )
+    )
+
+    assert result["selected"] == []
+    assert result["failure_type"] == "provider_error"
+    assert result["selection_failure"] == "provider unavailable"
+    assert result["raw_output"] is None
