@@ -20,16 +20,6 @@ Main features include:
 
 - **Privacy-preserving linkage:** Generate stable linkage tokens with an RFC 9497 VOPRF so private source identifiers and structured values do not need to be sent to the server in plaintext.
 
-## Performance
-
-| | Dependency precision | Dependency recall | Evaluation latency | LLM tokens |
-|---|---:|---:|---:|---:|
-| **Omneum** | **100.0%** | 77.8% | **13.5 ms** | **0** |
-| LLM-as-Judge | 81.8% | **100.0%** | 4.7 s | 5,576 |
-| Naive Vector RAG | — | — | 5.2 s | 5,093 |
-
-*Results across three real-world financial dependency cases. See [`benchmarks/financial_dependency_suite`](benchmarks/financial_dependency_suite) for methodology and reproducibility notes.*
-
 ## 🚀 Quickstart
 
 **Note:** This tutorial assumes a Python-based agent application.
@@ -293,6 +283,16 @@ The returned evaluation includes claim support, pairwise dependency results, con
 Applications can provide explicit dependency signals when their runtime already computes one of Omneum's canonical signals. Most integrations should supply the provenance they actually have and let the SDK derive the corresponding signals.
 
 See [`sdk.md`](docs/sdk.md#dependency-estimation) for estimator behavior and configuration.
+
+## Performance
+
+| | Dependency precision | Dependency recall | Evaluation latency | LLM tokens |
+|---|---:|---:|---:|---:|
+| **Omneum** | **100.0%** | 77.8% | **13.5 ms** | **0** |
+| LLM-as-Judge | 81.8% | **100.0%** | 4.7 s | 5,576 |
+| Naive Vector RAG | — | — | 5.2 s | 5,093 |
+
+*Results across three real-world financial dependency cases. See [`benchmarks/financial_dependency_suite`](benchmarks/financial_dependency_suite) for methodology and reproducibility notes.*
 
 ## 🔒 Privacy
 
