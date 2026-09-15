@@ -1,0 +1,346 @@
+{
+  "estimator_version": "dependency-estimator-v4",
+  "signal_order": [
+    "upstream",
+    "citation",
+    "assertion_lineage",
+    "ownership",
+    "temporal",
+    "graph",
+    "retrieval"
+  ],
+  "weights": {
+    "upstream": 0.25,
+    "citation": 0.2,
+    "assertion_lineage": 0.2,
+    "ownership": 0.1,
+    "temporal": 0.1,
+    "graph": 0.15
+  },
+  "output_comparison": {
+    "mode": "exact_binary64",
+    "tolerance": null
+  },
+  "weight_cases": [
+    {
+      "supplied": [
+        25.0,
+        20.0,
+        20.0,
+        10.0,
+        10.0,
+        15.0
+      ],
+      "expected": [
+        0.25,
+        0.2,
+        0.2,
+        0.1,
+        0.1,
+        0.15,
+        0.0
+      ]
+    }
+  ],
+  "combine_cases": [
+    {
+      "scores": [
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0,
+        0.5
+      ],
+      "observability": [
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "expected_dependency": 0.6,
+      "expected_weighted_signal_coverage": 0.7
+    }
+  ],
+  "pair_cases": [
+    {
+      "name": "all_signals",
+      "sources": [
+        {
+          "id": "a",
+          "owner_id": "owner"
+        },
+        {
+          "id": "b",
+          "owner_id": "owner"
+        }
+      ],
+      "observations": [
+        {
+          "assertion_id": "a1",
+          "source_id": "a",
+          "attribute": "status",
+          "value": "active",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": "2026-02-02T12:00:00+00:00",
+          "upstream_source_ids": [
+            "b"
+          ],
+          "cited_source_ids": [
+            "b"
+          ],
+          "parent_assertion_ids": [
+            "b1"
+          ]
+        },
+        {
+          "assertion_id": "b1",
+          "source_id": "b",
+          "attribute": "status",
+          "value": "active",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": "2026-02-02T11:00:00+00:00",
+          "upstream_source_ids": [],
+          "cited_source_ids": [],
+          "parent_assertion_ids": []
+        }
+      ],
+      "expected_signals": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.5,
+        0.0,
+        0.0
+      ],
+      "expected_observability": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "expected_evidence": {
+        "source_a_upstream_of_source_b": false,
+        "source_b_upstream_of_source_a": true,
+        "source_a_cites_source_b": true,
+        "source_b_cites_source_a": false,
+        "source_a_parent_count": 1,
+        "source_b_parent_count": 0,
+        "same_owner": true,
+        "matching_claim_count": 1,
+        "qualifying_time_deltas_seconds": [
+          3600.0
+        ]
+      },
+      "expected_dependency": 1.0,
+      "expected_weighted_signal_coverage": 0.75
+    },
+    {
+      "name": "unobservable_metadata",
+      "sources": [
+        {
+          "id": "a",
+          "owner_id": null
+        },
+        {
+          "id": "b",
+          "owner_id": null
+        }
+      ],
+      "observations": [
+        {
+          "assertion_id": "a1",
+          "source_id": "a",
+          "attribute": "status",
+          "value": "active",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": null,
+          "upstream_source_ids": null,
+          "cited_source_ids": null,
+          "parent_assertion_ids": null
+        },
+        {
+          "assertion_id": "b1",
+          "source_id": "b",
+          "attribute": "status",
+          "value": "active",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": null,
+          "upstream_source_ids": null,
+          "cited_source_ids": null,
+          "parent_assertion_ids": null
+        }
+      ],
+      "expected_signals": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "expected_observability": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "expected_dependency": 0.0,
+      "expected_weighted_signal_coverage": 0.0
+    },
+    {
+      "name": "source_aggregation",
+      "sources": [
+        {
+          "id": "a",
+          "owner_id": "owner-a"
+        },
+        {
+          "id": "b",
+          "owner_id": "owner-b"
+        }
+      ],
+      "observations": [
+        {
+          "assertion_id": "a1",
+          "source_id": "a",
+          "attribute": "first",
+          "value": "same",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": "2026-02-02T12:00:00+00:00",
+          "upstream_source_ids": [
+            "b"
+          ],
+          "cited_source_ids": [],
+          "parent_assertion_ids": []
+        },
+        {
+          "assertion_id": "a2",
+          "source_id": "a",
+          "attribute": "second",
+          "value": "same",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": "2026-02-02T12:00:00+00:00",
+          "upstream_source_ids": [],
+          "cited_source_ids": [],
+          "parent_assertion_ids": []
+        },
+        {
+          "assertion_id": "b1",
+          "source_id": "b",
+          "attribute": "first",
+          "value": "same",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": "2026-02-02T11:00:00+00:00",
+          "upstream_source_ids": [],
+          "cited_source_ids": [],
+          "parent_assertion_ids": []
+        },
+        {
+          "assertion_id": "b2",
+          "source_id": "b",
+          "attribute": "second",
+          "value": "same",
+          "observed_at": "2026-02-02T12:00:00+00:00",
+          "source_modified_at": "2026-02-02T11:00:00+00:00",
+          "upstream_source_ids": [],
+          "cited_source_ids": [],
+          "parent_assertion_ids": []
+        }
+      ],
+      "expected_signals": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5,
+        0.0,
+        0.0
+      ],
+      "expected_observability": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "expected_dependency": 1.0,
+      "expected_weighted_signal_coverage": 0.8500000000000001
+    }
+  ],
+  "matrix_case": {
+    "sources": [
+      "c",
+      "b",
+      "a"
+    ],
+    "expected_pairs": [
+      [
+        "a",
+        "b"
+      ],
+      [
+        "a",
+        "c"
+      ],
+      [
+        "b",
+        "c"
+      ]
+    ],
+    "expected_dependencies": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "expected_weighted_signal_coverages": [
+      0.75,
+      0.75,
+      0.75
+    ]
+  },
+  "cluster_case": {
+    "sources": [
+      "a",
+      "b",
+      "c"
+    ],
+    "threshold": 0.4,
+    "dependencies": [
+      {
+        "source_a": "a",
+        "source_b": "b",
+        "dependency": 0.5
+      },
+      {
+        "source_a": "a",
+        "source_b": "c",
+        "dependency": 0.1
+      },
+      {
+        "source_a": "b",
+        "source_b": "c",
+        "dependency": 0.4
+      }
+    ],
+    "expected_components": [
+      [
+        "a",
+        "b",
+        "c"
+      ]
+    ]
+  }
+}

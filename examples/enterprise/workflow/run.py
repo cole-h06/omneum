@@ -62,7 +62,7 @@ def estimator_config():
         temporal_weight=10.0,
         graph_weight=15.0,
         temporal_window_seconds=172_800.0,
-        estimator_version="dependency-estimator-v3",
+        estimator_version="dependency-estimator-v4",
         dependency_cluster_threshold=0.4,
     )
 

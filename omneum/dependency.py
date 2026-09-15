@@ -1,7 +1,6 @@
 import math
 
 from dataclasses import dataclass, field
-from datetime import timedelta
 from itertools import combinations
 
 from .canonicalization import (
@@ -70,7 +69,7 @@ class DependencyEstimatorConfig:
         repr=False,
     )
     estimator_version: str = field(
-        default="dependency-estimator-v3",
+        default="dependency-estimator-v4",
         repr=False,
     )
     dependency_cluster_threshold: float | None = field(
@@ -82,7 +81,7 @@ class DependencyEstimatorConfig:
         if type(self.estimator_version) is not str:
             raise TypeError("estimator_version must be a string")
 
-        if self.estimator_version != "dependency-estimator-v3":
+        if self.estimator_version != "dependency-estimator-v4":
             raise ValueError("unsupported dependency estimator version")
 
         for name in SIGNALS:
@@ -222,9 +221,9 @@ class DependencyEvidence:
                     "qualifying time deltas must be floats"
                 )
 
-            if not math.isfinite(value) or value <= 0.0:
+            if not math.isfinite(value) or value < 0.0:
                 raise ValueError(
-                    "qualifying time deltas must be positive"
+                    "qualifying time deltas must be non-negative"
                 )
 
 
@@ -417,13 +416,39 @@ def combine_dependency(
     if observed_total == 0.0:
         return 0.0, 0.0
 
-    dependency = max(
-        getattr(signals, name)
-        for name in SIGNALS
+    direct_signals = (
+        "upstream",
+        "citation",
+        "assertion_lineage",
+    )
+
+    direct_dependency = max(
+        (
+            getattr(signals, name)
+            for index, name in enumerate(SIGNALS)
+            if (
+                name in direct_signals
+                and name not in excluded_signals
+                and base_weights[index] > 0.0
+                and getattr(signals, f"{name}_observable")
+            )
+        ),
+        default=0.0,
+    )
+
+    contextual_dependency = sum(
+        base_weights[index] * getattr(signals, name)
+        for index, name in enumerate(SIGNALS)
         if (
-            name not in excluded_signals
+            name not in direct_signals
+            and name not in excluded_signals
             and getattr(signals, f"{name}_observable")
         )
+    )
+
+    dependency = max(
+        direct_dependency,
+        contextual_dependency,
     )
 
     coverage = observed_total
@@ -994,41 +1019,21 @@ def _signals(
     time_deltas = ()
 
     if temporal_observable:
-        window = timedelta(
-            seconds=config.temporal_window_seconds
-        )
-
-        qualifying_a = sum(
-            timedelta(0)
-            < (
-                properties_a[
-                    key
-                ][0].source_modified_at
-                - properties_b[
-                    key
-                ][0].source_modified_at
+        temporal = sum(
+            max(
+                0.0,
+                1.0
+                - (
+                    abs(
+                        (
+                            properties_a[key][0].source_modified_at
+                            - properties_b[key][0].source_modified_at
+                        ).total_seconds()
+                    )
+                    / config.temporal_window_seconds
+                ),
             )
-            <= window
             for key in matches
-        )
-
-        qualifying_b = sum(
-            timedelta(0)
-            < (
-                properties_b[
-                    key
-                ][0].source_modified_at
-                - properties_a[
-                    key
-                ][0].source_modified_at
-            )
-            <= window
-            for key in matches
-        )
-
-        temporal = max(
-            qualifying_a,
-            qualifying_b,
         ) / len(matches)
 
         time_deltas = tuple(
@@ -1045,7 +1050,7 @@ def _signals(
             for key in matches
             if (
                 0.0
-                < abs(
+                <= abs(
                     (
                         properties_a[
                             key

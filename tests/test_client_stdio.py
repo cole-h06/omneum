@@ -122,7 +122,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     fixture_path = (
         Path(__file__).parent
         / "vectors"
-        / "enterprise_stdio_assertion_evaluation_v2.json"
+        / "enterprise_stdio_assertion_evaluation_v3.json"
     )
     fixture = json.loads(fixture_path.read_text())
     sources = {
@@ -299,7 +299,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
         "Independence: 0.00\n\n"
         "• Direct citation\n"
         "• Same owner\n"
-        "• Updated 1 hour apart\n"
+        "• Update gaps: 0 days, 1 hour\n"
         "• 2 matching claims"
     )
     assert first.dependency_cluster_threshold == 0.4

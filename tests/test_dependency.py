@@ -21,7 +21,7 @@ from omneum.information import Claim, Observation, Retrieval, Source, SourceRefe
 
 
 NOW = datetime(2026, 2, 2, 12, tzinfo=timezone.utc)
-VECTOR = Path(__file__).parent / "vectors" / "dependency_estimator_v3.json"
+VECTOR = Path(__file__).parent / "vectors" / "dependency_estimator_v4.json"
 
 WEIGHTS = {
     "upstream_weight": 0.25,
@@ -123,7 +123,7 @@ def vector_observation(item, sources):
 def test_vectors():
     vector = json.loads(VECTOR.read_text())
 
-    assert vector["estimator_version"] == "dependency-estimator-v3"
+    assert vector["estimator_version"] == "dependency-estimator-v4"
     assert tuple(vector["signal_order"]) == dependency.SIGNALS
     assert vector["output_comparison"] == {
         "mode": "exact_binary64",
@@ -378,7 +378,7 @@ def test_all_dependency_signals():
         citation=1.0,
         assertion_lineage=1.0,
         ownership=1.0,
-        temporal=1.0,
+        temporal=0.5,
         graph=0.0,
         upstream_observable=True,
         citation_observable=True,
@@ -856,3 +856,51 @@ def test_graph_agreement():
         result.dependency == 0.0
         for result in results
     )
+
+
+def test_temporal_proximity():
+    def temporal(hours):
+        result = pair((
+            observation(
+                "a1",
+                "a.example",
+                source_modified_at=NOW,
+            ),
+            observation(
+                "b1",
+                "b.example",
+                source_modified_at=NOW - timedelta(hours=hours),
+            ),
+        ))
+        return (
+            result.signals.temporal,
+            result.dependency,
+            result.evidence.qualifying_time_deltas_seconds,
+        )
+
+    same_signal, same_dependency, same_deltas = temporal(0)
+    near_signal, near_dependency, _ = temporal(1)
+    edge_signal, edge_dependency, _ = temporal(2)
+    far_signal, far_dependency, _ = temporal(3)
+
+    assert same_signal == pytest.approx(1.0)
+    assert same_deltas == (0.0,)
+    assert near_signal == pytest.approx(0.5)
+    assert edge_signal == pytest.approx(0.0)
+    assert far_signal == pytest.approx(0.0)
+
+    assert same_signal > near_signal > edge_signal
+    assert same_dependency < 1.0
+    assert near_dependency < 1.0
+    assert far_dependency == 0.0
+
+
+def test_direct_dependency_not_diluted():
+    signals = empty_signals(
+        upstream=1.0,
+        temporal=0.0,
+    )
+
+    value, _ = combine_dependency(signals, config())
+
+    assert value == pytest.approx(1.0)
