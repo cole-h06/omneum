@@ -286,6 +286,19 @@ def test_key_rejections(daemon, mutation):
     assert result.stderr == b"omneumd: startup or service failure\n"
 
 
+
+def test_help_without_install():
+    result = subprocess.run(
+        [str(BINARY), "--help"],
+        capture_output=True,
+        timeout=3,
+    )
+
+    assert result.returncode == 0
+    assert result.stdout == b"Usage: omneumd <provision|serve> [options]\n"
+    assert result.stderr == b""
+
+
 def test_provision(daemon):
     daemon.process.terminate()
     daemon.process.wait(timeout=3)

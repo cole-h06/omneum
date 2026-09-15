@@ -116,6 +116,15 @@ pub fn main_entry() -> io::Result<()> {
         .map(|arg| arg.into_string().map_err(|_| os::denied()))
         .collect::<io::Result<_>>()?;
     let command = args.first().ok_or_else(os::denied)?;
+
+    match command.as_str() {
+        "--help" | "-h" => {
+            println!("Usage: omneumd <provision|serve> [options]");
+            return Ok(());
+        }
+        _ => {}
+    }
+
     let settings = Settings::parse(&args[1..])?;
     os::harden(settings.test_mode)?;
     // No socket activation or inherited IPC is supported. Close descriptors before key access.
