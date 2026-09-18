@@ -1,10 +1,13 @@
 # Normative algorithm compatibility
 
-Omneum independently implements the algorithm defined by the upstream
-specification/reference/frozen fixtures. It never imports the upstream Python
-reference to produce scores or generate expected outputs.
+The accepted upstream BRAID specification and frozen fixtures define the
+algorithm implemented independently by Omneum. Conformance uses Omneum's
+production modules and upstream-owned expected values; it never executes
+upstream programs, configuration commands or the Python reference implementation.
+Local regression vectors supplement rather than replace the normative fixtures.
 
 `omneum/algorithm_compatibility.json` is the shipped compatibility pin:
+
 - schema version 1;
 - algorithm identity `braid`, version `braid-1.0.0`;
 - accepted Git revision `92e981234070da566e9186015ace4a41cbebc644`;
@@ -35,30 +38,28 @@ The current record-fixture format uses the same explicit two-hour temporal
 window as the upstream fixture adapter. It is not a universally calibrated
 algorithm default. Synthetic identity mapping changes labels only.
 
-Conformance imports only Omneum production modules. No upstream programs,
-configuration commands or reference implementation are executed. Expected
-values remain upstream-owned. Local downstream vectors remain regression tests,
-not replacements for normative fixtures.
-
 The CI Python matrix fetches the pinned specification commit and runs
 conformance before the full suite. Wheels and daemon artifacts depend on that
 test job. Configure repository branch protection to require its checks;
 a workflow file cannot enforce branch protection itself. The pinned upstream
-commit must be reachable in CI; this change does not push or publish it.
+commit must be reachable in CI.
 
 ## Accepted upgrades
 
-Follow the operator's explicit accepted-revision process. Candidate checks can
-use `--pin /private/path/candidate.json` without changing shipped metadata.
-Inspect upstream spec/reference/fixture changes, implement downstream, add
-regressions, pass candidate conformance and applicable tests, then advance the
-shipped pin and rerun checks. Unknown semantics stop the affected work.
-Acceptance is a human decision, not inferred from successful tests or a branch
-name. Tools never advance pins automatically.
+Candidate checks can use `--pin /private/path/candidate.json` without changing
+shipped metadata. To upgrade the accepted revision:
 
-Algorithm identity is data in compatibility metadata. A future rename changes
-that metadata and bounded repository/namespace references, not this protocol.
-Do not rewrite historical event provenance.
+1. Review upstream specification, reference and fixture changes. Resolve unknown
+   semantics before implementing the affected behavior.
+2. Update Omneum, add regressions, and pass candidate conformance and applicable tests.
+3. Obtain explicit human acceptance through the operator's accepted-revision process.
+4. Advance the shipped pin and rerun checks.
+
+Passing tests or using a particular branch does not constitute acceptance.
+Tools never advance pins automatically.
+
+Algorithm renames update compatibility metadata and the relevant repository or
+namespace references without changing the protocol or historical event provenance.
 
 The JSON pin and event schema ship with wheels/source distributions. A checked
 out but uncommitted implementation must be labeled dirty; the algorithm pin is

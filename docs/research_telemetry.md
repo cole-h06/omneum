@@ -1,15 +1,17 @@
 # Opt-in research telemetry, v1
 
-Operational metrics/logs and algorithm research records are separate streams.
-Existing `MetricsRecorder` behavior is unchanged. Research recording uses
-`omneum.research_telemetry` and is disabled unless the caller explicitly wraps
-an evaluation. No SDK signature, MCP payload or VOPRF flow changes.
+Research recording is opt-in: wrap an evaluation with
+`omneum.research_telemetry.record_evaluation` to record aggregate research events.
+It is separate from operational metrics and logs, preserves `MetricsRecorder`
+behavior, and requires no changes to SDK signatures, MCP payloads or VOPRF flows.
 
 ```python
 from uuid import uuid4
 from omneum.research_telemetry import (
-    EvaluationContext, ImplementationProvenance,
-    JsonlResearchRecorder, record_evaluation,
+    EvaluationContext,
+    ImplementationProvenance,
+    JsonlResearchRecorder,
+    record_evaluation,
 )
 
 context = EvaluationContext(
@@ -36,24 +38,20 @@ labeled as such, not authenticated. Never claim clean provenance for dirty
 local code. Remote-server revision is separately optional/unknown: the SDK's
 local verification does not establish the server's build identity.
 
-Only `checkout_provenance` grants the private in-process verification receipt
-required to construct and record verified-checkout provenance. The receipt is
-bound to the checked revision/state and is never serialized. JSON validation
-can read historical verification labels but does not authenticate them or grant
-a receipt: parsed records cannot be emitted as newly verified events. Recheck
-the checkout for a new evaluation. Supplied provenance remains unauthenticated.
+Verified-checkout provenance requires `checkout_provenance`, which binds a
+private, nonserialized receipt to the checked revision and state. Parsing a
+historical record preserves its labels but does not authenticate them or grant
+that receipt. Parsed records cannot be emitted as newly verified events;
+recheck the checkout for a new evaluation.
 
 Each invocation emits at most one completion event on success, exception or
-cancellation. Original results and exceptions are preserved. A recorder failure
-produces only a fixed operational warning, never exception contents; warning
-filters cannot change evaluation behavior. Latency measures the wrapped
+cancellation. Original results and exceptions, including evaluation cancellation,
+are preserved. Recorder failures, including `BaseException` subclasses, produce
+only a fixed operational warning, never exception contents. Failures in recording
+or warning delivery cannot change evaluation behavior. Latency measures the wrapped
 operation and excludes recording. Failure statistics not exposed by production
 remain null rather than guessed. This wrapper does not instrument arbitrary
 unwrapped or direct server requests.
-
-Recorder-side failures, including cancellation and other `BaseException`
-subclasses, are isolated only inside the recording/warning boundary. Cancellation
-raised by the evaluation itself is re-raised unchanged.
 
 ## Schema and privacy
 
@@ -63,6 +61,7 @@ unknown fields and schema versions fail closed. Tests keep schema and model
 in sync.
 
 Events contain only:
+
 - random event/run IDs, UTC completion time and optional UUID evidence/reproducer IDs;
 - normative algorithm identity/version/revision/fixture revision;
 - local and optional remote implementation provenance;
@@ -94,16 +93,16 @@ per stream is supported. Writes append a complete event and fsync before
 returning; I/O interruption may leave a truncated last line, which validators
 report rather than silently repair.
 
-The recorder protocol permits future adapters. Trace/span IDs provide a clean
-correlation point for OpenTelemetry without introducing an SDK, collector,
-backend, dashboard or high-cardinality metric labels now.
+Custom adapters can implement the recorder protocol. Optional trace/span IDs
+support correlation with OpenTelemetry; recording does not require its SDK or
+a collector.
 
 ## Reproduction and research
 
-Aggregate events are not full graph reproductions. Attach a separately reviewed,
-synthetic structural reproducer through the operator, or explicitly document
-what is missing and how to construct one. Keep raw private evidence out of
-research artifacts. Human/agent classification has five categories:
+Aggregate events are not full graph reproductions. Submit a separately reviewed,
+synthetic structural reproducer through the operator, or document the missing
+information and how to construct one. Keep raw private evidence out of research
+artifacts. Research classifications have five categories:
 implementation bug, integration/mapping issue, packaging/infrastructure issue,
 expected behavior, and unresolved research question.
 
