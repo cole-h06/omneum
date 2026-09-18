@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "algorithm_id": "braid",
+  "algorithm_version": "braid-1.0.0",
+  "specification_repository": "https://github.com/cole-h06/braid.git",
+  "git_revision": "92e981234070da566e9186015ace4a41cbebc644",
+  "fixture_revision": 1,
+  "manifest_path": "research/algorithm.json"
+}

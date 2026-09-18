@@ -1,0 +1,558 @@
+{
+  "$defs": {
+    "AlgorithmProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "identity": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "title": "Identity",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "title": "Version",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Revision",
+          "type": "string"
+        },
+        "fixture_revision": {
+          "minimum": 1,
+          "title": "Fixture Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "identity",
+        "version",
+        "revision",
+        "fixture_revision"
+      ],
+      "title": "AlgorithmProvenance",
+      "type": "object"
+    },
+    "Convergence": {
+      "additionalProperties": false,
+      "properties": {
+        "converged": {
+          "title": "Converged",
+          "type": "boolean"
+        },
+        "iterations": {
+          "minimum": 0,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "delta": {
+          "minimum": 0,
+          "title": "Delta",
+          "type": "number"
+        },
+        "tolerance": {
+          "exclusiveMinimum": 0,
+          "title": "Tolerance",
+          "type": "number"
+        }
+      },
+      "required": [
+        "converged",
+        "iterations",
+        "delta",
+        "tolerance"
+      ],
+      "title": "Convergence",
+      "type": "object"
+    },
+    "EstimatorParameters": {
+      "additionalProperties": false,
+      "properties": {
+        "identity": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+          "title": "Identity",
+          "type": "string"
+        },
+        "weights": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "propertyNames": {
+            "enum": [
+              "upstream",
+              "citation",
+              "assertion_lineage",
+              "ownership",
+              "temporal",
+              "graph",
+              "retrieval"
+            ]
+          },
+          "title": "Weights",
+          "type": "object"
+        },
+        "temporal_window_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Temporal Window Seconds",
+          "type": "number"
+        },
+        "cluster_threshold": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cluster Threshold"
+        }
+      },
+      "required": [
+        "identity",
+        "weights",
+        "temporal_window_seconds",
+        "cluster_threshold"
+      ],
+      "title": "EstimatorParameters",
+      "type": "object"
+    },
+    "EvaluationContext": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "format": "uuid",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "implementation": {
+          "$ref": "#/$defs/ImplementationProvenance"
+        },
+        "remote_implementation": {
+          "$ref": "#/$defs/ImplementationProvenance",
+          "default": {
+            "revision": null,
+            "state": "unknown",
+            "origin": "unknown"
+          }
+        },
+        "evidence_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Id"
+        },
+        "reproducer_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reproducer Id"
+        },
+        "trace_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trace Id"
+        },
+        "span_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{16}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Span Id"
+        }
+      },
+      "required": [
+        "run_id",
+        "implementation"
+      ],
+      "title": "EvaluationContext",
+      "type": "object"
+    },
+    "GraphDimensions": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "minimum": 0,
+          "title": "Sources",
+          "type": "integer"
+        },
+        "claims": {
+          "minimum": 0,
+          "title": "Claims",
+          "type": "integer"
+        },
+        "attributes": {
+          "minimum": 0,
+          "title": "Attributes",
+          "type": "integer"
+        },
+        "edges": {
+          "minimum": 0,
+          "title": "Edges",
+          "type": "integer"
+        },
+        "pairs": {
+          "minimum": 0,
+          "title": "Pairs",
+          "type": "integer"
+        },
+        "directed_conflicts": {
+          "minimum": 0,
+          "title": "Directed Conflicts",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sources",
+        "claims",
+        "attributes",
+        "edges",
+        "pairs",
+        "directed_conflicts"
+      ],
+      "title": "GraphDimensions",
+      "type": "object"
+    },
+    "ImplementationProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "revision": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{40}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "state": {
+          "default": "unknown",
+          "enum": [
+            "clean",
+            "dirty",
+            "unknown"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "origin": {
+          "default": "unknown",
+          "enum": [
+            "verified_checkout",
+            "supplied",
+            "unknown"
+          ],
+          "title": "Origin",
+          "type": "string"
+        }
+      },
+      "title": "ImplementationProvenance",
+      "type": "object"
+    },
+    "SignalSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "observable_pairs": {
+          "minimum": 0,
+          "title": "Observable Pairs",
+          "type": "integer"
+        },
+        "total_pairs": {
+          "minimum": 0,
+          "title": "Total Pairs",
+          "type": "integer"
+        },
+        "mean_observed_value": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean Observed Value"
+        }
+      },
+      "required": [
+        "observable_pairs",
+        "total_pairs",
+        "mean_observed_value"
+      ],
+      "title": "SignalSummary",
+      "type": "object"
+    },
+    "Summary": {
+      "additionalProperties": false,
+      "properties": {
+        "count": {
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Minimum"
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Maximum"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean"
+        }
+      },
+      "required": [
+        "count",
+        "minimum",
+        "maximum",
+        "mean"
+      ],
+      "title": "Summary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "event_type": {
+      "const": "algorithm_evaluation_completed",
+      "default": "algorithm_evaluation_completed",
+      "title": "Event Type",
+      "type": "string"
+    },
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "context": {
+      "$ref": "#/$defs/EvaluationContext"
+    },
+    "algorithm": {
+      "$ref": "#/$defs/AlgorithmProvenance"
+    },
+    "estimator": {
+      "$ref": "#/$defs/EstimatorParameters"
+    },
+    "outcome": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "failure_code": {
+      "anyOf": [
+        {
+          "enum": [
+            "inference_failure",
+            "invalid_input",
+            "transport_failure",
+            "mapping_failure",
+            "evaluation_rejected",
+            "response_failure",
+            "cancelled",
+            "unknown_failure"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Failure Code"
+    },
+    "classification": {
+      "anyOf": [
+        {
+          "enum": [
+            "implementation_bug",
+            "integration_mapping",
+            "packaging_infrastructure",
+            "expected_behavior",
+            "research_question"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Classification"
+    },
+    "latency_ms": {
+      "minimum": 0,
+      "title": "Latency Ms",
+      "type": "number"
+    },
+    "graph": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GraphDimensions"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dependency": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Summary"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "signal_coverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Summary"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "signals": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/SignalSummary"
+          },
+          "propertyNames": {
+            "enum": [
+              "upstream",
+              "citation",
+              "assertion_lineage",
+              "ownership",
+              "temporal",
+              "graph",
+              "retrieval"
+            ]
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Signals"
+    },
+    "effective_support": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Summary"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "convergence": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Convergence"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "event_id",
+    "timestamp",
+    "context",
+    "algorithm",
+    "estimator",
+    "outcome",
+    "failure_code",
+    "latency_ms",
+    "graph",
+    "dependency",
+    "signal_coverage",
+    "signals",
+    "effective_support",
+    "convergence"
+  ],
+  "title": "ResearchEvent",
+  "type": "object"
+}

@@ -1,5 +1,11 @@
 # Omneum
 
+Algorithm authority flows from the accepted research specification and its
+frozen fixtures to this independent production implementation.
+See [algorithm compatibility](docs/algorithm_compatibility.md) for the exact
+revision pin and conformance gate, and [opt-in research telemetry](docs/research_telemetry.md)
+for the privacy-safe feedback workflow.
+
 Omneum is an open-source data trust gateway for agentic systems. It evaluates information returned by retrieval and tool execution before that information is included in the next model context.
 
 Agent workflows routinely assemble context from search results, APIs, databases, internal services, documents, MCP tools, and outputs from earlier agent steps. Omneum evaluates how much independent support exists for the structured assertions produced by those systems, surfaces conflicting values, and preserves source relationships without adding another LLM call.

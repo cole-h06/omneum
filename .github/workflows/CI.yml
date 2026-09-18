@@ -14,6 +14,8 @@ jobs:
   test:
     name: Test Python ${{ matrix.python }}
     runs-on: ubuntu-22.04
+    env:
+      ALGORITHM_SPEC_CHECKOUT: ${{ github.workspace }}/.algorithm-spec
     strategy:
       fail-fast: false
       matrix:
@@ -33,6 +35,31 @@ jobs:
         run: |
           uv lock --check
           uv sync --locked
+      - name: Read exact algorithm compatibility pin
+        id: algorithm
+        run: |
+          uv run --locked python - <<'PY'
+          import os
+          import re
+          from urllib.parse import urlparse
+          from omneum.compatibility import load_pin
+          pin = load_pin()
+          location = urlparse(pin["specification_repository"])
+          repository = location.path.removeprefix("/").removesuffix(".git")
+          if location.scheme != "https" or location.netloc != "github.com" or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
+              raise SystemExit("unsupported specification repository")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"repository={repository}\nrevision={pin['git_revision']}\n")
+          PY
+      - name: Checkout pinned specification commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: ${{ steps.algorithm.outputs.repository }}
+          ref: ${{ steps.algorithm.outputs.revision }}
+          path: .algorithm-spec
+          persist-credentials: false
+      - name: Enforce independent algorithm conformance
+        run: uv run --locked python -m omneum.conformance --spec-checkout "$ALGORITHM_SPEC_CHECKOUT"
       - name: Test Python and native extension
         run: uv run --locked pytest
       - name: Test Rust
@@ -145,6 +172,7 @@ jobs:
         run: sudo .venv/bin/python tests/security/macos_install.py target/release/omneumd "$(id -u)"
 
   daemon-artifacts:
+    needs: test
     if: github.event_name != 'pull_request'
     name: Build daemon ${{ matrix.platform.os }} ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.runner }}

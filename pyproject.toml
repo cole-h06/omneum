@@ -58,6 +58,10 @@ crewai = { requires-python = ">=3.11,<3.14" }
 testpaths = ["tests"]
 
 [tool.maturin]
+include = [
+    { path = "omneum/algorithm_compatibility.json", format = ["sdist", "wheel"] },
+    { path = "omneum/schemas/research-event-v1.schema.json", format = ["sdist", "wheel"] },
+]
 module-name = "omneum_oprf"
 python-packages = ["omneum"]
 locked = true
