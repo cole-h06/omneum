@@ -96,6 +96,32 @@ jobs:
           sudo /opt/omneum/.venv/bin/python -B /opt/omneum/tests/security/linux_runtime.py
           sudo /opt/omneum/.venv/bin/python -B /opt/omneum/tests/security/linux_adversarial.py
 
+  linux-foreground:
+    name: Verify Linux foreground installation
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14"
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.10"
+          checksum: "51c6170e8e3a01cef9f33b94f582b7b81ac65046f55d40afb35f9cff5a68c179"
+          python-version: "3.14"
+          enable-cache: false
+
+      - name: Install development environment
+        run: uv sync --locked
+
+      - name: Build daemon
+        run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
+
+      - name: Verify foreground installation
+        run: sudo .venv/bin/python tests/security/linux_foreground.py target/release/omneumd
+
   build:
     needs: test
     if: github.event_name != 'pull_request'
@@ -215,6 +241,7 @@ jobs:
           mkdir -p daemon-artifact/systemd daemon-artifact/sysusers.d
           cp "${{ matrix.platform.binary }}" daemon-artifact/omneumd
           cp deploy/install.sh daemon-artifact/
+          cp deploy/install-foreground.sh daemon-artifact/
           cp deploy/systemd/omneumd.service daemon-artifact/systemd/
           cp deploy/sysusers.d/omneum.conf daemon-artifact/sysusers.d/
 
