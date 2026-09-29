@@ -116,6 +116,9 @@ jobs:
       - name: Install development environment
         run: uv sync --locked
 
+      - name: Build native extension
+        run: uv run maturin develop --locked
+
       - name: Build daemon
         run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
 
