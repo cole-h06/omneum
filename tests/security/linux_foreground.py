@@ -11,6 +11,7 @@ import subprocess
 import sys
 import time
 
+import omneum_oprf
 from omneum.daemon import DaemonServerContext
 from omneum.oprf import OPRFError, VOPRFClient
 
