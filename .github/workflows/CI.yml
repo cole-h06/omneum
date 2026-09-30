@@ -31,6 +31,13 @@ jobs:
           checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
           python-version: ${{ matrix.python }}
           enable-cache: false
+      - name: Check daemon release contract
+        run: python -m unittest discover -s tools -p 'test_release_daemon.py' -v
+      - name: Validate release tag against Python package version
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python tools/release_daemon.py validate --tag "$RELEASE_TAG"
       - name: Check lockfile and install development environment
         run: |
           uv lock --check
@@ -253,3 +260,79 @@ jobs:
         with:
           name: daemon-${{ matrix.platform.os }}-${{ matrix.platform.target }}
           path: daemon-artifact/
+
+  prepare-daemon-release:
+    name: Prepare daemon release assets
+    needs: [test, build, linux-foreground, macos-install, daemon-artifacts]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'cole-h06/omneum'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      actions: read
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - name: Validate exact release version
+        run: python tools/release_daemon.py validate --tag "$RELEASE_TAG"
+      - name: Download this run's staged daemon artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for platform in linux-x86_64 macos-aarch64 macos-x86_64; do
+            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+              --name "daemon-$platform" --dir "daemon-artifacts/daemon-$platform"
+          done
+      - name: Prepare and verify deterministic archives and checksums
+        run: python tools/release_daemon.py prepare --tag "$RELEASE_TAG"
+      - name: Upload complete release asset set
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: daemon-release-assets
+          path: release-assets/
+          if-no-files-found: error
+
+  publish-daemon-release:
+    name: Publish daemon GitHub Release
+    needs: prepare-daemon-release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'cole-h06/omneum'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      actions: read
+    concurrency:
+      group: daemon-release-${{ github.ref }}
+      cancel-in-progress: false
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - name: Download and verify prepared release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name daemon-release-assets --dir release-assets
+          python tools/release_daemon.py verify --tag "$RELEASE_TAG"
+      - name: Upload assets to a draft, verify uploaded bytes, then publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --verify-tag --draft --title "Omneum $RELEASE_TAG" \
+            --notes "Versioned native daemon bundles. See deploy/README.md for the artifact and checksum contract." \
+            release-assets/*
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir uploaded-assets
+          python tools/release_daemon.py verify --tag "$RELEASE_TAG" --output uploaded-assets
+          diff -r release-assets uploaded-assets
+          gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false

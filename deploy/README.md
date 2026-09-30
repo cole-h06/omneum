@@ -145,3 +145,88 @@ Before migration, stop unmanaged MCP processes and review existing jobs/startup
 files for that identity. The service boundary applies to managed sessions and
 their descendants, not to arbitrary processes an administrator launches outside
 it. Build and initialization environments remain administrative trust domains.
+
+## Versioned daemon release artifacts
+
+Native daemon bundles are published to GitHub Releases in `cole-h06/omneum`.
+The Python package's literal `project.version` in `pyproject.toml` is the version
+authority; the Cargo crate version is independent. For version `1.0.3`, the only
+valid release tag is `v1.0.3`, and the release asset set is:
+
+- `omneum-daemon-1.0.3-linux-x86_64.tar.gz`
+- `omneum-daemon-1.0.3-macos-aarch64.tar.gz`
+- `omneum-daemon-1.0.3-macos-x86_64.tar.gz`
+- `SHA256SUMS`
+
+The exact-version URL contract is:
+
+```text
+https://github.com/cole-h06/omneum/releases/download/v<version>/omneum-daemon-<version>-<platform>.tar.gz
+https://github.com/cole-h06/omneum/releases/download/v<version>/SHA256SUMS
+```
+
+`<platform>` is exactly `linux-x86_64`, `macos-aarch64`, or `macos-x86_64`.
+There is no `latest` fallback or cross-platform substitution. These names describe
+the existing native CI builds; they do not promise compatibility with all Linux
+libcs or older operating systems. Linux builds currently use Ubuntu 22.04, and
+macOS builds use the macOS 15 ARM/Intel runners.
+
+Archives contain files directly at their root, with no enclosing version folder:
+
+- Linux: `omneumd`, `install.sh`, `install-foreground.sh`,
+  `systemd/omneumd.service`, and `sysusers.d/omneum.conf`.
+- macOS: `omneumd`, `install-macos.sh`, and
+  `launchd/ai.omneum.omneumd.plist`.
+
+These are the existing staged daemon artifacts, including the hardened installation
+assets. Daemon and scripts have archive mode `0755`, templates `0644`, and
+subdirectories `0755`. Packaging sorts members and fixes ownership to UID/GID 0,
+owner/group names to empty strings, and tar/gzip timestamps to zero. The gzip
+header omits the filename. This makes packaging deterministic for identical staged
+bytes and the same Python/zlib toolchain; it does not claim reproducible native
+compilation across builds. No installation scripts or security checks are changed.
+
+`SHA256SUMS` is ASCII with one newline-terminated entry per archive, ordered Linux
+x86_64, macOS aarch64, macOS x86_64. Each entry is the lowercase SHA-256 digest of
+the **compressed archive bytes**, two spaces, and the exact archive basename.
+A future installer must retrieve the manifest and selected archive from the same
+exact-version release over HTTPS, require exactly one valid entry for the selected
+filename, and verify the digest before extraction or execution. Missing, duplicate,
+malformed, or mismatched entries must fail closed. The manifest supplies integrity
+relative to the trusted GitHub Release; it is not a separate cryptographic signature.
+With all three archives downloaded into one directory, administrators can check:
+
+```sh
+sha256sum --check SHA256SUMS       # Linux
+shasum -a 256 --check SHA256SUMS  # macOS
+```
+
+Only `v*` tag **pushes** in the canonical repository can publish. CI rejects any tag
+that is not exactly `v<project.version>`, requires the existing test, wheel,
+foreground-install, macOS-install, and daemon-artifact jobs to succeed, and fails
+on missing/extra staged files, invalid archives, or checksum errors. Preparation
+has read-only repository access. Only the publication job gets `contents: write`;
+both release jobs have `actions: read` to fetch artifacts from their own run.
+All Actions references remain pinned to immutable commit SHAs.
+
+Publication verifies the complete asset set again, creates a draft using an
+already-existing tag, uploads assets, downloads and checks the uploaded bytes,
+and only then publishes. A failed upload/verification can leave an unpublished
+draft requiring administrator inspection and removal before retrying. Existing
+releases are not overwritten. CI never creates/pushes tags and does not publish
+to PyPI. Pull requests and manual branch runs retain their existing behavior.
+
+The offline contract checks run in the existing Python test matrix and can also
+be run locally without building the daemon or publishing:
+
+```sh
+python3 -m unittest discover -s tools -p 'test_release_daemon.py' -v
+python3 tools/release_daemon.py validate --tag v1.0.3
+# With staged daemon-<platform>/ directories under daemon-artifacts/:
+python3 tools/release_daemon.py prepare --tag v1.0.3
+python3 tools/release_daemon.py verify --tag v1.0.3
+```
+
+Preparation requires a fresh `release-assets/` output directory. This establishes
+the distribution contract only; `omneum install` is not implemented. The current
+administrator installation instructions above continue to apply.
