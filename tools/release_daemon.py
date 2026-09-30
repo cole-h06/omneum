@@ -8,6 +8,10 @@ import re
 import tarfile
 import tempfile
 import tomllib
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "omneum"))
+from runtime_bundle import unpack
 
 
 PLATFORMS = ("linux-x86_64", "macos-aarch64", "macos-x86_64")
@@ -20,6 +24,15 @@ def layout(platform):
     if platform.startswith("linux-"):
         return {
             "omneumd": 0o755,
+            "omneum-server": 0o755,
+            "install-server.sh": 0o755,
+            "install_server.py": 0o644,
+            "install-linux.py": 0o644,
+            "runtime_bundle.py": 0o644,
+            "runtime.tar.gz": 0o644,
+            "systemd/omneum-server.socket": 0o644,
+            "systemd/omneum-server@.service": 0o644,
+            "sysusers.d/omneum-server.conf": 0o644,
             "install.sh": 0o755,
             "install-foreground.sh": 0o755,
             "systemd": 0o755,
@@ -78,6 +91,9 @@ def verify(directory, version):
             members = archive.getmembers()
             if [m.name for m in members] != sorted(expected_layout):
                 raise ValueError(f"invalid archive layout: {platform}")
+            if platform == "linux-x86_64":
+                with archive.extractfile("runtime.tar.gz") as runtime:
+                    unpack(runtime, version=version)
             for member in members:
                 is_directory = member.name in {"systemd", "sysusers.d", "launchd"}
                 valid_type = member.isdir() if is_directory else member.isfile() and member.size > 0

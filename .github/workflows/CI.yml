@@ -255,6 +255,52 @@ jobs:
           cp deploy/systemd/omneumd.service daemon-artifact/systemd/
           cp deploy/sysusers.d/omneum.conf daemon-artifact/sysusers.d/
 
+      - name: Set up runtime builder
+        if: matrix.platform.os == 'linux'
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.10"
+          checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
+          enable-cache: false
+
+      - name: Stage Linux managed server and offline runtime
+        if: matrix.platform.os == 'linux'
+        run: |
+          cargo build --locked --release --no-default-features --features daemon --bin omneum-server
+          cp target/release/omneum-server daemon-artifact/
+          cp deploy/install-server.sh deploy/install_server.py deploy/install-linux.py daemon-artifact/
+          cp omneum/runtime_bundle.py daemon-artifact/
+          cp deploy/systemd/omneum-server.socket deploy/systemd/omneum-server@.service daemon-artifact/systemd/
+          cp deploy/sysusers.d/omneum-server.conf daemon-artifact/sysusers.d/
+          # Build at the same fixed prefix used by the existing service definition.
+          sudo mkdir /opt/omneum
+          sudo env PATH="$PATH" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PROJECT_ENVIRONMENT=/opt/omneum/.venv UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project "$GITHUB_WORKSPACE" --locked --no-default-groups --no-editable --managed-python --python 3.13.15
+          version=$(sudo /opt/omneum/.venv/bin/python -I -B -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          sudo /opt/omneum/.venv/bin/python -I -B -c 'import omneum.server, omneum_oprf'
+          sudo /opt/omneum/.venv/bin/python -I -B tools/build_linux_runtime.py --version "$version" --output daemon-artifact/runtime.tar.gz
+          sudo chown -R "$(id -u):$(id -g)" daemon-artifact
+          # Test the shipped, link-free runtime at its final prefix, not the build venv.
+          sudo mv /opt/omneum /opt/omneum-build
+          sudo /usr/bin/python3 -I -B -c 'import runpy,sys; m=runpy.run_path("omneum/runtime_bundle.py"); m["unpack"](open("daemon-artifact/runtime.tar.gz", "rb"), "/opt/omneum", sys.argv[1])' "$version"
+          sudo chmod 755 /opt/omneum
+          test ! -L /opt
+          sudo chown root:root /opt
+          sudo chmod 755 /opt
+          sudo /usr/bin/python3 -I -B -c 'import runpy; runpy.run_path("deploy/install_server.py")["runtime"]()'
+          sudo /opt/omneum/.venv/bin/python -I -B -c 'import sys,omneum.server,omneum_oprf; from importlib.metadata import version; assert version("omneum") == sys.argv[1]' "$version"
+
+      - name: Verify fresh Linux public installation
+        if: matrix.platform.os == 'linux'
+        run: |
+          # Leave no pre-provisioned runtime for the public installation helper.
+          sudo mv /opt/omneum /opt/omneum-validated
+          test ! -L /usr/local/bin
+          sudo chown root:root /usr/local/bin
+          sudo chmod 755 /usr/local/bin
+          version=$(sudo /usr/bin/python3 -I -B -c 'import json; print(json.load(open("/opt/omneum-validated/runtime.json"))["version"])')
+          sudo /usr/bin/python3 -I -B daemon-artifact/install-linux.py "$GITHUB_WORKSPACE/daemon-artifact" "$(id -u)" "$version"
+          /opt/omneum/.venv/bin/python -I -B tests/security/linux_public_install.py
+
       - name: Upload daemon artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:

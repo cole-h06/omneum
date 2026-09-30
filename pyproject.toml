@@ -24,7 +24,7 @@ dependencies = [
 
 [project.scripts]
 omneum = "omneum.cli:app"
-omneum-server = "omneum.server:main"
+omneum-server = "omneum.proxy:main"
 
 [dependency-groups]
 dev = ["pytest>=8", "hypothesis>=6.161,<7", "maturin>=1,<2"]

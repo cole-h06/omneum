@@ -174,13 +174,17 @@ macOS builds use the macOS 15 ARM/Intel runners.
 Archives contain files directly at their root, with no enclosing version folder:
 
 - Linux: `omneumd`, `install.sh`, `install-foreground.sh`,
-  `systemd/omneumd.service`, and `sysusers.d/omneum.conf`.
+  `systemd/omneumd.service`, and `sysusers.d/omneum.conf`, plus the managed-server
+  assets: `omneum-server`, `install-server.sh`, `install_server.py`,
+  `install-linux.py`, `runtime_bundle.py`, `runtime.tar.gz`,
+  `systemd/omneum-server.socket`, `systemd/omneum-server@.service`, and
+  `sysusers.d/omneum-server.conf`.
 - macOS: `omneumd`, `install-macos.sh`, and
   `launchd/ai.omneum.omneumd.plist`.
 
 These are the existing staged daemon artifacts, including the hardened installation
-assets. Daemon and scripts have archive mode `0755`, templates `0644`, and
-subdirectories `0755`. Packaging sorts members and fixes ownership to UID/GID 0,
+assets. Native binaries and shell scripts have archive mode `0755`, templates `0644`, and
+Python helpers and the nested runtime archive use `0644`; subdirectories `0755`. Packaging sorts members and fixes ownership to UID/GID 0,
 owner/group names to empty strings, and tar/gzip timestamps to zero. The gzip
 header omits the filename. This makes packaging deterministic for identical staged
 bytes and the same Python/zlib toolchain; it does not claim reproducible native
@@ -228,5 +232,22 @@ python3 tools/release_daemon.py verify --tag v1.0.3
 ```
 
 Preparation requires a fresh `release-assets/` output directory. This establishes
-the distribution contract only; `omneum install` is not implemented. The current
-administrator installation instructions above continue to apply.
+the distribution contract used by `omneum install`. See [public installation](../docs/installation.md)
+for its platform limits. The administrator installation instructions above continue to apply.
+
+
+The Linux archive now carries the complete existing managed-server architecture;
+its asset name and the three-entry `SHA256SUMS` contract remain unchanged. The
+nested runtime contains only `.venv/`, `python/`, and `runtime.json`, with regular
+files/directories, no links, normalized ownership and modes, and a package-version
+marker tied to the outer tag. CI builds it non-editably from `uv.lock` at its final
+`/opt/omneum` prefix, materializes internal interpreter links (including the needed
+libpython beside venv executables), validates the packaged runtime after extraction,
+and exercises a fresh installation on a disposable systemd runner before release.
+A missing, invalid, or wrong-version runtime fails release preparation.
+
+`omneum install` orchestrates these primitives for normal users; see
+[public setup](../docs/installation.md). Existing scripts and service definitions
+above remain the authority for identity provisioning and isolation. The new helper
+adds no alternative daemon or server protocol. Different-version runtime upgrades
+remain an administrator operation; it never repairs an untrusted existing runtime.

@@ -31,28 +31,36 @@ Main features include:
 
 ### 1. Installation
 
-Install [uv 0.12.10](https://github.com/astral-sh/uv/releases/tag/0.12.10),
-Python 3.11–3.14, and a Rust toolchain. From the repository root, install the
-locked core runtime and activate it:
+On macOS (Apple silicon or Intel), or Ubuntu 22.04+ x86_64 with systemd,
+install Python 3.11–3.14, then run:
 
 ```bash
-uv sync --locked --no-default-groups
-source .venv/bin/activate
+pip install omneum
+omneum install
 ```
 
-Windows installs retain client cryptography; local server deployment requires Linux or macOS. The source install
-builds the native VOPRF extension using Maturin and `Cargo.lock`.
-For development, use `uv sync --locked`.
+Run `omneum install` as your normal login user. It downloads the daemon matching
+exactly your installed package version, verifies the release checksum, and asks
+for administrator authorization to install the protected service. A GitHub daemon
+release for that exact version must already be published.
 
-### 2. Initialize Omneum
+### 2. Initialization and platform requirements
 
-First follow the [daemon deployment instructions](docs/architecture.md#10-deployment), then initialize the public configuration as `omneum-mcp`:
+`omneum install` initializes public configuration and verifies an authenticated
+daemon evaluation before reporting readiness. Existing key pins are never replaced.
 
-```bash
-omneum init
-```
+On Linux, the command also installs a dedicated, root-owned Python runtime and the
+managed MCP server. Your account receives access to the client-facing proxy only;
+it never receives direct daemon or private-key access. `omneum-server` automatically
+uses that proxy, including immediately after installation without a new login.
+Linux without systemd requires administrator-managed supervision and is not an
+automatic installation target. Windows and other architectures do not support local
+daemon installation.
 
-This command obtains the initial public key from the authenticated daemon and creates public deployment configuration only.
+See [installation details](docs/installation.md) for failures and platform limits.
+For source/development installs, use `uv sync --locked` with the pinned uv version
+from `pyproject.toml` and a Rust toolchain. The lower-level [deployment instructions](deploy/README.md)
+and `omneum init` remain available to administrators.
 
 ### 3. Connect to the MCP Server
 

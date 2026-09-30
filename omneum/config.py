@@ -127,6 +127,12 @@ class DeploymentState:
 
 def load_config_file() -> dict[str, object]:
     path = get_config_dir() / "config.toml"
+    # Normal Linux clients read the administrator-pinned managed deployment.
+    # Preserve explicit overrides and existing per-user pins.
+    import sys
+    managed = Path('/etc/omneum/config.toml')
+    if sys.platform == 'linux' and not os.environ.get('OMNEUM_CONFIG_DIR') and not path.exists() and managed.is_file():
+        path = managed
 
     try:
         with path.open("rb") as file:

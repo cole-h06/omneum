@@ -1,6 +1,9 @@
 """Offline release contract checks; no daemon build or GitHub access required."""
 
 import hashlib
+import io
+import json
+import gzip
 import os
 from pathlib import Path
 import shutil
@@ -17,6 +20,22 @@ import release_daemon as release
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def runtime_fixture(version="1.0.3"):
+    output = io.BytesIO()
+    with tarfile.open(fileobj=output, mode="w") as tar:
+        for name in (".venv", ".venv/bin", ".venv/bin/python", ".venv/pyvenv.cfg", "python", "runtime.json"):
+            item = tarfile.TarInfo(name)
+            item.mode = 0o755
+            if name in (".venv", ".venv/bin", "python"):
+                item.type = tarfile.DIRTYPE
+                tar.addfile(item)
+            else:
+                data = json.dumps({"format": 1, "version": version, "prefix": "/opt/omneum"}).encode() if name == "runtime.json" else b"fixture"
+                item.size = len(data)
+                tar.addfile(item, io.BytesIO(data))
+    return gzip.compress(output.getvalue(), mtime=0)
+
+
 class ReleaseContractTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -31,11 +50,15 @@ class ReleaseContractTests(unittest.TestCase):
             source = self.staging / f"daemon-{platform}"
             source.mkdir(parents=True)
             names = (
-                ["install.sh", "install-foreground.sh", "systemd/omneumd.service", "sysusers.d/omneum.conf"]
+                ["install.sh", "install-foreground.sh", "install-server.sh", "install_server.py", "install-linux.py", "systemd/omneumd.service", "systemd/omneum-server.socket", "systemd/omneum-server@.service", "sysusers.d/omneum.conf", "sysusers.d/omneum-server.conf"]
                 if platform.startswith("linux-")
                 else ["install-macos.sh", "launchd/ai.omneum.omneumd.plist"]
             )
             (source / "omneumd").write_bytes(f"daemon for {platform}".encode())
+            if platform.startswith("linux-"):
+                (source / "omneum-server").write_bytes(b"proxy")
+                shutil.copyfile(ROOT / "omneum/runtime_bundle.py", source / "runtime_bundle.py")
+                (source / "runtime.tar.gz").write_bytes(runtime_fixture())
             for name in names:
                 target = source / name
                 target.parent.mkdir(exist_ok=True)
@@ -43,6 +66,12 @@ class ReleaseContractTests(unittest.TestCase):
 
     def prepare(self):
         release.prepare(self.staging, self.output, "1.0.3")
+
+    def test_runtime_version_must_match_release(self):
+        (self.staging / "daemon-linux-x86_64/runtime.tar.gz").write_bytes(runtime_fixture("1.0.4"))
+        with self.assertRaises(ValueError):
+            self.prepare()
+        self.assertFalse(self.output.exists())
 
     def test_exact_version_and_rejected_tags(self):
         self.assertEqual(release.version_for_tag(self.project, "v1.0.3"), "1.0.3")
@@ -72,7 +101,7 @@ class ReleaseContractTests(unittest.TestCase):
                     if member.isfile():
                         expected = self.staging / f"daemon-{platform}" / member.name
                         self.assertEqual(archive.extractfile(member).read(), expected.read_bytes())
-                        self.assertEqual(member.mode, 0o755 if member.name == "omneumd" or member.name.endswith(".sh") else 0o644)
+                        self.assertEqual(member.mode, 0o755 if member.name in ("omneumd", "omneum-server") or member.name.endswith(".sh") else 0o644)
         release.verify(self.output, "1.0.3")
 
     def test_deterministic_despite_source_metadata_and_output_path(self):
