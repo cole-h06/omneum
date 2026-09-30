@@ -91,7 +91,7 @@ def test_event_excludes_private_fields():
 def test_event_algorithm_revision():
     assert (
         event().algorithm.revision
-        == "92e981234070da566e9186015ace4a41cbebc644"
+        == "2405ec3375f8daf8fe25e5dff1a58c120d3e75ca"
     )
 
 

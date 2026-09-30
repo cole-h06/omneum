@@ -10,7 +10,7 @@ Local regression vectors supplement rather than replace the normative fixtures.
 
 - schema version 1;
 - algorithm identity `braid`, version `braid-1.0.0`;
-- accepted Git revision `92e981234070da566e9186015ace4a41cbebc644`;
+- accepted Git revision `2405ec3375f8daf8fe25e5dff1a58c120d3e75ca`;
 - fixture revision 1;
 - repository and manifest location.
 
