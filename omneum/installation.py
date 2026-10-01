@@ -280,7 +280,7 @@ def run_install(progress) -> None:
                            "Installation verifies the protected system daemon.")
     install_release(target, progress)
     if target == "linux-x86_64":
-        # Root orchestration already reused init under the protected MCP identity.
+        # The Linux installer already ran init as omneum-mcp.
         progress("Verifying connection...")
         try:
             verify_managed_connection()
@@ -303,7 +303,7 @@ def verify_managed_connection() -> None:
         command = linux_command()
         config = OmneumClientConfig.from_local_deployment()
         async with open_stdio_client(config, StdioServerParameters(command=command[0], args=command[1:])) as client:
-            await client.link_claim('installation', 'omneum', 'connection', 'verified')
+            await client.link_claim('service', 'omneum', 'connection', 'verified')
     async def bounded():
         await asyncio.wait_for(probe(), timeout=30)
     asyncio.run(bounded())

@@ -1,4 +1,4 @@
-"""Freeze CI's non-editable /opt/omneum environment into a relocatable-at-fixed-prefix archive."""
+"""Package CI's non-editable runtime for installation at /opt/omneum."""
 import argparse
 import gzip
 import io

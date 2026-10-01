@@ -1,4 +1,4 @@
-"""No network or privilege: exercise the existing-boundary orchestration and runtime format."""
+"""Linux installation and runtime checks use synthetic bundles; never network or sudo."""
 from contextlib import asynccontextmanager
 import gzip
 import importlib.util
@@ -22,7 +22,7 @@ spec.loader.exec_module(root_install)
 
 
 @pytest.mark.parametrize('connection_fails', [False, True])
-def test_linux_cli_complete_flow(monkeypatch, connection_fails):
+def test_linux_cli_end_to_end(monkeypatch, connection_fails):
     from omneum.cli import app
     from typer.testing import CliRunner
     monkeypatch.setattr(installation, 'detect_platform', lambda: 'linux-x86_64')
@@ -168,4 +168,4 @@ def test_end_user_probe_uses_proxy_and_sdk(monkeypatch):
         yield SimpleNamespace(link_claim=link)
     monkeypatch.setattr(client, 'open_stdio_client', open_client)
     installation.verify_managed_connection()
-    link.assert_awaited_once_with('installation', 'omneum', 'connection', 'verified')
+    link.assert_awaited_once_with('service', 'omneum', 'connection', 'verified')
