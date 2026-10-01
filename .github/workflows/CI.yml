@@ -31,8 +31,8 @@ jobs:
           checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
           python-version: ${{ matrix.python }}
           enable-cache: false
-      - name: Check daemon release contract
-        run: python -m unittest discover -s tools -p 'test_release_daemon.py' -v
+      - name: Check wheel and daemon release contracts
+        run: python -m unittest discover -s tools -p 'test_release_*.py' -v
       - name: Validate release tag against Python package version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         env:
@@ -173,11 +173,15 @@ jobs:
           args: --locked --release --out dist --interpreter python${{ matrix.python }}
           manylinux: auto
 
+      - name: Install and smoke-test built wheel outside checkout
+        run: python tools/release_wheels.py smoke --wheels dist
+
       - name: Upload wheel
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python }}
           path: dist/*.whl
+          if-no-files-found: error
 
   macos-install:
     name: Verify macOS installation
@@ -308,15 +312,15 @@ jobs:
           path: daemon-artifact/
 
   prepare-daemon-release:
-    name: Prepare daemon release assets
+    name: Validate wheels and prepare daemon release assets
     needs: [test, build, linux-foreground, macos-install, daemon-artifacts]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'cole-h06/omneum'
+    if: github.event_name != 'pull_request' && github.repository == 'cole-h06/omneum'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
       actions: read
     env:
-      RELEASE_TAG: ${{ github.ref_name }}
+      RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -325,7 +329,13 @@ jobs:
         with:
           python-version: "3.11"
       - name: Validate exact release version
-        run: python tools/release_daemon.py validate --tag "$RELEASE_TAG"
+        run: |
+          # Manual branch runs validate without publishing or creating a tag.
+          if [ -z "$RELEASE_TAG" ]; then
+            RELEASE_TAG=$(python -c 'import tomllib; print("v" + tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          fi
+          python tools/release_daemon.py validate --tag "$RELEASE_TAG"
+          echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
       - name: Download this run's staged daemon artifacts
         env:
           GH_TOKEN: ${{ github.token }}
@@ -336,6 +346,20 @@ jobs:
           done
       - name: Prepare and verify deterministic archives and checksums
         run: python tools/release_daemon.py prepare --tag "$RELEASE_TAG"
+      - name: Download this run's wheels and validate the complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern 'wheel-*' --dir wheel-artifacts
+          python tools/release_wheels.py prepare --tag "$RELEASE_TAG" \
+            --wheels wheel-artifacts --daemon-assets release-assets --output pypi-dist
+      - name: Upload validated Python wheels without rebuilding
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: python-release-wheels
+          path: pypi-dist/*.whl
+          if-no-files-found: error
       - name: Upload complete release asset set
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -374,6 +398,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # The installer downloads anonymously from this repository.
+          test "$(gh api "repos/$GITHUB_REPOSITORY" --jq '.visibility')" = public
           gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
             --verify-tag --draft --title "Omneum $RELEASE_TAG" \
             --notes "Versioned native daemon bundles. See deploy/README.md for the artifact and checksum contract." \
@@ -382,3 +408,55 @@ jobs:
           python tools/release_daemon.py verify --tag "$RELEASE_TAG" --output uploaded-assets
           diff -r release-assets uploaded-assets
           gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+
+  publish-pypi:
+    name: Publish validated wheels to PyPI
+    needs: publish-daemon-release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'cole-h06/omneum'
+    runs-on: ubuntu-22.04
+    # Configure PyPI's Trusted Publisher for cole-h06/omneum, CI.yml, environment pypi.
+    environment:
+      name: pypi
+      url: https://pypi.org/project/omneum/
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    concurrency:
+      group: pypi-release-${{ github.ref }}
+      cancel-in-progress: false
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - name: Download this run's validated distribution artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name python-release-wheels --dir pypi-dist
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name daemon-release-assets --dir release-assets
+          python tools/release_daemon.py verify --tag "$RELEASE_TAG"
+      - name: Require anonymous access to the exact published daemon bytes
+        run: |
+          mkdir public-release-assets
+          for asset in release-assets/*; do
+            name=$(basename "$asset")
+            curl --fail --silent --show-error --location --retry 3 \
+              --connect-timeout 30 --max-time 600 --proto '=https' --proto-redir '=https' \
+              "https://github.com/cole-h06/omneum/releases/download/$RELEASE_TAG/$name" \
+              --output "public-release-assets/$name"
+          done
+          diff -r release-assets public-release-assets
+          python tools/release_wheels.py verify --tag "$RELEASE_TAG" \
+            --wheels pypi-dist --daemon-assets public-release-assets
+      - name: Publish wheels using PyPI Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+        with:
+          packages-dir: pypi-dist/
