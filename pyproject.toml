@@ -7,7 +7,8 @@ build-backend = "maturin"
 [project]
 name = "omneum"
 version = "1.0.3"
-description = "A data trust gateway for agentic systems."
+description = "An open-source context evaluator for AI agents."
+readme = "README.md"
 requires-python = ">=3.11"
 
 dependencies = [
