@@ -1,0 +1,189 @@
+{
+  "id": "analytics_stale_dashboard",
+  "domain": "data_analytics_agents",
+  "question": "What is the finalized July 2026 paid-seat count for Meridian after the August 12 backfill?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "warehouse_table",
+      "source": {
+        "kind": "warehouse_table",
+        "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table"
+      },
+      "text": "Warehouse billing_seats partition 2026-07 after backfill batch B12: 1,284 paid seats. Partition rebuilt August 12.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "seat count",
+      "value": 1284,
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:warehouse_table",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-12T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "transformation",
+      "source": {
+        "kind": "transformation",
+        "identifier": "https://transformation.benchmark.example/analytics_stale_dashboard/transformation"
+      },
+      "text": "July seat transformation selects active paid subscriptions and sums seats. Run B12 against billing_seats emits 1,284 for July 2026.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "seat count",
+      "value": 1284,
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:transformation",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-12T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "warehouse_table",
+            "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table"
+          }
+        ],
+        "parent_assertion_ids": [
+          "analytics_stale_dashboard:warehouse_table"
+        ]
+      }
+    },
+    {
+      "source_id": "dashboard_snapshot",
+      "source": {
+        "kind": "dashboard_snapshot",
+        "identifier": "https://dashboard-snapshot.benchmark.example/analytics_stale_dashboard/dashboard_snapshot"
+      },
+      "text": "Dashboard snapshot generated August 2 from July seat transformation run B02: July paid seats 1,190. Snapshot is stored as an image.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "seat count",
+      "value": 1190,
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:dashboard_snapshot",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-02T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "exported_report",
+      "source": {
+        "kind": "exported_report",
+        "identifier": "https://exported-report.benchmark.example/analytics_stale_dashboard/exported_report"
+      },
+      "text": "Board report export generated August 3 from the August 2 dashboard image: July paid seats 1,190.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "seat count",
+      "value": 1190,
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:exported_report",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-03T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "dashboard_snapshot",
+            "identifier": "https://dashboard-snapshot.benchmark.example/analytics_stale_dashboard/dashboard_snapshot"
+          }
+        ],
+        "parent_assertion_ids": [
+          "analytics_stale_dashboard:dashboard_snapshot"
+        ]
+      }
+    },
+    {
+      "source_id": "current_query",
+      "source": {
+        "kind": "current_query",
+        "identifier": "https://current-query.benchmark.example/analytics_stale_dashboard/current_query"
+      },
+      "text": "Warehouse query August 18 on the rebuilt July partition: SUM(paid_seats)=1284; backfill watermark B12.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "seat count",
+      "value": 1284,
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:current_query",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "warehouse_table",
+            "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table"
+          }
+        ],
+        "parent_assertion_ids": [
+          "analytics_stale_dashboard:warehouse_table"
+        ]
+      }
+    },
+    {
+      "source_id": "metric_store",
+      "source": {
+        "kind": "metric_store",
+        "identifier": "https://metric-store.benchmark.example/analytics_stale_dashboard/metric_store"
+      },
+      "text": "Metric store meridian.paid_seats, period=2026-07, revision=B12, status=final: 1284.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "seat count",
+      "value": 1284,
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:metric_store",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-12T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "transformation",
+            "identifier": "https://transformation.benchmark.example/analytics_stale_dashboard/transformation"
+          }
+        ],
+        "parent_assertion_ids": [
+          "analytics_stale_dashboard:transformation"
+        ]
+      }
+    },
+    {
+      "source_id": "data_catalog",
+      "source": {
+        "kind": "data_catalog",
+        "identifier": "https://data-catalog.benchmark.example/analytics_stale_dashboard/data_catalog"
+      },
+      "text": "Catalog update August 12: July billing_seats partition rebuilt for late subscription events; dashboards exported before B12 are immutable snapshots.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "partition revision",
+      "value": "B12",
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:data_catalog",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-12T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "api_result",
+      "source": {
+        "kind": "api_result",
+        "identifier": "https://api-result.benchmark.example/analytics_stale_dashboard/api_result"
+      },
+      "text": "Metrics API response for July 2026: paid_seats=1284, revision=B12, finalized=true.",
+      "entity_namespace": "analytics",
+      "entity": "Meridian July 2026 paid seats",
+      "attribute": "seat count",
+      "value": 1284,
+      "provenance": {
+        "assertion_id": "analytics_stale_dashboard:api_result",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "metric_store",
+            "identifier": "https://metric-store.benchmark.example/analytics_stale_dashboard/metric_store"
+          }
+        ],
+        "parent_assertion_ids": [
+          "analytics_stale_dashboard:metric_store"
+        ]
+      }
+    }
+  ]
+}

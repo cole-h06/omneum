@@ -1,0 +1,110 @@
+{
+  "id": "multi_agent_independent_error",
+  "domain": "multi_agent_systems",
+  "question": "For the current EU invoice API, how should the orchestrator interpret a 429 response with Retry-After: 120 before retrying?",
+  "context_budget": 2,
+  "candidates": [
+    {
+      "source_id": "researcher_agent",
+      "source": {
+        "kind": "researcher_agent",
+        "identifier": "https://researcher-agent.benchmark.example/multi_agent_independent_error/researcher_agent"
+      },
+      "text": "Researcher agent, isolated prompt with response headers: interprets Retry-After: 120 as 120 milliseconds and proposes a 0.12-second delay.",
+      "entity_namespace": "api_operations",
+      "entity": "EU invoice API Retry-After 120",
+      "attribute": "wait seconds",
+      "value": 0.12,
+      "provenance": {
+        "assertion_id": "multi_agent_independent_error:researcher_agent",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "analyst_agent",
+      "source": {
+        "kind": "analyst_agent",
+        "identifier": "https://analyst-agent.benchmark.example/multi_agent_independent_error/analyst_agent"
+      },
+      "text": "Analyst agent, separate session with the same raw header: converts Retry-After: 120 to 0.12 seconds, assuming a millisecond field.",
+      "entity_namespace": "api_operations",
+      "entity": "EU invoice API Retry-After 120",
+      "attribute": "wait seconds",
+      "value": 0.12,
+      "provenance": {
+        "assertion_id": "multi_agent_independent_error:analyst_agent",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "specialist_agent",
+      "source": {
+        "kind": "specialist_agent",
+        "identifier": "https://specialist-agent.benchmark.example/multi_agent_independent_error/specialist_agent"
+      },
+      "text": "API specialist agent, fresh context and no other agent messages: recommends sleeping 0.12 seconds for Retry-After: 120.",
+      "entity_namespace": "api_operations",
+      "entity": "EU invoice API Retry-After 120",
+      "attribute": "wait seconds",
+      "value": 0.12,
+      "provenance": {
+        "assertion_id": "multi_agent_independent_error:specialist_agent",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "tool_result",
+      "source": {
+        "kind": "tool_result",
+        "identifier": "https://tool-result.benchmark.example/multi_agent_independent_error/tool_result"
+      },
+      "text": "HTTP conformance tool against the invoice sandbox: Retry-After numeric values are seconds. For header 120, retry timer is 120 seconds.",
+      "entity_namespace": "api_operations",
+      "entity": "EU invoice API Retry-After 120",
+      "attribute": "wait seconds",
+      "value": 120,
+      "provenance": {
+        "assertion_id": "multi_agent_independent_error:tool_result",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "api_result",
+      "source": {
+        "kind": "api_result",
+        "identifier": "https://api-result.benchmark.example/multi_agent_independent_error/api_result"
+      },
+      "text": "EU invoice API response schema: Retry-After is delay-seconds or an HTTP date. A numeric value of 120 requires a 120-second wait.",
+      "entity_namespace": "api_operations",
+      "entity": "EU invoice API Retry-After 120",
+      "attribute": "wait seconds",
+      "value": 120,
+      "provenance": {
+        "assertion_id": "multi_agent_independent_error:api_result",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "database_result",
+      "source": {
+        "kind": "database_result",
+        "identifier": "https://database-result.benchmark.example/multi_agent_independent_error/database_result"
+      },
+      "text": "Integration trace database: invoice 429 received at 10:00:00Z with Retry-After=120; client next_allowed_at=10:02:00Z, delta_seconds=120.",
+      "entity_namespace": "api_operations",
+      "entity": "EU invoice API Retry-After 120",
+      "attribute": "wait seconds",
+      "value": 120,
+      "provenance": {
+        "assertion_id": "multi_agent_independent_error:database_result",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    }
+  ]
+}

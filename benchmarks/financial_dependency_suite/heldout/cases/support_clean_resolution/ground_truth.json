@@ -1,0 +1,19 @@
+{
+  "case_id": "support_clean_resolution",
+  "answer": "Run marlinctl worker resume export, then verify that pending exports drain.",
+  "supporting_sources": [
+    "current_runbook",
+    "deployment_config",
+    "monitoring_result",
+    "incident_record",
+    "service_state",
+    "change_record",
+    "kb_article"
+  ],
+  "scoring": {
+    "required": [
+      "marlinctl worker resume export"
+    ],
+    "forbidden": []
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "case_id": "research_syndicated_reporting",
+  "answer": "Riverton had accepted 36 battery-electric buses into passenger service.",
+  "supporting_sources": [
+    "primary_record",
+    "independent_report",
+    "filing",
+    "dataset"
+  ],
+  "scoring": {
+    "required": [
+      "36"
+    ],
+    "forbidden": []
+  }
+}

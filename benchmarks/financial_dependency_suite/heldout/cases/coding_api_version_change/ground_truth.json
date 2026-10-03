@@ -1,0 +1,18 @@
+{
+  "case_id": "coding_api_version_change",
+  "answer": "Use client.exports.create(account_id=account_id, format=\"csv\") with LedgerKit 3.0.",
+  "supporting_sources": [
+    "current_api_docs",
+    "changelog",
+    "repository_code",
+    "test_output",
+    "migration_guide"
+  ],
+  "scoring": {
+    "required": [
+      "client.exports.create",
+      "csv"
+    ],
+    "forbidden": []
+  }
+}

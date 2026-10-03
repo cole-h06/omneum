@@ -1,0 +1,17 @@
+{
+  "case_id": "analytics_stale_dashboard",
+  "answer": "The finalized July paid-seat count is 1284 after backfill B12.",
+  "supporting_sources": [
+    "warehouse_table",
+    "transformation",
+    "current_query",
+    "metric_store",
+    "api_result"
+  ],
+  "scoring": {
+    "required": [
+      "1284"
+    ],
+    "forbidden": []
+  }
+}

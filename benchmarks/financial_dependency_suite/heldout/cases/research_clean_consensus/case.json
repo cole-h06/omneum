@@ -1,0 +1,145 @@
+{
+  "id": "research_clean_consensus",
+  "domain": "research_analysis_agents",
+  "question": "On what date did the Eastbank pedestrian bridge open to the public?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "primary_record",
+      "source": {
+        "kind": "primary_record",
+        "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record"
+      },
+      "text": "Municipal opening certificate: Eastbank pedestrian bridge opened to public pedestrians on June 14, 2026, at 09:00.",
+      "entity_namespace": "infrastructure",
+      "entity": "Eastbank pedestrian bridge",
+      "attribute": "public opening date",
+      "value": "2026-06-14",
+      "provenance": {
+        "assertion_id": "research_clean_consensus:primary_record",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-06-14T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "report",
+      "source": {
+        "kind": "report",
+        "identifier": "https://report.benchmark.example/research_clean_consensus/report"
+      },
+      "text": "Local accessibility group field report: members crossed the newly opened Eastbank pedestrian bridge on opening day, June 14, 2026.",
+      "entity_namespace": "infrastructure",
+      "entity": "Eastbank pedestrian bridge",
+      "attribute": "public opening date",
+      "value": "2026-06-14",
+      "provenance": {
+        "assertion_id": "research_clean_consensus:report",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-06-15T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "report_2",
+      "source": {
+        "kind": "report",
+        "identifier": "https://report.benchmark.example/research_clean_consensus/report_2"
+      },
+      "text": "Eastbank Gazette on-site report: barriers were removed for the public opening on June 14, 2026.",
+      "entity_namespace": "infrastructure",
+      "entity": "Eastbank pedestrian bridge",
+      "attribute": "public opening date",
+      "value": "2026-06-14",
+      "provenance": {
+        "assertion_id": "research_clean_consensus:report_2",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-06-15T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "dataset",
+      "source": {
+        "kind": "dataset",
+        "identifier": "https://dataset.benchmark.example/research_clean_consensus/dataset"
+      },
+      "text": "Municipal asset register: Eastbank pedestrian bridge public_open_date=2026-06-14.",
+      "entity_namespace": "infrastructure",
+      "entity": "Eastbank pedestrian bridge",
+      "attribute": "public opening date",
+      "value": "2026-06-14",
+      "provenance": {
+        "assertion_id": "research_clean_consensus:dataset",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-06-16T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "primary_record",
+            "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "filing",
+      "source": {
+        "kind": "filing",
+        "identifier": "https://filing.benchmark.example/research_clean_consensus/filing"
+      },
+      "text": "Completion filing: public access to Eastbank pedestrian bridge began June 14, 2026.",
+      "entity_namespace": "infrastructure",
+      "entity": "Eastbank pedestrian bridge",
+      "attribute": "public opening date",
+      "value": "2026-06-14",
+      "provenance": {
+        "assertion_id": "research_clean_consensus:filing",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-06-17T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "primary_record",
+            "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "analysis",
+      "source": {
+        "kind": "analysis",
+        "identifier": "https://analysis.benchmark.example/research_clean_consensus/analysis"
+      },
+      "text": "Independent mobility study began counting public bridge crossings at the June 14, 2026 opening.",
+      "entity_namespace": "infrastructure",
+      "entity": "Eastbank pedestrian bridge",
+      "attribute": "public opening date",
+      "value": "2026-06-14",
+      "provenance": {
+        "assertion_id": "research_clean_consensus:analysis",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-07-01T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "publication",
+      "source": {
+        "kind": "publication",
+        "identifier": "https://publication.benchmark.example/research_clean_consensus/publication"
+      },
+      "text": "Eastbank walking guide records the pedestrian bridge opening as June 14, 2026.",
+      "entity_namespace": "infrastructure",
+      "entity": "Eastbank pedestrian bridge",
+      "attribute": "public opening date",
+      "value": "2026-06-14",
+      "provenance": {
+        "assertion_id": "research_clean_consensus:publication",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-07-05T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "report",
+            "identifier": "https://report.benchmark.example/research_clean_consensus/report_2"
+          }
+        ]
+      }
+    }
+  ]
+}

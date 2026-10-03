@@ -1,0 +1,142 @@
+{
+  "id": "coding_clean_dependency",
+  "domain": "coding_agents",
+  "question": "How should the Sable event consumer make replayed event IDs idempotent while committing the balance update?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "repository_code",
+      "source": {
+        "kind": "repository_code",
+        "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code"
+      },
+      "text": "consumer.py opens one database transaction, inserts event_id into processed_events, and applies the balance update only if the insert succeeds. Both writes commit together.",
+      "entity_namespace": "software",
+      "entity": "Sable event consumer",
+      "attribute": "replay handling",
+      "value": "unique event_id in the balance transaction",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:repository_code",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "unit_test",
+      "source": {
+        "kind": "unit_test",
+        "identifier": "https://unit-test.benchmark.example/coding_clean_dependency/unit_test"
+      },
+      "text": "Unit test replays event evt_47 twice: the second processed_events insert conflicts; apply_balance is called once.",
+      "entity_namespace": "software",
+      "entity": "Sable event consumer",
+      "attribute": "replay handling",
+      "value": "unique event_id in the balance transaction",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:unit_test",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "integration_test",
+      "source": {
+        "kind": "integration_test",
+        "identifier": "https://integration-test.benchmark.example/coding_clean_dependency/integration_test"
+      },
+      "text": "Integration test kills the worker before commit and replays evt_47. A unique constraint on processed_events.event_id plus the shared balance transaction leaves one committed balance update.",
+      "entity_namespace": "software",
+      "entity": "Sable event consumer",
+      "attribute": "replay handling",
+      "value": "unique event_id in the balance transaction",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:integration_test",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "current_docs",
+      "source": {
+        "kind": "current_docs",
+        "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs"
+      },
+      "text": "Consumer guide: enforce a unique event_id in processed_events and write it in the same transaction as the balance change; a duplicate skips the change.",
+      "entity_namespace": "software",
+      "entity": "Sable event consumer",
+      "attribute": "replay handling",
+      "value": "unique event_id in the balance transaction",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:current_docs",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "release_notes",
+      "source": {
+        "kind": "release_notes",
+        "identifier": "https://release-notes.benchmark.example/coding_clean_dependency/release_notes"
+      },
+      "text": "Sable 1.8 release notes: replay handling uses a unique processed_events.event_id and an atomic balance transaction.",
+      "entity_namespace": "software",
+      "entity": "Sable event consumer",
+      "attribute": "replay handling",
+      "value": "unique event_id in the balance transaction",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:release_notes",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "repository_code",
+            "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "package_metadata",
+      "source": {
+        "kind": "package_metadata",
+        "identifier": "https://package-metadata.benchmark.example/coding_clean_dependency/package_metadata"
+      },
+      "text": "Package metadata: sable-consumer 1.8 targets PostgreSQL 15 or later and ships schema migrations.",
+      "entity_namespace": "software",
+      "entity": "Sable event consumer",
+      "attribute": "database requirement",
+      "value": "PostgreSQL >=15",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:package_metadata",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "example",
+      "source": {
+        "kind": "example",
+        "identifier": "https://example.benchmark.example/coding_clean_dependency/example"
+      },
+      "text": "Example transaction: INSERT INTO processed_events(event_id) ... ON CONFLICT DO NOTHING RETURNING event_id; if a row was returned, update balances before COMMIT.",
+      "entity_namespace": "software",
+      "entity": "Sable event consumer",
+      "attribute": "replay handling",
+      "value": "unique event_id in the balance transaction",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:example",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "current_docs",
+            "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs"
+          }
+        ],
+        "parent_assertion_ids": [
+          "coding_clean_dependency:current_docs"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "id": "multi_agent_relevant_wrong_task",
+  "domain": "multi_agent_systems",
+  "question": "How long does the production Helix upload API retain an unfinished multipart upload before aborting it?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "researcher_agent",
+      "source": {
+        "kind": "researcher_agent",
+        "identifier": "https://researcher-agent.benchmark.example/multi_agent_relevant_wrong_task/researcher_agent"
+      },
+      "text": "Researcher agent found the Helix download guide: signed download URLs expire after 24 hours.",
+      "entity_namespace": "storage",
+      "entity": "Helix signed download URL",
+      "attribute": "retention hours",
+      "value": 24,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:researcher_agent",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "code_agent",
+      "source": {
+        "kind": "code_agent",
+        "identifier": "https://code-agent.benchmark.example/multi_agent_relevant_wrong_task/code_agent"
+      },
+      "text": "Code agent inspected the test fixture: staging multipart uploads are aborted after 2 hours to reduce test storage.",
+      "entity_namespace": "storage",
+      "entity": "Helix staging unfinished multipart upload",
+      "attribute": "retention hours",
+      "value": 2,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:code_agent",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "data_agent",
+      "source": {
+        "kind": "data_agent",
+        "identifier": "https://data-agent.benchmark.example/multi_agent_relevant_wrong_task/data_agent"
+      },
+      "text": "Data agent measured completed-upload audit retention: completed object events stay in the warehouse for 720 hours.",
+      "entity_namespace": "storage",
+      "entity": "Helix completed upload audit",
+      "attribute": "retention hours",
+      "value": 720,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:data_agent",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "operations_agent",
+      "source": {
+        "kind": "operations_agent",
+        "identifier": "https://operations-agent.benchmark.example/multi_agent_relevant_wrong_task/operations_agent"
+      },
+      "text": "Operations agent read the production storage lifecycle: unfinished multipart uploads are aborted after 48 hours.",
+      "entity_namespace": "storage",
+      "entity": "Helix production unfinished multipart upload",
+      "attribute": "retention hours",
+      "value": 48,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:operations_agent",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "api_result",
+            "identifier": "https://api-result.benchmark.example/multi_agent_relevant_wrong_task/api_result"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "tool_result",
+      "source": {
+        "kind": "tool_result",
+        "identifier": "https://tool-result.benchmark.example/multi_agent_relevant_wrong_task/tool_result"
+      },
+      "text": "Production lifecycle inspection: rule abort_incomplete_multipart, age_hours=48, enabled=true.",
+      "entity_namespace": "storage",
+      "entity": "Helix production unfinished multipart upload",
+      "attribute": "retention hours",
+      "value": 48,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:tool_result",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "tool_result_2",
+      "source": {
+        "kind": "tool_result",
+        "identifier": "https://tool-result.benchmark.example/multi_agent_relevant_wrong_task/tool_result_2"
+      },
+      "text": "Upload token introspection tool: bearer upload token ttl_hours=1; expiration prevents additional requests.",
+      "entity_namespace": "storage",
+      "entity": "Helix upload token",
+      "attribute": "retention hours",
+      "value": 1,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:tool_result_2",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "api_result",
+      "source": {
+        "kind": "api_result",
+        "identifier": "https://api-result.benchmark.example/multi_agent_relevant_wrong_task/api_result"
+      },
+      "text": "GET /prod/storage/lifecycle: incomplete_multipart_abort_after_hours=48. Completed objects use a separate retention rule.",
+      "entity_namespace": "storage",
+      "entity": "Helix production unfinished multipart upload",
+      "attribute": "retention hours",
+      "value": 48,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:api_result",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "database_result",
+      "source": {
+        "kind": "database_result",
+        "identifier": "https://database-result.benchmark.example/multi_agent_relevant_wrong_task/database_result"
+      },
+      "text": "Production cleanup job config table: unfinished multipart sessions are eligible at created_at + 48 hours.",
+      "entity_namespace": "storage",
+      "entity": "Helix production unfinished multipart upload",
+      "attribute": "retention hours",
+      "value": 48,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:database_result",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "reviewer_agent",
+      "source": {
+        "kind": "reviewer_agent",
+        "identifier": "https://reviewer-agent.benchmark.example/multi_agent_relevant_wrong_task/reviewer_agent"
+      },
+      "text": "Reviewer agent compared download and upload credential lifetimes and reports the signed download link expires in 24 hours.",
+      "entity_namespace": "storage",
+      "entity": "Helix signed download URL",
+      "attribute": "retention hours",
+      "value": 24,
+      "provenance": {
+        "assertion_id": "multi_agent_relevant_wrong_task:reviewer_agent",
+        "observed_at": "2026-08-20T12:08:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "researcher_agent",
+            "identifier": "https://researcher-agent.benchmark.example/multi_agent_relevant_wrong_task/researcher_agent"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "id": "support_stale_runbook",
+  "domain": "support_operations_agents",
+  "question": "For the current Nimbus v5 deployment, what action restores credential use after a routine signing-key rotation without changing the key itself?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "old_runbook",
+      "source": {
+        "kind": "old_runbook",
+        "identifier": "https://old-runbook.benchmark.example/support_stale_runbook/old_runbook"
+      },
+      "text": "Nimbus v3 runbook: after rotating signing keys, restart the gateway pods to reload credentials.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "restart gateway pods",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:old_runbook",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2024-09-10T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "kb_article",
+      "source": {
+        "kind": "kb_article",
+        "identifier": "https://kb-article.benchmark.example/support_stale_runbook/kb_article"
+      },
+      "text": "Knowledge base article for Nimbus v3: restart gateway pods after every signing-key rotation; keys are only read at startup.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "restart gateway pods",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:kb_article",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2024-09-15T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "old_runbook",
+            "identifier": "https://old-runbook.benchmark.example/support_stale_runbook/old_runbook"
+          }
+        ],
+        "parent_assertion_ids": [
+          "support_stale_runbook:old_runbook"
+        ]
+      }
+    },
+    {
+      "source_id": "deployment_config",
+      "source": {
+        "kind": "deployment_config",
+        "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config"
+      },
+      "text": "Nimbus v5 production config: key_reload_mode=watch; admin endpoint POST /admin/keys/refresh triggers immediate credential-cache refresh.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "POST /admin/keys/refresh",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:deployment_config",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-09T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "incident_record",
+      "source": {
+        "kind": "incident_record",
+        "identifier": "https://incident-record.benchmark.example/support_stale_runbook/incident_record"
+      },
+      "text": "Incident N-510 on v5: key rotation left one cache behind; POST /admin/keys/refresh reloaded the current key and authentication recovered without a rollout.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "POST /admin/keys/refresh",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:incident_record",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-15T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "service_state",
+      "source": {
+        "kind": "service_state",
+        "identifier": "https://service-state.benchmark.example/support_stale_runbook/service_state"
+      },
+      "text": "Nimbus live state: version=5.2; admin keys refresh endpoint enabled; active key mount is present; process has not restarted since deployment.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "POST /admin/keys/refresh",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:service_state",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-20T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "change_record",
+      "source": {
+        "kind": "change_record",
+        "identifier": "https://change-record.benchmark.example/support_stale_runbook/change_record"
+      },
+      "text": "Change N-492 migrated production to v5 watch-mode keys. Operators may force a refresh using POST /admin/keys/refresh.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "POST /admin/keys/refresh",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:change_record",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-09T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "deployment_config",
+            "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "ticket",
+      "source": {
+        "kind": "ticket",
+        "identifier": "https://ticket.benchmark.example/support_stale_runbook/ticket"
+      },
+      "text": "Support ticket template copied from the v3 KB: restart gateway pods after key rotation.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "restart gateway pods",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:ticket",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-17T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "kb_article",
+            "identifier": "https://kb-article.benchmark.example/support_stale_runbook/kb_article"
+          }
+        ],
+        "parent_assertion_ids": [
+          "support_stale_runbook:kb_article"
+        ]
+      }
+    },
+    {
+      "source_id": "current_runbook",
+      "source": {
+        "kind": "current_runbook",
+        "identifier": "https://current-runbook.benchmark.example/support_stale_runbook/current_runbook"
+      },
+      "text": "Nimbus v5 runbook: to refresh credentials after routine signing-key rotation, POST /admin/keys/refresh and confirm the loaded key ID.",
+      "entity_namespace": "operations",
+      "entity": "Nimbus v5 key rotation",
+      "attribute": "credential refresh action",
+      "value": "POST /admin/keys/refresh",
+      "provenance": {
+        "assertion_id": "support_stale_runbook:current_runbook",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-10T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "deployment_config",
+            "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "case_id": "research_clean_consensus",
+  "answer": "The bridge opened on June 14, 2026.",
+  "supporting_sources": [
+    "primary_record",
+    "report",
+    "report_2",
+    "dataset",
+    "filing",
+    "analysis",
+    "publication"
+  ],
+  "scoring": {
+    "required": [
+      "June 14",
+      "2026"
+    ],
+    "forbidden": []
+  }
+}

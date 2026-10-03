@@ -1,0 +1,16 @@
+{
+  "case_id": "enterprise_partial_lineage",
+  "answer": "Apply 90 days to production customer chat transcripts, excluding legal holds.",
+  "supporting_sources": [
+    "drive_document_2",
+    "email",
+    "system_record",
+    "announcement"
+  ],
+  "scoring": {
+    "required": [
+      "90"
+    ],
+    "forbidden": []
+  }
+}

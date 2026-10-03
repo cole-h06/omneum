@@ -1,0 +1,127 @@
+{
+  "id": "support_resolution_conflict",
+  "domain": "support_operations_agents",
+  "question": "For the current Opal production incident, what action should support take when errors say upstream_tls_verify_failed immediately after the trust-bundle deployment?",
+  "context_budget": 2,
+  "candidates": [
+    {
+      "source_id": "ticket",
+      "source": {
+        "kind": "ticket",
+        "identifier": "https://ticket.benchmark.example/support_resolution_conflict/ticket"
+      },
+      "text": "Ticket OP-63: disable upstream TLS verification to restore requests during the incident. The suggestion has not been applied.",
+      "entity_namespace": "operations",
+      "entity": "Opal production TLS incident",
+      "attribute": "recovery action",
+      "value": "disable upstream TLS verification",
+      "provenance": {
+        "assertion_id": "support_resolution_conflict:ticket",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "ticket_2",
+      "source": {
+        "kind": "ticket",
+        "identifier": "https://ticket.benchmark.example/support_resolution_conflict/ticket_2"
+      },
+      "text": "Ticket OP-64: roll back the trust bundle to revision tb17; the failures began with tb18 and the prior bundle contains the required issuer.",
+      "entity_namespace": "operations",
+      "entity": "Opal production TLS incident",
+      "attribute": "recovery action",
+      "value": "roll back trust bundle to tb17",
+      "provenance": {
+        "assertion_id": "support_resolution_conflict:ticket_2",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "runbook",
+      "source": {
+        "kind": "runbook",
+        "identifier": "https://runbook.benchmark.example/support_resolution_conflict/runbook"
+      },
+      "text": "TLS incident runbook: when a trust-bundle deployment removes an upstream issuer, roll back to the last working trust bundle and retain certificate verification.",
+      "entity_namespace": "operations",
+      "entity": "Opal production TLS incident",
+      "attribute": "recovery action",
+      "value": "roll back trust bundle to tb17",
+      "provenance": {
+        "assertion_id": "support_resolution_conflict:runbook",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "deployment_config",
+      "source": {
+        "kind": "deployment_config",
+        "identifier": "https://deployment-config.benchmark.example/support_resolution_conflict/deployment_config"
+      },
+      "text": "Production deployment: trust_bundle=tb18; upstream_tls_verify=true. Revision tb17 remains available for rollback and includes issuer Alder-CA.",
+      "entity_namespace": "operations",
+      "entity": "Opal production TLS incident",
+      "attribute": "recovery action",
+      "value": "roll back trust bundle to tb17",
+      "provenance": {
+        "assertion_id": "support_resolution_conflict:deployment_config",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "monitoring_result",
+      "source": {
+        "kind": "monitoring_result",
+        "identifier": "https://monitoring-result.benchmark.example/support_resolution_conflict/monitoring_result"
+      },
+      "text": "Monitoring replay: tb18 fails issuer validation for the upstream chain; tb17 passes the same probe with TLS verification enabled.",
+      "entity_namespace": "operations",
+      "entity": "Opal production TLS incident",
+      "attribute": "recovery action",
+      "value": "roll back trust bundle to tb17",
+      "provenance": {
+        "assertion_id": "support_resolution_conflict:monitoring_result",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "service_state",
+      "source": {
+        "kind": "service_state",
+        "identifier": "https://service-state.benchmark.example/support_resolution_conflict/service_state"
+      },
+      "text": "Service state: upstream_tls_verify_failed; upstream certificate chain terminates at Alder-CA; the current tb18 bundle does not contain that issuer.",
+      "entity_namespace": "operations",
+      "entity": "Opal production TLS incident",
+      "attribute": "failure cause",
+      "value": "Alder-CA absent from tb18",
+      "provenance": {
+        "assertion_id": "support_resolution_conflict:service_state",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    },
+    {
+      "source_id": "change_record",
+      "source": {
+        "kind": "change_record",
+        "identifier": "https://change-record.benchmark.example/support_resolution_conflict/change_record"
+      },
+      "text": "Change OP-61 diff: tb17 -> tb18 removed Alder-CA from the upstream trust bundle; rollout coincides with the first failures.",
+      "entity_namespace": "operations",
+      "entity": "Opal production TLS incident",
+      "attribute": "configuration change",
+      "value": "Alder-CA removed in tb18",
+      "provenance": {
+        "assertion_id": "support_resolution_conflict:change_record",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      }
+    }
+  ]
+}
