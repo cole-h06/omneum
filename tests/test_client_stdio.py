@@ -69,7 +69,7 @@ def test_stdio_client(tmp_path: Path) -> None:
             )
             assert len(first.value) == 64
             assert first.value == second.value
-            result = await client.evaluate_assertion(
+            result = await client.evaluate_context(
                 (
                     Observation(
                         assertion_id="assertion-a",
@@ -224,14 +224,14 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             voprf_public_key=public_key,
         )
         async with open_stdio_client(config, parameters) as client:
-            first = await client.evaluate_assertion(
+            first = await client.evaluate_context(
                 observations,
                 estimator=estimator,
             )
             baseline = next(
                 arguments
                 for name, arguments in reversed(calls)
-                if name == "evaluate_assertion"
+                if name == "evaluate_context"
             )
             mutations = []
             unknown = copy.deepcopy(baseline)
@@ -245,7 +245,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             mutations.append(oversized)
             for mutation in mutations:
                 rejected = await client._evaluator._session.call_tool(
-                    "evaluate_assertion",
+                    "evaluate_context",
                     mutation,
                 )
                 assert rejected.isError
@@ -254,7 +254,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
                     "omneum_code": "invalid_request",
                 }
                 assert "stdio-secret-marker" not in repr(rejected)
-            second = await client.evaluate_assertion(
+            second = await client.evaluate_context(
                 observations,
                 estimator=estimator,
             )
@@ -403,7 +403,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     }
     assert len(sessions) == 1
     assert [name for name, _ in calls].count("evaluate_voprf") == 20
-    assert [name for name, _ in calls].count("evaluate_assertion") == 5
+    assert [name for name, _ in calls].count("evaluate_context") == 5
     evaluation_requests = [
         arguments
         for name, arguments in calls
@@ -424,7 +424,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     assertion_requests = [
         arguments
         for name, arguments in calls
-        if name == "evaluate_assertion"
+        if name == "evaluate_context"
     ]
     assert assertion_requests[0] == assertion_requests[-1]
     request = assertion_requests[0]

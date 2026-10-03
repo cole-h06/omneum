@@ -91,7 +91,7 @@ def merge_observations(
     return {"observations": observations}
 
 
-async def evaluate_assertion(state: WorkflowState) -> dict[str, object]:
+async def evaluate_context(state: WorkflowState) -> dict[str, object]:
     # Reuse the deterministic deployment owned by the canonical example.
     with example_deployment() as (config, server):
         async with open_stdio_client(config, server) as client:

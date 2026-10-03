@@ -97,3 +97,19 @@ def test_case_truth_mismatch():
                 methods=(),
             )
         )
+
+
+def test_unexpected_execution_error_identifies_attempt(monkeypatch, caplog):
+    async def broken(*args, **kwargs):
+        raise KeyError("selected")
+
+    monkeypatch.setattr(suite, "run_method", broken)
+    with pytest.raises(KeyError) as error:
+        asyncio.run(suite.run_case(
+            case(), truth(), trials=1,
+            generator_provider="anthropic", generator_model="generator",
+            methods=(MethodSpec(name="anthropic", method="llm"),),
+        ))
+    context = "case_id=test_case method=anthropic trial=1"
+    assert context in caplog.text
+    assert context in error.value.__notes__

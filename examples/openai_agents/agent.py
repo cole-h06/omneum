@@ -6,7 +6,7 @@ from omneum import ContextMapper, open_stdio_client
 
 
 @function_tool
-async def evaluate_assertion() -> str:
+async def evaluate_context() -> str:
     """Evaluate the retrieved observations with Omneum.
 
     Returns a formatted summary of the assertion evaluation results.
@@ -58,8 +58,8 @@ agent = Agent(
     name="Enterprise AI Assistant",
     instructions=(
         "Answer deployment-readiness questions using the "
-        "evaluate_assertion tool. Base your response on the "
+        "evaluate_context tool. Base your response on the "
         "assertion evaluation results."
     ),
-    tools=[evaluate_assertion],
+    tools=[evaluate_context],
 )

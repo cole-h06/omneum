@@ -143,7 +143,8 @@ def test_application_case():
 
 @pytest.mark.anyio
 async def test_application_braid(monkeypatch):
-    from ... import application_comparison
+    from ... import application_comparison, braid_rag
+    from ...config import estimator_config
     from .application import case_data
 
     candidates, observations, source_ids = case_data()
@@ -158,11 +159,13 @@ async def test_application_braid(monkeypatch):
         return []
 
     monkeypatch.setattr(
-        "benchmarks.financial_dependency_suite.braid_rag.evaluate_context",
+        braid_rag,
+        "evaluate_context",
         evaluate,
     )
     monkeypatch.setattr(
-        "benchmarks.financial_dependency_suite.braid_rag.select_context",
+        braid_rag,
+        "select_context",
         select,
     )
 
@@ -170,7 +173,7 @@ async def test_application_braid(monkeypatch):
         candidates,
         observations,
         source_ids,
-        estimator=object(),
+        estimator=estimator_config(),
         top_n=3,
         evaluation_observations=observations,
     )

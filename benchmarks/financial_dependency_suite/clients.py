@@ -18,7 +18,7 @@ DEFAULT_PROVIDER = os.environ.get(
 DEFAULT_MODELS = {
     "anthropic": os.environ.get(
         "ANTHROPIC_MODEL",
-        "claude-sonnet-5",
+        "claude-sonnet-5-5",
     ),
     "openai": os.environ.get(
         "OPENAI_MODEL",

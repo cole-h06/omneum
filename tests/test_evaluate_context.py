@@ -8,7 +8,7 @@ import threading
 
 import pytest
 
-import omneum.tools.evaluate_assertion as tool_module
+import omneum.tools.evaluate_context as tool_module
 from omneum.base64url import encode_unpadded
 from omneum.config import DeploymentState
 from omneum.inference import InferenceError
@@ -19,7 +19,7 @@ from omneum.models import (
 )
 from omneum.oprf import VOPRFEvaluation
 from omneum.tools.evaluate_voprf import EvaluationService
-from omneum.tools.evaluate_assertion import (
+from omneum.tools.evaluate_context import (
     MAX_CONFLICTING_CLAIM_ENTRIES,
     AssertionEvaluationService,
 )
@@ -945,7 +945,7 @@ def test_independent_capacity(monkeypatch):
 
 def test_discovery():
     server = create_server(make_state())
-    tool = server._tool_manager.get_tool("evaluate_assertion")
+    tool = server._tool_manager.get_tool("evaluate_context")
 
     assert tool is not None
     assert tool.parameters == EvaluateAssertionRequest.model_json_schema()
@@ -972,7 +972,7 @@ def test_fastmcp_validation():
         ]
         for arguments in malformed:
             result = await server.call_tool(
-                "evaluate_assertion",
+                "evaluate_context",
                 arguments,
             )
             assert code(result) == "invalid_request"

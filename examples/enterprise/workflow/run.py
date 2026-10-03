@@ -77,7 +77,7 @@ async def run_workflow(config=None, server=None):
         config,
         server,
     ) as client:
-        result = await client.evaluate_assertion(
+        result = await client.evaluate_context(
             collect_observations(),
             estimator=estimator_config(),
         )

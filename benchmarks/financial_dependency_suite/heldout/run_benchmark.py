@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import logging
 from pathlib import Path
 
 from benchmarks.financial_dependency_suite.application_comparison import (
@@ -152,6 +153,8 @@ def main():
 
     if args.trials < 1:
         parser.error("--trials must be at least 1")
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     run_dir = asyncio.run(
         run_benchmark(

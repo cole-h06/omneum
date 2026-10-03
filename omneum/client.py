@@ -801,7 +801,7 @@ class _OmneumEvaluator(Protocol):
     ) -> CallToolResult:
         ...
 
-    async def evaluate_assertion(
+    async def evaluate_context(
         self,
         request: EvaluateAssertionRequest,
     ) -> CallToolResult:
@@ -852,7 +852,7 @@ class OmneumClient:
             callable(
                 getattr(
                     evaluator,
-                    "evaluate_assertion",
+                    "evaluate_context",
                     None,
                 )
             )
@@ -963,7 +963,7 @@ class OmneumClient:
             for item in assertion.sources
         )
 
-        return await self.evaluate_assertion(
+        return await self.evaluate_context(
             observations,
             estimator=estimator,
         )
@@ -976,12 +976,12 @@ class OmneumClient:
         estimator: DependencyEstimatorConfig,
     ) -> AssertionEvaluation:
         observations = mapper.map_many(items)
-        return await self.evaluate_assertion(
+        return await self.evaluate_context(
             observations,
             estimator=estimator,
         )
 
-    async def evaluate_assertion(
+    async def evaluate_context(
         self,
         observations: Sequence[Observation],
         *,
@@ -989,7 +989,7 @@ class OmneumClient:
     ) -> AssertionEvaluation:
         if not self._assertion_evaluation_available:
             raise AssertionEvaluationResponseError(
-                "The evaluate_assertion tool is unavailable."
+                "The evaluate_context tool is unavailable."
             )
 
         values = tuple(observations)
@@ -1271,7 +1271,7 @@ class OmneumClient:
 
         try:
             result = (
-                await self._evaluator.evaluate_assertion(
+                await self._evaluator.evaluate_context(
                     request
                 )
             )
@@ -1665,7 +1665,7 @@ class _MCPOmneumEvaluator:
                 uncertain=True
             ) from None
 
-    async def evaluate_assertion(
+    async def evaluate_context(
         self,
         request: EvaluateAssertionRequest,
     ) -> CallToolResult:
@@ -1676,7 +1676,7 @@ class _MCPOmneumEvaluator:
 
         try:
             return await self._session.call_tool(
-                "evaluate_assertion",
+                "evaluate_context",
                 request.model_dump(mode="json"),
             )
         except Exception:
@@ -1737,7 +1737,7 @@ async def open_stdio_client(
                 )
 
             assertion_evaluation_available = any(
-                tool.name == "evaluate_assertion"
+                tool.name == "evaluate_context"
                 for tool in tools.tools
             )
 

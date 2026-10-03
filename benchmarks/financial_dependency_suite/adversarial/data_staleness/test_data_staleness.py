@@ -99,11 +99,18 @@ async def test_dependency_changes_stale_data_conflict():
     assert dependent_current.is_attribute_max_support
     assert not dependent_stale.is_attribute_max_support
 
-    assert independent_stale.support == pytest.approx(
-        independent_current.support
-    )
+    # v4 uses max(0, 1 - |delta| / window) for temporal proximity,
+    # not recency. Equal current timestamps give each pair d=0.1;
+    # the independent stale timestamps are all outside the two-day window.
+    # Effective count is n² / (n + 2Σd). The stale chain has two d=1 edges.
+    assert dependent_stale.estimated_independent_support_count == pytest.approx(9 / 7)
+    assert independent_stale.estimated_independent_support_count == pytest.approx(3.0)
+    for current in (dependent_current, independent_current):
+        assert current.estimated_independent_support_count == pytest.approx(2.5)
+
+    assert independent_stale.support > independent_current.support
     assert independent_stale.is_attribute_max_support
-    assert independent_current.is_attribute_max_support
+    assert not independent_current.is_attribute_max_support
 
 
 @pytest.mark.anyio
@@ -147,5 +154,14 @@ async def test_stale_selection():
         for item in independent_selected
     ]
 
-    assert independent_values.count(30) == 2
-    assert independent_values.count(90) == 2
+    # Only winners are eligible; top_n is a cap, not a backfill requirement.
+    # The independent stale claim wins under v4's temporal dependency signal.
+    assert independent_values == [30, 30, 30]
+    assert {
+        item["retrieved"]["source"]
+        for item in independent_selected
+    } == {"stale_origin", "stale_copy_a", "stale_copy_b"}
+    assert {
+        item["retrieved"]["source"]
+        for item in dependent_selected
+    } == {"current_a", "current_b", "current_c"}

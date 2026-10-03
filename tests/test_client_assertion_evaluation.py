@@ -78,7 +78,7 @@ class Evaluator:
             proof=encode_unpadded(evaluation.proof, expected_length=64),
         )
 
-    async def evaluate_assertion(self, request: EvaluateAssertionRequest):
+    async def evaluate_context(self, request: EvaluateAssertionRequest):
         self.requests.append(request)
         graph = build_graph(
             tuple(
@@ -173,7 +173,7 @@ def test_inference(tmp_path):
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
         client = OmneumClient(make_config(server), evaluator)
-        result = await client.evaluate_assertion(
+        result = await client.evaluate_context(
             observations(), estimator=estimator(0.5)
         )
 
@@ -214,8 +214,8 @@ def test_repeated(tmp_path):
     async def run():
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Evaluator(server))
-        first = await client.evaluate_assertion(observations(), estimator=estimator())
-        second = await client.evaluate_assertion(observations(), estimator=estimator())
+        first = await client.evaluate_context(observations(), estimator=estimator())
+        second = await client.evaluate_context(observations(), estimator=estimator())
         assert first == second
         assert first.claim_support[0].dependency_clusters is None
 
@@ -245,7 +245,7 @@ def test_claim_identity(tmp_path, first, second):
                 Claim("service", "entity", "attribute", second),
             ),
         )
-        await client.evaluate_assertion(values, estimator=estimator())
+        await client.evaluate_context(values, estimator=estimator())
         assert len(evaluator.evaluations) == 5
         assert len({item.claim_id for item in evaluator.requests[0].assertions}) == 2
 
@@ -267,7 +267,7 @@ def test_claim_equivalence(tmp_path):
                 Claim("service", "entity", "attribute", {"b": 2, "a": 1}),
             ),
         )
-        await client.evaluate_assertion(values, estimator=estimator())
+        await client.evaluate_context(values, estimator=estimator())
         assert len(evaluator.evaluations) == 4
         assert len({item.claim_id for item in evaluator.requests[0].assertions}) == 1
 
@@ -529,7 +529,7 @@ def test_source_equivalence(tmp_path):
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
         client = OmneumClient(make_config(server), evaluator)
-        result = await client.evaluate_assertion(values, estimator=estimator())
+        result = await client.evaluate_context(values, estimator=estimator())
         return result, evaluator
 
     values = (
@@ -593,7 +593,7 @@ def test_mutation_during_linkage(tmp_path, monkeypatch):
         evaluator = Paused(server)
         client = OmneumClient(make_config(server), evaluator)
         task = asyncio.create_task(
-            client.evaluate_assertion((item,), estimator=estimator())
+            client.evaluate_context((item,), estimator=estimator())
         )
         await evaluator.started.wait()
         original["nested"].append(2)
@@ -624,7 +624,7 @@ def test_cluster_key_order(tmp_path):
             ),
             evaluator,
         )
-        result = await client.evaluate_assertion(
+        result = await client.evaluate_context(
                 observations(), estimator=estimator(0.19)
         )
         return result.claim_support[0].dependency_clusters
@@ -645,8 +645,11 @@ def test_unavailable(tmp_path):
         client = OmneumClient(
             make_config(server), evaluator, assertion_evaluation_available=False
         )
-        with pytest.raises(AssertionEvaluationResponseError):
-            await client.evaluate_assertion((), estimator=estimator())
+        with pytest.raises(
+            AssertionEvaluationResponseError,
+            match="The evaluate_context tool is unavailable",
+        ):
+            await client.evaluate_context((), estimator=estimator())
         assert evaluator.evaluations == []
         assert evaluator.requests == []
 
@@ -655,14 +658,14 @@ def test_unavailable(tmp_path):
 
 def test_transport(tmp_path):
     class Broken(Evaluator):
-        async def evaluate_assertion(self, request):
+        async def evaluate_context(self, request):
             raise AssertionEvaluationTransportError(uncertain=True)
 
     async def run():
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Broken(server))
         with pytest.raises(AssertionEvaluationTransportError) as error:
-            await client.evaluate_assertion(observations(), estimator=estimator())
+            await client.evaluate_context(observations(), estimator=estimator())
         assert error.value.uncertain
 
     asyncio.run(run())
@@ -670,7 +673,7 @@ def test_transport(tmp_path):
 
 def test_injected_error(tmp_path):
     class BrokenInference(Evaluator):
-        async def evaluate_assertion(self, request):
+        async def evaluate_context(self, request):
             raise OSError("secret transport detail")
 
     class BrokenEvaluation(Evaluator):
@@ -681,7 +684,7 @@ def test_injected_error(tmp_path):
         server = make_server(tmp_path)
         inference = OmneumClient(make_config(server), BrokenInference(server))
         with pytest.raises(AssertionEvaluationTransportError) as caught:
-            await inference.evaluate_assertion(observations(), estimator=estimator())
+            await inference.evaluate_context(observations(), estimator=estimator())
         assert caught.value.uncertain
         assert "secret" not in str(caught.value)
 
@@ -696,14 +699,14 @@ def test_injected_error(tmp_path):
 
 def test_cancel(tmp_path):
     class Cancelled(Evaluator):
-        async def evaluate_assertion(self, request):
+        async def evaluate_context(self, request):
             raise asyncio.CancelledError
 
     async def run():
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Cancelled(server))
         with pytest.raises(asyncio.CancelledError):
-            await client.evaluate_assertion(observations(), estimator=estimator())
+            await client.evaluate_context(observations(), estimator=estimator())
 
     asyncio.run(run())
 
@@ -723,8 +726,8 @@ def test_cancel(tmp_path):
 )
 def test_malformed(tmp_path, change):
     class Malformed(Evaluator):
-        async def evaluate_assertion(self, request):
-            result = await super().evaluate_assertion(request)
+        async def evaluate_context(self, request):
+            result = await super().evaluate_context(request)
             content = result.structuredContent
             if change == "pin":
                 content["voprf_key_version"] = 2
@@ -755,7 +758,7 @@ def test_malformed(tmp_path, change):
             else AssertionEvaluationResponseError
         )
         with pytest.raises(error):
-            await client.evaluate_assertion(observations(), estimator=estimator())
+            await client.evaluate_context(observations(), estimator=estimator())
 
     asyncio.run(run())
 
@@ -771,7 +774,7 @@ def test_malformed(tmp_path, change):
 ])
 def test_rejected(tmp_path, code):
     class Rejected(Evaluator):
-        async def evaluate_assertion(self, request):
+        async def evaluate_context(self, request):
             return CallToolResult(
                 content=[],
                 structuredContent={"message": "secret", "omneum_code": code},
@@ -782,7 +785,7 @@ def test_rejected(tmp_path, code):
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Rejected(server))
         with pytest.raises(AssertionEvaluationRejectedError) as error:
-            await client.evaluate_assertion(observations(), estimator=estimator())
+            await client.evaluate_context(observations(), estimator=estimator())
         assert error.value.omneum_code == code
         assert "secret" not in str(error.value)
 
@@ -800,7 +803,7 @@ def test_records_evaluation_metrics(tmp_path):
             metrics_recorder=JsonlMetricsRecorder(metrics_path),
         )
 
-        result = await client.evaluate_assertion(
+        result = await client.evaluate_context(
             observations(),
             estimator=estimator(),
         )
@@ -843,11 +846,11 @@ def test_appends_evaluation_metrics(tmp_path):
             metrics_recorder=JsonlMetricsRecorder(metrics_path),
         )
 
-        await client.evaluate_assertion(
+        await client.evaluate_context(
             observations(),
             estimator=estimator(),
         )
-        await client.evaluate_assertion(
+        await client.evaluate_context(
             observations(),
             estimator=estimator(),
         )
@@ -864,7 +867,7 @@ def test_appends_evaluation_metrics(tmp_path):
 
 def test_failed_evaluation_does_not_record_metrics(tmp_path):
     class Broken(Evaluator):
-        async def evaluate_assertion(self, request):
+        async def evaluate_context(self, request):
             raise AssertionEvaluationTransportError(uncertain=True)
 
     async def run():
@@ -878,7 +881,7 @@ def test_failed_evaluation_does_not_record_metrics(tmp_path):
         )
 
         with pytest.raises(AssertionEvaluationTransportError):
-            await client.evaluate_assertion(
+            await client.evaluate_context(
                 observations(),
                 estimator=estimator(),
             )

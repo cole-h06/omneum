@@ -110,17 +110,17 @@ def test_infer_stdio(tmp_path):
             async with ClientSession(read, write) as session:
                 await session.initialize()
                 tools = await session.list_tools()
-                assert "evaluate_assertion" in {
+                assert "evaluate_context" in {
                     tool.name for tool in tools.tools
                 }
 
                 arguments = golden_request()
                 first = await session.call_tool(
-                    "evaluate_assertion",
+                    "evaluate_context",
                     arguments,
                 )
                 second = await session.call_tool(
-                    "evaluate_assertion",
+                    "evaluate_context",
                     arguments,
                 )
                 assert not first.isError
@@ -143,7 +143,7 @@ def test_infer_stdio(tmp_path):
                 }
 
                 invalid = await session.call_tool(
-                    "evaluate_assertion",
+                    "evaluate_context",
                     {
                         **arguments,
                         "assertions": [

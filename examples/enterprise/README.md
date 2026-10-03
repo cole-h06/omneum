@@ -10,7 +10,7 @@ The application answers the question:
 
 Five retrieval agents collect structured observations from enterprise systems such as governance documents, deployment records, live configuration, generated reports, and vendor documentation.
 
-This workflow intentionally uses Omneum's lower-level `client.evaluate_assertion()` interface, supplying `Observation` objects directly. Applications that already normalize information into `StructuredAssertion` objects can instead use `client.evaluate()`. Existing retrieval or tool outputs can be adapted through `client.evaluate_mapped()` and a `ContextMapper`.
+This workflow intentionally uses Omneum's lower-level `client.evaluate_context()` interface, supplying `Observation` objects directly. Applications that already normalize information into `StructuredAssertion` objects can instead use `client.evaluate()`. Existing retrieval or tool outputs can be adapted through `client.evaluate_mapped()` and a `ContextMapper`.
 
 Omneum evaluates:
 

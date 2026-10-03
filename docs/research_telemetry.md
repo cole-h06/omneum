@@ -23,7 +23,7 @@ context = EvaluationContext(
     ),
 )
 result = await record_evaluation(
-    lambda: client.evaluate_assertion(observations, estimator=estimator),
+    lambda: client.evaluate_context(observations, estimator=estimator),
     estimator=estimator,
     context=context,
     recorder=JsonlResearchRecorder("/private/research/events.jsonl"),

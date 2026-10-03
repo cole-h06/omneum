@@ -55,7 +55,7 @@ class EnterpriseFlow(Flow[WorkflowState]):
         return self.state.observations
 
     @listen(merge_observations)
-    async def evaluate_assertion(self):
+    async def evaluate_context(self):
         with example_deployment() as (config, server):
             async with open_stdio_client(config, server) as client:
                 mapper = ContextMapper(
@@ -96,7 +96,7 @@ class EnterpriseFlow(Flow[WorkflowState]):
         self.state.assertion_evaluation = result
         return result
 
-    @listen(evaluate_assertion)
+    @listen(evaluate_context)
     def render_answer(self):
         self.state.answer = render_result(self.state.assertion_evaluation)
         return self.state.answer

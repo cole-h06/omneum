@@ -86,7 +86,7 @@ async def main():
     estimator = estimator_config()
     with benchmark_deployment() as (config, server):
         async with open_stdio_client(config, server) as client:
-            evaluation = await client.evaluate_assertion(observations, estimator=estimator)
+            evaluation = await client.evaluate_context(observations, estimator=estimator)
 
     output = DATA / "evaluation.json"
     output.write_text(json.dumps(json_value({

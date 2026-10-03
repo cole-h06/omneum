@@ -495,7 +495,7 @@ Use the structured fields for application logic. The explanation helpers are jus
 
 An observation associates a `Claim` with a source and can retain source relationships, timestamps, retrieval records, assertion lineage, application metadata, and explicit dependency signals.
 
-`client.evaluate_assertion()` accepts observations directly.
+`client.evaluate_context()` accepts observations directly.
 
 Most integrations shouldn't start here.
 

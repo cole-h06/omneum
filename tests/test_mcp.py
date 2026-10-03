@@ -64,9 +64,9 @@ def test_ping(tmp_path: Path) -> None:
                     tool.name: tool
                     for tool in tools.tools
                 }
-                assert "ping" in listed_tools
-                assert "evaluate_voprf" in listed_tools
-                assert "evaluate_assertion" in listed_tools
+                assert set(listed_tools) == {
+                    "ping", "evaluate_voprf", "evaluate_context"
+                }
                 evaluate_schema = listed_tools[
                     "evaluate_voprf"
                 ].inputSchema
@@ -86,7 +86,7 @@ def test_ping(tmp_path: Path) -> None:
                     "blinded_element",
                 }
                 assertion_schema = listed_tools[
-                    "evaluate_assertion"
+                    "evaluate_context"
                 ].inputSchema
                 assert (
                     assertion_schema["additionalProperties"]

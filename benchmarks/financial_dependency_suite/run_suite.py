@@ -24,7 +24,7 @@ from benchmarks.financial_dependency_suite.scoring import (
     load_ground_truth,
     score_relationships,
 )
-from examples.enterprise.config import example_deployment
+from .deployment import benchmark_deployment
 
 
 CASES = (
@@ -91,6 +91,11 @@ def score_omneum(result, case):
 
 
 def score_llm_judge(result, case):
+    truth = load_ground_truth(ground_truth_path(case))
+
+    if result["relationships"] is None:
+        return score_relationships(set(), truth)
+
     predicted = {
         frozenset(
             (
@@ -101,7 +106,6 @@ def score_llm_judge(result, case):
         for relationship in result["relationships"]
     }
 
-    truth = load_ground_truth(ground_truth_path(case))
     return score_relationships(predicted, truth)
 
 
@@ -110,11 +114,11 @@ def score_llm_judge(result, case):
 async def run_omneum(case):
     observations = build_observations(case["id"])
 
-    with example_deployment() as (config, server):
+    with benchmark_deployment() as (config, server):
         async with open_stdio_client(config, server) as client:
             start = perf_counter()
 
-            result = await client.evaluate_assertion(
+            result = await client.evaluate_context(
                 observations,
                 estimator=estimator_config(),
             )
@@ -179,13 +183,16 @@ def render_llm_judge(result, case):
     print("=== LLM-AS-JUDGE ===")
     print()
 
-    for relationship in result["relationships"]:
-        print(
-            f"{relationship['source']} -> "
-            f"{relationship['depends_on']} "
-            f"({relationship['relationship_type']}, "
-            f"{relationship['confidence']:.2f})"
-        )
+    if result["relationships"] is None:
+        print(f"Judge parse failure: {result['parse_error']}")
+    else:
+        for relationship in result["relationships"]:
+            print(
+                f"{relationship['source']} -> "
+                f"{relationship['depends_on']} "
+                f"({relationship['relationship_type']}, "
+                f"{relationship['confidence']:.2f})"
+            )
 
     print()
     print("=== SCORE ===")
@@ -235,6 +242,7 @@ async def run_case(case):
         },
         "judge": {
             "score": judge_score,
+            "parse_error": judge_result["parse_error"],
             "latency_seconds": judge_result["generation"]["latency_seconds"],
             "input_tokens": judge_result["generation"]["input_tokens"],
             "output_tokens": judge_result["generation"]["output_tokens"],
@@ -255,6 +263,14 @@ async def run_suite():
     judge_tp = sum(r["judge"]["score"]["true_positive"] for r in results)
     judge_fp = sum(r["judge"]["score"]["false_positive"] for r in results)
     judge_fn = sum(r["judge"]["score"]["false_negative"] for r in results)
+    judge_failures = sum(
+        r["judge"]["parse_error"] is not None
+        for r in results
+    )
+    judge_failures = sum(
+        r["judge"]["parse_error"] is not None
+        for r in results
+    )
 
     omneum_precision = (
         omneum_tp / (omneum_tp + omneum_fp)
@@ -328,6 +344,10 @@ async def run_suite():
         f"{judge_latency:>13.2f} ms "
         f"{judge_tokens:>12}"
     )
+    print()
+    print(f"LLM-as-Judge parse failures: {judge_failures}/{len(results)}")
+    print()
+    print(f"LLM-as-Judge parse failures: {judge_failures}/{len(results)}")
     print()
     print(
         "N/A: Naive Vector RAG does not estimate "

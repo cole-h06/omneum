@@ -1,48 +1,104 @@
-# Omneum
+# What is Omneum
 
-Omneum is an open-source data trust gateway for agentic systems. It evaluates information returned by retrieval and tool execution before that information is included in the next model context.
+<p align="center">
+  <img src="assets/omneum-logotype.svg" alt="Omneum" width="240">
+</p>
 
-Agent workflows routinely assemble context from search results, APIs, databases, internal services, documents, MCP tools, and outputs from earlier agent steps. Omneum evaluates how much independent support exists for the structured assertions produced by those systems, surfaces conflicting values, and preserves source relationships without adding another LLM call.
+Omneum: an open-source context evaluator for AI agents.
 
-Omneum independently implements BRAID according to the accepted research
-specification and frozen fixtures. See [algorithm compatibility](docs/algorithm_compatibility.md)
-for the exact revision pin and conformance checks, and
-[opt-in research telemetry](docs/research_telemetry.md) for the privacy-safe feedback workflow.
+Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is reliable.
 
-## 🧠 Why Omneum?
+Agents routinely assemble context from many different sources — a RAG pipeline, web search, APIs, databases, files, memory systems, other agents — but stuffing dozens of raw chunks into a single context window can leave the model working through a mess of information that was never organized for it.
 
-Multi-source agent workflows can retrieve several results that appear to agree even when they ultimately depend on the same upstream resource. Other retrieval branches may return conflicting values, copied information, stale versions, or results whose provenance was partially preserved by the runtime.
+The same information can appear across multiple retrieved chunks without being deduplicated. Chunks can still hold conflicting information, or be stale relative to newer information. Retrieved results can appear independent even when they share the same upstream source.
 
-Omneum adds an evaluation step between retrieval or tool execution and the model call that consumes the resulting context.
+Omneum evaluates the context your agent has assembled and addresses these problems with context-quality signals that can be used to decide what the model should see.
 
-Main features include:
+## Why Omneum and how it works
 
-- **Source dependency estimation:** Estimate the independence of retrieved results using available provenance, execution metadata, source relationships, and graph structure.
+Modern agent pipelines use several techniques to decide what context should reach a model:
 
-- **Conflict detection:** Surface competing structured values for the same entity and attribute before they are included in the next model context.
+**Semantic similarity (Vector DBs).** The piece of text that *looks* closest to the prompt wins.
 
-- **Context-quality signals:** Return support, estimated independent support, source-dependency results, and signal coverage without invoking another language model.
+**Semantic reranking.** Retrieved context is reordered based on how relevant it is to the query.
 
-- **Privacy-preserving linkage:** Generate stable linkage tokens with an RFC 9497 VOPRF so private source identifiers and structured values do not need to be sent to the server in plaintext.
+**LLM-as-a-Judge.** Another LLM reads the retrieved context and evaluates it against a set of instructions.
 
-## 🚀 Quickstart
+These tools are highly effective at searching and filtering for relevance, but relevance is only one dimension of context quality.
 
-**Note:** This tutorial assumes a Python-based agent application.
+Omneum does not replace your existing retrieval or ranking stack; it is designed entirely to run alongside them. Instead of scoring chunks for semantic similarity, Omneum uses a complicated graph-based analysis to evaluate context for signals such as conflicts, redundancy, or dependencies on upstream sources. This allows Omneum to estimate the reliability of each source and how strongly each piece of context is supported.
 
-### 1. Installation
+Importantly, these scores do not depend on the semantic meaning of the context. For example, a piece of context like
 
-On macOS (Apple silicon or Intel), or Ubuntu 22.04+ x86_64 with systemd,
-install Python 3.11–3.14, then run:
+“Acme reported $4.2 billion in revenue in 2025.”
+
+could receive a high support score if:
+
+1. Sources with high reliability support it.
+2. Those sources receive high reliability by supporting strongly supported context.
+
+Omneum's graph analysis is powered by **BRAID**, its open-source algorithm for measuring the reliability of AI context. [Learn how BRAID works ->](https://github.com/cole-h06/braid/tree/main)
+
+## Where Omneum fits
+
+Omneum runs locally as an MCP server and evaluates after retrieval or tool execution before that context is passed to the model. The evaluation adds a lightweight processing step; no inference request, no extra model call.
+
+**Retrieval / tools → Omneum evaluation → agent control flow → LLM**
+
+Omneum returns context-quality signals; your application decides how to use them.
+
+## Performance & Accuracy
+
+
+
+## Quick Start
+
+**Note:** This tutorial assumes a Python-based application.
+
+### 1. Install
+
+Requires Python 3.11–3.14.
 
 ```bash
 pip install omneum
+```
+
+### 2. Set up Omneum
+
+```bash
 omneum install
 ```
 
-Run `omneum install` as your normal login user. It downloads the daemon matching
-exactly your installed package version, verifies the release checksum, and asks
-for administrator authorization to install the protected service. A GitHub daemon
-release for that exact version must already be published.
+Omneum runs its evaluator as a managed local service so cryptographic key material remains isolated from the agent process. The installer configures the service, initializes Omneum, and verifies the connection before reporting success.
+
+> **What gets installed?** On macOS, Omneum uses `launchd`. On Ubuntu, it uses `systemd` with an isolated service account. No telemetry is sent.
+
+### 3. Connect your agent
+
+Add Omneum to your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "omneum": {
+      "command": "python",
+      "args": ["-m", "omneum.server"]
+    }
+  }
+}
+```
+
+Restart your MCP client. Omneum's tools will then be available to your agent.
+
+### 4. Verify the connection
+
+Ask your agent to call Omneum's `ping` tool. A successful response confirms that the MCP server and local evaluator are connected.
+
+## Usage
+
+Once connected, your agent can evaluate retrieved context with Omneum before passing it to the model.
+
+
 
 ### 2. Initialization and platform requirements
 
@@ -271,7 +327,7 @@ Explicit dependency signals are available for integrations that already compute 
 
 `Observation` is Omneum's lower-level source-specific representation. Each observation associates a `Claim` with the source that produced it and can retain detailed provenance, retrieval metadata, source relationships, assertion lineage, and dependency signals.
 
-`client.evaluate_assertion()` accepts these objects directly.
+`client.evaluate_context()` accepts these objects directly.
 
 Applications do not need to use this interface for ordinary `StructuredAssertion` or `ContextMapper` integrations. It remains available when an integration needs direct control over the complete observation representation.
 

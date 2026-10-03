@@ -2,7 +2,7 @@ from omneum import open_stdio_client
 
 from .generation import answer_from_context
 
-from examples.enterprise.config import example_deployment
+from .deployment import benchmark_deployment
 
 
 def map_observations(retrieved, observations, source_ids):
@@ -26,9 +26,9 @@ async def evaluate_context(mapped, *, estimator):
         for item in mapped
     )
 
-    with example_deployment() as (config, server):
+    with benchmark_deployment() as (config, server):
         async with open_stdio_client(config, server) as client:
-            return await client.evaluate_assertion(
+            return await client.evaluate_context(
                 observations,
                 estimator=estimator,
             )

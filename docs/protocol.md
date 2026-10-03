@@ -28,7 +28,7 @@ Version 1 has the following implementation status:
 | Canonical linkage serialization and domain encoding | Implemented |
 | RFC 9497 VOPRF client and server primitives | Implemented |
 | `evaluate_voprf` MCP tool | Implemented for local stdio |
-| `evaluate_assertions` MCP tool | Implemented for local stdio |
+| `evaluate_context` MCP tool | Implemented for local stdio |
 | `trace_claim` | Deferred |
 | Overlapping-key rotation | Deferred |
 | Remote transport profile | Deferred |
@@ -310,7 +310,7 @@ authenticated configuration management and deployment controls.
 
 ## 13. Assertion Evaluation
 
-`evaluate_assertions` is implemented for local MCP stdio. The exact wire contract
+`evaluate_context` is implemented for local MCP stdio. The exact wire contract
 and algorithm are defined in `api.md`. Remote transport and Omneum Cloud
 integration are not implemented.
 
@@ -318,7 +318,7 @@ The Python SDK exposes the wire operation through multiple application-facing
 interfaces. `client.evaluate()` accepts a `StructuredAssertion` when the
 application has already normalized the entity, attribute, value, and supporting
 sources. `client.evaluate_mapped()` adapts existing retrieval or tool output
-through a `ContextMapper`. The lower-level `client.evaluate_assertion()` method
+through a `ContextMapper`. The lower-level `client.evaluate_context()` method
 accepts `Observation` objects directly.
 
 All three paths produce the same assertion-evaluation protocol request. Before

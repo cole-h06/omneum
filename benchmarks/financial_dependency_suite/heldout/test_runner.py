@@ -65,7 +65,7 @@ def truth():
 
 def test_run_method(monkeypatch):
     async def fake_selection(*args, **kwargs):
-        return {
+        selection = {
             "selected": [
                 {
                     "source": "source_a",
@@ -82,6 +82,8 @@ def test_run_method(monkeypatch):
                 '{"selected_sources":["source_a"]}'
             ),
         }
+
+        return {"selection": selection, "failure": None}
 
     async def fake_generation(*args, **kwargs):
         return {
@@ -143,13 +145,13 @@ def test_selection_failure(monkeypatch):
 
     monkeypatch.setattr(
         runner,
-        "select_llm_safe",
+        "select_llm_provenance_safe",
         fake_selection,
     )
 
     result = asyncio.run(
         runner.run_method(
-            "llm",
+            "llm_provenance",
             case(),
             truth(),
             provider="openai",
@@ -234,3 +236,84 @@ def test_ground_truth_does_not_change_selection(monkeypatch):
     )
 
     assert seen[0] == seen[1]
+
+
+@pytest.mark.parametrize("method,outcome", [
+    (method, outcome)
+    for method in ("llm", "llm_provenance", "cohere")
+    for outcome in ("success", "provider_error", "parse_error", "generation_failure")
+    if (method, outcome) != ("cohere", "parse_error")
+])
+def test_real_safe_selector_contracts(monkeypatch, method, outcome):
+    import benchmarks.financial_dependency_suite.application_comparison as app
+
+    raw = ('{"selected_sources":["source_a"]}'
+           if outcome != "parse_error" else "invalid JSON")
+
+    async def fake_generate(*args, **kwargs):
+        if outcome == "provider_error":
+            raise RuntimeError("provider unavailable")
+        return {
+            "text": raw, "provider": "anthropic", "model": "selector",
+            "latency_seconds": 0.1, "input_tokens": 10, "output_tokens": 2,
+        }
+
+    def fake_rerank(query, candidates, *, top_n):
+        if outcome == "provider_error":
+            raise RuntimeError("provider unavailable")
+        assert top_n == 1
+        return {"selected": candidates, "latency_seconds": 0.1, "model": "test"}
+
+    generated = []
+
+    async def fake_answer(query, documents, **kwargs):
+        generated.append(documents)
+        if outcome == "generation_failure":
+            raise RuntimeError("generator unavailable")
+        return {"text": "42", "latency_seconds": 0.2}
+
+    monkeypatch.setattr(app, "generate", fake_generate)
+    monkeypatch.setattr(app, "rerank_cohere", fake_rerank)
+    monkeypatch.setattr(app, "answer_from_context", fake_answer)
+    result = asyncio.run(runner.run_method(
+        method, case(), truth(), provider="anthropic", model="selector",
+        generator_provider="anthropic", generator_model="generator",
+    ))
+
+    if outcome in ("provider_error", "parse_error"):
+        assert not generated
+        assert result["answer_score"] == "selection_failure"
+        assert result["failure_type"] == outcome
+        assert result["generation"] is None
+        assert "selection_score" not in result
+        if outcome == "parse_error":
+            assert result["selection"]["raw_output"] == raw
+        else:
+            assert "provider unavailable" in result["error"]
+    else:
+        assert generated[0][0]["source"] == "source_a"
+        assert result["selected"] == ["source_a"]
+        if outcome == "generation_failure":
+            assert result["answer_score"] == "generation_failure"
+            assert result["selection"]["selected"][0]["source"] == "source_a"
+        else:
+            assert result["answer_score"] == "correct"
+            assert result["end_to_end_latency_seconds"] == pytest.approx(0.3)
+
+
+@pytest.mark.parametrize("field", ["selection_failure", "parse_error"])
+def test_empty_provenance_error_is_still_failure(monkeypatch, field):
+    async def fake_selection(*args, **kwargs):
+        return {"selected": [], field: "", "failure_type": "provider_error"}
+
+    async def unexpected_generation(*args, **kwargs):
+        pytest.fail("Failed selection must not generate an answer")
+
+    monkeypatch.setattr(runner, "select_llm_provenance_safe", fake_selection)
+    monkeypatch.setattr(runner, "generate_answer_safe", unexpected_generation)
+    result = asyncio.run(runner.run_method(
+        "llm_provenance", case(), truth(), provider="anthropic", model="selector",
+        generator_provider="anthropic", generator_model="generator",
+    ))
+    assert result["answer_score"] == "selection_failure"
+    assert result["error"] == ""

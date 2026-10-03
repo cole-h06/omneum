@@ -164,12 +164,12 @@ def test_stdio_workflow(monkeypatch, example_daemon):
     for session in sessions:
         session_calls = [item for item in calls if item[0] == session]
         assert sum(name == "evaluate_voprf" for _, name, _ in session_calls) == 15
-        assert sum(name == "evaluate_assertion" for _, name, _ in session_calls) == 1
+        assert sum(name == "evaluate_context" for _, name, _ in session_calls) == 1
 
     assertion_requests = [
         arguments
         for _, name, arguments in calls
-        if name == "evaluate_assertion"
+        if name == "evaluate_context"
     ]
     observations = collect_observations()
     private_values = {

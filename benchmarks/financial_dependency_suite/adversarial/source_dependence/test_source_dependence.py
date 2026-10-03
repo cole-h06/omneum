@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 import pytest
 
 from .cases import (
@@ -92,7 +94,13 @@ async def test_dependency_changes_balanced_conflict():
 
     async def evaluate(adversarial):
         base = build_observations("arm_ipo_2023_revenue")[:3]
-        observations = base + adversarial["observations"]
+        # v4 counts equal modification times as temporal evidence. Match
+        # the correct-side timing so only direct provenance breaks the tie.
+        balanced = tuple(
+            replace(observation, source_modified_at=reference.source_modified_at)
+            for observation, reference in zip(adversarial["observations"], base)
+        )
+        observations = base + balanced
 
         ids = {
             **source_ids("arm_ipo_2023_revenue"),
@@ -162,6 +170,10 @@ async def test_dependency_changes_balanced_conflict():
 
     assert independent_by_value[correct].is_attribute_max_support
     assert independent_by_value[false].is_attribute_max_support
+
+    # Each side has pair dependencies (0, 0, 0.1): n² / (n + 2Σd).
+    for claim in independent_by_value.values():
+        assert claim.estimated_independent_support_count == pytest.approx(2.8125)
 
 
 def test_treatment_ground_truth():
@@ -327,14 +339,16 @@ async def test_noisy_metadata():
     upstream_false = false_claim(upstream)
     lineage_false = false_claim(lineage)
 
-    assert (
-        clean_false.estimated_independent_support_count
-        > upstream_false.estimated_independent_support_count
-        > lineage_false.estimated_independent_support_count
-    )
+    # Equal timestamps give clean pairs d=0.1 under v4. Upstream evidence
+    # (including the copies' shared upstream) gives every pair d=1. Adding
+    # lineage cannot increase that dependency: direct signals use max,
+    # not additive weights. Effective count is n² / (n + 2Σd).
+    assert clean_false.estimated_independent_support_count == pytest.approx(2.5)
+    assert upstream_false.estimated_independent_support_count == pytest.approx(1.0)
+    assert lineage_false.estimated_independent_support_count == pytest.approx(1.0)
 
     assert clean_false.support > upstream_false.support
-    assert upstream_false.support > lineage_false.support
+    assert upstream_false.support == lineage_false.support
 
 
 @pytest.mark.anyio

@@ -96,12 +96,14 @@ async def run_method(
         model=model,
     )
 
-    if method == "cohere":
+    # These safe selectors return an envelope; the other selectors return
+    # a bare selection (including provenance's inline failure metadata).
+    if method in ("cohere", "llm"):
         if selection["failure"] is not None:
             return selection["failure"]
         selection = selection["selection"]
 
-    if selection.get("selection_failure"):
+    if selection.get("selection_failure") is not None:
         return {
             "selected": [],
             "answer": None,
@@ -112,7 +114,7 @@ async def run_method(
             "error": selection["selection_failure"],
         }
 
-    if selection.get("parse_error"):
+    if selection.get("parse_error") is not None:
         return {
             "selected": [],
             "answer": None,

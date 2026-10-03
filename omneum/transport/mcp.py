@@ -22,7 +22,7 @@ from omneum.tools.evaluate_voprf import (
     EvaluationService,
     invalid_request_result,
 )
-from omneum.tools.evaluate_assertion import AssertionEvaluationService
+from omneum.tools.evaluate_context import AssertionEvaluationService
 from omneum.tools.ping import handle_ping
 
 
@@ -39,7 +39,7 @@ class OmneumFastMCP(FastMCP):
         except ToolError:
             if name in {
                 "evaluate_voprf",
-                "evaluate_assertion",
+                "evaluate_context",
             }:
                 return invalid_request_result()
             raise
@@ -125,12 +125,12 @@ def create_server(state: DeploymentState) -> FastMCP:
     )
 
     @mcp.tool(
-        name="evaluate_assertion",
+        name="evaluate_context",
         description=(
             "Evaluate opaque assertions and return information-quality signals."
         ),
     )
-    async def evaluate_assertion(
+    async def evaluate_context(
         protocol_version: str,
         deployment_id: str,
         voprf_key_version: int,
@@ -158,11 +158,11 @@ def create_server(state: DeploymentState) -> FastMCP:
         return await assertion_service.evaluate(request)
 
     assertion_tool = mcp._tool_manager.get_tool(
-        "evaluate_assertion"
+        "evaluate_context"
     )
     if assertion_tool is None:  # pragma: no cover
         raise RuntimeError(
-            "evaluate_assertion registration failed"
+            "evaluate_context registration failed"
         )
     assertion_tool.fn_metadata.arg_model.model_config.update(
         extra="forbid",
