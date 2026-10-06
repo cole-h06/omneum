@@ -134,11 +134,11 @@ def test_infer_stdio(tmp_path):
                 }
                 assert content["metadata"] == {
                     "algorithm_version": "omneum-v2",
-                    "iterations": 11,
+                    "iterations": 10,
                     "converged": True,
                     "convergence_tolerance": 1e-8,
                     "convergence_delta": (
-                        4.292414236550801e-09
+                        1.5653782853286557e-09
                     ),
                 }
 

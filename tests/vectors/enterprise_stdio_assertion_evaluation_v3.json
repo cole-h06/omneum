@@ -192,28 +192,28 @@
       ]
     ],
     "source_reliability": {
-      "support_portal": 0.3333333329194122,
-      "orders_store": 0.3333333329194122,
-      "policy_manual": 0.3333333329194122,
-      "orders_api": 1.2417634312786624e-09
+      "support_portal": 0.3025441857140359,
+      "orders_store": 0.3025441857140359,
+      "policy_manual": 0.3025441857140359,
+      "orders_api": 0.09236744285789227
     },
     "majority_claim": {
-      "support": 0.1666666664597061,
+      "support": 0.15127209285701795,
       "agreement_weight": 0.75,
       "estimated_independent_support_count": 1.2857142857142858,
       "dependency_signal_coverage": 0.8500000000000001,
       "supporting_sources": {
         "support_portal": [
           0.5,
-          0.06249999992238979
+          0.056727034821381736
         ],
         "orders_store": [
           0.5,
-          0.06249999992238979
+          0.056727034821381736
         ],
         "policy_manual": [
           0.3333333333333333,
-          0.041666666614926524
+          0.03781802321425449
         ]
       },
       "clusters": [
@@ -225,7 +225,7 @@
       ]
     },
     "minority_claim": {
-      "support": 1.552204289098328e-10,
+      "support": 0.011545930357236533,
       "agreement_weight": 0.25,
       "estimated_independent_support_count": 1.0,
       "dependency_signal_coverage": null,
@@ -236,9 +236,9 @@
       ]
     },
     "convergence": {
-      "iterations": 14,
+      "iterations": 12,
       "convergence_tolerance": 1e-08,
-      "convergence_delta": 3.7252902753322707e-09
+      "convergence_delta": 3.4220772049398107e-09
     }
   }
 }

@@ -7,6 +7,7 @@ from .engine_graph import InferenceGraph
 ALGORITHM_VERSION = "omneum-v2"
 CONVERGENCE_TOLERANCE = 1e-8
 MAX_ITERATIONS = 1000
+PROPAGATION_WEIGHT = 0.70
 
 
 class InferenceError(RuntimeError):
@@ -287,7 +288,10 @@ def _claim_results(
     ))
 
 
-def infer(graph: InferenceGraph) -> InferenceResult:
+def infer(
+    graph: InferenceGraph,
+    propagation_weight: float = PROPAGATION_WEIGHT,
+) -> InferenceResult:
     """Run deterministic version-1 reliability propagation."""
 
     if not graph.sources:
@@ -308,7 +312,17 @@ def infer(graph: InferenceGraph) -> InferenceResult:
             agreement,
             independence,
         )
-        updated = _source_update(graph, support)
+        propagated = _source_update(graph, support)
+
+        prior = 1.0 / len(graph.sources)
+        updated = {
+            source_id: _finite(
+                propagation_weight * propagated[source_id]
+                + (1.0 - propagation_weight) * prior
+            )
+            for source_id in graph.sources
+        }
+
         maximum_delta = max(
             _finite(abs(updated[source_id] - reliability[source_id]))
             for source_id in graph.sources

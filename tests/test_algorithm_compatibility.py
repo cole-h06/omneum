@@ -26,7 +26,7 @@ def test_pinned_conformance():
     }
     assert (
         result["compatibility"]["git_revision"]
-        == "2405ec3375f8daf8fe25e5dff1a58c120d3e75ca"
+        == "bce69eba0fae26091b75f9ee715c604b34e5a996"
     )
 
 

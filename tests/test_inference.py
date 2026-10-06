@@ -128,6 +128,38 @@ def test_conflicts_differentiate_source_reliability():
     assert reliabilities["source-b"] > reliabilities["source-d"]
 
 
+def test_conflict_reliability():
+    result = infer(graph([
+        AssertionTriple("source-a", "attribute-a", "claim-a1"),
+        AssertionTriple("source-b", "attribute-a", "claim-a1"),
+        AssertionTriple("source-c", "attribute-a", "claim-a1"),
+        AssertionTriple("source-d", "attribute-a", "claim-a2"),
+
+        AssertionTriple("source-a", "attribute-b", "claim-b1"),
+        AssertionTriple("source-b", "attribute-b", "claim-b1"),
+        AssertionTriple("source-c", "attribute-b", "claim-b1"),
+        AssertionTriple("source-d", "attribute-b", "claim-b2"),
+
+        AssertionTriple("source-a", "attribute-c", "claim-c1"),
+        AssertionTriple("source-b", "attribute-c", "claim-c1"),
+        AssertionTriple("source-c", "attribute-c", "claim-c1"),
+        AssertionTriple("source-d", "attribute-c", "claim-c2"),
+    ]))
+
+    reliabilities = {
+        item.source_id: item.reliability
+        for item in result.source_reliability
+    }
+
+    assert reliabilities["source-a"] > reliabilities["source-d"]
+    assert reliabilities["source-b"] > reliabilities["source-d"]
+    assert reliabilities["source-c"] > reliabilities["source-d"]
+
+    prior = 1.0 / 4
+    assert reliabilities["source-d"] >= (
+        (1.0 - inference_module.PROPAGATION_WEIGHT) * prior
+    )
+
 def test_dependency():
     assertions = [
         AssertionTriple("source-a", "attribute-a", "claim-a"),
