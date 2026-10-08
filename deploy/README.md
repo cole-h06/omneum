@@ -1,253 +1,326 @@
-# Linux installation
+# Deploying Omneum
 
-On a systemd-based Linux host with `systemd-sysusers`, `runuser`, `flock`, and
-GNU coreutils, build and install the daemon from an administrator-controlled
-checkout:
+This directory contains the service definitions and installers used to run the
+Omneum evaluator and MCP server on Linux.
 
-```sh
-cargo build --locked --release --no-default-features --features daemon --bin omneumd
+For a normal local installation, use:
+
+```bash
+pip install omneum
+omneum install
+```
+
+See [Installation](../docs/installation.md).
+
+The instructions below are for administrators installing or operating the
+services directly.
+
+## Linux
+
+Omneum's managed Linux deployment has two service boundaries:
+
+```text
+MCP host
+   │
+   ▼
+/usr/local/bin/omneum-server
+   │
+   ▼
+/run/omneum-server.sock
+   │
+   ▼
+omneum-server@.service
+   │
+   ▼
+/run/omneumd/eval.sock
+   │
+   ▼
+omneumd.service
+```
+
+`omneumd` owns evaluation and the VOPRF server key. Each MCP connection runs
+in a separate systemd service under a dynamic `omneum-*` user.
+
+### Requirements
+
+The supported managed deployment target is Ubuntu 22.04+ x86_64 with:
+
+```text
+systemd
+systemd-sysusers
+runuser
+flock
+GNU coreutils
+Python 3.11+
+```
+
+## Evaluator daemon
+
+Build `omneumd` from an administrator-controlled checkout:
+
+```bash
+cargo build --locked --release \
+  --no-default-features \
+  --features daemon \
+  --bin omneumd
+
 sudo sh deploy/install.sh target/release/omneumd
 ```
 
-The installer creates persistent `omneum-crypto` and `omneum-mcp` accounts and
-the `omneum-ipc` and reserved `omneum-session` groups without fixed IDs. It installs
-the daemon and systemd unit root-owned, records the resolved MCP UID and session
-GID in `/etc/omneumd/peer.conf`, and
-provisions a new server key. Reinstalling restarts the service and preserves its
-accounts and key. An existing installation with a missing or invalid key requires
-administrator action; installation never replaces that key.
+`install.sh` creates:
 
-`RuntimeDirectory=` creates `/run/omneumd` as `omneum-crypto:omneum-ipc` with
-mode `0750`. The daemon creates `eval.sock` with mode `0660`. The private key
-remains in `/var/lib/omneumd`, owned by `omneum-crypto`, with directory mode
-`0700` and key mode `0600`. Do not install a `test-daemon` build.
+| Resource | Purpose |
+|---|---|
+| `omneum-crypto` | Owns the VOPRF private key and evaluator daemon |
+| `omneum-mcp` | Administrative MCP initialization |
+| `omneum-ipc` | Access to the evaluator Unix socket |
+| `omneum-session` | Primary group reserved for isolated MCP sessions |
 
-For daemon initialization, install the core Python environment with `uv sync --locked --no-default-groups`
-at a location readable and executable by `omneum-mcp`. Run initialization as
-that account using the environment's absolute executable paths:
+The accounts and groups use system-assigned IDs.
 
-```sh
-sudo -H -u omneum-mcp /path/to/.venv/bin/omneum init
+The daemon key is stored under:
+
+```text
+/var/lib/omneumd
 ```
 
-`init` gets the initial public key from the authenticated local daemon and writes
-public configuration under the MCP account's home. `--public-key-hex` can be used
-to require an expected key. Existing pins are never overwritten. Use the managed
-server below for production stdio connections.
+The directory is owned by `omneum-crypto` with mode `0700`; the key uses
+`0600`.
 
-Inspect the service with:
+At runtime, systemd creates:
 
-```sh
+```text
+/run/omneumd
+```
+
+as `omneum-crypto:omneum-ipc` with mode `0750`. `omneumd` creates
+`eval.sock` inside it with mode `0660`.
+
+Reinstalling the daemon preserves the existing key. If the key is missing or
+invalid, the installer stops instead of generating a replacement.
+
+Check the service with:
+
+```bash
 systemctl status omneumd
 sudo journalctl -u omneumd
 ```
 
-Python does not provision or read the VOPRF private key.
+## Initialize the MCP configuration
 
-## Managed Python server (Ubuntu 22.04 or newer)
+Run `omneum init` as `omneum-mcp` using the production Python environment:
 
-Install a dedicated, administrator-controlled production checkout at `/opt/omneum`. As administrator, use
-an administrator-owned Python 3.11+ interpreter under `/usr`, or place a
-uv-managed interpreter inside `/opt/omneum/python`:
-
-```sh
-cd /opt/omneum
-sudo env UV_PYTHON_INSTALL_DIR=/opt/omneum/python uv sync --locked --no-default-groups --no-editable --managed-python --python 3.14
+```bash
+sudo -H -u omneum-mcp /opt/omneum/.venv/bin/omneum init
 ```
 
-The checkout, interpreter, environment, native extension, package files, and
-import-path parents must all be root-owned and not writable by group or others.
-After creating the dedicated installation (uv-managed Python can include writable
-group modes), normalize its permissions as administrator:
+`init` reads the daemon's public VOPRF key over the authenticated local socket
+and writes the client configuration under the MCP account.
 
-```sh
+To require a specific public key:
+
+```bash
+sudo -H -u omneum-mcp \
+  /opt/omneum/.venv/bin/omneum init \
+  --public-key-hex <hex>
+```
+
+An existing key pin is never replaced automatically.
+
+The Python process does not provision or read the VOPRF private key.
+
+## MCP server
+
+The production MCP server runs from an administrator-controlled installation
+under `/opt/omneum`.
+
+Create the environment from the lockfile:
+
+```bash
+cd /opt/omneum
+
+sudo env UV_PYTHON_INSTALL_DIR=/opt/omneum/python \
+  uv sync \
+  --locked \
+  --no-default-groups \
+  --no-editable \
+  --managed-python \
+  --python 3.14
+```
+
+The checkout, Python interpreter, virtual environment, native extension, and
+their parent directories must be root-owned and not writable by group or
+other users.
+
+Normalize the installation after creating it:
+
+```bash
 sudo chown -R root:root /opt/omneum
 sudo find /opt/omneum -type d -exec chmod a+rX,go-w {} +
 sudo find /opt/omneum -type f -exec chmod a+rX,go-w {} +
 ```
 
-After hardening, use `python -B` for administrative Python checks in this runtime.
-Otherwise root-run imports can create new `__pycache__` directories with
-group-write permissions under a permissive umask, invalidating the hardened
-tree before installation. The managed service and installer runtime checks
-already disable bytecode writes.
+Don't reuse an application-owned virtual environment. `install-server.sh`
+rejects writable installation trees and editable imports.
 
-Do not reuse an application-owned environment. The server installer rejects
-writable installations and external editable imports. Installation directories
-and their parents, including `/usr/local/bin` for the native proxy, must also be
-root-owned, non-symlink directories without group/other write permissions
-(including the effective ACL mask). The installer rejects an untrusted existing
-directory rather than repairing it. Hosted CI images may deliberately make tool
-directories writable; prepare those disposable hosts explicitly before testing.
-Build the native proxy from the administrator-controlled checkout:
+### Install the native proxy
 
-```sh
-sudo cargo build --locked --release --no-default-features --features daemon --bin omneum-server
-sudo -H -u omneum-mcp /opt/omneum/.venv/bin/omneum init
-sudo sh deploy/install-server.sh target/release/omneum-server /var/lib/omneum/.config/Omneum/config.toml
+Build the proxy:
+
+```bash
+cargo build --locked --release \
+  --no-default-features \
+  --features daemon \
+  --bin omneum-server
 ```
 
-For existing deployments, supply the existing public configuration rather than
-initializing a different deployment. Installation verifies its daemon pin and
-copies it to root-owned `/etc/omneum/config.toml`. A different existing serving
-configuration causes failure; updates require explicit administrator action.
-The import reads with MCP credentials and cannot read the private server key.
-The managed server uses only `/etc/omneum`; its legacy home configuration is not
-used for serving.
+Then install it with the initialized public configuration:
 
-Grant frontend access only to intended MCP-host accounts:
+```bash
+sudo sh deploy/install-server.sh \
+  target/release/omneum-server \
+  /var/lib/omneum/.config/Omneum/config.toml
+```
 
-```sh
+The installer copies the public configuration to:
+
+```text
+/etc/omneum/config.toml
+```
+
+The managed server reads this file instead of configuration from a user's
+home directory.
+
+## Client access
+
+Grant MCP access to the account that will launch `omneum-server`:
+
+```bash
 sudo usermod -aG omneum-client YOUR_MCP_HOST_USER
 ```
 
-Start a new login session to acquire membership. Configure the MCP host command
-as `/usr/local/bin/omneum-server`. This native command forwards stdio through
-`/run/omneum-server.sock`; each connection activates a separate Python service.
-Do not point production hosts at the virtualenv's Python console script or run
-Python directly as `omneum-mcp`. Never grant frontend clients `omneum-ipc`
-membership: that group permits access to the daemon socket. Kernel peer
-credentials independently authorize evaluation.
+Start a new login session after changing group membership.
 
-Managed sessions use distinct dynamic users (`omneum-%i`) and the reserved
-primary group `omneum-session`. Do not create static accounts with names
-`omneum-` followed by a digit, assign accounts to `omneum-session`, or use that
-group in other services or directory-service accounts. The installers check
-persistent local accounts and group members; keep these names reserved in any
-external identity directory as well. Install the updated daemon before the managed server;
-the installer records the resolved session GID alongside the existing MCP UID.
-The static `omneum-mcp` identity remains available for administrative initialization.
+Configure the MCP host to execute:
 
-SDK applications using `OmneumClientConfig.from_local_deployment()` should set
-`OMNEUM_CONFIG_DIR=/etc/omneum` in the client environment to read the installed
-public configuration. The Python service uses that fixed directory independently
-of the proxy caller's environment.
+```text
+/usr/local/bin/omneum-server
+```
 
-The managed service has read-only application/configuration and temporary
-storage, hidden home directories, a restricted `/proc` view, and a private
-network and IPC namespaces. Only the daemon directory is restored into its otherwise
-private `/run`. Python can still execute child programs, which inherit these
-restrictions, and can still change application behavior and use the authorized
-daemon evaluator. Separate syscall filtering for execution is not enabled.
+Don't add client accounts to `omneum-ipc`. That group can reach the evaluator
+socket directly.
 
-Python diagnostics go to the journal, never the MCP stream:
+Don't add accounts to `omneum-session` either. systemd uses that group for
+the dynamic users created for MCP sessions.
 
-```sh
+## MCP session isolation
+
+Every connection to `/run/omneum-server.sock` starts a separate
+`omneum-server@.service` instance.
+
+The service uses a dynamic `omneum-*` user and has:
+
+- a read-only application tree;
+- a read-only configuration;
+- a private network namespace;
+- a private IPC namespace;
+- hidden home directories;
+- a restricted `/proc`;
+- private temporary storage.
+
+Only the evaluator runtime directory is exposed inside its private `/run`.
+
+Python subprocesses inherit the same systemd sandbox. The service does not
+currently use a separate syscall filter for process execution.
+
+Never create persistent accounts named `omneum-<digit>...`. Those names are
+reserved for systemd's dynamic MCP users.
+
+## SDK applications
+
+Applications using:
+
+```python
+OmneumClientConfig.from_local_deployment()
+```
+
+should point the client at the system configuration:
+
+```bash
+export OMNEUM_CONFIG_DIR=/etc/omneum
+```
+
+The managed MCP service always uses `/etc/omneum` regardless of the proxy
+caller's environment.
+
+## Logs
+
+Evaluator daemon:
+
+```bash
+systemctl status omneumd
+sudo journalctl -u omneumd
+```
+
+MCP server:
+
+```bash
 systemctl status omneum-server.socket
 sudo journalctl -u 'omneum-server@*'
 ```
 
-Reinstallation preserves the public configuration and does not interrupt existing
-sessions. Restart the socket to apply changed socket settings; stop existing
-session units explicitly when an update must take effect immediately.
+Python diagnostics are written to the journal, not to MCP stdio.
 
-Before migration, stop unmanaged MCP processes and review existing jobs/startup
-files for that identity. The service boundary applies to managed sessions and
-their descendants, not to arbitrary processes an administrator launches outside
-it. Build and initialization environments remain administrative trust domains.
+## Updating an installation
 
-## Versioned daemon release artifacts
+Reinstalling `omneumd` preserves the VOPRF key.
 
-Native daemon bundles are published to GitHub Releases in `cole-h06/omneum`.
-The Python package's literal `project.version` in `pyproject.toml` is the version
-authority; the Cargo crate version is independent. For version `1.0.3`, the only
-valid release tag is `v1.0.3`, and the release asset set is:
+Reinstalling the MCP server preserves the installed public configuration and
+doesn't terminate existing MCP sessions.
 
-- `omneum-daemon-1.0.3-linux-x86_64.tar.gz`
-- `omneum-daemon-1.0.3-macos-aarch64.tar.gz`
-- `omneum-daemon-1.0.3-macos-x86_64.tar.gz`
-- `SHA256SUMS`
+Restart the socket after changing socket configuration:
 
-The exact-version URL contract is:
+```bash
+sudo systemctl restart omneum-server.socket
+```
+
+Stop existing `omneum-server@*` units if a server update needs to take effect
+for already-running sessions.
+
+A runtime at `/opt/omneum` must match the version being deployed. Replacing a
+different-version runtime is an administrator operation; the installer won't
+rewrite one automatically.
+
+## Foreground deployment
+
+On Linux hosts without systemd, `install-foreground.sh` provisions the daemon
+accounts, files, key, and runtime directory without starting a persistent
+service:
+
+```bash
+sudo sh deploy/install-foreground.sh target/release/omneumd
+```
+
+Process supervision is left to the administrator.
+
+## Files in this directory
 
 ```text
-https://github.com/cole-h06/omneum/releases/download/v<version>/omneum-daemon-<version>-<platform>.tar.gz
-https://github.com/cole-h06/omneum/releases/download/v<version>/SHA256SUMS
+deploy/
+├── install.sh
+├── install-foreground.sh
+├── install-server.sh
+├── install_server.py
+├── install-linux.py
+├── runtime_bundle.py
+├── systemd/
+│   ├── omneumd.service
+│   ├── omneum-server.socket
+│   └── omneum-server@.service
+└── sysusers.d/
+    ├── omneum.conf
+    └── omneum-server.conf
 ```
 
-`<platform>` is exactly `linux-x86_64`, `macos-aarch64`, or `macos-x86_64`.
-There is no `latest` fallback or cross-platform substitution. These names describe
-the existing native CI builds; they do not promise compatibility with all Linux
-libcs or older operating systems. Linux builds currently use Ubuntu 22.04, and
-macOS builds use the macOS 15 ARM/Intel runners.
-
-Archives contain files directly at their root, with no enclosing version folder:
-
-- Linux: `omneumd`, `install.sh`, `install-foreground.sh`,
-  `systemd/omneumd.service`, and `sysusers.d/omneum.conf`, plus the managed-server
-  assets: `omneum-server`, `install-server.sh`, `install_server.py`,
-  `install-linux.py`, `runtime_bundle.py`, `runtime.tar.gz`,
-  `systemd/omneum-server.socket`, `systemd/omneum-server@.service`, and
-  `sysusers.d/omneum-server.conf`.
-- macOS: `omneumd`, `install-macos.sh`, and
-  `launchd/ai.omneum.omneumd.plist`.
-
-These are the existing staged daemon artifacts, including the hardened installation
-assets. Native binaries and shell scripts have archive mode `0755`, templates `0644`, and
-Python helpers and the nested runtime archive use `0644`; subdirectories `0755`. Packaging sorts members and fixes ownership to UID/GID 0,
-owner/group names to empty strings, and tar/gzip timestamps to zero. The gzip
-header omits the filename. This makes packaging deterministic for identical staged
-bytes and the same Python/zlib toolchain; it does not claim reproducible native
-compilation across builds. No installation scripts or security checks are changed.
-
-`SHA256SUMS` is ASCII with one newline-terminated entry per archive, ordered Linux
-x86_64, macOS aarch64, macOS x86_64. Each entry is the lowercase SHA-256 digest of
-the **compressed archive bytes**, two spaces, and the exact archive basename.
-A future installer must retrieve the manifest and selected archive from the same
-exact-version release over HTTPS, require exactly one valid entry for the selected
-filename, and verify the digest before extraction or execution. Missing, duplicate,
-malformed, or mismatched entries must fail closed. The manifest supplies integrity
-relative to the trusted GitHub Release; it is not a separate cryptographic signature.
-With all three archives downloaded into one directory, administrators can check:
-
-```sh
-sha256sum --check SHA256SUMS       # Linux
-shasum -a 256 --check SHA256SUMS  # macOS
-```
-
-Only `v*` tag **pushes** in the canonical repository can publish. CI rejects any tag
-that is not exactly `v<project.version>`, requires the existing test, wheel,
-foreground-install, macOS-install, and daemon-artifact jobs to succeed, and fails
-on missing/extra staged files, invalid archives, or checksum errors. Preparation
-has read-only repository access. Only the publication job gets `contents: write`;
-both release jobs have `actions: read` to fetch artifacts from their own run.
-All Actions references remain pinned to immutable commit SHAs.
-
-Publication verifies the complete asset set again, creates a draft using an
-already-existing tag, uploads assets, downloads and checks the uploaded bytes,
-and only then publishes. A failed upload/verification can leave an unpublished
-draft requiring administrator inspection and removal before retrying. Existing
-releases are not overwritten. CI never creates/pushes tags and does not publish
-to PyPI. Pull requests and manual branch runs retain their existing behavior.
-
-The offline contract checks run in the existing Python test matrix and can also
-be run locally without building the daemon or publishing:
-
-```sh
-python3 -m unittest discover -s tools -p 'test_release_daemon.py' -v
-python3 tools/release_daemon.py validate --tag v1.0.3
-# With staged daemon-<platform>/ directories under daemon-artifacts/:
-python3 tools/release_daemon.py prepare --tag v1.0.3
-python3 tools/release_daemon.py verify --tag v1.0.3
-```
-
-Preparation requires a fresh `release-assets/` output directory. This establishes
-the distribution contract used by `omneum install`. See [public installation](../docs/installation.md)
-for its platform limits. The administrator installation instructions above continue to apply.
-
-
-The Linux archive now carries the complete existing managed-server architecture;
-its asset name and the three-entry `SHA256SUMS` contract remain unchanged. The
-nested runtime contains only `.venv/`, `python/`, and `runtime.json`, with regular
-files/directories, no links, normalized ownership and modes, and a package-version
-marker tied to the outer tag. CI builds it non-editably from `uv.lock` at its final
-`/opt/omneum` prefix, materializes internal interpreter links (including the needed
-libpython beside venv executables), validates the packaged runtime after extraction,
-and exercises a fresh installation on a disposable systemd runner before release.
-A missing, invalid, or wrong-version runtime fails release preparation.
-
-`omneum install` orchestrates these primitives for normal users; see
-[public setup](../docs/installation.md). Existing scripts and service definitions
-above remain the authority for identity provisioning and isolation. The new helper
-adds no alternative daemon or server protocol. Different-version runtime upgrades
-remain an administrator operation; it never repairs an untrusted existing runtime.
+For the normal `pip install omneum` installation path, see
+[Installation](../docs/installation.md).

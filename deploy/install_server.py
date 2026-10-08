@@ -24,7 +24,34 @@ def trusted(path):
             raise ValueError(f'untrusted installation path: {item}')
 
 
-def runtime():
+def unprivileged_python(*args):
+    """Drop all credentials before bundled Python startup, including .pth imports."""
+    if sys.platform != 'linux' or os.geteuid() != 0:
+        raise ValueError('Linux administrator verification required')
+    account = pwd.getpwnam('omneum-mcp')
+    if account.pw_uid <= 0 or account.pw_gid <= 0:
+        raise ValueError('invalid runtime verification identity')
+    python = ROOT / '.venv/bin/python'
+    trusted(python.resolve(strict=True))
+    if python.stat().st_mode & 0o6000:
+        raise ValueError('privileged runtime executable')
+    # util-linux setpriv changes real/effective/saved IDs before exec. NNP and
+    # empty capability sets also prevent privilege gains through executable metadata.
+    transition = Path('/usr/bin/setpriv')
+    trusted(transition.resolve(strict=True))
+    return subprocess.run(
+        [str(transition), '--reuid', str(account.pw_uid),
+         '--regid', str(account.pw_gid), '--clear-groups', '--no-new-privs',
+         '--bounding-set=-all', '--inh-caps=-all', '--ambient-caps=-all',
+         '--', str(python), '-I', '-B', *args],
+        env={'PATH': '/usr/bin:/bin', 'HOME': '/nonexistent'}, cwd='/',
+        stdin=subprocess.DEVNULL, close_fds=True, check=True,
+        capture_output=True, text=True, timeout=30,
+    )
+
+
+def inspect_runtime():
+    """Privileged filesystem checks only; never start the bundled interpreter."""
     trusted(ROOT)
     for directory, dirs, files in os.walk(ROOT):
         for name in dirs + files:
@@ -43,8 +70,11 @@ def runtime():
                     raise ValueError('runtime link must be root owned')
             else:
                 trusted(path)
-    python = ROOT/'.venv/bin/python'
-    inspected = subprocess.run([str(python), '-I', '-B', '-c', '''
+
+
+def runtime():
+    inspect_runtime()
+    inspected = unprivileged_python('-c', '''
 import pathlib,sys,omneum,omneum_oprf
 root=pathlib.Path('/opt/omneum')
 assert pathlib.Path(omneum.__file__).resolve().is_relative_to(root)
@@ -55,7 +85,7 @@ for entry in sys.path:
 assert sys.prefix == '/opt/omneum/.venv'
 import json
 print(json.dumps(sys.path))
-'''], check=True, capture_output=True, text=True)
+''')
     # Also enforce ownership of OS-provided Python import trees, not merely
     # their /usr prefix. Missing standard-library zip paths need trusted parents.
     for entry in json.loads(inspected.stdout):
@@ -177,5 +207,5 @@ def main(proxy, config):
 if __name__ == '__main__':
     try:
         main(*sys.argv[1:])
-    except (OSError, ValueError, subprocess.SubprocessError) as error:
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
         sys.exit(f'install: {error}')

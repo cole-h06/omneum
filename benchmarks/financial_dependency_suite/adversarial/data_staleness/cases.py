@@ -128,14 +128,14 @@ def _observation(
     parent_assertion_ids=(),
 ):
     return Observation(
-        assertion_id=assertion_id,
+        observation_id=assertion_id,
         source=source,
         claim=claim,
         observed_at=_timestamp(observed_at),
         source_modified_at=_timestamp(source_modified_at),
         upstream_sources=tuple(upstream_sources),
         cited_sources=(),
-        parent_assertion_ids=tuple(parent_assertion_ids),
+        parent_observation_ids=tuple(parent_assertion_ids),
         retrievals=(),
     )
 

@@ -38,6 +38,8 @@ class BenchmarkCase:
     question: str
     context_budget: int
     candidates: tuple[CandidateSpec, ...]
+    category: str | None = None
+    adversarial_category: str | None = None
 
 
 @dataclass(frozen=True)

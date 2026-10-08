@@ -116,7 +116,7 @@ def observations_for_candidate(mapped, candidate_id):
     if not candidate["eligible"]:
         raise ValueError(f"candidate {candidate_id} is ineligible: {candidate['issues']}")
     return tuple(Observation(
-        assertion_id=a["assertion_id"],
+        observation_id=a["assertion_id"],
         source=Source("web_document", candidate["record"]["canonical_link"]),
         claim=Claim("service", "briefing-point:" + a["alignment_key"],
                     "isolated point", a["normalized_text"]),
@@ -124,7 +124,7 @@ def observations_for_candidate(mapped, candidate_id):
         source_modified_at=None,
         upstream_sources=None,
         cited_sources=None,
-        parent_assertion_ids=None,
+        parent_observation_ids=None,
         retrievals=None,
         metadata={"candidate_id": candidate_id, "point_indexes": a["point_indexes"],
                   "original_text": a["original_text"]},

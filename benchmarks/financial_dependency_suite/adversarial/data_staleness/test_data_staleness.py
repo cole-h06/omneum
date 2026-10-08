@@ -6,7 +6,9 @@ from benchmarks.financial_dependency_suite.adversarial.data_staleness.cases impo
     dependent_stale_data,
     independent_stale_data,
 )
-from benchmarks.financial_dependency_suite.adversarial.data_staleness.application import QUERY
+from benchmarks.financial_dependency_suite.adversarial.data_staleness.application import (
+    QUERY,
+)
 from benchmarks.financial_dependency_suite.omneum_rag import (
     evaluate_context,
     map_observations,
@@ -119,8 +121,7 @@ async def test_stale_selection():
     dependent = dependent_stale_data()
     independent = independent_stale_data()
 
-    from benchmarks.financial_dependency_suite.adversarial.data_staleness.application import QUERY
-from benchmarks.financial_dependency_suite.omneum_rag import (
+    from benchmarks.financial_dependency_suite.omneum_rag import (
         select_context,
     )
 
@@ -133,7 +134,7 @@ from benchmarks.financial_dependency_suite.omneum_rag import (
         QUERY,
         dependent_mapped,
         dependent_result,
-        top_n=4,
+        top_n=6,
     )
 
     independent_mapped = _mapped(independent)
@@ -145,8 +146,30 @@ from benchmarks.financial_dependency_suite.omneum_rag import (
         QUERY,
         independent_mapped,
         independent_result,
-        top_n=4,
+        top_n=6,
     )
+
+    print("\nDEPENDENT SELECTED")
+    for item in dependent_selected:
+        print(
+            item["retrieved"]["source"],
+            "claim=", item["claim"].value,
+            "relevance=", round(item["relevance"], 4),
+            "support=", round(item["claim_support"], 4),
+            "contribution=", round(item["omneum_contribution"], 4),
+            "score=", round(item["selection_score"], 4),
+        )
+
+    print("\nINDEPENDENT SELECTED")
+    for item in independent_selected:
+        print(
+            item["retrieved"]["source"],
+            "claim=", item["claim"].value,
+            "relevance=", round(item["relevance"], 4),
+            "support=", round(item["claim_support"], 4),
+            "contribution=", round(item["omneum_contribution"], 4),
+            "score=", round(item["selection_score"], 4),
+        )
 
     assert {
         item["claim"].value

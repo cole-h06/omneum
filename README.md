@@ -6,58 +6,60 @@
 
 Omneum: an open-source context evaluator for AI agents.
 
-Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is reliable.
-
 Agents routinely assemble context from many different sources — a RAG pipeline, web search, APIs, databases, files, memory systems, other agents — but stuffing dozens of raw chunks into a single context window can leave the model working through a mess of information that was never organized for it.
 
-The same information can appear across multiple retrieved chunks without being deduplicated. Chunks can still hold conflicting information, or be stale relative to newer information. Retrieved results can appear independent even when they share the same upstream source.
-
-Omneum evaluates the context your agent has assembled and addresses these problems with context-quality signals that can be used to decide what the model should see.
+Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is reliable.
 
 ## Why Omneum and how it works
 
-Modern agent pipelines use several techniques to decide what context should reach a model:
+Modern agent pipelines use several different techniques to decide what context should reach a model:
 
 **Semantic similarity (Vector DBs).** The piece of text that *looks* closest to the prompt wins.
 
 **Semantic reranking.** Retrieved context is reordered based on how relevant it is to the query.
 
-**LLM-as-a-Judge.** Another LLM reads the retrieved context and evaluates it against a set of instructions.
+**LLM-as-a-Judge.** Another LLM reads the retrieved context and is instructed to evaluate it against a set of instructions.
 
-These tools are highly effective at searching and filtering for relevance, but relevance is only one dimension of context quality.
+While these tools are highly effective at searching and filtering for relevance, relevance is not the only important dimension of context quality.
 
-Omneum does not replace your existing retrieval or ranking stack; it is designed entirely to run alongside them. Instead of scoring chunks for semantic similarity, Omneum uses a complicated graph-based analysis to evaluate context for signals such as conflicts, redundancy, or dependencies on upstream sources. This allows Omneum to estimate the reliability of each source and how strongly each piece of context is supported.
+Chunks can still hold conflicting or stale information. Multiple retrieved chunks might not be deduplicated or can appear independent even when they share the same upstream source. Without another filtering step, low-quality context can consume context-window budget that could otherwise be used for higher-quality context.
 
-Importantly, these scores do not depend on the semantic meaning of the context. For example, a piece of context like
+To address these problems, Omneum uses a graph-based mathematical analysis to detect conflicting claims, source redundancy, and source dependencies within retrieved context. This analysis allows Omneum to estimate a global reliability score for each source and support score for each piece of context.
+
+These scores are entirely independent of what the source is or the semantic meaning of the context. For instance, when considering a piece of context like
 
 “Acme reported $4.2 billion in revenue in 2025.”
 
-could receive a high support score if:
+It could receive a high support score if:
 
 1. Sources with high reliability support it.
 2. Those sources receive high reliability by supporting strongly supported context.
 
-Omneum's graph analysis is powered by **BRAID**, its open-source algorithm for measuring the reliability of AI context. [Learn how BRAID works ->](https://github.com/cole-h06/braid/tree/main)
+This definition seems circular, and it is. Nonetheless, it yields a well-defined notion of reliability that helps the model reason over high-quality context.
+
+Omneum uses **BRAID**, its open-source algorithm, to compute these reliability and support scores. [Learn how BRAID works ->](https://github.com/cole-h06/braid/tree/main)
 
 ## Where Omneum fits
 
-Omneum runs locally as an MCP server and evaluates after retrieval or tool execution before that context is passed to the model. The evaluation adds a lightweight processing step; no inference request, no extra model call.
+Omneum runs as a local MCP server as a lightweight processing step. It does not replace your existing retrieval or ranking stack; instead, it is entirely designed to run alongside them. No inference request, no extra model call:
 
 **Retrieval / tools → Omneum evaluation → agent control flow → LLM**
 
 Omneum returns context-quality signals; your application decides how to use them.
 
-## Performance & Accuracy
-
-
-
 ## Quick Start
 
-**Note:** This tutorial assumes a Python-based application.
+**Note:** This tutorial assumes a Python 3.11–3.14 application. Other language SDKs are not yet available.
 
 ### 1. Install
 
-Requires Python 3.11–3.14.
+**Supported Platforms:**
+
+| Platform | Supported |
+| --- | :---: |
+| macOS (Apple Silicon / arm64) | ✅ |
+| macOS (Intel / x86_64) | ✅ |
+| Linux (Ubuntu 22.04+ / x86_64) | ✅ |
 
 ```bash
 pip install omneum
@@ -69,9 +71,29 @@ pip install omneum
 omneum install
 ```
 
-Omneum runs its evaluator as a managed local service so cryptographic key material remains isolated from the agent process. The installer configures the service, initializes Omneum, and verifies the connection before reporting success.
+Run `omneum install` from your normal login account. Don't run the command with `sudo`.
 
-> **What gets installed?** On macOS, Omneum uses `launchd`. On Ubuntu, it uses `systemd` with an isolated service account. No telemetry is sent.
+The installer runs unprivileged while it downloads and verifies the evaluator release. The daemon version is pinned to the installed Python package version. For example, Omneum `1.0.3` only accepts daemon assets from `v1.0.3`; it doesn't resolve `latest` or fall back to another release.
+
+The archive is verified against the release `SHA256SUMS` before installation. A missing checksum, mismatched digest, unexpected archive entry, link, or path traversal stops the install before anything from the archive runs.
+
+Administrator access is requested only when installing machine-level service files. On Ubuntu, this includes the managed runtime under:
+
+```text
+/opt/omneum
+```
+
+and public client configuration at:
+
+```text
+/etc/omneum/config.toml
+```
+
+The evaluator runs as a system service because its VOPRF private key is isolated from the login account and MCP process. On macOS it runs under `launchd`; on Ubuntu it runs under systemd with a separate service identity.
+
+`omneum-server` connects MCP clients to the installed local service. The installer finishes by sending a VOPRF request through that path and verifying the response against the configured public key. A running service alone does not count as a successful installation.
+
+See [`docs/installation.md`](docs/installation.md) for service accounts, sockets, installed paths, custom endpoints, and failure handling.
 
 ### 3. Connect your agent
 
@@ -81,320 +103,365 @@ Add Omneum to your MCP client configuration:
 {
   "mcpServers": {
     "omneum": {
-      "command": "python",
-      "args": ["-m", "omneum.server"]
+      "command": "omneum-server"
     }
   }
 }
 ```
 
-Restart your MCP client. Omneum's tools will then be available to your agent.
+Restart your MCP client to expose Omneum's tools to your agent.
 
 ### 4. Verify the connection
 
-Ask your agent to call Omneum's `ping` tool. A successful response confirms that the MCP server and local evaluator are connected.
+Ask your agent to call Omneum's `ping` tool. You will receive a successful response when the MCP server and local evaluator are connected.
 
 ## Usage
 
-Once connected, your agent can evaluate retrieved context with Omneum before passing it to the model.
-
-
-
-### 2. Initialization and platform requirements
-
-`omneum install` initializes public configuration and verifies an authenticated
-daemon evaluation before reporting readiness. Existing key pins are never replaced.
-
-On Linux, the command also installs a dedicated, root-owned Python runtime and the
-managed MCP server. Your account receives access to the client-facing proxy only;
-it never receives direct daemon or private-key access. `omneum-server` automatically
-uses that proxy, including immediately after installation without a new login.
-Linux without systemd requires administrator-managed supervision and is not an
-automatic installation target. Windows and other architectures do not support local
-daemon installation.
-
-See [installation details](docs/installation.md) for failures and platform limits.
-For source/development installs, use `uv sync --locked` with the pinned uv version
-from `pyproject.toml` and a Rust toolchain. The lower-level [deployment instructions](deploy/README.md)
-and `omneum init` remain available to administrators.
-
-### 3. Connect to the MCP Server
-
-For local development, Omneum runs as an MCP server over `stdio`:
-
-```python
-from mcp import StdioServerParameters
-
-from omneum import OmneumClientConfig, open_stdio_client
-
-config = OmneumClientConfig.from_local_deployment()
-
-server = StdioServerParameters(
-    command="omneum-server",
-)
-```
-
-The SDK loads the initialized deployment configuration when it opens the MCP connection.
-
-### 4. Evaluate a Structured Assertion
-
-If your application has already normalized retrieved information into a structured assertion, use `StructuredAssertion`.
+Omneum evaluates a set of observations about the context your agent has assembled:
 
 ```python
 from datetime import datetime, timezone
 
+from mcp import StdioServerParameters
 from omneum import (
-    AssertionSource,
-    DependencyEstimatorConfig,
+    Claim,
+    Observation,
+    OmneumClientConfig,
     Source,
-    StructuredAssertion,
+    open_stdio_client,
 )
 
-now = datetime.now(timezone.utc)
+claim = Claim(
+    entity_namespace="company",
+    entity="Acme",
+    attribute="revenue_2025",
+    value=4_200_000_000,
+)
 
-assertion = StructuredAssertion(
-    entity_namespace="service",
-    entity="payment_api",
-    attribute="status_code",
-    value=200,
-    sources=(
-        AssertionSource(
-            source=Source(
-                kind="web_document",
-                identifier="https://research.example.com/payment-status",
-            ),
-            assertion_id="result-1",
-            observed_at=now,
+observations = [
+    Observation(
+        observation_id="obs-1",
+        source=Source(
+            kind="web_document",
+            identifier="https://example.com/acme-results",
         ),
-        AssertionSource(
-            source=Source(
-                kind="web_document",
-                identifier="https://analytics.example.com/payment-status",
-            ),
-            assertion_id="result-2",
-            observed_at=now,
-        ),
+        claim=claim,
+        observed_at=datetime.now(timezone.utc),
     ),
-)
+    Observation(
+        observation_id="obs-2",
+        source=Source(
+            kind="web_document",
+            identifier="https://example.org/acme-report",
+        ),
+        claim=claim,
+        observed_at=datetime.now(timezone.utc),
+    ),
+]
 
-estimator = DependencyEstimatorConfig()
+config = OmneumClientConfig.from_local_deployment()
+server = StdioServerParameters(command="omneum-server")
 
 async with open_stdio_client(config, server) as client:
-    result = await client.evaluate(
-        assertion,
-        estimator=estimator,
-    )
+    evaluation = await client.evaluate_context(observations)
 ```
 
-`StructuredAssertion` is the high-level entry point when your application code already knows the entity, attribute, value, and sources being evaluated. You do not need to construct `Observation`, `Claim`, `Retrieval`, or `SourceReference` objects for this path.
+A `Source` identifies each retrieved document. The `Claim` represents the value those documents report, and each `Observation` records one source supplying that claim.
 
-Your application remains responsible for semantic normalization. Omneum does not use an LLM to decide that two differently expressed retrieval results represent the same structured assertion.
+`evaluate_context()` evaluates the observations together and returns a `ContextEvaluation` containing the resulting context-quality signals.
 
-### 5. Evaluate Existing Tool or Retrieval Output
+### Inspecting the evaluation
 
-Most agent integrations already have result objects produced by tool calls, retrieval nodes, connectors, or workflow state. `ContextMapper` maps fields already present in those objects into Omneum's canonical assertion and provenance fields.
-
-If the runtime doesn't have a field, leave it unset. Missing provenance should not be turned into an observed zero or manufactured just to fill the schema.
-
-Suppose a retrieval step already returns:
+Omneum can render the evaluation in a human-readable form:
 
 ```python
-results = [
+from omneum import explain_evaluation
+
+print(explain_evaluation(evaluation))
+```
+
+The returned `ContextEvaluation` is also available directly to application code, allowing the agent to use Omneum's scores and detected conflicts when deciding what context to pass to the model.
+
+[Python SDK →](docs/sdk.md)
+
+## Integrations
+
+Use Omneum with the framework your agent already runs on:
+
+- [LangGraph](examples/langgraph/)
+- [LlamaIndex](examples/llamaindex/)
+- [CrewAI](examples/crewai/)
+- [OpenAI Agents SDK](examples/openai_agents/)
+- [Microsoft Agent Framework](examples/microsoft_agent_framework/)
+
+For a complete framework-independent workflow, see the
+[enterprise policy example](examples/enterprise/).
+
+## Core Concepts
+
+### Observations
+
+Context rarely arrives as just a value. A retrieved result also has a source, and often some useful structure around how that source got its information. Omneum keeps those pieces together in an **observation** instead of flattening them into text before evaluation.
+
+Each `Observation` records a source supplying a specific claim:
+
+```python
+Observation(
+    observation_id="obs-1",
+    source=Source(
+        kind="web_document",
+        identifier="https://example.com/acme-filing",
+    ),
+    claim=Claim(
+        entity_namespace="company",
+        entity="Acme",
+        attribute="revenue_2025",
+        value=4_200_000_000,
+    ),
+    observed_at=datetime.now(timezone.utc),
+)
+```
+
+Here, `acme-filing` is the source and `$4.2B` is the value it reports for Acme's 2025 revenue. If the application also knows, for instance, that the document cites another source or was modified at a particular time, that provenance can stay attached to the same observation and not get discarded when the result enters the agent's context.
+
+Timestamps also give Omneum a way to reason about freshness. If an agent retrieves an older database record alongside a newer update for the same field, Omneum can preserve that ordering in the evaluation instead of treating both values as equally current.
+
+```python
+Observation(
+    observation_id="obs-2",
+    source=article,
+    claim=revenue_claim,
+    observed_at=retrieved_at,
+    source_modified_at=published_at,
+    cited_sources=(filing,),
+    upstream_sources=(filing,),
+)
+```
+
+This distinction is crucial once the information starts travelling through a system. A filing might report `$4.2B`, several articles repeat it, and a database later ingests one of those articles. An agent can retrieve all of them as separate results, but Omneum still has the structure needed to determine that their agreement may trace back to the same place.
+
+Observations are immutable records of what the application encountered; Omneum evaluates them together instead of merging them into a single canonical "truth". Missing provenance is fine too — the evaluator uses the structure that is available.
+
+### Sources and Claims
+
+Every observation connects a `Source` to a `Claim`.
+
+```python
+source = Source(
+    kind="web_document",
+    identifier="https://example.com/acme-filing",
+)
+
+claim = Claim(
+    entity_namespace="company",
+    entity="Acme",
+    attribute="revenue_2025",
+    value=4_200_000_000,
+)
+```
+
+For a RAG pipeline, the source might be a retrieved document; elsewhere it could be a file, API result, database record, or memory record. The identifier gives Omneum a stable way to recognize that source across observations.
+
+Claims capture the specific value a source supplied. Because the entity and attribute are represented explicitly, Omneum can recognize when different sources are talking about the same thing but reporting different values:
+
+```python
+Claim(
+    entity_namespace="company",
+    entity="Acme",
+    attribute="revenue_2025",
+    value=4_200_000_000,
+)
+
+Claim(
+    entity_namespace="company",
+    entity="Acme",
+    attribute="revenue_2025",
+    value=3_900_000_000,
+)
+```
+
+Both claims refer to Acme's 2025 revenue, but they disagree on the value. That disagreement remains part of the context Omneum evaluates instead of being buried inside two text chunks and left for the model to notice later.
+
+### Source Dependence
+
+Counting retrieved results is easy. Figuring out how many independent sources they actually represent is considerably more challenging.
+
+Say we have four sources that all report the same number:
+
+```text
+annual-report.pdf ─────────────────────┐
+                                      │
+article-a.html ── annual-report.pdf ───┤
+article-b.html ── annual-report.pdf ───┼── $4.2B
+database-row ──── article-a.html ──────┘
+```
+
+
+Before graph evaluation, Omneum uses the provenance available on the observations to estimate relationships between sources. The raw number of supporting sources and the estimated amount of independent support can therefore be different:
+
+```text
+Supporting sources:             4
+Estimated independent support:  1.6
+```
+
+This matters anywhere information gets copied or derived across systems. A RAG index can contain several versions of the same underlying material, news articles can share an original report, and database records can be populated from the same upstream feed. Omneum keeps those relationships in the evaluation, avoiding the common assumption that every source identifier represents a fresh confirmation.
+
+### ContextEvaluation
+
+Calling `evaluate_context()` returns a `ContextEvaluation`:
+
+```python
+evaluation = await client.evaluate_context(observations)
+```
+
+This is the result your application gets back from Omneum. It brings together claim support and source reliability scores with estimated independent support, detected conflicts, freshness, and information about the source-dependency analysis behind the evaluation.
+
+Those signals describe different problems with context that can otherwise look identical after retrieval. Five documents might support the same value while providing much less independent support because several trace back to the same place; two sources might disagree because one contains an older value that has since been updated. `ContextEvaluation` preserves those differences instead of collapsing context quality into a single score.
+
+What happens next is deliberately left to the application. A RAG pipeline might use the evaluation to choose which results fit into the next model input, while an agent that finds conflicting values might query another source before continuing. Omneum evaluates the context; it doesn't dictate the agent's control flow.
+
+For debugging or inspection, the same evaluation can be rendered in a human-readable form:
+
+```python
+from omneum import explain_evaluation
+
+print(explain_evaluation(evaluation))
+```
+
+### ContextMapper
+
+Most applications already have their own objects for retrieved context, and rewriting them around Omneum's types would obviously be unnecessary.
+
+A RAG pipeline might already produce something like:
+
+```python
+retrieved = [
     {
         "id": "result-1",
-        "url": "https://research.example.com/payment-status",
-        "entity": "payment_api",
-        "status_code": 200,
-    },
-    {
-        "id": "result-2",
-        "url": "https://analytics.example.com/payment-status",
-        "entity": "payment_api",
-        "status_code": 200,
-    },
+        "url": "https://example.com/acme-results",
+        "company": "Acme",
+        "field": "revenue_2025",
+        "value": 4_200_000_000,
+        "retrieved_at": datetime.now(timezone.utc),
+        "citations": [
+            {
+                "kind": "web_document",
+                "identifier": "https://example.com/acme-filing",
+            }
+        ],
+    }
 ]
 ```
 
-Define where the canonical fields live in that result schema:
+`ContextMapper` describes how those existing fields map into Omneum:
 
 ```python
 from omneum import ContextMapper, Source
 
 mapper = ContextMapper(
-    source=lambda result: Source(
+    source=lambda item: Source(
         kind="web_document",
-        identifier=result["url"],
+        identifier=item["url"],
     ),
-    entity_namespace=lambda result: "service",
-    entity="entity",
-    attribute=lambda result: "status_code",
-    value="status_code",
-    assertion_id="id",
-    observed_at=lambda result: now,
+    entity_namespace=lambda item: "company",
+    entity="company",
+    attribute="field",
+    value="value",
+    observation_id="id",
+    observed_at="retrieved_at",
+    cited_sources="citations",
 )
+
+evaluation = await client.evaluate_mapped(retrieved, mapper)
 ```
 
-Then evaluate the existing records:
+The application keeps its existing schema. The mapper extracts the fields Omneum needs to construct observations, including any provenance already attached to the application's retrieval results, and `evaluate_mapped()` sends those observations through the same evaluation path as `evaluate_context()`.
 
-```python
-async with open_stdio_client(config, server) as client:
-    result = await client.evaluate_mapped(
-        results,
-        mapper,
-        estimator=estimator,
-    )
-```
+This is usually the cleaner integration for an existing RAG or agent pipeline: the structure already present in retrieval results doesn't have to be flattened into text or manually rebuilt just to run an evaluation.
 
-Mappings can read fields from the existing record or use callables when extraction or application-defined normalization requires some logic.
+[Python SDK ->](docs/sdk.md)
 
-If your runtime already has source lineage, citations, source timestamps, assertion lineage, or retrieval records, those fields can also be mapped. If it doesn't have them, leave them unset.
+## Performance & Accuracy
 
-See [`context_mapper.md`](docs/context_mapper.md) for the complete mapping contract.
 
-### 6. Use the Evaluation Result
+## Production
 
-`evaluate()` and `evaluate_mapped()` return the same `AssertionEvaluation` result:
+Omneum uses SQLite as its default local storage backend. PostgreSQL is supported for deployments that use an external database.
 
-~~~python
-for claim in result.claim_support:
-    print("Support:", claim.support)
-    print(
-        "Independent support:",
-        claim.estimated_independent_support_count,
-    )
-    print("Conflicts:", claim.conflicting_claims)
-~~~
+| Component | Implementation |
+|---|---|
+| **MCP server** | Local `omneum-server` process |
+| **Evaluator** | Managed local daemon |
+| **Local database** | SQLite |
+| **Graph model** | Relational source, claim, observation, and dependency tables |
+| **External database** | PostgreSQL |
+| **Graph extension** | Apache AGE |
+| **Service manager** | `launchd` on macOS; systemd on Ubuntu |
+| **Cryptography** | RFC 9497 VOPRF, Ristretto255-SHA512 |
 
-These fields are intended for agent control flow. An orchestration layer can run another retrieval when independent support is insufficient, branch when conflicting values are present, or include an explanation alongside the retrieved information passed to the next model call.
-
-Omneum returns evaluation signals. The application decides what happens next.
-
-## 🔌 How It Fits
-
-Omneum runs after information has been retrieved and before the evaluated information is included in a subsequent model context.
+Local installations create `context.db` automatically:
 
 ```text
-Search / Retrieval / Tool Execution
-                ↓
-       Tool Results / Retrieved Data
-                ↓
-     Application-Defined Normalization
-                ↓
-  StructuredAssertion / ContextMapper
-                ↓
-       Canonical Observations
-                ↓
-       Dependency Estimation
-                ↓
-          Bipartite Graph
-                ↓
-    Omneum Reliability Propagation
-                ↓
-        Evaluation Result
-                ↓
-       Agent Control Flow
-                ↓
-        Next Model Context
+macOS
+~/Library/Application Support/Omneum/context.db
+
+Linux
+~/.local/share/omneum/context.db
 ```
 
-Omneum does not replace the retrieval system, MCP client, tool runtime, or orchestration framework. It evaluates information those components have already surfaced.
+PostgreSQL can be configured for deployments that use an external database. Apache AGE provides the graph projection for PostgreSQL deployments.
 
-## 📦 Evaluation Input
+See [`docs/storage.md`](docs/storage.md) for the storage schema and deployment options.
 
-Omneum's high-level SDK provides two integration paths.
+## Security & Privacy
 
-Use `StructuredAssertion` when your application code already has a normalized assertion:
+Omneum evaluates context locally. `omneum-server`, the evaluator daemon, and `context.db` run on the user's machine.
 
-~~~text
-(entity_namespace, entity, attribute) → value
-~~~
+| Component | Boundary |
+|---|---|
+| **Context** | Passed to the local evaluation path |
+| **Context graph** | Stored in local `context.db` |
+| **VOPRF private key** | Held by the evaluator daemon |
+| **MCP process** | Cannot read the evaluator's private key |
+| **Source payloads** | Not required in the graph |
+| **Omneum Network** | Optional contribution through the ingestion API |
 
-For example:
+Omneum persists the local context graph across MCP sessions.
 
-~~~text
-service / payment_api / status_code → 200
-~~~
+```text
+application data
+      │
+      ▼
+  omneum-server
+      │
+      ├── evaluator daemon
+      │
+      └── context.db
+```
 
-Each `AssertionSource` records a source-specific occurrence of that assertion together with the assertion identifier and observation time. Source lineage, citations, source timestamps, assertion lineage, and retrieval records can be supplied when the application already has them.
+Local persistence and Omneum Network contribution are configured independently.
 
-Use `ContextMapper` when the same information already exists inside tool results, retrieval outputs, connector responses, Pydantic models, or orchestration state. The mapper defines where Omneum's canonical assertion and provenance fields live in the application's existing objects.
+| Option | Behavior |
+|---|---|
+| **Local persistence** | Writes observations to `context.db` |
+| **Network contribution** | Sends pseudonymous observations to the Omneum Network through the ingestion API |
 
-`ContextMapper` accepts field paths or callables, so an integration can extract nested values, apply application-defined normalization, and map provenance already present in its runtime.
+See [`docs/context-graph.md`](docs/context-graph.md) for Context Graph contribution and [`docs/storage.md`](docs/storage.md) for storage configuration.
 
-Explicit dependency signals are available for integrations that already compute one of Omneum's canonical signals, but most integrations shouldn't start there.
+## External Evaluations
 
-### Lower-Level Observation API
+External evaluations are published with the test inputs and Omneum outputs in [`evaluations/`](evaluations/).
 
-`Observation` is Omneum's lower-level source-specific representation. Each observation associates a `Claim` with the source that produced it and can retain detailed provenance, retrieval metadata, source relationships, assertion lineage, and dependency signals.
+**SearchTS.** SearchTS 0.13.0 returned the same Go 1.22 claim from `thenewstack.io` through `curl_cffi` and `go.dev` through `stealth-browser`. Omneum received the original `final_url` and `fetched_at` values for both captures. The evaluation returned `2.00` estimated independent support, pairwise dependency `0.0000`, and dependency-signal coverage `0.25`. [Results →](evaluations/searchts/)
 
-`client.evaluate_context()` accepts these objects directly.
+**Bastra Recall.** Recall ran Omneum 1.0.3 `dependency-estimator-v4` against a 30-memory synthetic harness. Four memories sharing one upstream source collapsed to `1.0` effective independent support; three independent sources remained at `3.0`. A temporal-only sweep moved continuously from `2.5` effective sources at identical timestamps to `3.0` at 48 hours. The evaluation also exposed an open lineage-chain case where `v1 → v2 → v3 → v4` produces `1.6` rather than `1.0` because dependency is currently computed only across direct lineage edges. [Results →](evaluations/bastra-recall/)
 
-Applications do not need to use this interface for ordinary `StructuredAssertion` or `ContextMapper` integrations. It remains available when an integration needs direct control over the complete observation representation.
+## Contributing
 
-All three entry paths feed the same assertion-evaluation pipeline and return an `AssertionEvaluation`.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-See [`sdk.md`](docs/sdk.md) for the complete SDK model and lower-level interfaces.
+If you find a security issue, please follow the private reporting process in [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
-## 🕸️ Dependency Estimation
+## License
 
-Multiple retrieved results are not necessarily independent sources.
-
-Two documents may derive from the same upstream resource. Separate tool calls may resolve to the same underlying resource. Sources can also share ownership, assertion lineage, retrieval history, or structural relationships visible within the current evaluation.
-
-The SDK estimates pairwise source dependency from the provenance and structural information available in the current evaluation.
-
-Missing information is not treated as evidence of independence. If a dependency signal cannot be observed for a source pair, it remains unavailable. Dependency is calculated from the signals that were observable, while `weighted_signal_coverage` records how much of the configured signal space was available.
-
-The resulting dependency estimates are used to derive the independence weights applied during Omneum reliability propagation. Omneum runs over the bipartite graph of sources and claims and propagates reliability between them until the scores converge.
-
-The returned evaluation includes claim support, pairwise dependency results, conflicts, and signal coverage. `estimated_independent_support_count` is reported separately as a dependency-adjusted source count; it is not the Omneum support score.
-
-Applications can provide explicit dependency signals when their runtime already computes one of Omneum's canonical signals. Most integrations should supply the provenance they actually have and let the SDK derive the corresponding signals.
-
-See [`sdk.md`](docs/sdk.md#dependency-estimation) for estimator behavior and configuration.
-
-## Performance
-
-| | Dependency precision | Dependency recall | Evaluation latency | LLM tokens |
-|---|---:|---:|---:|---:|
-| **Omneum** | **100.0%** | 77.8% | **13.5 ms** | **0** |
-| LLM-as-Judge | 81.8% | **100.0%** | 4.7 s | 5,576 |
-| Naive Vector RAG | — | — | 5.2 s | 5,093 |
-
-*Results across three real-world financial dependency cases. See [`benchmarks/financial_dependency_suite`](benchmarks/financial_dependency_suite) for methodology and reproducibility notes.*
-
-## 🔒 Privacy
-
-Omneum uses an RFC 9497 VOPRF with the `ristretto255-SHA512` ciphersuite to derive stable linkage tokens for private source and structured assertion data.
-
-Canonicalization, serialization, VOPRF blinding, proof verification, finalization, and token encoding occur through the Python SDK. Source identifiers and structured linkage values are not sent to the Omneum server in plaintext during token generation.
-
-The resulting tokens allow matching encoded inputs to resolve to stable opaque identifiers within the same deployment, key version, linkage configuration, and purpose.
-
-VOPRF protects the private values used to derive those tokens; it does not conceal the entire MCP request. The server can still observe protocol traffic and relationships between opaque identifiers submitted for evaluation.
-
-## 📚 Documentation
-
-The Quickstart covers the high-level integration paths. The repository contains deeper documentation for the SDK and wire protocol:
-
-- [`sdk.md`](docs/sdk.md) - `StructuredAssertion`, `ContextMapper`, dependency-estimator configuration, evaluation results, explanations, and the lower-level `Observation` API.
-
-- [`context_mapper.md`](docs/context_mapper.md) - `ContextMapper` field contract, source identity, provenance mapping, retrieval records, missing-data behavior, and explicit dependency signals.
-
-- [`api.md`](docs/api.md) - MCP assertion-evaluation request and response schemas, validation behavior, server limits, and error handling.
-
-- [`protocol.md`](docs/protocol.md) - MCP transport, deployment metadata, linkage flow, and VOPRF protocol behavior.
-
-- [`canonicalization.md`](docs/canonicalization.md) - Canonical source, entity, attribute, and value encodings used to construct deterministic linkage inputs.
-
-- [`examples/`](examples/) - Framework-specific and end-to-end agent workflow integrations.
-
-## 🧪 Status
-
-Omneum is currently in an early design-partner release. The SDK and integration surface may change as the project is exercised against production agent workflows.
-
-As an open-source AI infrastructure project, we gladly welcome any feedback or contributions.
-
-## 📄 License
-
-See [`LICENSE`](LICENSE) for license information.
+Omneum is open source under the [MIT License](LICENSE).

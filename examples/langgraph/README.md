@@ -11,7 +11,7 @@ evaluation. The LangGraph graph provides the orchestration.
 - Execute the retrieval nodes in parallel.
 - Merge the retrieved observations.
 - Submit the observations through the enterprise workflow's Omneum evaluation path.
-- Generate the final response from the assertion evaluation.
+- Generate the final response from the context evaluation.
 
 ## Requirements
 

@@ -175,3 +175,54 @@ def test_provenance_provider_failure(monkeypatch):
     assert result["failure_type"] == "provider_error"
     assert result["selection_failure"] == "provider unavailable"
     assert result["raw_output"] is None
+
+
+@pytest.mark.parametrize("provider", ["anthropic", "google", "openai"])
+@pytest.mark.parametrize("text,diagnostics,kind", [
+    ("42", {"stop_reason": "end_turn"}, None),
+    ("", {"stop_reason": "refusal", "content_block_types": []}, "refusal"),
+    ("Cannot answer.", {"stop_reason": "refusal"}, "refusal"),
+    ("", {"content_block_types": ["refusal"]}, "refusal"),
+    ("", {"stop_reason": "end_turn"}, "empty_output"),
+    (" \n\t", {}, "empty_output"),
+    ("", {"stop_reason": "max_tokens", "content_block_types": ["thinking"]}, "empty_output"),
+])
+def test_generation_outcomes_preserve_response(monkeypatch, provider, text, diagnostics, kind):
+    import asyncio
+    generation = {"text": text, "provider": provider, "model": "fixture",
+                  "response_diagnostics": diagnostics, "output_tokens": 0, "latency_seconds": 0.1}
+    calls = []
+
+    async def generate(*args, **kwargs):
+        calls.append(kwargs)
+        return generation
+
+    monkeypatch.setattr(app, "generate_answer", generate)
+    result = asyncio.run(app.generate_answer_safe(
+        "query", [], provider=provider, model="fixture",
+    ))
+    assert len(calls) == 1
+    assert result["generation"] is generation
+    if kind is None:
+        assert result["failure"] is None
+    else:
+        failure = result["failure"]
+        assert failure["failure_type"] == kind
+        assert failure["answer_score"] == "generation_failure"
+        assert failure["answer"] == text
+        assert failure["generation"] is generation
+        assert failure["response_diagnostics"] == diagnostics
+
+
+@pytest.mark.parametrize("status,category", [(429, "rate_or_quota_limit"), (503, "service_unavailable")])
+def test_provider_diagnostics_are_explicit_and_redacted(status, category):
+    from benchmarks.financial_dependency_suite.heldout.diagnostics import safe_artifact
+
+    class ProviderError(Exception):
+        status_code = status
+
+    diagnostics = app.provider_error_diagnostics(ProviderError("secret body"))
+    result = safe_artifact({"response_diagnostics": diagnostics})
+    assert result["response_diagnostics"] == {
+        "http_status": status, "error_type": "ProviderError", "error_category": category,
+    }

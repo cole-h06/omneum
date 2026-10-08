@@ -1,0 +1,1176 @@
+{
+  "aggregate_bge": {
+    "false_negative": 56,
+    "false_positive": 21,
+    "precision": 0.6956521739130435,
+    "recall": 0.46153846153846156,
+    "true_positive": 48
+  },
+  "aggregate_bge_omneum": {
+    "false_negative": 53,
+    "false_positive": 18,
+    "precision": 0.7391304347826086,
+    "recall": 0.49038461538461536,
+    "true_positive": 51
+  },
+  "attribution_limit": "No separately named prior free-sweep artifact was located; comparison uses trial 1 of the complete saved paired 10-trial artifact. All cases have zero exact-equivalence declarations, so the current ExactEquivalence component-collapse path is inactive. Candidate pools and frozen case/ground-truth hashes match the saved run. Membership differences therefore cannot be caused by current exact-equivalence collapse; they arise elsewhere in the current inference/selection path or runtime. The historical output does not contain an executable old-code counterfactual to separate those causes further. Order-only differences are shown separately.",
+  "bge_retrieval_calls": 0,
+  "candidate_pool_source": "/Users/colehoke/Development/omneum/benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-clean-20261006/results.jsonl",
+  "cases": 24,
+  "catastrophic_required_evidence_removed": [
+    "coding_config_conflict",
+    "research_independent_false_consensus",
+    "research_syndicated_reporting"
+  ],
+  "changed_by_omneum_cases": [
+    "analytics_derived_metric_cycle",
+    "analytics_incomplete_lineage",
+    "analytics_metric_definition_conflict",
+    "coding_api_version_change",
+    "coding_clean_dependency",
+    "coding_config_conflict",
+    "coding_package_fix_lineage",
+    "enterprise_partial_lineage",
+    "enterprise_policy_copy_chain",
+    "enterprise_semantic_distractors",
+    "enterprise_stale_handbook",
+    "multi_agent_feedback_loop",
+    "multi_agent_relevant_wrong_task",
+    "multi_agent_repeated_subagent",
+    "research_clean_consensus",
+    "research_conflicting_reports",
+    "research_independent_false_consensus",
+    "research_syndicated_reporting",
+    "support_clean_resolution",
+    "support_stale_runbook"
+  ],
+  "changed_by_omneum_count": 20,
+  "changed_by_omneum_order_only_cases": [
+    "analytics_stale_dashboard"
+  ],
+  "diagnostic": "selection-only; current local client/server; exact-equivalence semantics",
+  "different_from_previous_saved_selection": [
+    "analytics_incomplete_lineage",
+    "analytics_stale_dashboard",
+    "coding_config_conflict",
+    "multi_agent_independent_error",
+    "multi_agent_relevant_wrong_task",
+    "multi_agent_repeated_subagent",
+    "research_conflicting_reports",
+    "research_independent_false_consensus",
+    "research_syndicated_reporting",
+    "support_resolution_conflict",
+    "support_stale_runbook",
+    "support_ticket_reference_loop"
+  ],
+  "generation_calls": 0,
+  "improved_cases_by_f1": [
+    "analytics_derived_metric_cycle",
+    "analytics_metric_definition_conflict",
+    "coding_api_version_change",
+    "coding_package_fix_lineage",
+    "multi_agent_feedback_loop",
+    "multi_agent_repeated_subagent",
+    "research_conflicting_reports",
+    "support_stale_runbook"
+  ],
+  "omneum_selected_zero_required_evidence": [
+    "coding_config_conflict",
+    "research_independent_false_consensus",
+    "research_syndicated_reporting"
+  ],
+  "paid_model_api_calls": 0,
+  "per_case": [
+    {
+      "bge_f1": 0.3333333333333333,
+      "bge_omneum_f1": 1.0,
+      "bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "source_table_2",
+        "source_table",
+        "query_result"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "dashboard",
+        "source_table_2",
+        "derived_table"
+      ],
+      "case_id": "analytics_derived_metric_cycle",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "source_table_2",
+        "source_table",
+        "query_result"
+      ]
+    },
+    {
+      "bge_f1": 0.5714285714285715,
+      "bge_omneum_f1": 0.5714285714285715,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "bge_omneum_selected_ids": [
+        "metric_store",
+        "dashboard",
+        "source_table"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "dashboard",
+        "source_table",
+        "source_table_2"
+      ],
+      "case_id": "analytics_incomplete_lineage",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "metric_store",
+        "source_table_2",
+        "source_table"
+      ]
+    },
+    {
+      "bge_f1": 0.6666666666666666,
+      "bge_omneum_f1": 1.0,
+      "bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "metric_docs",
+        "finance_report",
+        "warehouse_query"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "finance_report",
+        "metric_docs",
+        "semantic_layer"
+      ],
+      "case_id": "analytics_metric_definition_conflict",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "metric_docs",
+        "finance_report",
+        "warehouse_query"
+      ]
+    },
+    {
+      "bge_f1": 0.7499999999999999,
+      "bge_omneum_f1": 0.7499999999999999,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "api_result",
+        "warehouse_table",
+        "metric_store"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "warehouse_table",
+        "api_result",
+        "metric_store"
+      ],
+      "case_id": "analytics_stale_dashboard",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "api_result",
+        "warehouse_table",
+        "current_query"
+      ]
+    },
+    {
+      "bge_f1": 0.25,
+      "bge_omneum_f1": 0.5,
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "bge_omneum_selected_ids": [
+        "package_metadata",
+        "current_api_docs",
+        "repository_code"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.2,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "current_api_docs",
+        "old_api_docs",
+        "old_example"
+      ],
+      "case_id": "coding_api_version_change",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "previous_saved_bge_omneum_ids": [
+        "package_metadata",
+        "current_api_docs",
+        "repository_code"
+      ]
+    },
+    {
+      "bge_f1": 0.6666666666666666,
+      "bge_omneum_f1": 0.6666666666666666,
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "integration_test",
+        "unit_test",
+        "current_docs"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "integration_test",
+        "repository_code",
+        "release_notes"
+      ],
+      "case_id": "coding_clean_dependency",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "integration_test",
+        "unit_test",
+        "current_docs"
+      ]
+    },
+    {
+      "bge_f1": 0.5,
+      "bge_omneum_f1": 0.0,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "bge_omneum_selected_ids": [
+        "ci_config",
+        "readme"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.5,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "readme",
+        "deployment_config"
+      ],
+      "case_id": "coding_config_conflict",
+      "context_budget": 2,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.5,
+        "true_positive": 1
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "ci_config",
+        "deployment_config"
+      ]
+    },
+    {
+      "bge_f1": 0.25,
+      "bge_omneum_f1": 0.7499999999999999,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "pull_request",
+        "package_docs",
+        "release_notes"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.2,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "issue_origin",
+        "release_notes",
+        "issue_comment"
+      ],
+      "case_id": "coding_package_fix_lineage",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "pull_request",
+        "package_docs",
+        "release_notes"
+      ]
+    },
+    {
+      "bge_f1": 0.8571428571428571,
+      "bge_omneum_f1": 0.8571428571428571,
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "email",
+        "announcement",
+        "system_record"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "announcement",
+        "email",
+        "drive_document_2"
+      ],
+      "case_id": "enterprise_partial_lineage",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "email",
+        "announcement",
+        "system_record"
+      ]
+    },
+    {
+      "bge_f1": 1.0,
+      "bge_omneum_f1": 0.3333333333333333,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "bge_omneum_selected_ids": [
+        "drive_document",
+        "confluence_page",
+        "policy_changelog"
+      ],
+      "bge_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "policy_changelog",
+        "policy_record",
+        "hr_system"
+      ],
+      "case_id": "enterprise_policy_copy_chain",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "previous_saved_bge_omneum_ids": [
+        "confluence_page",
+        "drive_document",
+        "policy_changelog"
+      ]
+    },
+    {
+      "bge_f1": 0.8571428571428571,
+      "bge_omneum_f1": 0.28571428571428575,
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_omneum_selected_ids": [
+        "drive_document",
+        "project_doc",
+        "hr_record"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "policy",
+        "system_record",
+        "operations_doc"
+      ],
+      "case_id": "enterprise_semantic_distractors",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "previous_saved_bge_omneum_ids": [
+        "hr_record",
+        "drive_document",
+        "project_doc"
+      ]
+    },
+    {
+      "bge_f1": 0.7499999999999999,
+      "bge_omneum_f1": 0.7499999999999999,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "announcement",
+        "confluence_page",
+        "hr_system"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "current_policy",
+        "confluence_page",
+        "announcement"
+      ],
+      "case_id": "enterprise_stale_handbook",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "announcement",
+        "confluence_page",
+        "hr_system"
+      ]
+    },
+    {
+      "bge_f1": 0.25,
+      "bge_omneum_f1": 0.7499999999999999,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "web_result",
+        "tool_result",
+        "database_result"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.2,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "analyst_agent",
+        "verifier_agent",
+        "researcher_agent"
+      ],
+      "case_id": "multi_agent_feedback_loop",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "web_result",
+        "tool_result",
+        "database_result"
+      ]
+    },
+    {
+      "bge_f1": 0.8,
+      "bge_omneum_f1": 0.8,
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_omneum_selected_ids": [
+        "api_result",
+        "database_result"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "api_result",
+        "database_result"
+      ],
+      "case_id": "multi_agent_independent_error",
+      "context_budget": 2,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": false,
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "previous_difference_attribution": "not caused by exact-equivalence semantics: this case has no direct upstream or parent-assertion signal to trigger the former heuristic; another inference/selection code-path change or runtime nondeterminism",
+      "previous_saved_bge_omneum_ids": [
+        "database_result",
+        "tool_result"
+      ]
+    },
+    {
+      "bge_f1": 0.5714285714285715,
+      "bge_omneum_f1": 0.28571428571428575,
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_omneum_selected_ids": [
+        "code_agent",
+        "data_agent",
+        "database_result"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "operations_agent",
+        "code_agent",
+        "api_result"
+      ],
+      "case_id": "multi_agent_relevant_wrong_task",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "tool_result",
+        "database_result",
+        "api_result"
+      ]
+    },
+    {
+      "bge_f1": 0.3333333333333333,
+      "bge_omneum_f1": 0.6666666666666666,
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_omneum_selected_ids": [
+        "web_result",
+        "database_result",
+        "tool_result"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "analyst_agent",
+        "summary_agent",
+        "database_result"
+      ],
+      "case_id": "multi_agent_repeated_subagent",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "web_result",
+        "summary_agent",
+        "analyst_agent"
+      ]
+    },
+    {
+      "bge_f1": 0.6,
+      "bge_omneum_f1": 0.6,
+      "bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "report",
+        "publication",
+        "filing"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "primary_record",
+        "filing",
+        "publication"
+      ],
+      "case_id": "research_clean_consensus",
+      "context_budget": 3,
+      "current_vs_previous_changed": false,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "report",
+        "publication",
+        "filing"
+      ]
+    },
+    {
+      "bge_f1": 0.5,
+      "bge_omneum_f1": 0.7499999999999999,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "dataset",
+        "report_2",
+        "primary_publication"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "primary_publication",
+        "report",
+        "dataset"
+      ],
+      "case_id": "research_conflicting_reports",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "report_2",
+        "dataset",
+        "filing"
+      ]
+    },
+    {
+      "bge_f1": 0.3333333333333333,
+      "bge_omneum_f1": 0.0,
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "bge_omneum_selected_ids": [
+        "analysis",
+        "report",
+        "publication"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "dataset",
+        "analysis",
+        "report"
+      ],
+      "case_id": "research_independent_false_consensus",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "news_article",
+        "analysis",
+        "report"
+      ]
+    },
+    {
+      "bge_f1": 0.28571428571428575,
+      "bge_omneum_f1": 0.0,
+      "bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "bge_omneum_selected_ids": [
+        "news_article_3",
+        "original_report",
+        "news_article_2"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "original_report",
+        "news_article",
+        "dataset"
+      ],
+      "case_id": "research_syndicated_reporting",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "news_article_3",
+        "original_report",
+        "web_page"
+      ]
+    },
+    {
+      "bge_f1": 0.6,
+      "bge_omneum_f1": 0.6,
+      "bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "monitoring_result",
+        "change_record",
+        "service_state"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "current_runbook",
+        "kb_article",
+        "monitoring_result"
+      ],
+      "case_id": "support_clean_resolution",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "previous_bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "previous_saved_bge_omneum_ids": [
+        "service_state",
+        "monitoring_result",
+        "change_record"
+      ]
+    },
+    {
+      "bge_f1": 0.3333333333333333,
+      "bge_omneum_f1": 0.3333333333333333,
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_omneum_selected_ids": [
+        "service_state",
+        "deployment_config"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "service_state",
+        "deployment_config"
+      ],
+      "case_id": "support_resolution_conflict",
+      "context_budget": 2,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": false,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "previous_difference_attribution": "not caused by exact-equivalence semantics: this case has no direct upstream or parent-assertion signal to trigger the former heuristic; another inference/selection code-path change or runtime nondeterminism",
+      "previous_saved_bge_omneum_ids": [
+        "monitoring_result",
+        "deployment_config"
+      ]
+    },
+    {
+      "bge_f1": 0.5,
+      "bge_omneum_f1": 0.7499999999999999,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "incident_record",
+        "service_state",
+        "current_runbook"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "current_runbook",
+        "incident_record",
+        "old_runbook"
+      ],
+      "case_id": "support_stale_runbook",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": true,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "previous_difference_attribution": "could be affected by the former provenance-to-exact-equivalence heuristic; saved outputs do not isolate it from other current inference-path changes",
+      "previous_saved_bge_omneum_ids": [
+        "service_state",
+        "incident_record",
+        "deployment_config"
+      ]
+    },
+    {
+      "bge_f1": 0.7499999999999999,
+      "bge_omneum_f1": 0.7499999999999999,
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "runbook",
+        "service_state",
+        "deployment_config"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "runbook",
+        "service_state",
+        "deployment_config"
+      ],
+      "case_id": "support_ticket_reference_loop",
+      "context_budget": 3,
+      "current_vs_previous_changed": true,
+      "explicit_exact_equivalence_declarations": 0,
+      "legacy_direct_provenance_signal_present": false,
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "previous_difference_attribution": "not caused by exact-equivalence semantics: this case has no direct upstream or parent-assertion signal to trigger the former heuristic; another inference/selection code-path change or runtime nondeterminism",
+      "previous_saved_bge_omneum_ids": [
+        "service_state",
+        "change_record",
+        "deployment_config"
+      ]
+    }
+  ],
+  "precision_delta_percentage_points": 4.347826086956519,
+  "previous_difference_attribution_note": "For each membership difference from the closest saved paired trial, legacy_direct_provenance_signal_present identifies whether the case contains any direct upstream/parent signal that the prior heuristic could have misused as exact equivalence. Where absent, that semantic change cannot explain the difference. Where present, causal isolation is unavailable because the saved result has no old-code counterfactual.",
+  "previous_saved_membership_difference_count": 12,
+  "previous_saved_order_only_difference_cases": [
+    "enterprise_policy_copy_chain",
+    "enterprise_semantic_distractors",
+    "support_clean_resolution"
+  ],
+  "previous_saved_order_only_difference_count": 3,
+  "prior_comparison_note": "No separately named prior free selection-only artifact was located. Previous_saved_bge_omneum_ids below are trial 1 from the latest available complete paired 10-trial artifact, used as the closest saved selection comparison.",
+  "recall_delta_percentage_points": 2.8846153846153797,
+  "regressed_cases_by_f1": [
+    "coding_config_conflict",
+    "enterprise_policy_copy_chain",
+    "enterprise_semantic_distractors",
+    "multi_agent_relevant_wrong_task",
+    "research_independent_false_consensus",
+    "research_syndicated_reporting"
+  ],
+  "run_utc": "2026-10-07T17:30:30.637344+00:00"
+}

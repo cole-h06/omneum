@@ -11,7 +11,7 @@ evaluation. The LlamaIndex Workflow provides the orchestration.
 - Execute the retrieval workflow.
 - Collect the retrieved observations.
 - Submit the observations through the enterprise workflow's Omneum evaluation path.
-- Generate the final response from the returned assertion evaluation.
+- Generate the final response from the returned context evaluation.
 
 ## Requirements
 

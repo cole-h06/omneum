@@ -317,3 +317,42 @@ def test_empty_provenance_error_is_still_failure(monkeypatch, field):
     ))
     assert result["answer_score"] == "selection_failure"
     assert result["error"] == ""
+
+
+@pytest.mark.parametrize("reason,kind", [("refusal", "refusal"), ("end_turn", "empty_output")])
+def test_generation_outcome_reaches_summary_and_artifact(monkeypatch, tmp_path, reason, kind):
+    import json
+    from benchmarks.financial_dependency_suite import application_comparison as app
+    from .aggregate import summarize
+    from .artifacts import checkpoint
+
+    async def select(*args, **kwargs):
+        return {"selected": [{"source": "source_a", "text": "A"}], "latency_seconds": 0.1}
+
+    async def generate(*args, **kwargs):
+        return {"text": "", "provider": "anthropic", "model": "generator",
+                "output_tokens": 0, "response_diagnostics": {
+                    "stop_reason": reason, "content_block_types": [],
+                }}
+
+    def unexpected_score(*args):
+        pytest.fail("Unanswered generations must not enter answer scoring")
+
+    monkeypatch.setattr(runner, "run_selection", select)
+    monkeypatch.setattr(app, "generate_answer", generate)
+    monkeypatch.setattr(runner, "score_answer", unexpected_score)
+    record = asyncio.run(runner.run_method(
+        "vector", case(), truth(), generator_provider="anthropic", generator_model="generator",
+    ))
+    record.update(method="fixture", case_id="fixture", trial=1)
+    path = tmp_path / "results.jsonl"
+    checkpoint(path, [record])
+    saved = json.loads(path.read_text())
+    assert saved["selected"] == ["source_a"]
+    assert saved["answer"] == ""
+    assert saved["generation"]["response_diagnostics"]["stop_reason"] == reason
+    summary = summarize([saved])["fixture"]
+    assert summary["unscored"] == 0
+    assert summary["failures"] == summary["generation_failures"] == 1
+    assert summary["selection_failures"] == 0
+    assert summary["generation_failure_types"] == {kind: 1}

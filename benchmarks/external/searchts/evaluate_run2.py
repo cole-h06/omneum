@@ -40,7 +40,7 @@ def load_observations():
         observed_at = datetime.fromisoformat(result["fetched_at"].replace("Z", "+00:00"))
         assertion_id = f"searchts:{backend}:{url}"
         observations.append(Observation(
-            assertion_id=assertion_id,
+            observation_id=assertion_id,
             source=Source(
                 kind="internal_service",
                 identifier=internal_source_id(str(NAMESPACE_URL), f"searchts:{backend}"),

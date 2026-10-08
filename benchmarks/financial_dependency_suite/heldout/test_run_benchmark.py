@@ -3,8 +3,11 @@ import json
 import pytest
 
 from benchmarks.financial_dependency_suite.heldout.run_benchmark import (
+    CASES_DIR,
+    build_schedule,
     discover_cases,
 )
+from benchmarks.financial_dependency_suite.heldout.methods import METHODS
 
 
 def test_discover_cases(tmp_path):
@@ -41,6 +44,38 @@ def test_discover_cases(tmp_path):
     assert len(discovered) == 1
     assert discovered[0][2].case_id == "case_a"
     assert discovered[0][3].case_id == "case_a"
+
+
+def test_definitive_schedule_contract_is_2400_unique_tuples():
+    from collections import Counter
+
+    discovered = discover_cases(CASES_DIR)
+    schedule = build_schedule(discovered, METHODS, trials=10)
+
+    assert len(discovered) == 24
+    assert len(METHODS) == 10
+    assert {method.name for method in METHODS} == {
+        "vector", "bge", "cohere", "anthropic", "openai", "google",
+        "anthropic_provenance", "openai_provenance", "google_provenance", "omneum",
+    }
+    assert len(schedule) == 2400
+    assert len(set(schedule)) == 2400
+    assert Counter(method for _, method, _ in schedule) == {
+        method.name: 240 for method in METHODS
+    }
+    assert Counter(trial for _, _, trial in schedule) == {trial: 240 for trial in range(1, 11)}
+
+
+def test_schedule_rejects_duplicate_method_trial_identities():
+    from benchmarks.financial_dependency_suite.heldout.methods import MethodSpec
+
+    discovered = discover_cases(CASES_DIR)[:1]
+    duplicated = (
+        MethodSpec(name="same", method="vector"),
+        MethodSpec(name="same", method="llm", provider="anthropic", stochastic=True),
+    )
+    with pytest.raises(ValueError, match="schedule cardinality mismatch"):
+        build_schedule(discovered, duplicated, trials=2)
 
 
 @pytest.mark.parametrize("provider_fails", [False, True])
@@ -111,4 +146,6 @@ def test_smoke_real_llm_envelope_and_failure_continuation(
     assert "Starting case_id=analytics_derived_metric_cycle method=anthropic trial=1" in caplog.text
     if provider_fails:
         assert "Failed case_id=analytics_derived_metric_cycle method=anthropic trial=1" in caplog.text
-        assert "mock provider unavailable" in caplog.text
+        assert "Provider request failed; see diagnostic type and status." in caplog.text
+        assert "mock provider unavailable" not in caplog.text
+        assert records[3]["diagnostics"]["error_type"] == "RuntimeError"

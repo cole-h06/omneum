@@ -10,7 +10,7 @@ from omneum import ContextMapper, open_stdio_client
 async def evaluate_context() -> str:
     """Evaluate the enterprise observations with Omneum.
 
-    Returns a formatted summary of the assertion evaluation results.
+    Returns a formatted summary of the context evaluation results.
     """
 
     with example_deployment() as (config, server):
@@ -23,12 +23,12 @@ async def evaluate_context() -> str:
                 entity=lambda x: x.claim.entity,
                 attribute=lambda x: x.claim.attribute,
                 value=lambda x: x.claim.value,
-                assertion_id=lambda x: x.assertion_id,
+                observation_id=lambda x: x.observation_id,
                 observed_at=lambda x: x.observed_at,
                 source_modified_at=lambda x: x.source_modified_at,
                 upstream_sources=lambda x: x.upstream_sources,
                 cited_sources=lambda x: x.cited_sources,
-                parent_assertion_ids=lambda x: x.parent_assertion_ids,
+                parent_observation_ids=lambda x: x.parent_observation_ids,
                 retrievals=lambda x: x.retrievals,
                 signals={
                         name: lambda x, name=name: x.dependency_signals.get(
@@ -61,7 +61,7 @@ agent = Agent(
     instructions=(
         "Answer deployment-readiness questions using the "
         "evaluate_context tool. Base your response on the "
-        "assertion evaluation results."
+        "context evaluation results."
     ),
     tools=[evaluate_context],
 )

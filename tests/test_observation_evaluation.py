@@ -3,12 +3,12 @@ from datetime import datetime, timezone
 
 from omneum.sources import internal_source_id
 from omneum import (
-    AssertionSource,
+    Claim,
+    Observation,
     ContextMapper,
     DependencyEstimatorConfig,
     OmneumClient,
     Source,
-    StructuredAssertion,
 )
 
 from test_client import make_config, make_server
@@ -27,7 +27,7 @@ def estimator():
     )
 
 
-def test_structured_evaluation(tmp_path):
+def test_shared_claim_observation_evaluation(tmp_path):
     async def run():
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
@@ -35,7 +35,7 @@ def test_structured_evaluation(tmp_path):
 
         now = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
 
-        assertion = StructuredAssertion(
+        claim = Claim(
             entity_namespace="service",
             entity="mobile",
             attribute="sync",
@@ -44,28 +44,21 @@ def test_structured_evaluation(tmp_path):
                 "threshold": 2,
                 "unit": "seconds",
             },
-            sources=(
-                AssertionSource(
-                    source=Source(
-                            "internal_resource",
-                            "v1:11111111-1111-1111-1111-111111111111:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                        ),
-                    assertion_id="incident-report",
-                    observed_at=now,
-                ),
-                AssertionSource(
-                    source=Source(
-                            "internal_resource",
-                            "v1:11111111-1111-1111-1111-111111111111:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-                        ),
-                    assertion_id="load-test",
-                    observed_at=now,
-                ),
-            ),
         )
-
-        result = await client.evaluate(
-            assertion,
+        observations = tuple(
+            Observation(
+                observation_id=identifier,
+                source=Source("internal_resource", source_id),
+                claim=claim,
+                observed_at=now,
+            )
+            for identifier, source_id in (
+                ("incident-report", "v1:11111111-1111-1111-1111-111111111111:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ("load-test", "v1:11111111-1111-1111-1111-111111111111:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            )
+        )
+        result = await client.evaluate_context(
+            observations,
             estimator=estimator(),
         )
 
@@ -137,7 +130,7 @@ def test_mapped_evaluation(tmp_path):
             entity=lambda x: "mobile",
             attribute=lambda x: "sync",
             value=normalize_sync_claim,
-            assertion_id="id",
+            observation_id="id",
             observed_at=lambda x: now,
         )
 
@@ -213,7 +206,7 @@ def test_mapped_tool_result_evaluation(tmp_path):
             entity="output.service_id",
             attribute=lambda x: "retention",
             value="output.retention",
-            assertion_id="tool_call_id",
+            observation_id="tool_call_id",
             observed_at="timestamp",
             metadata={"tool_name": "tool_name"},
         )

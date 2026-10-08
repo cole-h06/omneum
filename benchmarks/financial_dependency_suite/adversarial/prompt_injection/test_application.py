@@ -1,6 +1,7 @@
 import pytest
 
 from benchmarks.financial_dependency_suite.adversarial.prompt_injection.application import (
+    QUERY,
     TOP_N,
     case_data,
 )
@@ -18,6 +19,7 @@ async def test_omneum_selection():
     assert clean[-1]["text"] != attack[-1]["text"]
 
     clean_result = await select_omneum_reranked(
+        QUERY,
         clean,
         observations,
         ids,
@@ -25,6 +27,7 @@ async def test_omneum_selection():
         top_n=TOP_N,
     )
     attack_result = await select_omneum_reranked(
+        QUERY,
         attack,
         observations,
         ids,

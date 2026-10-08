@@ -30,6 +30,43 @@ DEFAULT_MODELS = {
     ),
 }
 
+# Gemini's response cap includes internal thinking, not only the selection JSON.
+# Keep its default thinking policy; enlarge only the structured-selector limit.
+GOOGLE_SELECTION_MAX_OUTPUT_TOKENS = 8192
+
+
+def _usage_metadata(usage):
+    """Return only provider supplied usage fields in JSON-safe form."""
+    if usage is None:
+        return None
+    dump = getattr(usage, "model_dump", None)
+    if callable(dump):
+        return dump(mode="json", exclude_unset=True)
+    if isinstance(usage, dict):
+        return usage
+    # Lightweight fallback for test doubles; SDK models use model_dump above.
+    fields = (
+        "input_tokens", "output_tokens", "total_tokens",
+        "output_tokens_details", "input_tokens_details",
+        "prompt_token_count", "candidates_token_count",
+        "thoughts_token_count", "total_token_count",
+        "cached_content_token_count", "tool_use_prompt_token_count",
+        "prompt_tokens_details", "candidates_tokens_details",
+        "cache_tokens_details", "tool_use_prompt_tokens_details",
+    )
+    return {name: getattr(usage, name) for name in fields
+            if hasattr(usage, name)}
+
+
+def _usage_with_reasoning(usage, reasoning_value):
+    """Retain raw provider fields and expose returned reasoning usage uniformly."""
+    metadata = _usage_metadata(usage)
+    if metadata is None:
+        return None
+    metadata = dict(metadata)
+    metadata["reasoning_tokens"] = reasoning_value
+    return metadata
+
 
 def _require_env(name):
     value = os.environ.get(name)
@@ -42,11 +79,16 @@ def _require_env(name):
     return value
 
 
-async def _generate_anthropic(prompt, model, max_tokens):
+async def _generate_anthropic(prompt, model, max_tokens, *, response_schema=None):
     _require_env("ANTHROPIC_API_KEY")
 
     started = time.perf_counter()
 
+    options = {}
+    if response_schema is not None:
+        options["output_config"] = {
+            "format": {"type": "json_schema", "schema": response_schema},
+        }
     async with AsyncAnthropic() as client:
         response = await client.messages.create(
             model=model,
@@ -57,6 +99,7 @@ async def _generate_anthropic(prompt, model, max_tokens):
                     "content": prompt,
                 }
             ],
+            **options,
         )
 
     latency = time.perf_counter() - started
@@ -74,19 +117,35 @@ async def _generate_anthropic(prompt, model, max_tokens):
         "input_tokens": response.usage.input_tokens,
         "output_tokens": response.usage.output_tokens,
         "latency_seconds": latency,
+        "response_diagnostics": {
+            "stop_reason": getattr(response, "stop_reason", None),
+            "content_block_types": [block.type for block in response.content],
+            "usage_metadata": _usage_with_reasoning(
+                response.usage,
+                getattr(getattr(response.usage, "output_tokens_details", None),
+                        "reasoning_tokens", None),
+            ),
+        },
     }
 
 
-async def _generate_openai(prompt, model, max_tokens):
+async def _generate_openai(prompt, model, max_tokens, *, response_schema=None):
     _require_env("OPENAI_API_KEY")
 
     started = time.perf_counter()
 
+    options = {}
+    if response_schema is not None:
+        options["text"] = {"format": {
+            "type": "json_schema", "name": "source_selection",
+            "strict": True, "schema": response_schema,
+        }}
     async with AsyncOpenAI() as client:
         response = await client.responses.create(
             model=model,
             input=prompt,
             max_output_tokens=max_tokens,
+            **options,
         )
 
     latency = time.perf_counter() - started
@@ -95,6 +154,17 @@ async def _generate_openai(prompt, model, max_tokens):
 
     return {
         "text": response.output_text,
+        "response_diagnostics": {
+            "stop_reason": getattr(response, "status", None),
+            "finish_reasons": ([response.incomplete_details.reason]
+                               if getattr(response, "incomplete_details", None) else []),
+            "content_block_types": [item.type for item in (getattr(response, "output", None) or [])],
+            "usage_metadata": _usage_with_reasoning(
+                usage,
+                getattr(getattr(usage, "output_tokens_details", None),
+                        "reasoning_tokens", None),
+            ),
+        },
         "provider": "openai",
         "model": model,
         "input_tokens": usage.input_tokens,
@@ -103,19 +173,23 @@ async def _generate_openai(prompt, model, max_tokens):
     }
 
 
-async def _generate_google(prompt, model, max_tokens):
+async def _generate_google(prompt, model, max_tokens, *, response_schema=None):
     api_key = _require_env("GEMINI_API_KEY")
 
     client = genai.Client(api_key=api_key)
 
     started = time.perf_counter()
 
+    config = {"max_output_tokens": max_tokens}
+    if response_schema is not None:
+        if model == "gemini-3.8-flash":
+            config["max_output_tokens"] = max(max_tokens, GOOGLE_SELECTION_MAX_OUTPUT_TOKENS)
+        config.update(response_mime_type="application/json",
+                      response_json_schema=response_schema)
     response = await client.aio.models.generate_content(
         model=model,
         contents=prompt,
-        config={
-            "max_output_tokens": max_tokens,
-        },
+        config=config,
     )
 
     latency = time.perf_counter() - started
@@ -124,6 +198,18 @@ async def _generate_google(prompt, model, max_tokens):
 
     return {
         "text": response.text or "",
+        "response_diagnostics": {
+            "finish_reasons": [
+                str(candidate.finish_reason.value)
+                if hasattr(candidate.finish_reason, "value")
+                else str(candidate.finish_reason)
+                for candidate in (getattr(response, "candidates", None) or [])
+                if getattr(candidate, "finish_reason", None) is not None
+            ],
+            "usage_metadata": _usage_with_reasoning(
+                usage, getattr(usage, "thoughts_token_count", None),
+            ),
+        },
         "provider": "google",
         "model": model,
         "input_tokens": usage.prompt_token_count,
@@ -138,6 +224,7 @@ async def generate(
     provider=None,
     model=None,
     max_tokens=1024,
+    response_schema=None,
 ):
     selected_provider = provider or DEFAULT_PROVIDER
 
@@ -156,6 +243,7 @@ async def generate(
             prompt,
             selected_model,
             max_tokens,
+            response_schema=response_schema,
         )
 
     if selected_provider == "openai":
@@ -163,10 +251,12 @@ async def generate(
             prompt,
             selected_model,
             max_tokens,
+            response_schema=response_schema,
         )
 
     return await _generate_google(
         prompt,
         selected_model,
         max_tokens,
+        response_schema=response_schema,
     )

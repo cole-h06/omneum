@@ -93,7 +93,7 @@ def build_judge_inputs(case):
                 "upstream_sources": upstream_ids,
                 "cited_sources": cited_ids,
                 "parent_assertion_ids":
-                    list(observation.parent_assertion_ids),
+                    list(observation.parent_observation_ids),
             },
         })
 

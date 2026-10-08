@@ -279,9 +279,8 @@ jobs:
           # Build at the same fixed prefix used by the existing service definition.
           sudo mkdir /opt/omneum
           sudo env PATH="$PATH" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PROJECT_ENVIRONMENT=/opt/omneum/.venv UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project "$GITHUB_WORKSPACE" --locked --no-default-groups --no-editable --managed-python --python 3.13.15
-          version=$(sudo /opt/omneum/.venv/bin/python -I -B -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          sudo /opt/omneum/.venv/bin/python -I -B -c 'import omneum.server, omneum_oprf'
-          sudo /opt/omneum/.venv/bin/python -I -B tools/build_linux_runtime.py --version "$version" --output daemon-artifact/runtime.tar.gz
+          version=$(python -I -B -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          sudo /usr/bin/python3 -I -B tools/build_linux_runtime.py --version "$version" --output daemon-artifact/runtime.tar.gz
           sudo chown -R "$(id -u):$(id -g)" daemon-artifact
           # Test the shipped, link-free runtime at its final prefix, not the build venv.
           sudo mv /opt/omneum /opt/omneum-build
@@ -290,8 +289,9 @@ jobs:
           test ! -L /opt
           sudo chown root:root /opt
           sudo chmod 755 /opt
-          sudo /usr/bin/python3 -I -B -c 'import runpy; runpy.run_path("deploy/install_server.py")["runtime"]()'
-          sudo /opt/omneum/.venv/bin/python -I -B -c 'import sys,omneum.server,omneum_oprf; from importlib.metadata import version; assert version("omneum") == sys.argv[1]' "$version"
+          # Application verification runs as omneum-mcp during installation,
+          # after the installer provisions that identity.
+          sudo /usr/bin/python3 -I -B -c 'import runpy; runpy.run_path("deploy/install_server.py")["inspect_runtime"]()'
 
       - name: Verify fresh Linux public installation
         if: matrix.platform.os == 'linux'

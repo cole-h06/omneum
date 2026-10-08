@@ -25,8 +25,6 @@ Before the naming cleanup, the working runner hash was
 
 The difference added the `bge_omneum` route and its reliability-filter import,
 and supplied the missing `case.question` argument to the existing reranking
-selector. These changes predate the naming cleanup. The v2 runner retains the missing
-query-argument fix and the Omneum method name. The additive `bge_omneum` route
-and reliability filter are separate working-tree changes outside this staged
-contract. The historical hash is not overwritten or represented as matching
-the active runner.
+selector. These changes predate the naming cleanup. They remain in the active
+runner and are explicitly covered by the v2 contract; the historical hash is
+not overwritten or represented as matching the active runner.

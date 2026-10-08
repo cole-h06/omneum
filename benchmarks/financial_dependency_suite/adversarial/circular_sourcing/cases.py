@@ -97,14 +97,14 @@ def _observation(
     timestamp = _timestamp(date)
 
     return Observation(
-        assertion_id=assertion_id,
+        observation_id=assertion_id,
         source=source,
         claim=claim,
         observed_at=timestamp,
         source_modified_at=timestamp,
         upstream_sources=tuple(upstream_sources),
         cited_sources=(),
-        parent_assertion_ids=tuple(parent_assertion_ids),
+        parent_observation_ids=tuple(parent_assertion_ids),
         retrievals=(),
     )
 

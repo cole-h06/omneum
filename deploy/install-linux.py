@@ -70,7 +70,7 @@ def provision_runtime(bundle, version):
     validator = load_module(bundle / 'install_server.py', 'managed_installer')
     if ROOT.exists() or ROOT.is_symlink():
         # Never replace an existing runtime under live sessions or silently repair it.
-        validator.runtime()
+        validator.inspect_runtime()
         if json.loads((ROOT / 'runtime.json').read_text()) != {'format': 1, 'version': version, 'prefix': str(ROOT)}:
             raise ValueError('existing runtime differs; administrator upgrade required')
         return
@@ -81,13 +81,15 @@ def provision_runtime(bundle, version):
             runtime.unpack(source, staged, version)
         staged.chmod(0o755)
         staged.rename(ROOT)
-    validator.runtime()
+    validator.inspect_runtime()
 
 
 def initialize_and_install_server(bundle, version):
     python = str(ROOT / '.venv/bin/python')
-    # This interpreter and every import tree have already passed runtime().
-    run(python, '-I', '-B', '-c',
+    # Accounts exist now. Verify application imports only after dropping credentials.
+    validator = load_module(bundle / 'install_server.py', 'managed_installer')
+    validator.runtime()
+    validator.unprivileged_python('-c',
         'from importlib.metadata import version; import sys; assert version("omneum") == sys.argv[1]', version)
     config = Path('/var/lib/omneum/.config/Omneum/config.toml')
     if Path('/etc/omneum/config.toml').exists():
@@ -124,7 +126,7 @@ def main(source, uid, version):
     os.umask(0o077)
     for path in (Path('/opt'), Path('/usr/local/bin')):
         trusted(path)
-    for tool in ('/usr/sbin/runuser', '/usr/sbin/usermod', '/usr/bin/sg'):
+    for tool in ('/usr/sbin/runuser', '/usr/sbin/usermod', '/usr/bin/sg', '/usr/bin/setpriv'):
         if not Path(tool).is_file():
             raise ValueError('required system tool is missing: ' + tool)
     lock = Path('/opt/.omneum-install.lock')

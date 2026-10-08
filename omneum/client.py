@@ -46,13 +46,12 @@ from .inference import (
 )
 from .mapping import ContextMapper
 from .information import (
-    AssertionSource,
     Claim,
+    ExactEquivalence,
     Observation,
     Retrieval,
     Source,
     SourceReference,
-    StructuredAssertion,
 )
 from .linkage import (
     ENCODING_VERSION,
@@ -113,24 +112,24 @@ class EvaluationVerificationError(OmneumClientError):
     """The VOPRF proof or finalization result was invalid."""
 
 
-class AssertionEvaluationTransportError(OmneumClientError):
+class ContextEvaluationTransportError(OmneumClientError):
     def __init__(self, *, uncertain: bool) -> None:
-        super().__init__("Assertion evaluation transport failed.")
+        super().__init__("Context evaluation transport failed.")
         self.uncertain = uncertain
 
 
-class AssertionEvaluationRejectedError(OmneumClientError):
+class ContextEvaluationRejectedError(OmneumClientError):
     def __init__(self, omneum_code: str) -> None:
-        super().__init__("Assertion evaluation was rejected.")
+        super().__init__("Context evaluation was rejected.")
         self.omneum_code = omneum_code
 
 
-class AssertionEvaluationResponseError(OmneumClientError):
-    """The assertion-evaluation response was malformed or inconsistent."""
+class ContextEvaluationResponseError(OmneumClientError):
+    """The context-evaluation response was malformed or inconsistent."""
 
 
-class AssertionEvaluationMappingError(OmneumClientError):
-    """The assertion-evaluation response could not be mapped locally."""
+class ContextEvaluationMappingError(OmneumClientError):
+    """The context-evaluation response could not be mapped locally."""
 
 
 def _exact(value, expected, name):
@@ -425,7 +424,7 @@ class ConvergenceMetadata:
 
         if not self.converged:
             raise ValueError(
-                "assertion evaluation must be converged"
+                "context evaluation must be converged"
             )
 
         _result_number(
@@ -458,7 +457,7 @@ class ConvergenceMetadata:
 
 
 @dataclass(frozen=True, slots=True)
-class AssertionEvaluation:
+class ContextEvaluation:
     source_reliability: tuple[SourceEvaluation, ...]
     claim_support: tuple[ClaimSupportResult, ...]
     pairwise_dependencies: tuple[
@@ -816,7 +815,7 @@ class OmneumClient:
         config: OmneumClientConfig,
         evaluator: _OmneumEvaluator,
         *,
-        assertion_evaluation_available: bool | None = None,
+        context_evaluation_available: bool | None = None,
         metrics_recorder: MetricsRecorder | None = None,
     ) -> None:
         if type(config) is not OmneumClientConfig:
@@ -856,8 +855,8 @@ class OmneumClient:
                     None,
                 )
             )
-            if assertion_evaluation_available is None
-            else assertion_evaluation_available
+            if context_evaluation_available is None
+            else context_evaluation_available
         )
 
         self._linkage = LinkageClient(oprf_client)
@@ -930,51 +929,13 @@ class OmneumClient:
             )
         )
 
-    async def evaluate(
-        self,
-        assertion: StructuredAssertion,
-        *,
-        estimator: DependencyEstimatorConfig,
-    ) -> AssertionEvaluation:
-        if type(assertion) is not StructuredAssertion:
-            raise TypeError(
-                "assertion must be a StructuredAssertion"
-            )
-
-        from .observations import observe
-
-        observations = tuple(
-            observe(
-                assertion_id=item.assertion_id,
-                source=item.source,
-                entity_namespace=assertion.entity_namespace,
-                entity=assertion.entity,
-                attribute=assertion.attribute,
-                value=assertion.value,
-                observed_at=item.observed_at,
-                source_modified_at=item.source_modified_at,
-                upstream_sources=item.upstream_sources,
-                cited_sources=item.cited_sources,
-                parent_assertion_ids=item.parent_assertion_ids,
-                retrievals=item.retrievals,
-                metadata=item.metadata,
-                dependency_signals=item.dependency_signals,
-            )
-            for item in assertion.sources
-        )
-
-        return await self.evaluate_context(
-            observations,
-            estimator=estimator,
-        )
-
     async def evaluate_mapped(
         self,
         items: Sequence[Any],
         mapper: ContextMapper,
         *,
         estimator: DependencyEstimatorConfig,
-    ) -> AssertionEvaluation:
+    ) -> ContextEvaluation:
         observations = mapper.map_many(items)
         return await self.evaluate_context(
             observations,
@@ -986,9 +947,10 @@ class OmneumClient:
         observations: Sequence[Observation],
         *,
         estimator: DependencyEstimatorConfig,
-    ) -> AssertionEvaluation:
+        exact_equivalences: Sequence[ExactEquivalence] = (),
+    ) -> ContextEvaluation:
         if not self._assertion_evaluation_available:
-            raise AssertionEvaluationResponseError(
+            raise ContextEvaluationResponseError(
                 "The evaluate_context tool is unavailable."
             )
 
@@ -1038,6 +1000,20 @@ class OmneumClient:
                 value.source,
             )
 
+        equivalence_keys = set()
+        for equivalence in exact_equivalences:
+            if type(equivalence) is not ExactEquivalence:
+                raise TypeError("exact_equivalences must contain ExactEquivalence values")
+            endpoints = tuple(
+                (source.kind, canonicalize_source(source.kind, source.identifier))
+                for source in (equivalence.source_a, equivalence.source_b)
+            )
+            if any(endpoint not in sources_by_key for endpoint in endpoints):
+                raise ValueError("exact equivalence contains an unknown source")
+            if endpoints[0] == endpoints[1]:
+                raise ValueError("exact equivalence endpoints must be distinct")
+            equivalence_keys.add(frozenset(endpoints))
+
         pairs, _ = estimate_dependencies(
             tuple(sources_by_key.values()),
             values,
@@ -1064,7 +1040,7 @@ class OmneumClient:
             encoded = token.to_base64url()
 
             if encoded in used_tokens:
-                raise AssertionEvaluationMappingError(
+                raise ContextEvaluationMappingError(
                     "Linkage token mapping is invalid."
                 )
 
@@ -1136,7 +1112,7 @@ class OmneumClient:
                 encoded = token.to_base64url()
 
                 if encoded in used_tokens:
-                    raise AssertionEvaluationMappingError(
+                    raise ContextEvaluationMappingError(
                         "Linkage token mapping "
                         "is invalid."
                     )
@@ -1163,7 +1139,7 @@ class OmneumClient:
                 encoded = token.to_base64url()
 
                 if encoded in used_tokens:
-                    raise AssertionEvaluationMappingError(
+                    raise ContextEvaluationMappingError(
                         "Linkage token mapping "
                         "is invalid."
                     )
@@ -1240,6 +1216,10 @@ class OmneumClient:
                     weighted_signal_coverage=(
                         pair.weighted_signal_coverage
                     ),
+                    exact_equivalence=frozenset((
+                        (pair.source_a.kind, pair.source_a.identifier),
+                        (pair.source_b.kind, pair.source_b.identifier),
+                    )) in equivalence_keys,
                 )
             )
 
@@ -1277,10 +1257,10 @@ class OmneumClient:
             )
         except asyncio.CancelledError:
             raise
-        except AssertionEvaluationTransportError:
+        except ContextEvaluationTransportError:
             raise
         except Exception:
-            raise AssertionEvaluationTransportError(
+            raise ContextEvaluationTransportError(
                 uncertain=True
             ) from None
 
@@ -1312,6 +1292,7 @@ class OmneumClient:
                     item.source_b_id,
                     item.dependency,
                     item.weighted_signal_coverage,
+                    exact_equivalence=item.exact_equivalence,
                 )
                 for item in pair_values
             ),
@@ -1333,8 +1314,8 @@ class OmneumClient:
                 estimator.dependency_cluster_threshold,
             )
         except (KeyError, ValueError, TypeError):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation response "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation response "
                 "could not be mapped."
             ) from None
 
@@ -1383,7 +1364,7 @@ class OmneumClient:
         )
 
         if not all(comparisons):
-            raise AssertionEvaluationMappingError(
+            raise ContextEvaluationMappingError(
                 "Linkage token identity is invalid."
             )
 
@@ -1395,7 +1376,7 @@ class OmneumClient:
             result,
             CallToolResult,
         ):
-            raise AssertionEvaluationResponseError(
+            raise ContextEvaluationResponseError(
                 "Evaluator returned an invalid response."
             )
 
@@ -1408,12 +1389,12 @@ class OmneumClient:
                     )
                 )
             except ValidationError:
-                raise AssertionEvaluationResponseError(
+                raise ContextEvaluationResponseError(
                     "Evaluator returned an invalid "
                     "structured error."
                 ) from None
 
-            raise AssertionEvaluationRejectedError(
+            raise ContextEvaluationRejectedError(
                 error.omneum_code
             )
 
@@ -1425,7 +1406,7 @@ class OmneumClient:
                 )
             )
         except ValidationError:
-            raise AssertionEvaluationResponseError(
+            raise ContextEvaluationResponseError(
                 "Evaluator returned an invalid "
                 "success response."
             ) from None
@@ -1446,8 +1427,8 @@ class OmneumClient:
         )
 
         if not all(pinned):
-            raise AssertionEvaluationResponseError(
-                "Assertion-evaluation metadata "
+            raise ContextEvaluationResponseError(
+                "Context-evaluation metadata "
                 "does not match the pin."
             )
 
@@ -1461,8 +1442,8 @@ class OmneumClient:
             != CONVERGENCE_TOLERANCE
             or not 1 <= metadata.iterations <= 1000
         ):
-            raise AssertionEvaluationResponseError(
-                "Assertion-evaluation convergence "
+            raise ContextEvaluationResponseError(
+                "Context-evaluation convergence "
                 "metadata is invalid."
             )
 
@@ -1670,7 +1651,7 @@ class _MCPOmneumEvaluator:
         request: EvaluateAssertionRequest,
     ) -> CallToolResult:
         if self._closed:
-            raise AssertionEvaluationTransportError(
+            raise ContextEvaluationTransportError(
                 uncertain=False
             )
 
@@ -1680,7 +1661,7 @@ class _MCPOmneumEvaluator:
                 request.model_dump(mode="json"),
             )
         except Exception:
-            raise AssertionEvaluationTransportError(
+            raise ContextEvaluationTransportError(
                 uncertain=True
             ) from None
 
@@ -1736,7 +1717,7 @@ async def open_stdio_client(
                     "is unavailable."
                 )
 
-            assertion_evaluation_available = any(
+            context_evaluation_available = any(
                 tool.name == "evaluate_context"
                 for tool in tools.tools
             )
@@ -1749,8 +1730,8 @@ async def open_stdio_client(
                 yield OmneumClient(
                     config,
                     evaluator,
-                    assertion_evaluation_available=(
-                        assertion_evaluation_available
+                    context_evaluation_available=(
+                        context_evaluation_available
                     ),
                     metrics_recorder=metrics_recorder,
                 )
@@ -1854,7 +1835,7 @@ def _snapshot_observations(values):
 
         result.append(
             Observation(
-                assertion_id=value.assertion_id,
+                observation_id=value.observation_id,
                 source=source,
                 claim=claim,
                 observed_at=value.observed_at,
@@ -1863,8 +1844,8 @@ def _snapshot_observations(values):
                 ),
                 upstream_sources=upstream_sources,
                 cited_sources=cited_sources,
-                parent_assertion_ids=(
-                    value.parent_assertion_ids
+                parent_observation_ids=(
+                    value.parent_observation_ids
                 ),
                 retrievals=retrievals,
             )
@@ -1895,8 +1876,8 @@ def _compare_assertion_evaluation(
         or response.metadata.convergence_delta
         != expected.metadata.convergence_delta
     ):
-        raise AssertionEvaluationResponseError(
-            "Assertion-evaluation response "
+        raise ContextEvaluationResponseError(
+            "Context-evaluation response "
             "is inconsistent."
         )
 
@@ -1917,7 +1898,7 @@ def _compare_assertion_evaluation(
     )
 
     if actual_sources != expected_sources:
-        raise AssertionEvaluationResponseError(
+        raise ContextEvaluationResponseError(
             "Source-reliability results "
             "are inconsistent."
         )
@@ -1985,7 +1966,7 @@ def _compare_assertion_evaluation(
     )
 
     if actual_claims != expected_claims:
-        raise AssertionEvaluationResponseError(
+        raise ContextEvaluationResponseError(
             "Claim-support results are inconsistent."
         )
 
@@ -1998,8 +1979,8 @@ def _validate_mapping(
 ) -> None:
     for item in response.source_reliability:
         if item.source_id not in sources:
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2008,8 +1989,8 @@ def _validate_mapping(
             item.attribute_id not in attributes
             or item.claim_id not in claims
         ):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2017,8 +1998,8 @@ def _validate_mapping(
             source.source_id not in sources
             for source in item.supporting_sources
         ):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2026,8 +2007,8 @@ def _validate_mapping(
             claim.claim_id not in claims
             for claim in item.conflicting_claims
         ):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2194,7 +2175,7 @@ def _map_assertion_evaluation(
 
     metadata = response.metadata
 
-    return AssertionEvaluation(
+    return ContextEvaluation(
         source_results,
         tuple(claim_results),
         pairs,

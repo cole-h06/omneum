@@ -10,7 +10,7 @@ orchestration changes.
 - Execute the retrieval steps in parallel.
 - Merge the retrieved observations.
 - Submit the observations to Omneum.
-- Generate the final response from the assertion evaluation.
+- Generate the final response from the context evaluation.
 
 ## Requirements
 

@@ -87,12 +87,16 @@ def test_authorized_init_uses_managed_runtime_and_existing_installer(monkeypatch
     run = Mock()
     monkeypatch.setattr(root_install, 'run', run)
     monkeypatch.setattr(root_install.Path, 'exists', lambda path: False)
+    validator = Mock()
+    monkeypatch.setattr(root_install, 'load_module', Mock(return_value=validator))
     root_install.initialize_and_install_server(tmp_path, '1.0.3')
     commands = [call.args for call in run.call_args_list]
-    assert commands[1][:5] == ('/usr/sbin/runuser', '-u', 'omneum-mcp', '--', '/usr/bin/env')
-    assert '/opt/omneum/.venv/bin/python' in commands[1]
-    assert commands[1][-5:] == ('-I', '-B', '-m', 'omneum.cli', 'init')
-    assert commands[2][0:2] == ('/bin/sh', str(tmp_path / 'install-server.sh'))
+    validator.runtime.assert_called_once_with()
+    validator.unprivileged_python.assert_called_once()
+    assert commands[0][:5] == ('/usr/sbin/runuser', '-u', 'omneum-mcp', '--', '/usr/bin/env')
+    assert '/opt/omneum/.venv/bin/python' in commands[0]
+    assert commands[0][-5:] == ('-I', '-B', '-m', 'omneum.cli', 'init')
+    assert commands[1][0:2] == ('/bin/sh', str(tmp_path / 'install-server.sh'))
 
 
 def test_frontend_grants_only_public_group(monkeypatch):

@@ -50,7 +50,7 @@ def test_candidate_and_point_identity(raw):
             assert o.metadata["original_text"] == c["record"]["points_isolated"][a["point_indexes"][0]]
             assert o.claim.value == a["normalized_text"]
             assert o.observed_at.isoformat() == raw["generated_at"]
-            all_ids.append(o.assertion_id)
+            all_ids.append(o.observation_id)
     assert len(set(all_ids)) == len(all_ids) == 48
 
 
@@ -80,7 +80,7 @@ def test_all_provenance_remains_unknown():
                 assert o.source_modified_at is None
                 assert o.upstream_sources is None
                 assert o.cited_sources is None
-                assert o.parent_assertion_ids is None
+                assert o.parent_observation_ids is None
                 assert o.retrievals is None
                 assert o.dependency_signals == {}
 
@@ -125,7 +125,7 @@ def test_alignment_is_text_based_not_duplicate_group_based(raw):
     left = observations_for_candidate(mapped, rows[0]["id"])[0]
     right = observations_for_candidate(mapped, rows[1]["id"])[0]
     assert left.claim == right.claim
-    assert left.assertion_id != right.assertion_id
+    assert left.observation_id != right.observation_id
     assert left.source != right.source
     assert len(mapping_audit(mapped)["cross_candidate_exact_matches"]) == 1
     rows[1]["duplicate_of"] = rows[0]["id"]

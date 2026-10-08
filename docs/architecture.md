@@ -16,7 +16,7 @@ Retrieval / Tools / Workflow State
        Semantic Normalization
                 │
                 ▼
- StructuredAssertion / ContextMapper
+ Source + Claim / ContextMapper
                 │
                 ▼
        Canonical Observations
@@ -63,25 +63,19 @@ Retrieval / Tools / Workflow State
         Agent Control Flow
 ~~~
 
-Semantic normalization is an application responsibility. Omneum does not use an LLM to infer that differently expressed values represent the same structured assertion.
+Semantic normalization is an application responsibility. Omneum does not use an LLM to infer that differently expressed values represent the same structured claim.
 
 Provenance is optional and may be incomplete. Integrations should map provenance that exists in the originating runtime and leave unavailable fields unset. Missing provenance is not evidence of independence.
 
 ## 2. Application Integration
 
-Applications enter the SDK through `StructuredAssertion` or `ContextMapper`.
+Applications use `Source`, `Claim`, and `Observation`, then call `client.evaluate_context()`.
 
-### `StructuredAssertion`
+### Source, Claim, and Observation
 
-`StructuredAssertion` is the direct integration path for applications that already represent information as normalized assertions and know which sources supplied each value.
+`Source` identifies where information came from. `Claim` represents `(entity_namespace, entity, attribute, value)`. `Observation` connects the two and carries `observation_id`, `observed_at`, and available provenance. `parent_observation_ids` references direct parent occurrences within the evaluation.
 
-An assertion is represented as:
-
-~~~text
-(entity_namespace, entity, attribute) → value
-~~~
-
-The application supplies the structured value, supporting sources, and any provenance available for those sources.
+These occurrence IDs remain local. The SDK compiles observations into opaque Source → Claim assertion triples for the graph protocol. Omneum continues to operate on that graph.
 
 ### `ContextMapper`
 
@@ -97,9 +91,9 @@ Application Record
 Canonical Observation
 ~~~
 
-The mapper defines how application fields map to Omneum's canonical source, entity, attribute, value, assertion, timestamp, and provenance fields.
+The mapper defines how application fields map to Omneum's canonical source, entity, attribute, value, observation ID, timestamp, and provenance fields.
 
-Source lineage, citations, assertion lineage, source timestamps, and retrieval records should be mapped when the originating runtime exposes them. Integrations should not synthesize provenance solely to populate the schema.
+Source lineage, citations, observation lineage, source timestamps, and retrieval records should be mapped when the originating runtime exposes them. Integrations should not synthesize provenance solely to populate the schema.
 
 Application-specific fields without canonical provenance semantics can remain under `metadata`. Arbitrary metadata is not interpreted as a dependency signal.
 
@@ -128,7 +122,7 @@ application representation
           └── evaluation
 ~~~
 
-Canonicalization provides deterministic representations for source and assertion identity. Private linkage inputs are serialized deterministically before VOPRF blinding so equivalent canonical inputs produce the same linkage input bytes.
+Canonicalization provides deterministic representations for source and claim identity. Private linkage inputs are serialized deterministically before VOPRF blinding so equivalent canonical inputs produce the same linkage input bytes.
 
 See [`canonicalization.md`](canonicalization.md) for canonicalization and encoding rules.
 
@@ -193,7 +187,7 @@ Pairwise dependency is converted into the claim-specific independence weights co
 
 ## 5. Privacy-Preserving Linkage
 
-The MCP server requires stable identities for sources and structured assertion data, but graph evaluation does not require their plaintext values.
+The MCP server requires stable identities for sources and structured claim data, but graph evaluation does not require their plaintext values.
 
 Omneum derives opaque linkage tokens using RFC 9497 VOPRF mode with the `ristretto255-SHA512` ciphersuite.
 
@@ -248,7 +242,7 @@ A source can assert multiple claims, and multiple sources can assert the same cl
 
 Shared source-claim structure allows reliability to propagate across the graph. A source connected to several claims participates in each of those claim evaluations, while a claim supported by several sources receives reliability through each corresponding assertion edge.
 
-The MCP server constructs this graph from opaque source and claim identifiers. Plaintext source identifiers and structured assertion values are not required for graph construction.
+The MCP server constructs this graph from opaque source and claim identifiers. Plaintext source identifiers and structured claim values are not required for graph construction.
 
 ## 7. BRAID Reliability Propagation
 
@@ -366,7 +360,7 @@ Omneum's local evaluation path spans three execution components with separate re
 
 The client handles:
 
-- `StructuredAssertion` and `ContextMapper` adaptation
+- `Observation` input and `ContextMapper` adaptation
 - canonical observations and provenance
 - dependency signal derivation
 - pairwise dependency estimation
@@ -454,7 +448,7 @@ Organizations, workspaces, agents, historical evaluations, and other persistent 
 
 ## 12. Trust Boundaries
 
-The client retains application data that is not required for server-side graph evaluation, including raw source identifiers, structured assertion values, detailed provenance, retrieval records, and application metadata.
+The client retains application data that is not required for server-side graph evaluation, including raw source identifiers, structured claim values, detailed provenance, retrieval records, and application metadata.
 
 The VOPRF path crosses two boundaries:
 

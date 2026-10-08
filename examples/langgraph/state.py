@@ -1,7 +1,7 @@
 from operator import add
 from typing import Annotated, NotRequired, TypedDict
 
-from omneum import AssertionEvaluation, Observation
+from omneum import ContextEvaluation, Observation
 
 
 class ObservationBatch(TypedDict):
@@ -17,5 +17,5 @@ class WorkflowState(TypedDict):
     question: str
     observation_batches: Annotated[list[ObservationBatch], add]
     observations: NotRequired[tuple[Observation, ...]]
-    assertion_evaluation: NotRequired[AssertionEvaluation]
+    context_evaluation: NotRequired[ContextEvaluation]
     answer: NotRequired[str]

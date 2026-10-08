@@ -31,7 +31,7 @@ def test_source_dependence():
     )
 
     assert all(
-        observation.parent_assertion_ids
+        observation.parent_observation_ids
         for observation in dependent
     )
 
@@ -77,7 +77,7 @@ def test_independent_sources_control():
     )
 
     assert all(
-        not observation.parent_assertion_ids
+        not observation.parent_observation_ids
         for observation in case["observations"]
     )
 
@@ -181,11 +181,11 @@ def test_treatment_ground_truth():
 
     relationships = {
         (
-            observation.assertion_id,
-            tuple(observation.parent_assertion_ids),
+            observation.observation_id,
+            tuple(observation.parent_observation_ids),
         )
         for observation in case["observations"]
-        if observation.parent_assertion_ids
+        if observation.parent_observation_ids
     }
 
     assert relationships == {
@@ -206,7 +206,7 @@ def test_independent_ground_truth():
     assert all(
         not observation.upstream_sources
         and not observation.cited_sources
-        and not observation.parent_assertion_ids
+        and not observation.parent_observation_ids
         for observation in case["observations"]
     )
 
@@ -396,13 +396,13 @@ async def test_semantic_noise():
 
     observations = (
         Observation(
-            assertion_id="revenue",
+            observation_id="revenue",
             source=revenue_source,
             claim=revenue,
             observed_at=timestamp,
         ),
         Observation(
-            assertion_id="revenue-growth",
+            observation_id="revenue-growth",
             source=distractor_source,
             claim=distractor,
             observed_at=timestamp,

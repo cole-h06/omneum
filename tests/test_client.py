@@ -29,15 +29,21 @@ PRIVATE_KEY = b"\x01" + b"\x00" * 31
 
 
 def test_package_exports() -> None:
+    for removed in (
+        "StructuredAssertion", "AssertionSource", "AssertionEvaluation",
+        "AssertionEvaluationMappingError", "AssertionEvaluationRejectedError",
+        "AssertionEvaluationResponseError", "AssertionEvaluationTransportError",
+    ):
+        assert not hasattr(omneum, removed)
+    assert not hasattr(OmneumClient, "evaluate")
     assert omneum.__all__ == [
-        "AssertionSource",
         "ContextMapper",
         "Claim",
         "ExactEquivalence",
         "ClaimSupportResult",
         "ConflictingClaimResult",
         "ConvergenceMetadata",
-        "AssertionEvaluation",
+        "ContextEvaluation",
         "DependencyCluster",
         "DependencyEvidence",
         "DependencyEstimatorConfig",
@@ -46,10 +52,10 @@ def test_package_exports() -> None:
         "EvaluationResponseError",
         "EvaluationTransportError",
         "EvaluationVerificationError",
-        "AssertionEvaluationMappingError",
-        "AssertionEvaluationRejectedError",
-        "AssertionEvaluationResponseError",
-        "AssertionEvaluationTransportError",
+        "ContextEvaluationMappingError",
+        "ContextEvaluationRejectedError",
+        "ContextEvaluationResponseError",
+        "ContextEvaluationTransportError",
         "LinkageToken",
     "Observation",
     "PairwiseDependencyResult",
@@ -58,7 +64,6 @@ def test_package_exports() -> None:
         "SourceEvaluation",
         "SourceReference",
         "SupportingSourceResult",
-        "StructuredAssertion",
         "OmneumClient",
         "OmneumClientConfig",
         "OmneumClientConfigurationError",

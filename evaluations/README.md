@@ -13,3 +13,7 @@ Each evaluation documents:
 - sanitized machine-readable output when available
 
 Only results approved for public use are included here.
+
+- [Bastra Recall — Omneum 1.0.3 local evaluation](bastra-recall/README.md):
+  Daniel Nevoigt's external evaluation, with the original evaluator-supplied
+  single-claim and multi-claim JSON artifacts and a detailed results record.

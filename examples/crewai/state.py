@@ -17,5 +17,5 @@ class WorkflowState(BaseModel):
     search_observations: tuple[Observation, ...] = ()
 
     observations: tuple[Observation, ...] = ()
-    assertion_evaluation: Any | None = None
+    context_evaluation: Any | None = None
     answer: str = ""

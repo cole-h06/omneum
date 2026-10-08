@@ -6,7 +6,7 @@ This document defines the version-1 transformation from application values to
 the deterministic bytes blinded by the Omneum VOPRF client.
 
 The Python SDK performs this transformation automatically when applications use
-the high-level assertion-evaluation API. Applications normally do not construct
+the application-facing `evaluate_context()` API. Applications normally do not construct
 canonical linkage payloads or linkage inputs directly.
 
 Before this transformation begins, the application is responsible for semantic
@@ -22,7 +22,7 @@ the deterministic version-1 canonicalization and linkage pipeline:
 
 Canonicalization does not perform semantic matching. The SDK does not use an
 LLM or other fuzzy matching step to decide that differently expressed
-application data represents the same assertion.
+application data represents the same claim.
 
 ## 2. Requirement Language
 

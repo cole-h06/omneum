@@ -11,7 +11,7 @@ evaluation. The OpenAI Agents SDK provides the orchestration.
 - Invoke the retrieval tool.
 - Collect the retrieved observations.
 - Submit the observations to Omneum.
-- Generate the final response from the returned assertion evaluation.
+- Generate the final response from the returned context evaluation.
 
 ## Requirements
 
