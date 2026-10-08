@@ -528,7 +528,7 @@ def estimate_dependencies(
     claim_attributes = {}
 
     for observation in observations:
-        if type(observation) is not Observation:
+        if type(observation) is not Observation or observation.observation_type != "assertion":
             raise TypeError(
                 "observations must contain Observation values"
             )

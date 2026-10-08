@@ -79,7 +79,7 @@
       ],
       "observations": [
         {
-          "assertion_id": "a1",
+          "observation_id": "a1",
           "source_id": "a",
           "attribute": "status",
           "value": "active",
@@ -91,12 +91,12 @@
           "cited_source_ids": [
             "b"
           ],
-          "parent_assertion_ids": [
+          "parent_observation_ids": [
             "b1"
           ]
         },
         {
-          "assertion_id": "b1",
+          "observation_id": "b1",
           "source_id": "b",
           "attribute": "status",
           "value": "active",
@@ -104,7 +104,7 @@
           "source_modified_at": "2026-02-02T11:00:00+00:00",
           "upstream_source_ids": [],
           "cited_source_ids": [],
-          "parent_assertion_ids": []
+          "parent_observation_ids": []
         }
       ],
       "expected_signals": [
@@ -155,7 +155,7 @@
       ],
       "observations": [
         {
-          "assertion_id": "a1",
+          "observation_id": "a1",
           "source_id": "a",
           "attribute": "status",
           "value": "active",
@@ -163,10 +163,10 @@
           "source_modified_at": null,
           "upstream_source_ids": null,
           "cited_source_ids": null,
-          "parent_assertion_ids": null
+          "parent_observation_ids": null
         },
         {
-          "assertion_id": "b1",
+          "observation_id": "b1",
           "source_id": "b",
           "attribute": "status",
           "value": "active",
@@ -174,7 +174,7 @@
           "source_modified_at": null,
           "upstream_source_ids": null,
           "cited_source_ids": null,
-          "parent_assertion_ids": null
+          "parent_observation_ids": null
         }
       ],
       "expected_signals": [
@@ -212,7 +212,7 @@
       ],
       "observations": [
         {
-          "assertion_id": "a1",
+          "observation_id": "a1",
           "source_id": "a",
           "attribute": "first",
           "value": "same",
@@ -222,10 +222,10 @@
             "b"
           ],
           "cited_source_ids": [],
-          "parent_assertion_ids": []
+          "parent_observation_ids": []
         },
         {
-          "assertion_id": "a2",
+          "observation_id": "a2",
           "source_id": "a",
           "attribute": "second",
           "value": "same",
@@ -233,10 +233,10 @@
           "source_modified_at": "2026-02-02T12:00:00+00:00",
           "upstream_source_ids": [],
           "cited_source_ids": [],
-          "parent_assertion_ids": []
+          "parent_observation_ids": []
         },
         {
-          "assertion_id": "b1",
+          "observation_id": "b1",
           "source_id": "b",
           "attribute": "first",
           "value": "same",
@@ -244,10 +244,10 @@
           "source_modified_at": "2026-02-02T11:00:00+00:00",
           "upstream_source_ids": [],
           "cited_source_ids": [],
-          "parent_assertion_ids": []
+          "parent_observation_ids": []
         },
         {
-          "assertion_id": "b2",
+          "observation_id": "b2",
           "source_id": "b",
           "attribute": "second",
           "value": "same",
@@ -255,7 +255,7 @@
           "source_modified_at": "2026-02-02T11:00:00+00:00",
           "upstream_source_ids": [],
           "cited_source_ids": [],
-          "parent_assertion_ids": []
+          "parent_observation_ids": []
         }
       ],
       "expected_signals": [

@@ -114,58 +114,6 @@ class Source:
 
 
 @dataclass(frozen=True, slots=True)
-class AssertionSource:
-    source: Source
-    assertion_id: str
-    observed_at: datetime
-    source_modified_at: datetime | None = None
-    upstream_sources: tuple["SourceReference", ...] | None = None
-    cited_sources: tuple["SourceReference", ...] | None = None
-    parent_assertion_ids: tuple[str, ...] | None = None
-    retrievals: tuple["Retrieval", ...] | None = None
-    metadata: dict[str, Any] = field(default_factory=dict)
-    dependency_signals: dict[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self):
-        if type(self.source) is not Source:
-            raise TypeError("source must be a Source")
-        _string(self.assertion_id, "assertion_id")
-        _datetime(self.observed_at, "observed_at")
-        _datetime(
-            self.source_modified_at,
-            "source_modified_at",
-            optional=True,
-        )
-
-
-@dataclass(frozen=True, slots=True)
-class StructuredAssertion:
-    entity_namespace: str
-    entity: str
-    attribute: str
-    value: Any
-    sources: tuple[AssertionSource, ...]
-
-    def __post_init__(self):
-        _string(self.entity_namespace, "entity_namespace")
-        _string(self.entity, "entity")
-        _string(self.attribute, "attribute")
-        _value_type(self.value)
-
-        if type(self.sources) is not tuple:
-            raise TypeError("sources must be a tuple")
-
-        if not self.sources:
-            raise ValueError("sources must not be empty")
-
-        for source in self.sources:
-            if type(source) is not AssertionSource:
-                raise TypeError(
-                    "sources must contain AssertionSource values"
-                )
-
-
-@dataclass(frozen=True, slots=True)
 class SourceReference:
     kind: str
     identifier: str = field(repr=False)
@@ -289,11 +237,14 @@ class Observation:
         repr=False,
     )
 
+    observation_type: str = field(default="assertion")
+
     def __init__(
         self, observation_id=None, source=None, claim=None, observed_at=None,
         source_modified_at=None, upstream_sources=None, cited_sources=None,
         parent_observation_ids=None, retrievals=None, metadata=_DEFAULT,
-        dependency_signals=_DEFAULT, *, assertion_id=None, parent_assertion_ids=None,
+        dependency_signals=_DEFAULT, observation_type="assertion", *,
+        assertion_id=None, parent_assertion_ids=None,
     ):
         # Preserve existing clients while occurrence IDs move to observation names.
         if assertion_id is not None:
@@ -315,6 +266,7 @@ class Observation:
         }
         for name, value in values.items():
             object.__setattr__(self, name, value)
+        object.__setattr__(self, "observation_type", observation_type)
         self.__post_init__()
 
     @property
@@ -326,6 +278,8 @@ class Observation:
         return self.parent_observation_ids
 
     def __post_init__(self):
+        if self.observation_type != "assertion":
+            raise ValueError("Observation currently supports assertion observations only")
         _string(self.observation_id, "observation_id")
 
         if type(self.source) is not Source:

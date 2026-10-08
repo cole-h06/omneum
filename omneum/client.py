@@ -9,7 +9,7 @@ import uuid
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field, replace
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from mcp import ClientSession, StdioServerParameters, stdio_client
 from mcp.types import CallToolResult
@@ -78,6 +78,9 @@ from .oprf import (
     VOPRFEvaluation,
 )
 from .serialization import serialize_claim, serialize_source
+from .local_persistence import LocalPersistenceConfig, _DefaultLocalPersistence
+from .contribution.config import NetworkContributionConfig
+from .contribution.models import EvaluationContribution
 
 
 class OmneumClientError(Exception):
@@ -130,6 +133,36 @@ class ContextEvaluationResponseError(OmneumClientError):
 
 class ContextEvaluationMappingError(OmneumClientError):
     """The context-evaluation response could not be mapped locally."""
+
+
+class LocalPersistenceError(OmneumClientError):
+    """Evaluation succeeded, but explicitly requested local persistence failed."""
+
+    def __init__(self, evaluation: ContextEvaluation) -> None:
+        super().__init__("Context evaluation succeeded; local persistence failed.")
+        self.evaluation = evaluation
+
+
+class NetworkContributionError(OmneumClientError):
+    """Evaluation succeeded; pseudonymous network contribution failed.
+
+    A prepared contribution can be retried with its original idempotency key.
+    Do not rerun evaluation to retry an uncertain ingestion request.
+    """
+
+    def __init__(
+        self,
+        evaluation: ContextEvaluation,
+        *,
+        reason: Literal["contribution_preparation_failed", "ingestion_failed_or_uncertain"],
+        local_persistence_succeeded: bool,
+        contribution: EvaluationContribution | None = None,
+    ) -> None:
+        super().__init__("Context evaluation succeeded; network contribution failed: " + reason)
+        self.evaluation = evaluation
+        self.reason = reason
+        self.local_persistence_succeeded = local_persistence_succeeded
+        self.contribution = contribution
 
 
 def _exact(value, expected, name):
@@ -817,6 +850,8 @@ class OmneumClient:
         *,
         context_evaluation_available: bool | None = None,
         metrics_recorder: MetricsRecorder | None = None,
+        local_persistence: LocalPersistenceConfig | None | _DefaultLocalPersistence = _DefaultLocalPersistence.SQLITE,
+        network_contribution: NetworkContributionConfig | None = None,
     ) -> None:
         if type(config) is not OmneumClientConfig:
             raise TypeError(
@@ -861,6 +896,19 @@ class OmneumClient:
 
         self._linkage = LinkageClient(oprf_client)
         self._metrics_recorder = metrics_recorder
+        if local_persistence is _DefaultLocalPersistence.SQLITE:
+            local_persistence = LocalPersistenceConfig()
+        if local_persistence is not None and type(local_persistence) is not LocalPersistenceConfig:
+            raise TypeError("local_persistence must be a LocalPersistenceConfig or None")
+        self._local_persistence = local_persistence
+        if network_contribution is not None and type(network_contribution) is not NetworkContributionConfig:
+            raise TypeError("network_contribution must be a NetworkContributionConfig or None")
+        if (network_contribution is not None
+                and network_contribution.linkage.public_key == config.voprf_public_key):
+            raise OmneumClientConfigurationError(
+                "Network linkage requires a key distinct from the local deployment key."
+            )
+        self._network_contribution = network_contribution
 
     async def link_source(
         self,
@@ -957,7 +1005,7 @@ class OmneumClient:
         values = tuple(observations)
 
         if any(
-            type(value) is not Observation
+            (type(value) is not Observation or value.observation_type != "assertion")
             for value in values
         ):
             raise TypeError(
@@ -1022,6 +1070,8 @@ class OmneumClient:
 
         source_tokens = {}
         source_objects = {}
+        # Retain the exact already-issued tokens, without a second VOPRF call.
+        persistence_tokens = {}
         used_tokens = set()
 
         for key in sorted(sources_by_key):
@@ -1047,6 +1097,8 @@ class OmneumClient:
             used_tokens.add(encoded)
             source_tokens[key] = encoded
             source_objects[encoded] = item
+            if self._local_persistence is not None:
+                persistence_tokens[encoded] = token
 
         attribute_tokens = {}
         claim_tokens = {}
@@ -1146,6 +1198,8 @@ class OmneumClient:
 
                 used_tokens.add(encoded)
                 claim_tokens[claim_key] = encoded
+                if self._local_persistence is not None:
+                    persistence_tokens[encoded] = token
 
                 claim_objects[encoded] = Claim(
                     claim.entity_namespace,
@@ -1336,6 +1390,40 @@ class OmneumClient:
                     evaluation_latency_ms=evaluation_latency_ms,
                 )
             )
+
+        if self._local_persistence is not None:
+            try:
+                self._local_persistence._persist(
+                    evaluation=evaluation,
+                    occurrences=tuple(
+                        (observation,
+                         persistence_tokens[source_tokens[row[0]]],
+                         persistence_tokens[claim_tokens[row[2]]])
+                        for observation, row in zip(values, canonical_rows, strict=True)
+                    ),
+                    source_tokens={source: persistence_tokens[token]
+                                   for token, source in source_objects.items()},
+                    claim_tokens={claim: persistence_tokens[token]
+                                  for token, claim in claim_objects.items()},
+                    estimator=estimator,
+                )
+            except Exception:
+                # Do not expose connection strings, SQL, or private parameters
+                # in a public error. The computed result remains recoverable.
+                raise LocalPersistenceError(evaluation) from None
+
+        network = self._network_contribution
+        if network is not None:
+            from .contribution.builder import build_contribution
+            contribution = None
+            try:
+                contribution = await build_contribution(network, evaluation, values, estimator)
+                await network.transport.submit(contribution)
+            except Exception:
+                raise NetworkContributionError(evaluation,
+                    reason="ingestion_failed_or_uncertain" if contribution is not None else "contribution_preparation_failed",
+                    local_persistence_succeeded=self._local_persistence is not None,
+                    contribution=contribution) from None
 
         return evaluation
 
@@ -1675,8 +1763,14 @@ async def open_stdio_client(
     server: StdioServerParameters,
     *,
     metrics_recorder: MetricsRecorder | None = None,
+    local_persistence: LocalPersistenceConfig | None | _DefaultLocalPersistence = _DefaultLocalPersistence.SQLITE,
+    network_contribution: NetworkContributionConfig | None = None,
 ) -> AsyncIterator[OmneumClient]:
-    """Open and own one local MCP stdio subprocess and client session."""
+    """Open a local MCP session; default SQLite history stays in this local SDK process.
+
+    Pass local_persistence=None to disable it, or a LocalPersistenceConfig for a
+    custom adapter. Network contribution requires its own explicit configuration.
+    """
 
     if (
         isinstance(server, StdioServerParameters)
@@ -1734,6 +1828,8 @@ async def open_stdio_client(
                         context_evaluation_available
                     ),
                     metrics_recorder=metrics_recorder,
+                    local_persistence=local_persistence,
+                    network_contribution=network_contribution,
                 )
             finally:
                 evaluator.close()
@@ -1848,6 +1944,7 @@ def _snapshot_observations(values):
                     value.parent_observation_ids
                 ),
                 retrievals=retrievals,
+                metadata=value.metadata,
             )
         )
 
