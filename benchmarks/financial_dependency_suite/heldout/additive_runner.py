@@ -72,7 +72,7 @@ async def run_selection(method, case, *, provider=None, model=None, cohere_cache
             telemetry["cohere_billed_search_units"] = relevance.get("billed_search_units")
             telemetry["cohere_input_tokens"] = relevance.get("input_tokens")
             telemetry["cohere_output_tokens"] = relevance.get("output_tokens")
-        if method == f"{stage}_anthropic":
+        if method == f"{stage}_anthropic" or (stage == "bge" and method == "bge_openai"):
             judged = await frozen.select_llm_safe(
                 case.question, shortlist, provider=provider, model=model, top_n=top_n,
             )
@@ -116,7 +116,7 @@ async def run_selection(method, case, *, provider=None, model=None, cohere_cache
                                  "failure_type": "paired_selection_contract"})
         return judged
 
-    if method in {"bge_anthropic", "cohere_anthropic"}:
+    if method in {"bge_openai", "bge_anthropic", "cohere_anthropic"}:
         raise ValueError(f"{method} requires the paired shared shortlist")
 
     if method in ("cohere", "cohere_omneum") and cohere_cache is not None:
@@ -219,7 +219,7 @@ async def run_method(
     generator_model,
 ):
     paired = bge_relevance is not None or cohere_relevance is not None
-    if not paired and method not in {"bge_anthropic", "cohere_anthropic", "cohere_omneum", "anthropic_omneum"} and not (method == "cohere" and cohere_cache is not None):
+    if not paired and method not in {"bge_openai", "bge_anthropic", "cohere_anthropic", "cohere_omneum", "anthropic_omneum"} and not (method == "cohere" and cohere_cache is not None):
         return await frozen.run_method(
             method, case, truth, provider=provider, model=model,
             generator_provider=generator_provider, generator_model=generator_model,

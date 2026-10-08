@@ -32,12 +32,12 @@ async def run_case(
         )
 
     records = []
-    paired_bge = "bge_anthropic" in {method.name for method in methods}
+    paired_bge = bool({"bge_anthropic", "bge_openai"} & {method.name for method in methods})
     paired_cohere = "cohere_anthropic" in {method.name for method in methods}
     relevance_by_trial = {}
     if paired_bge:
         for (case_id, method_name, trial), record in (completed or {}).items():
-            if case_id == case.case_id and method_name in {"bge_anthropic", "bge_omneum"}:
+            if case_id == case.case_id and method_name in {"bge_anthropic", "bge_openai", "bge_omneum"}:
                 relevance = record["selection"]["bge_relevance"]
                 if trial in relevance_by_trial and relevance_by_trial[trial] != relevance:
                     raise ValueError("paired BGE shortlists differ in saved records")
@@ -68,7 +68,7 @@ async def run_case(
             logger.info("Starting %s", context)
             try:
                 paired_options = {}
-                if paired_bge and method.name in {"bge_anthropic", "bge_omneum"}:
+                if paired_bge and method.name in {"bge_anthropic", "bge_openai", "bge_omneum"}:
                     if trial not in relevance_by_trial:
                         candidates = application_candidates(case)
                         relevance_by_trial[trial] = frozen.select_bge(

@@ -102,6 +102,13 @@ async def run_benchmark(
     if resume is not None and identifier is not None:
         raise ValueError("resume and identifier are mutually exclusive")
     names = {method.name for method in methods}
+    if "bge_openai" in names:
+        if names != {"bge_openai", "bge_omneum"}:
+            raise ValueError("OpenAI pair requires exactly bge_openai and bge_omneum")
+        if baseline_results is not None:
+            raise ValueError("OpenAI pair cannot reuse a historical full-pool baseline")
+        if GENERATOR_PROVIDER != "anthropic" or GENERATOR_MODEL != "claude-sonnet-5-5":
+            raise ValueError("OpenAI pair requires Claude Sonnet 5.5 generation")
     if "bge_anthropic" in names:
         if names != {"bge_anthropic", "bge_omneum"}:
             raise ValueError("Experiment 1 requires exactly bge_anthropic and bge_omneum")
@@ -164,10 +171,10 @@ async def run_benchmark(
             "trials", "models", "inputs", "packages", "estimator", "python",
         )},
     }
-    if "bge_anthropic" in names:
+    if names.intersection({"bge_anthropic", "bge_openai"}):
         pipeline = {
-            "experiment": 1,
-            "control": "bge_anthropic",
+            "experiment": 3 if "bge_openai" in names else 1,
+            "control": "bge_openai" if "bge_openai" in names else "bge_anthropic",
             "treatment": "bge_omneum",
             "relevance_model": "BAAI/bge-reranker-v2-m3",
             "shared_shortlist": "one BGE result per case/trial; IDs, order, text, and scores preserved",
@@ -238,7 +245,7 @@ async def run_benchmark(
             )
         if len(completed) < len(schedule):
             first_case = discovered[0][2]
-            if any(method.method in {"bge", "vector", "bge_omneum", "bge_anthropic"} for method in methods):
+            if any(method.method in {"bge", "vector", "bge_omneum", "bge_anthropic", "bge_openai"} for method in methods):
                 warm_local_models(first_case.question, application_candidates(first_case))
             for _, _, case, truth in discovered:
                 await run_case(
@@ -277,7 +284,7 @@ def main():
         "--methods",
         nargs="+",
         choices=[method.name for method in (*METHODS, *ADDITIVE_METHODS)],
-        help="Experiment 1: bge_anthropic bge_omneum. Experiment 2: cohere_anthropic cohere_omneum.",
+        help="Experiment 1: bge_anthropic bge_omneum. Experiment 2: cohere_anthropic cohere_omneum. Experiment 3: bge_openai bge_omneum.",
     )
     parser.add_argument("--baseline-results", type=Path,
                         help="reuse validated anthropic rows from a prior results.jsonl")
