@@ -1,0 +1,1047 @@
+{
+  "evaluation_input": [
+    {
+      "source_id": "primary_record",
+      "observation": {
+        "observation_id": "research_independent_false_consensus:primary_record",
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record",
+          "owner_id": null
+        },
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'216'"
+        },
+        "observed_at": "2026-08-20 12:05:00+00:00",
+        "source_modified_at": "2026-08-18 09:00:00+00:00",
+        "upstream_sources": [],
+        "cited_sources": [],
+        "parent_observation_ids": [],
+        "retrievals": [],
+        "metadata": {},
+        "dependency_signals": {},
+        "observation_type": "assertion"
+      }
+    },
+    {
+      "source_id": "dataset",
+      "observation": {
+        "observation_id": "research_independent_false_consensus:dataset",
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset",
+          "owner_id": null
+        },
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'216'"
+        },
+        "observed_at": "2026-08-20 12:03:00+00:00",
+        "source_modified_at": "2026-08-18 09:00:00+00:00",
+        "upstream_sources": [],
+        "cited_sources": [],
+        "parent_observation_ids": [],
+        "retrievals": [],
+        "metadata": {},
+        "dependency_signals": {},
+        "observation_type": "assertion"
+      }
+    },
+    {
+      "source_id": "web_page",
+      "observation": {
+        "observation_id": "research_independent_false_consensus:web_page",
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page",
+          "owner_id": null
+        },
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'216'"
+        },
+        "observed_at": "2026-08-20 12:06:00+00:00",
+        "source_modified_at": "2026-08-18 09:00:00+00:00",
+        "upstream_sources": [
+          {
+            "kind": "web_document",
+            "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+          }
+        ],
+        "cited_sources": [],
+        "parent_observation_ids": [
+          "research_independent_false_consensus:primary_record"
+        ],
+        "retrievals": [],
+        "metadata": {},
+        "dependency_signals": {},
+        "observation_type": "assertion"
+      }
+    },
+    {
+      "source_id": "report",
+      "observation": {
+        "observation_id": "research_independent_false_consensus:report",
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report",
+          "owner_id": null
+        },
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'240'"
+        },
+        "observed_at": "2026-08-20 12:00:00+00:00",
+        "source_modified_at": "2026-08-18 09:00:00+00:00",
+        "upstream_sources": [],
+        "cited_sources": [],
+        "parent_observation_ids": [],
+        "retrievals": [],
+        "metadata": {},
+        "dependency_signals": {},
+        "observation_type": "assertion"
+      }
+    },
+    {
+      "source_id": "publication",
+      "observation": {
+        "observation_id": "research_independent_false_consensus:publication",
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication",
+          "owner_id": null
+        },
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'240'"
+        },
+        "observed_at": "2026-08-20 12:01:00+00:00",
+        "source_modified_at": "2026-08-18 09:00:00+00:00",
+        "upstream_sources": [],
+        "cited_sources": [],
+        "parent_observation_ids": [],
+        "retrievals": [],
+        "metadata": {},
+        "dependency_signals": {},
+        "observation_type": "assertion"
+      }
+    },
+    {
+      "source_id": "analysis",
+      "observation": {
+        "observation_id": "research_independent_false_consensus:analysis",
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis",
+          "owner_id": null
+        },
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'240'"
+        },
+        "observed_at": "2026-08-20 12:02:00+00:00",
+        "source_modified_at": "2026-08-18 09:00:00+00:00",
+        "upstream_sources": [],
+        "cited_sources": [],
+        "parent_observation_ids": [],
+        "retrievals": [],
+        "metadata": {},
+        "dependency_signals": {},
+        "observation_type": "assertion"
+      }
+    }
+  ],
+  "evaluation_output": {
+    "source_reliability": [
+      {
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis",
+          "owner_id": null
+        },
+        "reliability": 0.2489140679036395
+      },
+      {
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report",
+          "owner_id": null
+        },
+        "reliability": 0.2489140679036395
+      },
+      {
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication",
+          "owner_id": null
+        },
+        "reliability": 0.2489140679036395
+      },
+      {
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset",
+          "owner_id": null
+        },
+        "reliability": 0.0844192654296938
+      },
+      {
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record",
+          "owner_id": null
+        },
+        "reliability": 0.0844192654296938
+      },
+      {
+        "source": {
+          "kind": "web_document",
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page",
+          "owner_id": null
+        },
+        "reliability": 0.0844192654296938
+      }
+    ],
+    "claim_support": [
+      {
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'240'"
+        },
+        "support": 0.36299968235947433,
+        "agreement_weight": 0.5833333333333334,
+        "is_attribute_max_support": true,
+        "supporting_source_count": 3,
+        "estimated_independent_support_count": 2.5,
+        "dependency_signal_coverage": 0.75,
+        "supporting_sources": [
+          {
+            "source": {
+              "kind": "web_document",
+              "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis",
+              "owner_id": null
+            },
+            "independence": 0.8333333333333334,
+            "contribution": 0.12099989411982477
+          },
+          {
+            "source": {
+              "kind": "web_document",
+              "identifier": "https://report.benchmark.example/research_independent_false_consensus/report",
+              "owner_id": null
+            },
+            "independence": 0.8333333333333334,
+            "contribution": 0.12099989411982477
+          },
+          {
+            "source": {
+              "kind": "web_document",
+              "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication",
+              "owner_id": null
+            },
+            "independence": 0.8333333333333334,
+            "contribution": 0.12099989411982477
+          }
+        ],
+        "conflicting_claims": [
+          {
+            "claim": {
+              "entity_namespace": "service",
+              "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+              "attribute": "occupied_homes",
+              "_value_bytes": "b'216'"
+            },
+            "support": 0.06281195344471266
+          }
+        ],
+        "dependency_clusters": [
+          {
+            "threshold": 0.3,
+            "sources": [
+              {
+                "kind": "web_document",
+                "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis"
+              }
+            ]
+          },
+          {
+            "threshold": 0.3,
+            "sources": [
+              {
+                "kind": "web_document",
+                "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication"
+              }
+            ]
+          },
+          {
+            "threshold": 0.3,
+            "sources": [
+              {
+                "kind": "web_document",
+                "identifier": "https://report.benchmark.example/research_independent_false_consensus/report"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "claim": {
+          "entity_namespace": "service",
+          "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+          "attribute": "occupied_homes",
+          "_value_bytes": "b'216'"
+        },
+        "support": 0.06281195344471266,
+        "agreement_weight": 0.41666666666666663,
+        "is_attribute_max_support": false,
+        "supporting_source_count": 3,
+        "estimated_independent_support_count": 1.7857142857142856,
+        "dependency_signal_coverage": 0.75,
+        "supporting_sources": [
+          {
+            "source": {
+              "kind": "web_document",
+              "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset",
+              "owner_id": null
+            },
+            "independence": 0.8333333333333334,
+            "contribution": 0.029312244940865904
+          },
+          {
+            "source": {
+              "kind": "web_document",
+              "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record",
+              "owner_id": null
+            },
+            "independence": 0.47619047619047616,
+            "contribution": 0.016749854251923373
+          },
+          {
+            "source": {
+              "kind": "web_document",
+              "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page",
+              "owner_id": null
+            },
+            "independence": 0.47619047619047616,
+            "contribution": 0.016749854251923373
+          }
+        ],
+        "conflicting_claims": [
+          {
+            "claim": {
+              "entity_namespace": "service",
+              "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+              "attribute": "occupied_homes",
+              "_value_bytes": "b'240'"
+            },
+            "support": 0.36299968235947433
+          }
+        ],
+        "dependency_clusters": [
+          {
+            "threshold": 0.3,
+            "sources": [
+              {
+                "kind": "web_document",
+                "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset"
+              }
+            ]
+          },
+          {
+            "threshold": 0.3,
+            "sources": [
+              {
+                "kind": "web_document",
+                "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+              },
+              {
+                "kind": "web_document",
+                "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pairwise_dependencies": [
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 1.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": true,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.1,
+        "weighted_signal_coverage": 0.75,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 1,
+          "qualifying_time_deltas_seconds": [
+            0.0
+          ]
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 1.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": true,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.1,
+        "weighted_signal_coverage": 0.75,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 1,
+          "qualifying_time_deltas_seconds": [
+            0.0
+          ]
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 1.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": true,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.1,
+        "weighted_signal_coverage": 0.75,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 1,
+          "qualifying_time_deltas_seconds": [
+            0.0
+          ]
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 1.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": true,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.1,
+        "weighted_signal_coverage": 0.75,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 1,
+          "qualifying_time_deltas_seconds": [
+            0.0
+          ]
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page"
+        },
+        "signals": {
+          "upstream": 1.0,
+          "citation": 0.0,
+          "assertion_lineage": 1.0,
+          "ownership": 0.0,
+          "temporal": 1.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": true,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 1.0,
+        "weighted_signal_coverage": 0.75,
+        "evidence": {
+          "source_a_upstream_of_source_b": true,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 1,
+          "same_owner": false,
+          "matching_claim_count": 1,
+          "qualifying_time_deltas_seconds": [
+            0.0
+          ]
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 1.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": true,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.1,
+        "weighted_signal_coverage": 0.75,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 1,
+          "qualifying_time_deltas_seconds": [
+            0.0
+          ]
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      },
+      {
+        "source_a": {
+          "kind": "web_document",
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report"
+        },
+        "source_b": {
+          "kind": "web_document",
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page"
+        },
+        "signals": {
+          "upstream": 0.0,
+          "citation": 0.0,
+          "assertion_lineage": 0.0,
+          "ownership": 0.0,
+          "temporal": 0.0,
+          "graph": 0.0,
+          "upstream_observable": true,
+          "citation_observable": true,
+          "assertion_lineage_observable": true,
+          "ownership_observable": false,
+          "temporal_observable": false,
+          "graph_observable": false,
+          "retrieval": 0.0,
+          "retrieval_observable": false
+        },
+        "dependency": 0.0,
+        "weighted_signal_coverage": 0.65,
+        "evidence": {
+          "source_a_upstream_of_source_b": false,
+          "source_b_upstream_of_source_a": false,
+          "source_a_cites_source_b": false,
+          "source_b_cites_source_a": false,
+          "source_a_parent_count": 0,
+          "source_b_parent_count": 0,
+          "same_owner": false,
+          "matching_claim_count": 0,
+          "qualifying_time_deltas_seconds": []
+        }
+      }
+    ],
+    "convergence": {
+      "algorithm_version": "omneum-v2",
+      "iterations": 22,
+      "converged": true,
+      "convergence_tolerance": 1e-08,
+      "convergence_delta": 6.283484968450104e-09
+    },
+    "dependency_cluster_threshold": 0.3,
+    "evaluation_latency_ms": 27.90066716261208
+  },
+  "saved_shortlist": [
+    {
+      "source": "primary_record",
+      "text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits."
+    },
+    {
+      "source": "dataset",
+      "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12."
+    },
+    {
+      "source": "web_page",
+      "text": "Neighborhood association census summary: 216 homes occupied in the August enumeration; 24 were vacant."
+    },
+    {
+      "source": "report",
+      "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed."
+    },
+    {
+      "source": "publication",
+      "text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings."
+    },
+    {
+      "source": "analysis",
+      "text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay."
+    }
+  ],
+  "saved_final": [
+    "report",
+    "publication",
+    "analysis"
+  ],
+  "replayed_final": [
+    {
+      "source": "report",
+      "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed."
+    },
+    {
+      "source": "publication",
+      "text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings."
+    },
+    {
+      "source": "analysis",
+      "text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay."
+    }
+  ],
+  "estimator": {
+    "upstream_weight": 25.0,
+    "citation_weight": 20.0,
+    "assertion_lineage_weight": 20.0,
+    "ownership_weight": 10.0,
+    "temporal_weight": 10.0,
+    "graph_weight": 15.0,
+    "temporal_window_seconds": 172800.0,
+    "retrieval_weight": 0.0,
+    "estimator_version": "dependency-estimator-v4",
+    "dependency_cluster_threshold": 0.3
+  }
+}

@@ -108,6 +108,7 @@ async def test_llm_selection(
         provider=None,
         model=None,
         max_tokens=1024,
+        response_schema=None,
     ):
         return {
             "text":
@@ -145,6 +146,7 @@ async def test_llm_selector_rejects_invalid_selection(monkeypatch):
         provider=None,
         model=None,
         max_tokens=1024,
+        response_schema=None,
     ):
         return {
             "text":
@@ -244,7 +246,7 @@ def test_provenance_context():
 
     class Observation:
         source = source_a
-        assertion_id = "assertion-a"
+        observation_id = "assertion-a"
         observed_at = datetime(
             2026, 9, 11, tzinfo=timezone.utc
         )
@@ -253,7 +255,7 @@ def test_provenance_context():
         )
         upstream_sources = (source_b,)
         cited_sources = (source_b,)
-        parent_assertion_ids = ("parent-a",)
+        parent_observation_ids = ("parent-a",)
 
     result = provenance_context(
         [{"source": "source_a", "text": "A"}],
@@ -295,7 +297,8 @@ def test_llm_provenance_selection(monkeypatch):
         {"source": "source_b", "text": "B"},
     ]
 
-    async def fake_generate(prompt, *, provider, model):
+    async def fake_generate(prompt, *, provider, model, response_schema):
+        assert response_schema == app.SELECTION_SCHEMA
         assert "Structured provenance:" in prompt
         return {
             "text": '{"selected_sources": ["source_b"]}',
