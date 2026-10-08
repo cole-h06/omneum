@@ -19,14 +19,14 @@ def claim(value="value"):
 
 def observation(**changes):
     values = {
-        "assertion_id": "assertion-a",
+        "observation_id": "assertion-a",
         "source": Source("web_publisher", "example.com"),
         "claim": claim(),
         "observed_at": NOW,
         "source_modified_at": NOW,
         "upstream_sources": (),
         "cited_sources": (),
-        "parent_assertion_ids": (),
+        "parent_observation_ids": (),
         "retrievals": (),
         "metadata": {},
         "dependency_signals": {},
@@ -89,7 +89,7 @@ def test_source_type(value):
     [
         ("upstream_sources", []),
         ("cited_sources", []),
-        ("parent_assertion_ids", []),
+        ("parent_observation_ids", []),
         ("retrievals", []),
     ],
 )
@@ -203,7 +203,7 @@ def test_value_type_error():
 def test_repr():
     source = Source("web_publisher", "secret.example", "secret-owner")
     item = observation(
-        assertion_id="secret-assertion",
+        observation_id="secret-assertion",
         source=source,
         claim=Claim(
             "service",
@@ -213,7 +213,7 @@ def test_repr():
         ),
         upstream_sources=(reference("secret-upstream"),),
         cited_sources=(reference("secret-citation"),),
-        parent_assertion_ids=("secret-parent",),
+        parent_observation_ids=("secret-parent",),
         retrievals=(
             Retrieval(
                 "secret-retrieval",
@@ -250,7 +250,7 @@ def test_observation_helpers():
     )
 
     item = observe(
-        assertion_id="assertion-a",
+        observation_id="assertion-a",
         source=source,
         entity_namespace="service",
         entity="payment_api",

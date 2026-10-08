@@ -64,12 +64,12 @@ class EnterpriseFlow(Flow[WorkflowState]):
                     entity=lambda x: x.claim.entity,
                     attribute=lambda x: x.claim.attribute,
                     value=lambda x: x.claim.value,
-                    assertion_id=lambda x: x.assertion_id,
+                    observation_id=lambda x: x.observation_id,
                     observed_at=lambda x: x.observed_at,
                     source_modified_at=lambda x: x.source_modified_at,
                     upstream_sources=lambda x: x.upstream_sources,
                     cited_sources=lambda x: x.cited_sources,
-                    parent_assertion_ids=lambda x: x.parent_assertion_ids,
+                    parent_observation_ids=lambda x: x.parent_observation_ids,
                     retrievals=lambda x: x.retrievals,
                     signals={
                         name: lambda x, name=name: x.dependency_signals.get(

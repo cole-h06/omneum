@@ -1,5 +1,6 @@
 import pytest
 from pydantic import ValidationError
+from omneum.base64url import encode_unpadded
 
 from omneum.contribution import (
     ContributionClaim,
@@ -16,7 +17,7 @@ def minimal_contribution(**overrides):
         "sources": (
             ContributionSource(
                 source_id="source-1",
-                source_token="opaque-source-token",
+                source_token=encode_unpadded(b"s" * 64, expected_length=64),
                 source_kind="web_document",
                 key_version=1,
             ),
@@ -24,7 +25,7 @@ def minimal_contribution(**overrides):
         "claims": (
             ContributionClaim(
                 claim_id="claim-1",
-                claim_token="opaque-claim-token",
+                claim_token=encode_unpadded(b"c" * 64, expected_length=64),
                 key_version=1,
             ),
         ),
@@ -63,7 +64,7 @@ def test_source_rejects_identifier():
     with pytest.raises(ValidationError):
         ContributionSource(
             source_id="source-1",
-            source_token="opaque-source-token",
+            source_token=encode_unpadded(b"s" * 64, expected_length=64),
             source_kind="web_document",
             key_version=1,
             identifier="https://example.com/document",
@@ -74,7 +75,7 @@ def test_claim_rejects_value():
     with pytest.raises(ValidationError):
         ContributionClaim(
             claim_id="claim-1",
-            claim_token="opaque-claim-token",
+            claim_token=encode_unpadded(b"c" * 64, expected_length=64),
             key_version=1,
             value="private claim",
         )

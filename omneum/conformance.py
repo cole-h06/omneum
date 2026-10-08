@@ -188,7 +188,7 @@ def records(case, relative, absolute):
                 ),
                 upstream_sources=references(item["upstream_source_ids"]),
                 cited_sources=references(item["cited_source_ids"]),
-                parent_assertion_ids=(
+                parent_observation_ids=(
                     None
                     if item["parent_assertion_ids"] is None
                     else tuple(item["parent_assertion_ids"])

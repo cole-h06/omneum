@@ -45,7 +45,7 @@ async def workload():
         first = await client.link_claim('service', ' Example ', ' Display Name ', ' Alice ')
         second = await client.link_claim('service', 'example', 'display_name', 'Alice')
         assert first.value == second.value
-        observations = tuple(Observation(assertion_id=f'assertion-{n}', source=Source('web_publisher', f'https://example{n}.com'), claim=Claim('service', 'example', 'display_name', 'Alice'), observed_at=datetime(2026,1,1,tzinfo=timezone.utc), source_modified_at=None, upstream_sources=(), cited_sources=(), parent_assertion_ids=(), retrievals=()) for n in range(2))
+        observations = tuple(Observation(observation_id=f'assertion-{n}', source=Source('web_publisher', f'https://example{n}.com'), claim=Claim('service', 'example', 'display_name', 'Alice'), observed_at=datetime(2026,1,1,tzinfo=timezone.utc), source_modified_at=None, upstream_sources=(), cited_sources=(), parent_observation_ids=(), retrievals=()) for n in range(2))
         result = await client.evaluate_context(observations, estimator=DependencyEstimatorConfig(upstream_weight=.25, citation_weight=.20, assertion_lineage_weight=.20, ownership_weight=.10, temporal_weight=.10, graph_weight=.15, temporal_window_seconds=7200.))
         assert len(result.source_reliability) == 2
         print('session ready', flush=True)

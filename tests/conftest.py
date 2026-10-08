@@ -24,3 +24,9 @@ def example_daemon(tmp_path, monkeypatch):
     )
     yield with_context
     with_context.close()
+
+
+@pytest.fixture(autouse=True)
+def isolated_local_context(tmp_path, monkeypatch):
+    """Default persistence in tests must never touch the real user's database."""
+    monkeypatch.setattr("omneum.paths.get_context_db_path", lambda: tmp_path / "local-context" / "context.db")

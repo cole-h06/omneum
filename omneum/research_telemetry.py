@@ -22,11 +22,11 @@ from pydantic import (
 )
 
 from .client import (
-    AssertionEvaluation,
-    AssertionEvaluationMappingError,
-    AssertionEvaluationRejectedError,
-    AssertionEvaluationResponseError,
-    AssertionEvaluationTransportError,
+    ContextEvaluation,
+    ContextEvaluationMappingError,
+    ContextEvaluationRejectedError,
+    ContextEvaluationResponseError,
+    ContextEvaluationTransportError,
     EvaluationTransportError,
 )
 from .compatibility import load_pin
@@ -389,7 +389,7 @@ def build_event(
     }
     if evaluation is not None:
         if (
-            type(evaluation) is not AssertionEvaluation
+            type(evaluation) is not ContextEvaluation
             or failure_code is not None
         ):
             raise TypeError("expected a successful assertion evaluation")
@@ -492,11 +492,11 @@ def failure_code(error):
     for error_type, code in (
         (asyncio.CancelledError, "cancelled"),
         (InferenceError, "inference_failure"),
-        (AssertionEvaluationMappingError, "mapping_failure"),
-        (AssertionEvaluationTransportError, "transport_failure"),
+        (ContextEvaluationMappingError, "mapping_failure"),
+        (ContextEvaluationTransportError, "transport_failure"),
         (EvaluationTransportError, "transport_failure"),
-        (AssertionEvaluationRejectedError, "evaluation_rejected"),
-        (AssertionEvaluationResponseError, "response_failure"),
+        (ContextEvaluationRejectedError, "evaluation_rejected"),
+        (ContextEvaluationResponseError, "response_failure"),
         (InformationGraphError, "invalid_input"),
         (GraphError, "invalid_input"),
     ):

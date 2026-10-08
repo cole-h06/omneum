@@ -6,13 +6,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class _StrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
+    model_config = ConfigDict(extra="forbid", strict=True, revalidate_instances="always")
 
 
 class ContributionSource(_StrictModel):
     source_id: str
     source_token: str
-    source_kind: str
+    source_kind: Literal[
+        "web_document", "web_publisher", "internal_resource",
+        "internal_service", "database", "url",
+    ]
     key_version: int = Field(ge=1, le=2**32 - 1)
 
 
@@ -97,9 +100,11 @@ class ContributionDependency(_StrictModel):
         allow_inf_nan=False,
     )
 
-    # Extensible signal decomposition. Values only; no arbitrary
-    # application metadata belongs here.
-    signal_components: dict[str, float] = Field(default_factory=dict)
+    # Component names are protocol fields, never application metadata.
+    signal_components: dict[Literal[
+        "upstream", "citation", "assertion_lineage", "ownership",
+        "temporal", "graph", "retrieval",
+    ], float] = Field(default_factory=dict)
 
     # Directional structural evidence. This is deliberately typed rather
     # than accepting arbitrary metadata.

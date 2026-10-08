@@ -48,21 +48,21 @@ def reference(identifier):
 
 
 def observation(
-    assertion_id,
+    observation_id,
     source_id,
     attribute="status",
     value="active",
     **changes,
 ):
     values = {
-        "assertion_id": assertion_id,
+        "observation_id": observation_id,
         "source": source(source_id),
         "claim": Claim("service", "Entity", attribute, value),
         "observed_at": NOW,
         "source_modified_at": NOW,
         "upstream_sources": (),
         "cited_sources": (),
-        "parent_assertion_ids": (),
+        "parent_observation_ids": (),
         "retrievals": (),
     }
     values.update(changes)
@@ -92,7 +92,7 @@ def empty_signals(**changes):
 
 def vector_observation(item, sources):
     return Observation(
-        assertion_id=item["assertion_id"],
+        observation_id=item["observation_id"],
         source=sources[item["source_id"]],
         claim=Claim("service", "Entity", item["attribute"], item["value"]),
         observed_at=datetime.fromisoformat(item["observed_at"]),
@@ -111,9 +111,9 @@ def vector_observation(item, sources):
             if item["cited_source_ids"] is not None
             else None
         ),
-        parent_assertion_ids=(
-            tuple(item["parent_assertion_ids"])
-            if item["parent_assertion_ids"] is not None
+        parent_observation_ids=(
+            tuple(item["parent_observation_ids"])
+            if item["parent_observation_ids"] is not None
             else None
         ),
         retrievals=(),
@@ -361,7 +361,7 @@ def test_all_dependency_signals():
             source_modified_at=NOW,
             upstream_sources=(reference("b.example"),),
             cited_sources=(reference("b.example"),),
-            parent_assertion_ids=("b1",),
+            parent_observation_ids=("b1",),
         ),
         observation(
             "b1",
@@ -410,7 +410,7 @@ def test_unavailable_signals_reduce_coverage():
                 source_modified_at=None,
                 upstream_sources=None,
                 cited_sources=None,
-                parent_assertion_ids=None,
+                parent_observation_ids=None,
             ),
             observation(
                 "b1",
@@ -418,7 +418,7 @@ def test_unavailable_signals_reduce_coverage():
                 source_modified_at=None,
                 upstream_sources=None,
                 cited_sources=None,
-                parent_assertion_ids=None,
+                parent_observation_ids=None,
             ),
         )
     )
@@ -636,8 +636,8 @@ def test_cluster_order_is_deterministic():
             "cited source is unknown",
         ),
         (
-            {"parent_assertion_ids": ("missing",)},
-            "parent assertion is unknown",
+            {"parent_observation_ids": ("missing",)},
+            "parent observation is unknown",
         ),
     ],
 )
@@ -656,7 +656,7 @@ def test_invalid_source_data_is_rejected():
 
     with pytest.raises(
         InformationGraphError,
-        match="duplicate assertion ID",
+        match="duplicate observation ID",
     ):
         estimate_dependencies(
             (a,),
@@ -837,7 +837,7 @@ def test_graph_agreement():
             source_modified_at=None,
             upstream_sources=None,
             cited_sources=None,
-            parent_assertion_ids=None,
+            parent_observation_ids=None,
         )
         for index, name in enumerate(("a", "b", "c"))
     )

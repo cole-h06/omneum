@@ -522,20 +522,20 @@ def estimate_dependencies(
         )
 
     rows = []
-    assertion_ids = {}
+    observation_ids = {}
     triples = set()
     source_attributes = set()
     claim_attributes = {}
 
     for observation in observations:
-        if type(observation) is not Observation:
+        if type(observation) is not Observation or observation.observation_type != "assertion":
             raise TypeError(
                 "observations must contain Observation values"
             )
 
-        if observation.assertion_id in assertion_ids:
+        if observation.observation_id in observation_ids:
             raise InformationGraphError(
-                "duplicate assertion ID"
+                "duplicate observation ID"
             )
 
         source_key = _canonical_source(
@@ -611,8 +611,8 @@ def estimate_dependencies(
 
         rows.append(row)
 
-        assertion_ids[
-            observation.assertion_id
+        observation_ids[
+            observation.observation_id
         ] = row
 
     attributes = {
@@ -685,21 +685,21 @@ def estimate_dependencies(
                 )
 
         for parent_id in (
-            observation.parent_assertion_ids
+            observation.parent_observation_ids
             or ()
         ):
-            parent = assertion_ids.get(
+            parent = observation_ids.get(
                 parent_id
             )
 
             if parent is None:
                 raise InformationGraphError(
-                    "parent assertion is unknown"
+                    "parent observation is unknown"
                 )
 
             if parent[1] == source_key:
                 raise InformationGraphError(
-                    "assertion cannot reference its source"
+                    "observation cannot reference its source"
                 )
 
     ordered_keys = tuple(
@@ -761,7 +761,7 @@ def estimate_dependencies(
             source_b,
             source_map,
             rows_by_source,
-            assertion_ids,
+            observation_ids,
             config,
         )
 
@@ -805,7 +805,7 @@ def _signals(
     source_b,
     source_map,
     rows_by_source,
-    assertion_ids,
+    observation_ids,
     config,
 ):
     rows_a = rows_by_source[source_a]
@@ -894,13 +894,13 @@ def _signals(
     parents_a = _parent_count(
         source_b,
         rows_a,
-        assertion_ids,
+        observation_ids,
     )
 
     parents_b = _parent_count(
         source_a,
         rows_b,
-        assertion_ids,
+        observation_ids,
     )
 
     assertion_lineage = float(
@@ -911,13 +911,13 @@ def _signals(
     )
 
     lineage_capture_a = all(
-        row[0].parent_assertion_ids
+        row[0].parent_observation_ids
         is not None
         for row in rows_a
     )
 
     lineage_capture_b = all(
-        row[0].parent_assertion_ids
+        row[0].parent_observation_ids
         is not None
         for row in rows_b
     )
@@ -1163,18 +1163,18 @@ def _citation(
 def _parent_count(
     other_source,
     rows,
-    assertion_ids,
+    observation_ids,
 ):
     count = 0
 
     for observation, *_ in rows:
         count += sum(
-            assertion_ids[
+            observation_ids[
                 parent_id
             ][1]
             == other_source
             for parent_id in (
-                observation.parent_assertion_ids
+                observation.parent_observation_ids
                 or ()
             )
         )

@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.exceptions import ToolError
+from mcp.server.stdio import stdio_server
 from mcp.types import CallToolResult
 from pydantic import ValidationError
 
@@ -24,10 +25,19 @@ from omneum.tools.evaluate_voprf import (
 )
 from omneum.tools.evaluate_context import AssertionEvaluationService
 from omneum.tools.ping import handle_ping
+from omneum.transport.stdio import BoundedStdin
 
 
 class OmneumFastMCP(FastMCP):
     """FastMCP server with stable Omneum validation failures."""
+
+    async def run_stdio_async(self) -> None:
+        # Shared by socket-activated, direct-socket and foreground sessions.
+        # A framing error escapes the transport task group and ends the session.
+        async with stdio_server(stdin=BoundedStdin()) as (read, write):
+            await self._mcp_server.run(
+                read, write, self._mcp_server.create_initialization_options(),
+            )
 
     async def call_tool(
         self,

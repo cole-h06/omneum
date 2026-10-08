@@ -5,16 +5,19 @@ from .client import (
     ClaimSupportResult,
     ConflictingClaimResult,
     ConvergenceMetadata,
-    AssertionEvaluation,
+    ContextEvaluation,
     EvaluationRejectedError,
     EvaluationResponseError,
     EvaluationTransportError,
     EvaluationVerificationError,
-    AssertionEvaluationMappingError,
-    AssertionEvaluationRejectedError,
-    AssertionEvaluationResponseError,
-    AssertionEvaluationTransportError,
+    ContextEvaluationMappingError,
+    ContextEvaluationRejectedError,
+    ContextEvaluationResponseError,
+    ContextEvaluationTransportError,
     LinkageToken,
+    LocalPersistenceConfig,
+    LocalPersistenceError,
+    NetworkContributionError,
     SourceEvaluation,
     SupportingSourceResult,
     OmneumClient,
@@ -32,13 +35,11 @@ from .dependency import (
 )
 from .explanations import explain_claim, explain_dependency
 from .information import (
-    AssertionSource,
     Claim,
     Observation,
     Retrieval,
     Source,
     SourceReference,
-    StructuredAssertion,
 )
 from .observations import (
     observe,
@@ -49,13 +50,12 @@ from .observations import (
 __version__ = "1.0.3"
 
 __all__ = [
-    "AssertionSource",
     "ContextMapper",
     "Claim",
     "ClaimSupportResult",
     "ConflictingClaimResult",
     "ConvergenceMetadata",
-    "AssertionEvaluation",
+    "ContextEvaluation",
     "DependencyCluster",
     "DependencyEvidence",
     "DependencyEstimatorConfig",
@@ -64,11 +64,13 @@ __all__ = [
     "EvaluationResponseError",
     "EvaluationTransportError",
     "EvaluationVerificationError",
-    "AssertionEvaluationMappingError",
-    "AssertionEvaluationRejectedError",
-    "AssertionEvaluationResponseError",
-    "AssertionEvaluationTransportError",
+    "ContextEvaluationMappingError",
+    "ContextEvaluationRejectedError",
+    "ContextEvaluationResponseError",
+    "ContextEvaluationTransportError",
     "LinkageToken",
+    "LocalPersistenceConfig",
+    "LocalPersistenceError",
     "Observation",
     "PairwiseDependencyResult",
     "Retrieval",
@@ -76,7 +78,6 @@ __all__ = [
     "SourceEvaluation",
     "SourceReference",
     "SupportingSourceResult",
-    "StructuredAssertion",
     "OmneumClient",
     "OmneumClientConfig",
     "OmneumClientConfigurationError",
@@ -88,3 +89,13 @@ __all__ = [
     "reference",
     "retrieval",
 ]
+
+from .contribution import (NetworkContributionConfig, NetworkLinkageConfig,
+                           HTTPSContributionTransport)
+
+__all__ += ["NetworkContributionError", "NetworkContributionConfig", "NetworkLinkageConfig",
+            "HTTPSContributionTransport"]
+
+from .storage import ContextStorage, SQLiteStorage
+
+__all__ += ["ContextStorage", "SQLiteStorage"]

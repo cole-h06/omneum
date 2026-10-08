@@ -40,24 +40,24 @@ VENDOR_SOURCE = Source(
 
 
 def observation(
-    assertion_id,
+    observation_id,
     source,
     attribute,
     value,
     timestamp,
     cited_sources=(),
-    parent_assertion_ids=(),
+    parent_observation_ids=(),
 ):
     modified_at = datetime.fromisoformat(timestamp)
     return Observation(
-        assertion_id=assertion_id,
+        observation_id=observation_id,
         source=source,
         claim=Claim(ENTITY_NAMESPACE, ENTITY, attribute, value),
         observed_at=modified_at,
         source_modified_at=modified_at,
         upstream_sources=(),
         cited_sources=tuple(cited_sources),
-        parent_assertion_ids=tuple(parent_assertion_ids),
+        parent_observation_ids=tuple(parent_observation_ids),
         retrievals=(),
     )
 
