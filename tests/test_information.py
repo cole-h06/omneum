@@ -19,14 +19,14 @@ def claim(value="value"):
 
 def observation(**changes):
     values = {
-        "assertion_id": "assertion-a",
+        "observation_id": "assertion-a",
         "source": Source("web_publisher", "example.com"),
         "claim": claim(),
         "observed_at": NOW,
         "source_modified_at": NOW,
         "upstream_sources": (),
         "cited_sources": (),
-        "parent_assertion_ids": (),
+        "parent_observation_ids": (),
         "retrievals": (),
         "metadata": {},
         "dependency_signals": {},
@@ -89,7 +89,7 @@ def test_source_type(value):
     [
         ("upstream_sources", []),
         ("cited_sources", []),
-        ("parent_assertion_ids", []),
+        ("parent_observation_ids", []),
         ("retrievals", []),
     ],
 )
@@ -203,7 +203,7 @@ def test_value_type_error():
 def test_repr():
     source = Source("web_publisher", "secret.example", "secret-owner")
     item = observation(
-        assertion_id="secret-assertion",
+        observation_id="secret-assertion",
         source=source,
         claim=Claim(
             "service",
@@ -213,7 +213,7 @@ def test_repr():
         ),
         upstream_sources=(reference("secret-upstream"),),
         cited_sources=(reference("secret-citation"),),
-        parent_assertion_ids=("secret-parent",),
+        parent_observation_ids=("secret-parent",),
         retrievals=(
             Retrieval(
                 "secret-retrieval",
@@ -250,7 +250,7 @@ def test_observation_helpers():
     )
 
     item = observe(
-        assertion_id="assertion-a",
+        observation_id="assertion-a",
         source=source,
         entity_namespace="service",
         entity="payment_api",
@@ -295,3 +295,38 @@ def test_reference_from_source():
         source.kind,
         source.identifier,
     )
+
+def test_legacy_observation_names():
+    from dataclasses import replace
+    from omneum.information import AssertionSource, StructuredAssertion
+
+    item = Observation(
+        assertion_id="child", source=Source("web_publisher", "example.com"),
+        claim=claim(), observed_at=NOW, parent_assertion_ids=("parent",),
+    )
+    assert item.observation_id == item.assertion_id == "child"
+    assert item.parent_observation_ids == item.parent_assertion_ids == ("parent",)
+    assert replace(item, observation_id="renamed").assertion_id == "renamed"
+    legacy = AssertionSource(item.source, item.assertion_id, NOW)
+    assert StructuredAssertion("service", "entity", "status", "active", (legacy,)).sources == (legacy,)
+
+
+@pytest.mark.parametrize("changes", [
+    {"assertion_id": "other"},
+    {"parent_observation_ids": ("one",), "parent_assertion_ids": ("two",)},
+])
+def test_conflicting_observation_aliases(changes):
+    with pytest.raises(ValueError, match="disagree"):
+        observation(**changes)
+
+
+def test_legacy_observe_helper():
+    from omneum.observations import observe
+
+    item = observe(
+        assertion_id="legacy", source=Source("web_publisher", "example.com"),
+        entity_namespace="service", entity="entity", attribute="status",
+        value="active", observed_at=NOW, parent_assertion_ids=(),
+    )
+    assert item.observation_id == "legacy"
+    assert item.parent_observation_ids == ()

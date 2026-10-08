@@ -21,12 +21,14 @@ class SourcePair:
     source_b_id: str
     dependency: float
     weighted_signal_coverage: float
+    exact_equivalence: bool = False
 
 
 @dataclass(frozen=True, slots=True)
 class PairValues:
     dependency: float
     weighted_signal_coverage: float
+    exact_equivalence: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,11 +126,14 @@ def build_graph(
         key = (source_a_id, source_b_id)
         if key in pairs:
             raise GraphError("duplicate source pair")
+        if not isinstance(pair.exact_equivalence, bool):
+            raise GraphError("source-pair exact_equivalence must be a boolean")
         pairs[key] = PairValues(
             dependency=_pair_value(pair.dependency),
             weighted_signal_coverage=_pair_value(
                 pair.weighted_signal_coverage
             ),
+            exact_equivalence=pair.exact_equivalence,
         )
 
     expected_pairs = {

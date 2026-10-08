@@ -34,6 +34,7 @@ from .explanations import explain_claim, explain_dependency
 from .information import (
     AssertionSource,
     Claim,
+    ExactEquivalence,
     Observation,
     Retrieval,
     Source,
@@ -52,6 +53,7 @@ __all__ = [
     "AssertionSource",
     "ContextMapper",
     "Claim",
+    "ExactEquivalence",
     "ClaimSupportResult",
     "ConflictingClaimResult",
     "ConvergenceMetadata",

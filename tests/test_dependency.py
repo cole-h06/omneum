@@ -1,6 +1,6 @@
 import json
 
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -48,21 +48,21 @@ def reference(identifier):
 
 
 def observation(
-    assertion_id,
+    observation_id,
     source_id,
     attribute="status",
     value="active",
     **changes,
 ):
     values = {
-        "assertion_id": assertion_id,
+        "observation_id": observation_id,
         "source": source(source_id),
         "claim": Claim("service", "Entity", attribute, value),
         "observed_at": NOW,
         "source_modified_at": NOW,
         "upstream_sources": (),
         "cited_sources": (),
-        "parent_assertion_ids": (),
+        "parent_observation_ids": (),
         "retrievals": (),
     }
     values.update(changes)
@@ -92,7 +92,7 @@ def empty_signals(**changes):
 
 def vector_observation(item, sources):
     return Observation(
-        assertion_id=item["assertion_id"],
+        observation_id=item["assertion_id"],
         source=sources[item["source_id"]],
         claim=Claim("service", "Entity", item["attribute"], item["value"]),
         observed_at=datetime.fromisoformat(item["observed_at"]),
@@ -111,7 +111,7 @@ def vector_observation(item, sources):
             if item["cited_source_ids"] is not None
             else None
         ),
-        parent_assertion_ids=(
+        parent_observation_ids=(
             tuple(item["parent_assertion_ids"])
             if item["parent_assertion_ids"] is not None
             else None
@@ -361,7 +361,7 @@ def test_all_dependency_signals():
             source_modified_at=NOW,
             upstream_sources=(reference("b.example"),),
             cited_sources=(reference("b.example"),),
-            parent_assertion_ids=("b1",),
+            parent_observation_ids=("b1",),
         ),
         observation(
             "b1",
@@ -401,6 +401,38 @@ def test_all_dependency_signals():
     )
 
 
+def test_occurrence_ids_are_only_lineage_references():
+    observations = (
+        observation("parent", "a.example", attribute="origin"),
+        observation(
+            "child", "b.example", attribute="derived",
+            parent_observation_ids=("parent",),
+        ),
+    )
+    renamed = (
+        replace(observations[0], observation_id="new-parent"),
+        replace(
+            observations[1], observation_id="new-child",
+            parent_observation_ids=("new-parent",),
+        ),
+    )
+    result = pair(observations)
+    assert result == pair(renamed)
+    assert result.signals.assertion_lineage == 1.0
+    assert result.evidence.matching_claim_count == 0
+
+
+def test_unknown_and_empty_observation_lineage_remain_distinct():
+    unknown = (
+        observation("a", "a.example", parent_observation_ids=None),
+        observation("b", "b.example", parent_observation_ids=None),
+    )
+    captured = tuple(replace(item, parent_observation_ids=()) for item in unknown)
+    assert not pair(unknown).signals.assertion_lineage_observable
+    assert pair(captured).signals.assertion_lineage_observable
+    assert pair(captured).weighted_signal_coverage > pair(unknown).weighted_signal_coverage
+
+
 def test_unavailable_signals_reduce_coverage():
     result = pair(
         (
@@ -410,7 +442,7 @@ def test_unavailable_signals_reduce_coverage():
                 source_modified_at=None,
                 upstream_sources=None,
                 cited_sources=None,
-                parent_assertion_ids=None,
+                parent_observation_ids=None,
             ),
             observation(
                 "b1",
@@ -418,7 +450,7 @@ def test_unavailable_signals_reduce_coverage():
                 source_modified_at=None,
                 upstream_sources=None,
                 cited_sources=None,
-                parent_assertion_ids=None,
+                parent_observation_ids=None,
             ),
         )
     )
@@ -636,8 +668,8 @@ def test_cluster_order_is_deterministic():
             "cited source is unknown",
         ),
         (
-            {"parent_assertion_ids": ("missing",)},
-            "parent assertion is unknown",
+            {"parent_observation_ids": ("missing",)},
+            "parent observation is unknown",
         ),
     ],
 )
@@ -656,7 +688,7 @@ def test_invalid_source_data_is_rejected():
 
     with pytest.raises(
         InformationGraphError,
-        match="duplicate assertion ID",
+        match="duplicate observation ID",
     ):
         estimate_dependencies(
             (a,),
@@ -837,7 +869,7 @@ def test_graph_agreement():
             source_modified_at=None,
             upstream_sources=None,
             cited_sources=None,
-            parent_assertion_ids=None,
+            parent_observation_ids=None,
         )
         for index, name in enumerate(("a", "b", "c"))
     )
@@ -904,3 +936,89 @@ def test_direct_dependency_not_diluted():
     value, _ = combine_dependency(signals, config())
 
     assert value == pytest.approx(1.0)
+
+def test_recursive_parent_lineage_dependency():
+    sources = (
+        source("a.example"),
+        source("b.example"),
+        source("c.example"),
+    )
+
+    observations = (
+        observation(
+            "a1",
+            "a.example",
+            source=sources[0],
+            parent_observation_ids=(),
+        ),
+        observation(
+            "b1",
+            "b.example",
+            source=sources[1],
+            parent_observation_ids=("a1",),
+        ),
+        observation(
+            "c1",
+            "c.example",
+            source=sources[2],
+            parent_observation_ids=("b1",),
+        ),
+    )
+
+    results, _ = estimate_dependencies(
+        sources,
+        observations,
+        config(),
+    )
+
+    pairs = {
+        (r.source_a.identifier, r.source_b.identifier): r
+        for r in results
+    }
+
+    assert pairs[("a.example", "b.example")].dependency == 1.0
+    assert pairs[("b.example", "c.example")].dependency == 1.0
+    assert pairs[("a.example", "c.example")].signals.assertion_lineage > 0.0
+
+
+def test_shared_parent_lineage_dependency():
+    sources = (
+        source("a.example"),
+        source("b.example"),
+        source("c.example"),
+    )
+
+    observations = (
+        observation(
+            "a1",
+            "a.example",
+            source=sources[0],
+            parent_observation_ids=(),
+        ),
+        observation(
+            "b1",
+            "b.example",
+            source=sources[1],
+            parent_observation_ids=("a1",),
+        ),
+        observation(
+            "c1",
+            "c.example",
+            source=sources[2],
+            parent_observation_ids=("a1",),
+        ),
+    )
+
+    results, _ = estimate_dependencies(
+        sources,
+        observations,
+        config(),
+    )
+
+    pairs = {
+        (r.source_a.identifier, r.source_b.identifier): r
+        for r in results
+    }
+
+    assert pairs[("b.example", "c.example")].signals.assertion_lineage == 1.0
+    assert pairs[("b.example", "c.example")].dependency == 1.0

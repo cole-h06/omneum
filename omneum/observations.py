@@ -12,7 +12,7 @@ from .information import (
 
 def observe(
     *,
-    assertion_id: str,
+    observation_id: str | None = None,
     source: Source,
     entity_namespace: str,
     entity: str,
@@ -22,13 +22,17 @@ def observe(
     source_modified_at: datetime | None = None,
     upstream_sources: tuple[SourceReference, ...] | None = None,
     cited_sources: tuple[SourceReference, ...] | None = None,
-    parent_assertion_ids: tuple[str, ...] | None = None,
+    parent_observation_ids: tuple[str, ...] | None = None,
     retrievals: tuple[Retrieval, ...] | None = None,
     metadata: dict[str, Any] | None = None,
     dependency_signals: dict[str, Any] | None = None,
+    assertion_id: str | None = None,
+    parent_assertion_ids: tuple[str, ...] | None = None,
 ) -> Observation:
     return Observation(
+        observation_id=observation_id,
         assertion_id=assertion_id,
+        parent_assertion_ids=parent_assertion_ids,
         source=source,
         claim=Claim(
             entity_namespace=entity_namespace,
@@ -40,7 +44,7 @@ def observe(
         source_modified_at=source_modified_at,
         upstream_sources=upstream_sources,
         cited_sources=cited_sources,
-        parent_assertion_ids=parent_assertion_ids,
+        parent_observation_ids=parent_observation_ids,
         retrievals=retrievals,
         metadata={} if metadata is None else metadata,
         dependency_signals=(

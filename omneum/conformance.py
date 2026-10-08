@@ -5,6 +5,7 @@ from datetime import datetime
 from itertools import combinations
 
 from . import dependency, inference
+from . import compatibility_inference
 from .client import _map_assertion_evaluation
 from .compatibility import load_contract, load_pin
 from .engine_graph import AssertionTriple, SourcePair, build_graph
@@ -67,14 +68,14 @@ def propagation(case, relative, absolute):
         if expected != {"error": "nonconvergence"}:
             raise ValueError("unsupported expected failure")
         try:
-            inference.infer(graph)
-        except inference.InferenceError as error:
+            compatibility_inference.infer(graph)
+        except compatibility_inference.InferenceError as error:
             if str(error) != "inference did not converge":
                 raise
         else:
             raise AssertionError("expected nonconvergence")
         return
-    result = inference.infer(graph)
+    result = compatibility_inference.infer(graph)
     compare(
         {
             item.source_id: item.reliability
@@ -188,7 +189,7 @@ def records(case, relative, absolute):
                 ),
                 upstream_sources=references(item["upstream_source_ids"]),
                 cited_sources=references(item["cited_source_ids"]),
-                parent_assertion_ids=(
+                parent_observation_ids=(
                     None
                     if item["parent_assertion_ids"] is None
                     else tuple(item["parent_assertion_ids"])

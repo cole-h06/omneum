@@ -62,6 +62,22 @@ def test_empty():
         build_graph([], [])
 
 
+@pytest.mark.parametrize("exact_equivalence", [None, 0, 1, "false", "true"])
+def test_invalid_exact_equivalence(exact_equivalence):
+    with pytest.raises(GraphError, match="exact_equivalence must be a boolean"):
+        build_graph(assertions(), [
+            SourcePair("source-a", "source-b", 0.0, 0.0, exact_equivalence),
+        ])
+
+
+@pytest.mark.parametrize("exact_equivalence", [False, True])
+def test_exact_equivalence(exact_equivalence):
+    value = build_graph(assertions(), [
+        SourcePair("source-a", "source-b", 0.0, 0.0, exact_equivalence),
+    ])
+    assert value.source_pairs[("source-a", "source-b")].exact_equivalence is exact_equivalence
+
+
 def test_duplicate_assertion():
     values = assertions()
     with pytest.raises(GraphError):

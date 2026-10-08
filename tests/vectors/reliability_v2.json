@@ -148,69 +148,69 @@
     "source_reliability": [
       {
         "source_id": "source-a",
-        "reliability": 0.24126170264818164
+        "reliability": 0.2415211292862146
       },
       {
         "source_id": "source-b",
-        "reliability": 0.24126170264818164
+        "reliability": 0.2415211292862146
       },
       {
         "source_id": "source-c",
-        "reliability": 0.24126170264818164
+        "reliability": 0.2415211292862146
       },
       {
         "source_id": "source-e",
-        "reliability": 0.19978785119569725
+        "reliability": 0.19741506864219238
       },
       {
         "source_id": "source-d",
-        "reliability": 0.07642704085975784
+        "reliability": 0.07802154349916379
       }
     ],
     "claim_support": [
       {
         "attribute_id": "attribute-a",
         "claim_id": "claim-a",
-        "support": 0.15418517018117364,
-        "agreement_weight": 0.8,
+        "support": 0.13747081942697467,
+        "agreement_weight": 0.7144759141241199,
         "is_attribute_max_support": true,
         "supporting_source_count": 4,
-        "estimated_independent_support_count": 2.4242424242424243,
+        "estimated_independent_support_count": 2.5023315000987663,
         "dependency_signal_coverage": 1.0,
         "supporting_sources": [
           {
             "source_id": "source-c",
             "independence": 0.794701986754967,
-            "contribution": 0.051128307845972276
+            "contribution": 0.045711531027035214
           },
           {
             "source_id": "source-b",
             "independence": 0.6122448979591837,
-            "contribution": 0.03938966573847864
+            "contribution": 0.03521653665858326
           },
           {
             "source_id": "source-e",
             "independence": 0.6153846153846154,
-            "contribution": 0.032785698657755456
+            "contribution": 0.028932987001026932
           },
           {
             "source_id": "source-a",
             "independence": 0.4800000000000001,
-            "contribution": 0.03088149793896726
+            "contribution": 0.027609764740329275
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-b",
-            "support": 0.005095136057317189
+            "support": 0.0074256766287413185
           }
         ]
       },
       {
         "attribute_id": "attribute-a",
         "claim_id": "claim-b",
-        "support": 0.005095136057317189,
-        "agreement_weight": 0.2,
+        "support": 0.0074256766287413185,
+        "agreement_weight": 0.2855240858758801,
         "is_attribute_max_support": false,
         "supporting_source_count": 1,
         "estimated_independent_support_count": 1.0,
@@ -219,54 +219,54 @@
           {
             "source_id": "source-d",
             "independence": 1.0,
-            "contribution": 0.005095136057317189
+            "contribution": 0.0074256766287413185
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-a",
-            "support": 0.15418517018117364
+            "support": 0.13747081942697467
           }
         ]
       },
       {
         "attribute_id": "attribute-b",
         "claim_id": "claim-c",
-        "support": 0.10119543642500128,
-        "agreement_weight": 0.6,
+        "support": 0.10578780646817512,
+        "agreement_weight": 0.6265549890413051,
         "is_attribute_max_support": true,
         "supporting_source_count": 3,
-        "estimated_independent_support_count": 2.0689655172413794,
+        "estimated_independent_support_count": 2.097213012140781,
         "dependency_signal_coverage": 1.0,
         "supporting_sources": [
           {
             "source_id": "source-c",
             "independence": 0.8108108108108107,
-            "contribution": 0.03912351934835378
+            "contribution": 0.040898991490045354
           },
           {
             "source_id": "source-b",
             "independence": 0.6741573033707865,
-            "contribution": 0.03252966777278853
+            "contribution": 0.03400590303666693
           },
           {
             "source_id": "source-a",
             "independence": 0.6122448979591837,
-            "contribution": 0.029542249303858976
+            "contribution": 0.030882911941462823
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-d",
-            "support": 0.02301790767128793
+            "support": 0.021429255966573864
           }
         ]
       },
       {
         "attribute_id": "attribute-b",
         "claim_id": "claim-d",
-        "support": 0.02301790767128793,
-        "agreement_weight": 0.4,
+        "support": 0.021429255966573864,
+        "agreement_weight": 0.37344501095869487,
         "is_attribute_max_support": false,
         "supporting_source_count": 2,
         "estimated_independent_support_count": 1.25,
@@ -275,64 +275,64 @@
           {
             "source_id": "source-e",
             "independence": 0.625,
-            "contribution": 0.01664898759964144
+            "contribution": 0.015359098431769797
           },
           {
             "source_id": "source-d",
             "independence": 0.625,
-            "contribution": 0.006368920071646487
+            "contribution": 0.006070157534804065
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-c",
-            "support": 0.10119543642500128
+            "support": 0.10578780646817512
           }
         ]
       },
       {
         "attribute_id": "attribute-c",
         "claim_id": "claim-e",
-        "support": 0.15418517018117364,
-        "agreement_weight": 0.8,
+        "support": 0.13747081942697467,
+        "agreement_weight": 0.7144759141241199,
         "is_attribute_max_support": true,
         "supporting_source_count": 4,
-        "estimated_independent_support_count": 2.4242424242424243,
+        "estimated_independent_support_count": 2.5023315000987663,
         "dependency_signal_coverage": 1.0,
         "supporting_sources": [
           {
             "source_id": "source-c",
             "independence": 0.794701986754967,
-            "contribution": 0.051128307845972276
+            "contribution": 0.045711531027035214
           },
           {
             "source_id": "source-b",
             "independence": 0.6122448979591837,
-            "contribution": 0.03938966573847864
+            "contribution": 0.03521653665858326
           },
           {
             "source_id": "source-e",
             "independence": 0.6153846153846154,
-            "contribution": 0.032785698657755456
+            "contribution": 0.028932987001026932
           },
           {
             "source_id": "source-a",
             "independence": 0.4800000000000001,
-            "contribution": 0.03088149793896726
+            "contribution": 0.027609764740329275
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-f",
-            "support": 0.005095136057317189
+            "support": 0.0074256766287413185
           }
         ]
       },
       {
         "attribute_id": "attribute-c",
         "claim_id": "claim-f",
-        "support": 0.005095136057317189,
-        "agreement_weight": 0.2,
+        "support": 0.0074256766287413185,
+        "agreement_weight": 0.2855240858758801,
         "is_attribute_max_support": false,
         "supporting_source_count": 1,
         "estimated_independent_support_count": 1.0,
@@ -341,13 +341,13 @@
           {
             "source_id": "source-d",
             "independence": 1.0,
-            "contribution": 0.005095136057317189
+            "contribution": 0.0074256766287413185
           }
         ],
         "conflicting_claims": [
           {
             "claim_id": "claim-e",
-            "support": 0.15418517018117364
+            "support": 0.13747081942697467
           }
         ]
       }
@@ -357,7 +357,7 @@
       "iterations": 10,
       "converged": true,
       "convergence_tolerance": 1e-08,
-      "convergence_delta": 1.5653782853286557e-09
+      "convergence_delta": 5.3503916991326506e-09
     }
   }
 }

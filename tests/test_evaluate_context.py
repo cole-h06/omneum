@@ -93,6 +93,42 @@ def request(**changes):
     return EvaluateAssertionRequest.model_validate(values(**changes))
 
 
+@pytest.mark.parametrize("exact_equivalence", [None, 0, 1, "false", "true", [], {}])
+def test_invalid_exact_equivalence(exact_equivalence):
+    from pydantic import ValidationError
+    from omneum.models import SourcePair
+
+    with pytest.raises(ValidationError):
+        SourcePair.model_validate_json(json.dumps({
+            "source_a_id": SOURCE_A, "source_b_id": SOURCE_B,
+            "dependency": 0.0, "weighted_signal_coverage": 0.0,
+            "exact_equivalence": exact_equivalence,
+        }))
+
+
+def test_exact_equivalence_default():
+    from omneum.models import SourcePair
+
+    pair = SourcePair.model_validate({
+        "source_a_id": SOURCE_A, "source_b_id": SOURCE_B,
+        "dependency": 1.0, "weighted_signal_coverage": 1.0,
+    })
+    assert pair.exact_equivalence is False
+    assert SourcePair.model_validate_json(pair.model_dump_json()) == pair
+    assert "exact_equivalence" not in SourcePair.model_json_schema()["required"]
+
+
+def test_legacy_lineage_is_not_exact_equivalence():
+    from pydantic import ValidationError
+    from omneum.models import SourcePair
+
+    with pytest.raises(ValidationError, match="Extra inputs"):
+        SourcePair.model_validate({
+            "source_a_id": SOURCE_A, "source_b_id": SOURCE_B,
+            "dependency": 1.0, "weighted_signal_coverage": 1.0, "lineage": True,
+        })
+
+
 def code(result):
     assert result.isError
     assert result.structuredContent is not None
@@ -978,3 +1014,27 @@ def test_fastmcp_validation():
             assert code(result) == "invalid_request"
 
     asyncio.run(run())
+
+
+def test_exact_equivalence_reaches_inference():
+    from omneum.inference import infer
+
+    sources = sorted((SOURCE_A, SOURCE_B, SOURCE_C))
+    assertions = [
+        {"source_id": source, "attribute_id": ATTRIBUTE_A,
+         "claim_id": CLAIM_A if index < 2 else CLAIM_B}
+        for index, source in enumerate(sources)
+    ]
+    pairs = [
+        {"source_a_id": a, "source_b_id": b, "dependency": 0.0,
+         "weighted_signal_coverage": 0.0,
+         "exact_equivalence": (a, b) == tuple(sources[:2])}
+        for index, a in enumerate(sources) for b in sources[index + 1:]
+    ]
+    result = infer(tool_module._validate_graph(request(
+        assertions=assertions, source_pairs=pairs,
+    )))
+    assert all(item.support == 0.25 and item.is_attribute_max_support
+               for item in result.claim_support)
+    assert all(item.estimated_independent_support_count == 1.0
+               for item in result.claim_support)

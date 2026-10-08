@@ -275,6 +275,7 @@ def _validate_graph(
             weighted_signal_coverage=(
                 pair.weighted_signal_coverage
             ),
+            exact_equivalence=pair.exact_equivalence,
         ))
 
     if pair_keys != sorted(pair_keys):

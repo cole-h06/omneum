@@ -28,16 +28,18 @@ VECTOR_PATH = (
 )
 
 
-def graph(assertions, dependencies=None, coverage=None):
+def graph(assertions, dependencies=None, coverage=None, exact_equivalence=None):
     source_ids = sorted({item.source_id for item in assertions})
     dependencies = dependencies or {}
     coverage = coverage or {}
+    exact_equivalence = exact_equivalence or set()
     pairs = [
         SourcePair(
             source_a_id,
             source_b_id,
             dependencies.get((source_a_id, source_b_id), 0.0),
             coverage.get((source_a_id, source_b_id), 0.0),
+            (source_a_id, source_b_id) in exact_equivalence,
         )
         for index, source_a_id in enumerate(source_ids)
         for source_b_id in source_ids[index + 1:]
@@ -368,11 +370,17 @@ def test_golden():
     assert vector_result(vector) == vector["result"]
 
 
-def test_hash_seeds():
+@pytest.mark.parametrize("scenario", ["vector", "exact_equivalence"])
+def test_hash_seeds(scenario):
+    expression = (
+        "module['vector_result'](module['load_vector']())"
+        if scenario == "vector" else
+        "module['asdict'](module['infer'](module['exact_equivalence_graph'](6, 0.5)))"
+    )
     script = (
         "import json, runpy; "
         "module = runpy.run_path('tests/test_inference.py'); "
-        "print(json.dumps(module['vector_result'](module['load_vector']()), "
+        f"print(json.dumps({expression}, "
         "sort_keys=True, separators=(',', ':')))"
     )
     outputs = []
@@ -411,21 +419,256 @@ def test_dependent_group():
     ) == pytest.approx(1.0)
 
 
-def test_dependent_group():
-    assertions = [
-        AssertionTriple(source, "attribute-a", "claim-a")
-        for source in ("source-a", "source-b", "source-c", "source-d")
+def test_dependent_copies_do_not_change_claim_ranking():
+    def result(copies):
+        assertions = [
+            AssertionTriple("independent", "attribute", "claim-b"),
+            *[
+                AssertionTriple(f"copy-{i}", "attribute", "claim-a")
+                for i in range(copies)
+            ],
+        ]
+        source_ids = sorted({item.source_id for item in assertions})
+        copied = {f"copy-{i}" for i in range(copies)}
+        dependencies = {
+            (source_a, source_b): 1.0
+            for index, source_a in enumerate(source_ids)
+            for source_b in source_ids[index + 1:]
+            if source_a in copied and source_b in copied
+        }
+        return infer(graph(assertions, dependencies))
+
+    single = result(1)
+    copied = result(10)
+
+    assert claim(single, "claim-a").support == pytest.approx(
+        claim(single, "claim-b").support
+    )
+    assert claim(copied, "claim-a").support == pytest.approx(
+        claim(copied, "claim-b").support
+    )
+
+def test_dependent_chain_does_not_add_independent_evidence():
+    baseline = infer(graph([
+        AssertionTriple("a", "attribute", "claim-a"),
+        AssertionTriple("b", "attribute", "claim-b"),
+    ]))
+
+    chained = infer(graph(
+        [
+            AssertionTriple("a1", "attribute", "claim-a"),
+            AssertionTriple("a2", "attribute", "claim-a"),
+            AssertionTriple("a3", "attribute", "claim-a"),
+            AssertionTriple("b", "attribute", "claim-b"),
+        ],
+        {
+            ("a1", "a2"): 1.0,
+            ("a2", "a3"): 1.0,
+        },
+        exact_equivalence={
+            ("a1", "a2"),
+            ("a2", "a3"),
+        },
+    ))
+
+    baseline_ratio = (
+        claim(baseline, "claim-a").support
+        / claim(baseline, "claim-b").support
+    )
+    chained_ratio = (
+        claim(chained, "claim-a").support
+        / claim(chained, "claim-b").support
+    )
+
+    assert chained_ratio == pytest.approx(baseline_ratio)
+
+
+def exact_equivalence_graph(copies, dependency=0.0):
+    return graph(
+        [
+            *[AssertionTriple(f"a{i}", "x", "yes") for i in range(copies)],
+            AssertionTriple("b", "x", "yes"),
+            AssertionTriple("c", "x", "no"),
+        ],
+        {(f"a{i}", "b"): dependency for i in range(copies)},
+        exact_equivalence={(f"a{i}", f"a{i+1}") for i in range(copies - 1)},
+    )
+
+
+def test_exact_equivalence_partial_dependency():
+    baseline = inference_module._independence(exact_equivalence_graph(1, 0.5))["yes"]
+    copied = inference_module._independence(exact_equivalence_graph(3, 0.5))["yes"]
+    assert sum(copied.values()) == pytest.approx(sum(baseline.values()))
+    assert copied["b"] == pytest.approx(baseline["b"])
+
+
+@pytest.mark.parametrize("copies", [(1, 1), (2, 1), (1, 3), (3, 5), (6, 2)])
+@pytest.mark.parametrize("dependency", [0.0, 0.25, 0.5, 1.0])
+@pytest.mark.parametrize("weight", [0.0, 0.7])
+def test_exact_equivalence_representation(copies, dependency, weight):
+    def run(counts):
+        members = {
+            "a": [f"a{i}" for i in range(counts[0])],
+            "b": [f"b{i}" for i in range(counts[1])],
+            "c": ["c"],
+        }
+        profiles = {
+            "a": [("x", "yes"), ("y", "red")],
+            "b": [("x", "yes"), ("y", "blue")],
+            "c": [("x", "no"), ("y", "blue")],
+        }
+        value = graph(
+            [AssertionTriple(source, attribute, claim_id)
+             for group, sources in members.items() for source in sources
+             for attribute, claim_id in profiles[group]],
+            {(a, b): dependency for a in members["a"] for b in members["b"]},
+            exact_equivalence={edge for sources in members.values()
+                     for edge in zip(sources, sources[1:])},
+        )
+        return infer(value, propagation_weight=weight), members
+
+    baseline, baseline_members = run((1, 1))
+    expanded, members = run(copies)
+    assert expanded.metadata.iterations == baseline.metadata.iterations
+    assert expanded.metadata.convergence_delta == baseline.metadata.convergence_delta
+    for group, sources in members.items():
+        expected = next(item.reliability for item in baseline.source_reliability
+                        if item.source_id == baseline_members[group][0])
+        assert sum(item.reliability for item in expanded.source_reliability
+                   if item.source_id in sources) == pytest.approx(expected)
+    for expected in baseline.claim_support:
+        actual = claim(expanded, expected.claim_id)
+        assert actual.support == expected.support
+        # Match the evaluator's canonical, sequential contribution check.
+        total = 0.0
+        for item in sorted(actual.supporting_sources, key=lambda item: item.source_id):
+            total += item.contribution
+        assert total == actual.support
+        assert actual.agreement_weight == expected.agreement_weight
+        assert actual.estimated_independent_support_count == pytest.approx(
+            expected.estimated_independent_support_count
+        )
+        assert actual.is_attribute_max_support == expected.is_attribute_max_support
+        for group, sources in members.items():
+            for field in ("independence", "contribution"):
+                assert sum(getattr(item, field) for item in actual.supporting_sources
+                           if item.source_id in sources) == pytest.approx(
+                    sum(getattr(item, field) for item in expected.supporting_sources
+                        if item.source_id in baseline_members[group])
+                )
+
+
+@pytest.mark.parametrize("different", ["claims", "dependency"])
+def test_heterogeneous_exact_equivalence(different):
+    assertions = [AssertionTriple(source, "x", "yes") for source in ("a", "b", "c")]
+    dependencies = {}
+    if different == "claims":
+        assertions.append(AssertionTriple("a", "y", "other"))
+    else:
+        dependencies[("a", "c")] = 0.5
+    value = graph(assertions, dependencies, exact_equivalence={("a", "b")})
+    with pytest.raises(InferenceError, match="heterogeneous exact equivalence"):
+        infer(value)
+
+
+@pytest.mark.parametrize("count", [2, 3, 6, 17, 49])
+def test_exact_equivalence_ties(count):
+    sources = [f"a{i:02}" for i in range(count)]
+    result = infer(graph(
+        [*[AssertionTriple(source, "x", "yes") for source in sources],
+         AssertionTriple("b", "x", "no")],
+        exact_equivalence=set(zip(sources, sources[1:])),
+    ))
+    assert all(item.support == 0.25 and item.is_attribute_max_support
+               for item in result.claim_support)
+    assert sum(item.reliability for item in result.source_reliability
+               if item.source_id in sources) == pytest.approx(0.5)
+
+
+def test_exact_equivalence_coverage_does_not_change_scores():
+    original = exact_equivalence_graph(3, 0.5)
+    changed = replace(original, source_pairs={
+        key: replace(value, weighted_signal_coverage=index / len(original.source_pairs))
+        for index, (key, value) in enumerate(original.source_pairs.items())
+    })
+    first, second = infer(original), infer(changed)
+    assert first.source_reliability == second.source_reliability
+    assert first.metadata == second.metadata
+    assert [(item.support, item.agreement_weight) for item in first.claim_support] == [
+        (item.support, item.agreement_weight) for item in second.claim_support
     ]
-    pairs = {
-        (a, b): 1.0
-        for i, a in enumerate(("source-a", "source-b", "source-c", "source-d"))
-        for b in ("source-a", "source-b", "source-c", "source-d")[i + 1:]
+
+
+@pytest.mark.parametrize("topology", ["chain", "star", "cycle", "clique"])
+def test_exact_equivalence_topology(topology):
+    original = exact_equivalence_graph(6, 0.5)
+    sources = [f"a{i}" for i in range(6)]
+    edges = set(zip(sources, sources[1:]))
+    if topology == "star":
+        edges = {(sources[0], other) for other in sources[1:]}
+    elif topology == "cycle":
+        edges.add((sources[0], sources[-1]))
+    elif topology == "clique":
+        edges = {(a, b) for index, a in enumerate(sources) for b in sources[index + 1:]}
+    changed = replace(original, source_pairs={
+        key: replace(value, exact_equivalence=key in edges)
+        for key, value in original.source_pairs.items()
+    })
+    assert infer(changed) == infer(original)
+
+
+def test_exact_equivalence_propagation():
+    def ratio(copies, weight):
+        result = infer(exact_equivalence_graph(copies), propagation_weight=weight)
+        return claim(result, "yes").support / claim(result, "no").support
+
+    # Independence and agreement alone preserve the ratio; recursion must too.
+    assert ratio(3, 0.0) == pytest.approx(ratio(1, 0.0))
+    assert ratio(3, 0.7) == pytest.approx(ratio(1, 0.7))
+
+
+def test_scalar_dependency_is_not_exact_equivalence():
+    value = graph(
+        [AssertionTriple(source, "x", "yes") for source in ("a", "b", "c")],
+        {("a", "b"): 1.0, ("b", "c"): 1.0},
+    )
+    assert inference_module._independence(value)["yes"] == {
+        "a": 0.5, "b": 1 / 3, "c": 0.5,
     }
 
-    result = infer(graph(assertions, pairs))
-    shared = claim(result, "claim-a")
 
-    assert sum(
-        item.independence
-        for item in shared.supporting_sources
-    ) == pytest.approx(1.0)
+def test_exact_equivalence_order():
+    value = exact_equivalence_graph(3, 0.5)
+    reordered = build_graph(
+        [
+            AssertionTriple(source, value.claim_to_attribute[claim_id], claim_id)
+            for source in reversed(value.sources)
+            for claim_id in reversed(value.source_to_claims[source])
+        ],
+        [SourcePair(a, b, pair.dependency, pair.weighted_signal_coverage, pair.exact_equivalence)
+         for (a, b), pair in reversed(list(value.source_pairs.items()))],
+    )
+    assert infer(value) == infer(reordered)
+
+
+def test_independent_corroboration():
+    single = infer(graph([
+        AssertionTriple("a", "x", "yes"), AssertionTriple("c", "x", "no"),
+    ]))
+    corroborated = infer(exact_equivalence_graph(1))
+    assert (claim(corroborated, "yes").support / claim(corroborated, "no").support
+            > claim(single, "yes").support / claim(single, "no").support)
+
+
+@pytest.mark.parametrize("count", [3, 6, 49])
+def test_exact_equivalence_effective_count(count):
+    sources = [f"s{i:02}" for i in range(count)]
+    edges = set(zip(sources, sources[1:]))
+    result = infer(graph(
+        [AssertionTriple(source, "x", "yes") for source in sources],
+        {edge: 1.0 for edge in edges},
+        exact_equivalence=edges,
+    ))
+    assert claim(result, "yes").estimated_independent_support_count == pytest.approx(1.0)
+    assert claim(result, "yes").estimated_independent_support_count >= 1.0
+    assert claim(result, "yes").support == 1.0

@@ -8,6 +8,9 @@ import rfc8785
 from .canonicalization import canonicalize_attribute, canonicalize_value
 
 
+_DEFAULT = object()
+
+
 def _string(value, name):
     if type(value) is not str:
         raise TypeError(f"{name} must be a string")
@@ -172,6 +175,22 @@ class SourceReference:
         _string(self.identifier, "identifier")
 
 
+@dataclass(frozen=True, slots=True)
+class ExactEquivalence:
+    """Caller certification of identical evidence across all evaluated claims.
+
+    This is stronger than derivation: neither representation adds evidence.
+    Components must have identical claim profiles and external dependencies.
+    """
+
+    source_a: SourceReference = field(repr=False)
+    source_b: SourceReference = field(repr=False)
+
+    def __post_init__(self):
+        if type(self.source_a) is not SourceReference or type(self.source_b) is not SourceReference:
+            raise TypeError("exact equivalence endpoints must be SourceReference values")
+
+
 @dataclass(frozen=True, slots=True, init=False)
 class Claim:
     entity_namespace: str = field(repr=False)
@@ -228,9 +247,16 @@ class Retrieval:
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class Observation:
-    assertion_id: str = field(repr=False)
+    """A source's claim occurrence and local provenance.
+
+    observation_id is unique within an evaluation. Parent IDs reference
+    direct parent observations, not wire graph edges or BRAID nodes.
+    None means lineage is unknown; an empty tuple means no known parents.
+    """
+
+    observation_id: str = field(repr=False)
     source: Source = field(repr=False)
     claim: Claim = field(repr=False)
     observed_at: datetime = field(repr=False)
@@ -246,7 +272,7 @@ class Observation:
         default=None,
         repr=False,
     )
-    parent_assertion_ids: tuple[str, ...] | None = field(
+    parent_observation_ids: tuple[str, ...] | None = field(
         default=None,
         repr=False,
     )
@@ -263,8 +289,44 @@ class Observation:
         repr=False,
     )
 
+    def __init__(
+        self, observation_id=None, source=None, claim=None, observed_at=None,
+        source_modified_at=None, upstream_sources=None, cited_sources=None,
+        parent_observation_ids=None, retrievals=None, metadata=_DEFAULT,
+        dependency_signals=_DEFAULT, *, assertion_id=None, parent_assertion_ids=None,
+    ):
+        # Preserve existing clients while occurrence IDs move to observation names.
+        if assertion_id is not None:
+            if observation_id is not None and observation_id != assertion_id:
+                raise ValueError("observation_id and assertion_id disagree")
+            observation_id = assertion_id
+        if parent_assertion_ids is not None:
+            if (parent_observation_ids is not None
+                    and parent_observation_ids != parent_assertion_ids):
+                raise ValueError("parent observation and assertion IDs disagree")
+            parent_observation_ids = parent_assertion_ids
+        values = {
+            "observation_id": observation_id, "source": source, "claim": claim,
+            "observed_at": observed_at, "source_modified_at": source_modified_at,
+            "upstream_sources": upstream_sources, "cited_sources": cited_sources,
+            "parent_observation_ids": parent_observation_ids, "retrievals": retrievals,
+            "metadata": {} if metadata is _DEFAULT else metadata,
+            "dependency_signals": {} if dependency_signals is _DEFAULT else dependency_signals,
+        }
+        for name, value in values.items():
+            object.__setattr__(self, name, value)
+        self.__post_init__()
+
+    @property
+    def assertion_id(self):
+        return self.observation_id
+
+    @property
+    def parent_assertion_ids(self):
+        return self.parent_observation_ids
+
     def __post_init__(self):
-        _string(self.assertion_id, "assertion_id")
+        _string(self.observation_id, "observation_id")
 
         if type(self.source) is not Source:
             raise TypeError("source must be a Source")
@@ -304,8 +366,8 @@ class Observation:
                     )
 
         _strings(
-            self.parent_assertion_ids,
-            "parent_assertion_ids",
+            self.parent_observation_ids,
+            "parent_observation_ids",
         )
 
         if self.retrievals is not None:

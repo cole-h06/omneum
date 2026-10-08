@@ -124,6 +124,10 @@ class SourcePair(_StrictModel):
     source_b_id: str
     dependency: float
     weighted_signal_coverage: float
+    exact_equivalence: bool = Field(
+        default=False,
+        description="Explicit certification of identical evidence; not ordinary derivation.",
+    )
 
 
 class EvaluateAssertionRequest(_StrictModel):

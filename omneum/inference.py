@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from math import isfinite
+from math import fsum, isfinite
 
-from .engine_graph import InferenceGraph
+from .engine_graph import AssertionTriple, InferenceGraph, SourcePair, build_graph
 
 
 ALGORITHM_VERSION = "omneum-v2"
@@ -83,49 +83,121 @@ def _pair(graph: InferenceGraph, source_a_id: str, source_b_id: str):
     return graph.source_pairs[(source_a_id, source_b_id)]
 
 
-def _agreement(graph: InferenceGraph) -> dict[str, float]:
-    attribute_sources = {
-        attribute_id: tuple(sorted({
-            source_id
+def _agreement(
+    graph: InferenceGraph,
+    independence: dict[str, dict[str, float]],
+) -> dict[str, float]:
+    effective_support = {
+        claim_id: _finite(sum(independence[claim_id].values()))
+        for claim_id in graph.claims
+    }
+    attribute_support = {
+        attribute_id: _finite(sum(
+            effective_support[claim_id]
             for claim_id in graph.attribute_to_claims[attribute_id]
-            for source_id in graph.claim_to_sources[claim_id]
-        }))
+        ))
         for attribute_id in graph.attributes
     }
     return {
         claim_id: _finite(
-            len(graph.claim_to_sources[claim_id])
-            / len(attribute_sources[graph.claim_to_attribute[claim_id]])
+            effective_support[claim_id]
+            / attribute_support[graph.claim_to_attribute[claim_id]]
         )
         for claim_id in graph.claims
+    }
+
+
+def _equivalence_graph(
+    graph: InferenceGraph,
+) -> tuple[InferenceGraph, dict[str, tuple[str, ...]]]:
+    """Collapse homogeneous exact-equivalence components before any evidence accounting.
+
+    The quotient is defined only when members have identical claim profiles
+    and every cross-component dependency block is constant. Coverage is not a
+    scoring input; diagnostics continue to use the original source pairs.
+    """
+    neighbors = {source: set() for source in graph.sources}
+    for (a, b), pair in graph.source_pairs.items():
+        if pair.exact_equivalence:
+            neighbors[a].add(b)
+            neighbors[b].add(a)
+    members = {}
+    seen = set()
+    for source in graph.sources:
+        if source in seen:
+            continue
+        component = set()
+        stack = [source]
+        while stack:
+            current = stack.pop()
+            if current in component:
+                continue
+            component.add(current)
+            stack.extend(neighbors[current] - component)
+        seen.update(component)
+        members[source] = tuple(sorted(component))
+
+    if len(members) == len(graph.sources):
+        return graph, members
+
+    for representative, sources in members.items():
+        if any(graph.source_to_claims[source]
+               != graph.source_to_claims[representative] for source in sources):
+            raise InferenceError("heterogeneous exact equivalence claim profiles are undefined")
+
+    pairs = []
+    representatives = tuple(members)
+    for index, a in enumerate(representatives):
+        for b in representatives[index + 1:]:
+            dependency = _finite(_pair(graph, a, b).dependency)
+            if any(_finite(_pair(graph, source_a, source_b).dependency) != dependency
+                   for source_a in members[a] for source_b in members[b]):
+                raise InferenceError("heterogeneous exact equivalence dependencies are undefined")
+            pairs.append(SourcePair(a, b, dependency, 0.0))
+    assertions = [
+        AssertionTriple(source, graph.claim_to_attribute[claim], claim)
+        for source in representatives for claim in graph.source_to_claims[source]
+    ]
+    return build_graph(assertions, pairs), members
+
+
+def _reciprocal_independence(
+    graph: InferenceGraph,
+) -> dict[str, dict[str, float]]:
+    # Each source in this graph is one evidence component. In particular,
+    # singleton components retain the original reciprocal dependency rule.
+    result = {}
+    for claim in graph.claims:
+        values = {}
+        for source in graph.claim_to_sources[claim]:
+            dependency = 0.0
+            for other in graph.claim_to_sources[claim]:
+                if other != source:
+                    dependency += _pair(graph, source, other).dependency
+            values[source] = _finite(1.0 / (1.0 + dependency))
+        result[claim] = values
+    return result
+
+
+def _member_shares(
+    values: dict[str, float],
+    members: dict[str, tuple[str, ...]],
+) -> dict[str, float]:
+    return {
+        source: value / len(members[representative])
+        for representative, value in values.items()
+        for source in members[representative]
     }
 
 
 def _independence(
     graph: InferenceGraph,
 ) -> dict[str, dict[str, float]]:
-    result = {}
-    for claim_id in graph.claims:
-        source_ids = graph.claim_to_sources[claim_id]
-        if len(source_ids) == 1:
-            result[claim_id] = {source_ids[0]: 1.0}
-            continue
-
-        claim_values = {}
-        for source_id in source_ids:
-            dependency = 0.0
-            for other_id in source_ids:
-                if other_id != source_id:
-                    dependency += _pair(
-                        graph,
-                        source_id,
-                        other_id,
-                    ).dependency
-            claim_values[source_id] = _finite(
-                1.0 / (1.0 + dependency)
-            )
-        result[claim_id] = claim_values
-    return result
+    component_graph, members = _equivalence_graph(graph)
+    return {
+        claim: _member_shares(values, members)
+        for claim, values in _reciprocal_independence(component_graph).items()
+    }
 
 
 def _claim_scores(
@@ -157,6 +229,7 @@ def _source_update(
     graph: InferenceGraph,
     support: dict[str, float],
 ) -> dict[str, float]:
+    """Normalize one propagation score per evidence component."""
     unscaled = {}
     total = 0.0
 
@@ -197,26 +270,27 @@ def _source_update(
 def _telemetry(
     graph: InferenceGraph,
     claim_id: str,
+    independence: dict[str, float],
 ) -> tuple[int, float, float | None]:
     source_ids = graph.claim_to_sources[claim_id]
     count = len(source_ids)
     if count == 1:
         return 1, 1.0, None
 
-    dependency = 0.0
     coverage = 0.0
     for index, source_a_id in enumerate(source_ids):
         for source_b_id in source_ids[index + 1:]:
             pair = _pair(graph, source_a_id, source_b_id)
-            dependency = _finite(dependency + pair.dependency)
             coverage = _finite(
                 coverage + pair.weighted_signal_coverage
             )
 
     pair_count = count * (count - 1) / 2
-    effective_count = _finite(
-        count**2 / (count + 2 * dependency)
-    )
+    # Report the same evidence mass used by agreement and claim scoring,
+    # including transitive exact lineage, rather than a raw-pair estimate.
+    # Each component Q >= 1/component_count, so their sum (also the
+    # sum of member shares) is >= 1. Clamp roundoff at this boundary.
+    effective_count = max(1.0, _finite(fsum(independence.values())))
     confidence = _finite(coverage / pair_count)
     return count, effective_count, confidence
 
@@ -241,6 +315,7 @@ def _claim_results(
         count, effective_count, confidence = _telemetry(
             graph,
             claim_id,
+            independence[claim_id],
         )
         supporting_sources = tuple(sorted(
             (
@@ -292,17 +367,24 @@ def infer(
     graph: InferenceGraph,
     propagation_weight: float = PROPAGATION_WEIGHT,
 ) -> InferenceResult:
-    """Run deterministic version-1 reliability propagation."""
+    """Propagate on homogeneous exact-equivalence components, then allocate to members.
+
+    Reported member reliability, independence and contribution are each shares
+    of their component totals. They must not be multiplied together again:
+    claim scoring applies the reciprocal rule once, before allocating shares.
+    """
 
     if not graph.sources:
         raise InferenceError("inference graph has no sources")
 
+    original_graph = graph
+    graph, members = _equivalence_graph(graph)
     reliability = {
         source_id: 1.0 / len(graph.sources)
         for source_id in graph.sources
     }
-    agreement = _agreement(graph)
-    independence = _independence(graph)
+    independence = _reciprocal_independence(graph)
+    agreement = _agreement(graph, independence)
     maximum_delta = 0.0
 
     for iteration in range(1, MAX_ITERATIONS + 1):
@@ -339,6 +421,32 @@ def infer(
         agreement,
         independence,
     )
+    if graph is not original_graph:
+        reliability = _member_shares(reliability, members)
+        independence = {
+            claim: _member_shares(values, members)
+            for claim, values in independence.items()
+        }
+        contributions = {
+            claim: _member_shares(values, members)
+            for claim, values in contributions.items()
+        }
+        # Keep component scores (including exact ties) and canonical contribution
+        # totals identical. Allocate division/summation roundoff to the final
+        # positive contributor, rather than feeding it back into inference.
+        for claim, values in contributions.items():
+            if support[claim] == 0.0:
+                continue
+            sources = original_graph.claim_to_sources[claim]
+            last = next(source for source in reversed(sources) if values[source] > 0)
+            prefix = 0.0
+            for source in sources:
+                if source == last:
+                    values[source] = support[claim] - prefix
+                    break
+                prefix += values[source]
+        graph = original_graph
+
     source_reliability = tuple(sorted(
         (
             SourceReliability(source_id, reliability[source_id])

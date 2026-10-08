@@ -58,28 +58,40 @@ class ContextMapper:
         entity: Extractor,
         attribute: Extractor,
         value: Extractor,
-        assertion_id: Extractor,
+        observation_id: Extractor | None = None,
         observed_at: Extractor,
         source_modified_at: Extractor | None = None,
         upstream_sources: Extractor | None = None,
         cited_sources: Extractor | None = None,
-        parent_assertion_ids: Extractor | None = None,
+        parent_observation_ids: Extractor | None = None,
         retrievals: Extractor | None = None,
         metadata: Mapping[str, Extractor] | None = None,
         signals: Mapping[str, SignalExtractor] | None = None,
+        assertion_id: Extractor | None = None,
+        parent_assertion_ids: Extractor | None = None,
     ) -> None:
+        if observation_id is None:
+            observation_id = assertion_id
+        elif assertion_id is not None:
+            raise ValueError("specify only one observation ID extractor")
+        if observation_id is None:
+            raise TypeError("observation_id is required")
+        if parent_observation_ids is None:
+            parent_observation_ids = parent_assertion_ids
+        elif parent_assertion_ids is not None:
+            raise ValueError("specify only one parent observation ID extractor")
         self._mapping = {
             "source": source,
             "entity_namespace": entity_namespace,
             "entity": entity,
             "attribute": attribute,
             "value": value,
-            "assertion_id": assertion_id,
+            "observation_id": observation_id,
             "observed_at": observed_at,
             "source_modified_at": source_modified_at,
             "upstream_sources": upstream_sources,
             "cited_sources": cited_sources,
-            "parent_assertion_ids": parent_assertion_ids,
+            "parent_observation_ids": parent_observation_ids,
             "retrievals": retrievals,
         }
 
@@ -108,14 +120,14 @@ class ContextMapper:
             for name, extractor in self._mapping.items()
         }
 
-        if values["parent_assertion_ids"] is not None:
-            if isinstance(values["parent_assertion_ids"], str):
-                values["parent_assertion_ids"] = (
-                    values["parent_assertion_ids"],
+        if values["parent_observation_ids"] is not None:
+            if isinstance(values["parent_observation_ids"], str):
+                values["parent_observation_ids"] = (
+                    values["parent_observation_ids"],
                 )
             else:
-                values["parent_assertion_ids"] = tuple(
-                    values["parent_assertion_ids"]
+                values["parent_observation_ids"] = tuple(
+                    values["parent_observation_ids"]
                 )
 
         metadata = {
@@ -129,7 +141,7 @@ class ContextMapper:
         }
 
         return observe(
-            assertion_id=values["assertion_id"],
+            observation_id=values["observation_id"],
             source=values["source"],
             entity_namespace=values["entity_namespace"],
             entity=values["entity"],
@@ -139,7 +151,7 @@ class ContextMapper:
             source_modified_at=values["source_modified_at"],
             upstream_sources=_normalize_source_references(values["upstream_sources"]),
             cited_sources=_normalize_source_references(values["cited_sources"]),
-            parent_assertion_ids=values["parent_assertion_ids"],
+            parent_observation_ids=values["parent_observation_ids"],
             retrievals=values["retrievals"],
             metadata=metadata,
             dependency_signals=signals,

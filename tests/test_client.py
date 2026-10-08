@@ -33,6 +33,7 @@ def test_package_exports() -> None:
         "AssertionSource",
         "ContextMapper",
         "Claim",
+        "ExactEquivalence",
         "ClaimSupportResult",
         "ConflictingClaimResult",
         "ConvergenceMetadata",

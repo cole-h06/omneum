@@ -35,6 +35,39 @@ def provisioning(tmp_path):
     )[0]
 
 
+def test_exact_equivalence_stdio(tmp_path):
+    async def run():
+        parameters = StdioServerParameters(
+            command=sys.executable, args=["-m", "omneum.server"],
+            cwd=Path(__file__).parents[1], env=provisioning(tmp_path),
+        )
+        arguments = {
+            "protocol_version": "v1", "deployment_id": DEPLOYMENT_ID,
+            "voprf_key_version": 1, "voprf_mode": "voprf",
+            "voprf_ciphersuite": "ristretto255-SHA512", "linkage_encoding_version": 1,
+            "assertions": [
+                {"source_id": token(i), "attribute_id": token(101), "claim_id": token(201)}
+                for i in (1, 2, 3)
+            ],
+            "source_pairs": [
+                {"source_a_id": token(a), "source_b_id": token(b),
+                 "dependency": 0.0, "weighted_signal_coverage": 0.0,
+                 "exact_equivalence": (a, b) in {(1, 2), (2, 3)}}
+                for a, b in ((1, 2), (1, 3), (2, 3))
+            ],
+        }
+        async with stdio_client(parameters) as (read, write):
+            async with ClientSession(read, write) as session:
+                await session.initialize()
+                result = await session.call_tool("evaluate_context", arguments)
+                assert not result.isError
+                support = result.structuredContent["claim_support"][0]
+                assert support["estimated_independent_support_count"] == 1.0
+                assert all(item["independence"] == 1 / 3 for item in support["supporting_sources"])
+
+    asyncio.run(run())
+
+
 def golden_request():
     vector = json.loads(VECTOR_PATH.read_text(encoding="utf-8"))
     groups = (
@@ -138,7 +171,7 @@ def test_infer_stdio(tmp_path):
                     "converged": True,
                     "convergence_tolerance": 1e-8,
                     "convergence_delta": (
-                        1.5653782853286557e-09
+                        5.3503916991326506e-09
                     ),
                 }
 

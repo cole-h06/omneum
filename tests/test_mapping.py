@@ -26,7 +26,7 @@ def test_context_mapper_maps_structured_result():
         entity=lambda x: x["entity"],
         attribute=lambda x: x["attribute"],
         value=lambda x: x["value"],
-        assertion_id=lambda x: x["id"],
+        observation_id=lambda x: x["id"],
         observed_at=lambda x: NOW,
     )
 
@@ -37,7 +37,7 @@ def test_context_mapper_maps_structured_result():
     assert observation.claim.entity == "payment_api"
     assert observation.claim.attribute == "status_code"
     assert observation.claim.value == 200
-    assert observation.assertion_id == "result-1"
+    assert observation.observation_id == "result-1"
 
 
 def test_context_mapper_maps_many():
@@ -67,7 +67,7 @@ def test_context_mapper_maps_many():
         entity=lambda x: x["entity"],
         attribute=lambda x: x["attribute"],
         value=lambda x: x["value"],
-        assertion_id=lambda x: x["id"],
+        observation_id=lambda x: x["id"],
         observed_at=lambda x: NOW,
     )
 
@@ -101,7 +101,7 @@ def test_context_mapper_preserves_arbitrary_metadata():
         entity=lambda x: x["entity"],
         attribute=lambda x: x["attribute"],
         value=lambda x: x["value"],
-        assertion_id=lambda x: x["id"],
+        observation_id=lambda x: x["id"],
         observed_at=lambda x: NOW,
         metadata={
             "replaces": "replaces",
@@ -139,7 +139,7 @@ def test_context_mapper_maps_application_fields_to_canonical_signals():
         entity=lambda x: x["entity"],
         attribute=lambda x: x["attribute"],
         value=lambda x: x["value"],
-        assertion_id=lambda x: x["id"],
+        observation_id=lambda x: x["id"],
         observed_at=lambda x: NOW,
         signals={
             "retrieval": lambda x: DependencySignal(
@@ -177,7 +177,7 @@ def test_context_mapper_rejects_noncanonical_dependency_signals():
             entity=lambda x: x["entity"],
             attribute=lambda x: x["attribute"],
             value=lambda x: x["value"],
-            assertion_id=lambda x: x["id"],
+            observation_id=lambda x: x["id"],
             observed_at=lambda x: NOW,
             signals={
                 "session": lambda x: DependencySignal(
@@ -186,3 +186,16 @@ def test_context_mapper_rejects_noncanonical_dependency_signals():
                 ),
             },
         )
+
+
+def test_legacy_mapper_names():
+    mapper = ContextMapper(
+        source=lambda _: Source("web_publisher", "example.com"),
+        entity_namespace=lambda _: "service", entity=lambda _: "entity",
+        attribute=lambda _: "status", value=lambda _: "active",
+        assertion_id="id", observed_at=lambda _: NOW,
+        parent_assertion_ids="parents",
+    )
+    item = mapper.map({"id": "child", "parents": "parent"})
+    assert item.observation_id == "child"
+    assert item.parent_observation_ids == ("parent",)
