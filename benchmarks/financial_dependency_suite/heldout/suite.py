@@ -1,8 +1,12 @@
 import logging
+from copy import deepcopy
 
 from .methods import METHODS
-from .additive_runner import run_method
+from .additive_runner import run_method, select_cohere_safe
+from .cohere_cache import valid_selection
 from .diagnostics import diagnostic_record, safe_artifact
+from . import runner as frozen
+from .loader import application_candidates
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +32,23 @@ async def run_case(
         )
 
     records = []
+    paired_bge = "bge_anthropic" in {method.name for method in methods}
+    paired_cohere = "cohere_anthropic" in {method.name for method in methods}
+    relevance_by_trial = {}
+    if paired_bge:
+        for (case_id, method_name, trial), record in (completed or {}).items():
+            if case_id == case.case_id and method_name in {"bge_anthropic", "bge_omneum"}:
+                relevance = record["selection"]["bge_relevance"]
+                if trial in relevance_by_trial and relevance_by_trial[trial] != relevance:
+                    raise ValueError("paired BGE shortlists differ in saved records")
+                relevance_by_trial[trial] = deepcopy(relevance)
+    if paired_cohere:
+        for (case_id, method_name, trial), record in (completed or {}).items():
+            if case_id == case.case_id and method_name in {"cohere_anthropic", "cohere_omneum"}:
+                relevance = record["selection"]["cohere_relevance_result"]
+                if trial in relevance_by_trial and relevance_by_trial[trial] != relevance:
+                    raise ValueError("paired Cohere shortlists differ in saved records")
+                relevance_by_trial[trial] = deepcopy(relevance)
 
     for method in methods:
         for trial in range(1, trials + 1):
@@ -46,6 +67,28 @@ async def run_case(
             )
             logger.info("Starting %s", context)
             try:
+                paired_options = {}
+                if paired_bge and method.name in {"bge_anthropic", "bge_omneum"}:
+                    if trial not in relevance_by_trial:
+                        candidates = application_candidates(case)
+                        relevance_by_trial[trial] = frozen.select_bge(
+                            case.question, candidates,
+                            top_n=min(len(candidates), 2 * case.context_budget),
+                        )
+                    paired_options["bge_relevance"] = deepcopy(relevance_by_trial[trial])
+                if paired_cohere and method.name in {"cohere_anthropic", "cohere_omneum"}:
+                    candidates = application_candidates(case)
+                    depth = min(len(candidates), 2 * case.context_budget)
+                    if trial not in relevance_by_trial:
+                        relevance_by_trial[trial] = select_cohere_safe(
+                            case.question, candidates, top_n=depth,
+                        )
+                    relevance = relevance_by_trial[trial]
+                    if relevance["failure"] is None and not valid_selection(
+                        relevance["selection"], candidates, depth,
+                    ):
+                        raise ValueError("invalid shared Cohere shortlist")
+                    paired_options["cohere_relevance"] = deepcopy(relevance)
                 result = await run_method(
                     method.method,
                     case,
@@ -55,6 +98,7 @@ async def run_case(
                     generator_provider=generator_provider,
                     generator_model=generator_model,
                     **({"cohere_cache": cohere_cache} if cohere_cache is not None else {}),
+                    **paired_options,
                 )
             except Exception as exc:
                 exc.add_note(context)

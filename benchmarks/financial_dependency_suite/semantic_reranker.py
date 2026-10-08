@@ -87,4 +87,14 @@ def rerank_cohere(query, candidates, *, top_n):
         "selected": selected,
         "model": COHERE_MODEL,
         "latency_seconds": latency_seconds,
+        # Provider-supplied billing telemetry; reranking behavior is unchanged.
+        "billed_search_units": getattr(
+            getattr(getattr(response, "meta", None), "billed_units", None), "search_units", None,
+        ),
+        "input_tokens": getattr(
+            getattr(getattr(response, "meta", None), "tokens", None), "input_tokens", None,
+        ),
+        "output_tokens": getattr(
+            getattr(getattr(response, "meta", None), "tokens", None), "output_tokens", None,
+        ),
     }

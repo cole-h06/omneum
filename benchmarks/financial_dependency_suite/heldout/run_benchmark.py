@@ -101,6 +101,21 @@ async def run_benchmark(
         raise ValueError("trials must be at least 1")
     if resume is not None and identifier is not None:
         raise ValueError("resume and identifier are mutually exclusive")
+    names = {method.name for method in methods}
+    if "bge_anthropic" in names:
+        if names != {"bge_anthropic", "bge_omneum"}:
+            raise ValueError("Experiment 1 requires exactly bge_anthropic and bge_omneum")
+        if baseline_results is not None:
+            raise ValueError("Experiment 1 cannot reuse the historical full-pool Claude baseline")
+        if GENERATOR_PROVIDER != "anthropic" or GENERATOR_MODEL != "claude-sonnet-5-5":
+            raise ValueError("Experiment 1 requires Claude Sonnet 5.5 generation")
+    if "cohere_anthropic" in names:
+        if names != {"cohere_anthropic", "cohere_omneum"}:
+            raise ValueError("Experiment 2 requires exactly cohere_anthropic and cohere_omneum")
+        if baseline_results is not None:
+            raise ValueError("Experiment 2 cannot reuse the historical full-pool Claude baseline")
+        if GENERATOR_PROVIDER != "anthropic" or GENERATOR_MODEL != "claude-sonnet-5-5":
+            raise ValueError("Experiment 2 requires Claude Sonnet 5.5 generation")
     discovered = discover_cases(cases_dir)
     reused_records = {}
     baseline_reference = None
@@ -149,6 +164,39 @@ async def run_benchmark(
             "trials", "models", "inputs", "packages", "estimator", "python",
         )},
     }
+    if "bge_anthropic" in names:
+        pipeline = {
+            "experiment": 1,
+            "control": "bge_anthropic",
+            "treatment": "bge_omneum",
+            "relevance_model": "BAAI/bge-reranker-v2-m3",
+            "shared_shortlist": "one BGE result per case/trial; IDs, order, text, and scores preserved",
+            "relevance_depth": "min(candidate_pool_size, 2 * context_budget)",
+            "final_context_budget": "frozen case.context_budget in both arms",
+            "generator_provider": GENERATOR_PROVIDER,
+            "generator_model": GENERATOR_MODEL,
+            "generator_max_tokens": 1024,
+            "selection_latency": "shared BGE duration plus each arm's independent judge duration",
+        }
+        manifest_data["selection_pipeline"] = pipeline
+        contract["selection_pipeline"] = pipeline
+    if "cohere_anthropic" in names:
+        pipeline = {
+            "experiment": 2,
+            "control": "cohere_anthropic",
+            "treatment": "cohere_omneum",
+            "relevance_model": "rerank-v4.0-pro",
+            "shared_shortlist": "one fresh Cohere result per case/trial; IDs, order, text, and scores preserved",
+            "historical_rerank_reuse": False,
+            "relevance_depth": "min(candidate_pool_size, 2 * context_budget)",
+            "final_context_budget": "frozen case.context_budget in both arms",
+            "generator_provider": GENERATOR_PROVIDER,
+            "generator_model": GENERATOR_MODEL,
+            "generator_max_tokens": 1024,
+            "selection_latency": "shared Cohere duration plus each arm's independent judge/Omneum integration duration",
+        }
+        manifest_data["selection_pipeline"] = pipeline
+        contract["selection_pipeline"] = pipeline
     if baseline_reference is not None:
         contract["baseline_reuse"] = baseline_reference
         manifest_data["baseline_reuse"] = baseline_reference
@@ -170,14 +218,14 @@ async def run_benchmark(
         logging.getLogger(__name__).info("Incremental results: %s", (run_dir / "results.jsonl").resolve())
         completed = {record_key(record): record for record in progress.records}
         cohere_cache = None
-        if any(method.method == "cohere_omneum" for method in methods):
+        if "cohere_anthropic" not in names and any(method.method == "cohere_omneum" for method in methods):
             cohere_cache = CohereResponseCache(
                 run_dir / "cohere_responses.jsonl",
                 history=sorted(Path(results_dir).glob("*")), discovered=discovered,
             )
         if len(completed) < len(schedule):
             first_case = discovered[0][2]
-            if any(method.method in {"bge", "vector", "bge_omneum"} for method in methods):
+            if any(method.method in {"bge", "vector", "bge_omneum", "bge_anthropic"} for method in methods):
                 warm_local_models(first_case.question, application_candidates(first_case))
             for _, _, case, truth in discovered:
                 await run_case(
@@ -216,7 +264,7 @@ def main():
         "--methods",
         nargs="+",
         choices=[method.name for method in (*METHODS, *ADDITIVE_METHODS)],
-        help="Opt-in paired routes: bge bge_omneum, cohere cohere_omneum, or anthropic anthropic_omneum.",
+        help="Experiment 1: bge_anthropic bge_omneum. Experiment 2: cohere_anthropic cohere_omneum.",
     )
     parser.add_argument("--baseline-results", type=Path,
                         help="reuse validated anthropic rows from a prior results.jsonl")
