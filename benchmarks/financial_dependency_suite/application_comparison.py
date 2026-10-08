@@ -11,6 +11,32 @@ LLM_SELECTORS = tuple(
     for provider in ("anthropic", "openai", "google")
 )
 
+# Transport constraint only: candidate membership, cardinality and uniqueness
+# remain validated locally, identically for every frontier selector.
+SELECTION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "selected_sources": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["selected_sources"],
+    "additionalProperties": False,
+}
+
+
+def provider_error_diagnostics(exc):
+    """Never serialize exception bodies, requests, headers, or credentials."""
+    result = {"error_type": type(exc).__name__}
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        status = getattr(exc, "code", None)
+    if isinstance(status, int):
+        result["http_status"] = status
+        if status == 429:
+            result["error_category"] = "rate_or_quota_limit"
+        elif status == 503:
+            result["error_category"] = "service_unavailable"
+    return result
+
 
 def warm_local_models(query, candidates):
     documents = [
@@ -97,6 +123,7 @@ def select_cohere_safe(query, candidates, *, top_n):
                 "answer_score": "selection_failure",
                 "generation": None,
                 "failure_type": "provider_error",
+                "response_diagnostics": provider_error_diagnostics(exc),
                 "error": f"{type(exc).__name__}: {exc}",
             },
         }
@@ -160,6 +187,7 @@ Do not answer the question itself.
         prompt,
         provider=provider,
         model=model,
+        response_schema=SELECTION_SCHEMA,
     )
 
     try:
@@ -206,6 +234,7 @@ Do not answer the question itself.
         "output_tokens": result["output_tokens"],
         "parse_error": parse_error,
         "raw_output": result["text"],
+        "response_diagnostics": result.get("response_diagnostics", {}),
     }
 
 
@@ -225,7 +254,7 @@ def provenance_context(candidates, observations, source_ids):
             continue
 
         by_source[source_id].append({
-            "assertion_id": observation.assertion_id,
+            "assertion_id": observation.observation_id,
             "observed_at": observation.observed_at.isoformat(),
             "source_modified_at": (
                 observation.source_modified_at.isoformat()
@@ -247,7 +276,7 @@ def provenance_context(candidates, observations, source_ids):
                 for source in observation.cited_sources
             ],
             "parent_assertion_ids": list(
-                observation.parent_assertion_ids
+                observation.parent_observation_ids
             ),
         })
 
@@ -305,6 +334,7 @@ Do not answer the question itself.
         prompt,
         provider=provider,
         model=model,
+        response_schema=SELECTION_SCHEMA,
     )
 
     try:
@@ -350,6 +380,7 @@ Do not answer the question itself.
         "output_tokens": result["output_tokens"],
         "parse_error": parse_error,
         "raw_output": result["text"],
+        "response_diagnostics": result.get("response_diagnostics", {}),
     }
 
 
@@ -385,6 +416,7 @@ async def select_llm_provenance_safe(
             "raw_output": None,
             "selection_failure": str(exc),
             "failure_type": "provider_error",
+            "response_diagnostics": provider_error_diagnostics(exc),
         }
 
 
@@ -420,6 +452,7 @@ async def select_llm_safe(
                 "answer_score": "selection_failure",
                 "generation": None,
                 "failure_type": "provider_error",
+                "response_diagnostics": provider_error_diagnostics(exc),
                 "error": f"{type(exc).__name__}: {exc}",
             },
         }
@@ -436,6 +469,7 @@ async def select_llm_safe(
                     "input_tokens": selection.get("input_tokens"),
                     "output_tokens": selection.get("output_tokens"),
                     "raw_output": selection.get("raw_output"),
+                    "response_diagnostics": selection.get("response_diagnostics", {}),
                 },
                 "answer": None,
                 "answer_score": "selection_failure",
@@ -504,6 +538,7 @@ async def generate_answer_safe(
             "failure": {
                 "answer": None,
                 "answer_score": "generation_failure",
+                "response_diagnostics": provider_error_diagnostics(exc),
                 "generation": None,
                 "failure_type": "provider_error",
                 "error": str(exc),
@@ -512,10 +547,33 @@ async def generate_answer_safe(
             },
         }
 
-    return {
-        "generation": generation,
-        "failure": None,
-    }
+    diagnostics = generation.get("response_diagnostics") or {}
+    refused = (
+        diagnostics.get("stop_reason") == "refusal"
+        or "refusal" in diagnostics.get("content_block_types", [])
+        or "refusal" in diagnostics.get("finish_reasons", [])
+    )
+    failure_type = (
+        "refusal" if refused
+        else "empty_output" if not generation["text"].strip()
+        else None
+    )
+    if failure_type is not None:
+        return {
+            "generation": generation,
+            "failure": {
+                "answer": generation["text"],
+                "answer_score": "generation_failure",
+                "generation": generation,
+                "response_diagnostics": diagnostics,
+                "failure_type": failure_type,
+                "error": ("Generator explicitly refused." if refused
+                          else "Generator returned no non-whitespace answer."),
+                "provider": generation.get("provider", provider),
+                "model": generation.get("model", model),
+            },
+        }
+    return {"generation": generation, "failure": None}
 
 
 async def select_omneum_reranked(
@@ -571,6 +629,126 @@ async def select_omneum_reranked(
 
     return {
         "selected": omneum_documents(selected),
+        "evaluation": evaluation,
+        "latency_seconds": latency,
+        "cold_integration_latency_seconds": latency,
+        "evaluation_latency_seconds": (
+            evaluation_latency_ms / 1000
+            if evaluation_latency_ms is not None
+            else None
+        ),
+        "model": "Omneum",
+    }
+
+
+async def select_omneum(
+    candidates,
+    observations,
+    source_ids,
+    *,
+    estimator,
+    top_n,
+):
+    """Apply reliability filtering only to the relevance-selected candidates."""
+    from .omneum_rag import (
+        evaluate_context,
+        map_observations,
+        select_reliable_context,
+    )
+
+    started = perf_counter()
+
+    eligible_sources = {item["source"] for item in candidates}
+    observations_by_id = {
+        observation.observation_id: observation
+        for observation in observations
+    }
+    source_by_key = {
+        (observation.source.kind, observation.source.identifier): observation.source
+        for observation in observations
+    }
+
+    evaluation_sources = set(eligible_sources)
+    evaluation_observation_ids = {
+        observation.observation_id
+        for observation in observations
+        if source_ids[observation.source] in eligible_sources
+    }
+
+    changed = True
+    while changed:
+        changed = False
+
+        for observation in observations:
+            if observation.observation_id not in evaluation_observation_ids:
+                continue
+
+            for ref in (
+                *(observation.upstream_sources or ()),
+                *(observation.cited_sources or ()),
+            ):
+                source = source_by_key.get((ref.kind, ref.identifier))
+                if source is None:
+                    continue
+                source_id = source_ids[source]
+                if source_id not in evaluation_sources:
+                    evaluation_sources.add(source_id)
+                    changed = True
+                for related in observations:
+                    if related.source == source and related.observation_id not in evaluation_observation_ids:
+                        evaluation_observation_ids.add(related.observation_id)
+                        changed = True
+
+            for parent_id in observation.parent_observation_ids or ():
+                parent = observations_by_id.get(parent_id)
+                if parent is None:
+                    continue
+                if parent_id not in evaluation_observation_ids:
+                    evaluation_observation_ids.add(parent_id)
+                    changed = True
+                source_id = source_ids[parent.source]
+                if source_id not in evaluation_sources:
+                    evaluation_sources.add(source_id)
+                    changed = True
+
+    evaluation_candidates = list(candidates)
+    candidate_sources = {item["source"] for item in candidates}
+
+    evaluation_candidates.extend(
+        {
+            "source": source_ids[observation.source],
+            "text": "",
+        }
+        for observation in observations
+        if (
+            observation.observation_id in evaluation_observation_ids
+            and source_ids[observation.source] not in candidate_sources
+        )
+    )
+
+    mapped = map_observations(
+        evaluation_candidates,
+        observations,
+        source_ids,
+    )
+    evaluation = await evaluate_context(mapped, estimator=estimator)
+
+    eligible_mapped = [
+        item
+        for item in mapped
+        if item["retrieved"]["source"] in eligible_sources
+    ]
+    selected = select_reliable_context(
+        eligible_mapped,
+        evaluation,
+        top_n=top_n,
+    )
+    documents = omneum_documents(selected)
+    latency = perf_counter() - started
+    evaluation_latency_ms = getattr(evaluation, "evaluation_latency_ms", None)
+
+    return {
+        "selected": documents,
         "evaluation": evaluation,
         "latency_seconds": latency,
         "cold_integration_latency_seconds": latency,

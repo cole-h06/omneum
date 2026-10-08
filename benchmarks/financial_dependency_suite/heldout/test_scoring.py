@@ -108,3 +108,20 @@ def test_selection_score_empty():
 
     assert result["precision"] == 0.0
     assert result["recall"] == 0.0
+
+
+def test_wording_variants_are_not_silently_added_to_frozen_rubric():
+    # These require lexical/semantic generalization, not formatting normalization.
+    rubric = truth(["bound idle connections", "evict expired"])
+    for answer in (
+        "Bound the number of idle connections in the pool and evict expired entries.",
+        "Bound the number of idle connections and evict expired entries.",
+        "Bounding idle pool connections and evicting expired entries.",
+    ):
+        assert score_answer(answer, rubric) == "unscored"
+
+
+def test_failed_check_remains_required():
+    rubric = truth(["blocked", "load_test"])
+    assert score_answer("Blocked; do not approve.", rubric) == "unscored"
+    assert score_answer("Blocked because load_test failed.", rubric) == "correct"

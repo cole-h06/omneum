@@ -2,6 +2,7 @@ from benchmarks.financial_dependency_suite.application_comparison import (
     generate_answer_safe,
     select_bge,
     select_omneum_reranked,
+    select_omneum,
     select_cohere_safe,
     select_llm_provenance_safe,
     select_llm_safe,
@@ -55,6 +56,30 @@ async def run_selection(
         )
 
     observations, source_ids = build_observations(case)
+
+    if method == "bge_omneum":
+        relevance_depth = min(len(candidates), 2 * top_n)
+        relevance = select_bge(case.question, candidates, top_n=relevance_depth)
+        reliability = await select_omneum(
+            relevance["selected"],
+            observations,
+            source_ids,
+            estimator=estimator_config(),
+            top_n=top_n,
+        )
+        return {
+            **reliability,
+            "relevance_depth": relevance_depth,
+            "relevance_model": relevance["model"],
+            "relevance_selected_sources": [
+                item["source"] for item in relevance["selected"]
+            ],
+            "bge_latency_seconds": relevance["latency_seconds"],
+            "omneum_latency_seconds": reliability["latency_seconds"],
+            "latency_seconds": (
+                relevance["latency_seconds"] + reliability["latency_seconds"]
+            ),
+        }
 
     if method == "llm_provenance":
         return await select_llm_provenance_safe(

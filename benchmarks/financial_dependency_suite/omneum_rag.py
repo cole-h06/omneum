@@ -134,6 +134,65 @@ def select_context(query, mapped, evaluation, *, top_n):
     return selected
 
 
+def select_reliable_context(mapped, evaluation, *, top_n):
+    """Select context supporting structurally preferred claims, ranked by relevance and reliability."""
+    def source_key(source):
+        if hasattr(source, "kind") and hasattr(source, "identifier"):
+            return (source.kind, source.identifier)
+        return source
+
+    reliability = {
+        source_key(result.source): result.reliability
+        for result in evaluation.source_reliability
+    }
+
+    max_claims = [
+        claim
+        for claim in evaluation.claim_support
+        if claim.is_attribute_max_support
+    ]
+
+    # Structural ties leave every tied claim eligible for context selection.
+    winning_sources = {
+        source_key(supporter.source)
+        for claim in max_claims
+        for supporter in claim.supporting_sources
+    }
+
+    eligible_sources = winning_sources or {
+        source_key(item["observation"].source)
+        for item in mapped
+    }
+
+    candidates = []
+    seen = set()
+
+    for index, item in enumerate(mapped):
+        source = source_key(item["observation"].source)
+        if source in seen or source not in eligible_sources:
+            continue
+        seen.add(source)
+
+        relevance = item["retrieved"].get("reranker_score")
+        if relevance is None:
+            relevance = 1.0
+
+        quality = reliability.get(source, 1.0)
+        candidates.append((relevance * quality, index, source, item))
+
+    candidates.sort(key=lambda row: (-row[0], row[1]))
+
+    selected = []
+
+    for _, _, _, item in candidates:
+        selected.append(item)
+
+        if len(selected) >= top_n:
+            break
+
+    return selected
+
+
 async def answer(
     query,
     *,
