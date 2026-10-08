@@ -1,0 +1,1059 @@
+{
+  "run_id": "cohere-claude-vs-cohere-omneum-20261008",
+  "regression_tests": {
+    "passed": 181,
+    "deselected": 2,
+    "deselection_reason": "unrelated vector and BGE model-download tests"
+  },
+  "metrics": {
+    "cohere_anthropic": {
+      "counts": {
+        "correct": 22,
+        "unscored": 2,
+        "incorrect": 0,
+        "generation_failure": 0,
+        "selection_failure": 0
+      },
+      "accuracy_all_cases": 0.9166666666666666,
+      "selection": {
+        "macro_precision": 0.9166666666666666,
+        "macro_recall": 0.6440476190476191,
+        "micro_precision": 0.927536231884058,
+        "micro_recall": 0.6153846153846154,
+        "true_positive": 64,
+        "false_positive": 5,
+        "false_negative": 40
+      },
+      "latency_seconds": {
+        "cohere": {
+          "n": 24,
+          "median": 0.2093372291419655,
+          "p95": 8.928093370539134
+        },
+        "evaluator": {
+          "n": 24,
+          "median": 1.7550505416002125,
+          "p95": 2.2612826607655734
+        },
+        "full_selection": {
+          "n": 24,
+          "median": 2.3575172916753218,
+          "p95": 10.15732783122221
+        },
+        "generation": {
+          "n": 24,
+          "median": 2.2927316040731966,
+          "p95": 3.9768053188105106
+        },
+        "end_to_end": {
+          "n": 24,
+          "median": 4.897191729396582,
+          "p95": 13.040529639180747
+        }
+      },
+      "tokens": {
+        "evaluator_input": 15818,
+        "evaluator_output": 709,
+        "generation_input": 5680,
+        "generation_output": 5954,
+        "total_anthropic": 28161
+      },
+      "cohere_billed_search_units": 24.0,
+      "estimated_cost_usd": {
+        "judge": 0.038726,
+        "generation": 0.0709,
+        "anthropic_total": 0.109626,
+        "cohere_if_2_50_per_1000_searches": 0.06,
+        "standalone_arm_total_if_cohere_rate": 0.169626
+      },
+      "generation_total_tokens": 11634,
+      "evaluator_total_tokens": 16527,
+      "substantive_review": {
+        "fully_correct": 23,
+        "partial": 1,
+        "wrong": 0,
+        "unanswered": 0
+      },
+      "substantive_fully_correct_accuracy": 0.9583333333333334
+    },
+    "cohere_omneum": {
+      "counts": {
+        "correct": 20,
+        "unscored": 4,
+        "incorrect": 0,
+        "generation_failure": 0,
+        "selection_failure": 0
+      },
+      "accuracy_all_cases": 0.8333333333333334,
+      "selection": {
+        "macro_precision": 0.8263888888888888,
+        "macro_recall": 0.5572420634920635,
+        "micro_precision": 0.8405797101449275,
+        "micro_recall": 0.5576923076923077,
+        "true_positive": 58,
+        "false_positive": 11,
+        "false_negative": 46
+      },
+      "latency_seconds": {
+        "cohere": {
+          "n": 24,
+          "median": 0.2093372291419655,
+          "p95": 8.928093370539134
+        },
+        "evaluator": {
+          "n": 24,
+          "median": 0.030163249582983553,
+          "p95": 0.037156214169226584
+        },
+        "full_selection": {
+          "n": 24,
+          "median": 1.0026268963702023,
+          "p95": 9.488698892737737
+        },
+        "generation": {
+          "n": 24,
+          "median": 2.40679337491747,
+          "p95": 3.8010630893055337
+        },
+        "end_to_end": {
+          "n": 24,
+          "median": 4.326459333417006,
+          "p95": 12.539038128370882
+        },
+        "omneum_integration": {
+          "n": 24,
+          "median": 0.49040272901766,
+          "p95": 0.5723923354060388
+        },
+        "omneum_integration_overhead": {
+          "n": 24,
+          "median": 0.4595820209942758,
+          "p95": 0.5383374604629353
+        }
+      },
+      "tokens": {
+        "evaluator_input": 0,
+        "evaluator_output": 0,
+        "generation_input": 5587,
+        "generation_output": 6055,
+        "total_anthropic": 11642
+      },
+      "cohere_billed_search_units": 24.0,
+      "estimated_cost_usd": {
+        "judge": 0.0,
+        "generation": 0.071724,
+        "anthropic_total": 0.071724,
+        "cohere_if_2_50_per_1000_searches": 0.06,
+        "standalone_arm_total_if_cohere_rate": 0.131724
+      },
+      "generation_total_tokens": 11642,
+      "evaluator_total_tokens": 0,
+      "substantive_review": {
+        "fully_correct": 21,
+        "partial": 1,
+        "wrong": 1,
+        "unanswered": 1
+      },
+      "substantive_fully_correct_accuracy": 0.875
+    }
+  },
+  "verification": {
+    "paired_cases": 24,
+    "identical_shortlists": true,
+    "identical_context_budgets": true,
+    "treatment_claude_judge_calls": 0,
+    "same_generation_provider_model_template_settings": true,
+    "preserved_files_verified": 213,
+    "frozen_manifest_input_hashes_verified": 48,
+    "fresh_successful_cohere_reranks": 24,
+    "control_claude_judges": 24,
+    "answer_generations": 48,
+    "treatment_e2e_faster_cases": 22
+  },
+  "cost_assumptions": {
+    "anthropic_input_per_million": 2,
+    "anthropic_output_per_million": 10,
+    "anthropic_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "cohere_per_1000_search_units": 2.5,
+    "cohere_rate_status": "illustrative; current primary pricing page does not expose a pay-as-you-go rate",
+    "local_compute_included": false,
+    "shared_cohere_counted_once_in_actual_run": true
+  },
+  "actual_run_shared_cohere_units": 24.0,
+  "actual_run_total_if_cohere_rate": 0.24135,
+  "cases": [
+    {
+      "case_id": "analytics_derived_metric_cycle",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "control_sources": [
+        "metric_store",
+        "source_table",
+        "query_result"
+      ],
+      "treatment_sources": [
+        "metric_store",
+        "query_result",
+        "source_table"
+      ],
+      "treatment_e2e_faster": false,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "analytics_incomplete_lineage",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "source_table",
+        "query_result",
+        "source_table_2"
+      ],
+      "treatment_sources": [
+        "source_table",
+        "query_result",
+        "source_table_2"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "analytics_metric_definition_conflict",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "loss",
+      "control_selection": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "control_sources": [
+        "metric_docs",
+        "finance_report",
+        "warehouse_query"
+      ],
+      "treatment_sources": [
+        "metric_docs",
+        "finance_report",
+        "data_catalog"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "analytics_stale_dashboard",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "metric_store",
+        "api_result",
+        "current_query"
+      ],
+      "treatment_sources": [
+        "metric_store",
+        "warehouse_table",
+        "api_result"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "coding_api_version_change",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "treatment_selection": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "control_sources": [
+        "current_api_docs",
+        "repository_code",
+        "package_metadata"
+      ],
+      "treatment_sources": [
+        "package_metadata",
+        "current_api_docs",
+        "repository_code"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "coding_clean_dependency",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "current_docs",
+        "repository_code",
+        "example"
+      ],
+      "treatment_sources": [
+        "current_docs",
+        "release_notes",
+        "repository_code"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "coding_config_conflict",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "unscored",
+      "scored_answer_outcome": "loss",
+      "selection_outcome": "loss",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.5,
+        "true_positive": 1
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "control_sources": [
+        "deployment_config",
+        "readme"
+      ],
+      "treatment_sources": [
+        "example_config",
+        "ci_config"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "unanswered",
+      "substantive_outcome": "loss",
+      "review_note": "Treatment selects only example_config and ci_config and abstains. Control uses production deployment_config and answers 9092."
+    },
+    {
+      "case_id": "coding_package_fix_lineage",
+      "control_answer_score": "unscored",
+      "treatment_answer_score": "unscored",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "release_notes",
+        "pull_request",
+        "package_docs"
+      ],
+      "treatment_sources": [
+        "release_notes",
+        "pull_request",
+        "package_docs"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": "Both answers correctly bound idle connections, evict expired entries, and retain reuse; inflected phrasing misses required literal substrings."
+    },
+    {
+      "case_id": "enterprise_partial_lineage",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "drive_document_2",
+        "system_record",
+        "announcement"
+      ],
+      "treatment_sources": [
+        "drive_document_2",
+        "announcement",
+        "system_record"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "enterprise_policy_copy_chain",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "policy_record",
+        "hr_system",
+        "policy_changelog"
+      ],
+      "treatment_sources": [
+        "policy_changelog",
+        "policy_record",
+        "hr_system"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "enterprise_semantic_distractors",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "policy",
+        "system_record",
+        "operations_doc"
+      ],
+      "treatment_sources": [
+        "policy",
+        "system_record",
+        "operations_doc"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "enterprise_stale_handbook",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "current_policy",
+        "hr_system",
+        "policy_changelog"
+      ],
+      "treatment_sources": [
+        "current_policy",
+        "confluence_page",
+        "announcement"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "multi_agent_feedback_loop",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "database_result",
+        "tool_result",
+        "verifier_agent"
+      ],
+      "treatment_sources": [
+        "database_result",
+        "tool_result",
+        "web_result"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "multi_agent_independent_error",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "control_sources": [
+        "api_result",
+        "tool_result"
+      ],
+      "treatment_sources": [
+        "api_result",
+        "tool_result"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "multi_agent_relevant_wrong_task",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "api_result",
+        "tool_result",
+        "database_result"
+      ],
+      "treatment_sources": [
+        "operations_agent",
+        "database_result",
+        "tool_result"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "multi_agent_repeated_subagent",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "treatment_selection": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "control_sources": [
+        "database_result",
+        "tool_result",
+        "web_result"
+      ],
+      "treatment_sources": [
+        "database_result",
+        "web_result",
+        "tool_result"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "research_clean_consensus",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "primary_record",
+        "dataset",
+        "filing"
+      ],
+      "treatment_sources": [
+        "primary_record",
+        "publication",
+        "report"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "research_conflicting_reports",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "primary_publication",
+        "dataset",
+        "filing"
+      ],
+      "treatment_sources": [
+        "primary_publication",
+        "report_2",
+        "dataset"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "research_independent_false_consensus",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "unscored",
+      "scored_answer_outcome": "loss",
+      "selection_outcome": "loss",
+      "control_selection": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 3,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "control_sources": [
+        "primary_record",
+        "dataset",
+        "web_page"
+      ],
+      "treatment_sources": [
+        "analysis",
+        "report",
+        "publication"
+      ],
+      "treatment_e2e_faster": false,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "wrong",
+      "substantive_outcome": "loss",
+      "review_note": "Treatment selects independent analysis/report/publication estimates of 240 occupied homes and qualifies them, but misses the census answer of 216. Control selects primary_record/dataset/web_page and answers 216."
+    },
+    {
+      "case_id": "research_syndicated_reporting",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "loss",
+      "control_selection": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "control_sources": [
+        "primary_record",
+        "dataset",
+        "filing"
+      ],
+      "treatment_sources": [
+        "primary_record",
+        "original_report",
+        "dataset"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "support_clean_resolution",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "current_runbook",
+        "service_state",
+        "change_record"
+      ],
+      "treatment_sources": [
+        "current_runbook",
+        "kb_article",
+        "service_state"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "support_resolution_conflict",
+      "control_answer_score": "unscored",
+      "treatment_answer_score": "unscored",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "treatment_selection": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "control_sources": [
+        "runbook",
+        "service_state"
+      ],
+      "treatment_sources": [
+        "service_state",
+        "runbook"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "partial",
+      "treatment_substantive": "partial",
+      "substantive_outcome": "tie",
+      "review_note": "Both give the correct rollback strategy and retain verification, but omit required tb17 because their selected sources do not identify the revision."
+    },
+    {
+      "case_id": "support_stale_runbook",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "current_runbook",
+        "deployment_config",
+        "incident_record"
+      ],
+      "treatment_sources": [
+        "current_runbook",
+        "deployment_config",
+        "incident_record"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    },
+    {
+      "case_id": "support_ticket_reference_loop",
+      "control_answer_score": "correct",
+      "treatment_answer_score": "correct",
+      "scored_answer_outcome": "tie",
+      "selection_outcome": "tie",
+      "control_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "treatment_selection": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "control_sources": [
+        "runbook",
+        "service_state",
+        "deployment_config"
+      ],
+      "treatment_sources": [
+        "runbook",
+        "service_state",
+        "deployment_config"
+      ],
+      "treatment_e2e_faster": true,
+      "control_substantive": "fully_correct",
+      "treatment_substantive": "fully_correct",
+      "substantive_outcome": "tie",
+      "review_note": ""
+    }
+  ],
+  "substantive_review_method": "Manual reading of all 48 saved answers against frozen ground truth; no scoring or saved result changes and no additional API calls.",
+  "paired_outcomes": {
+    "scored_answer_outcome": {
+      "tie": 22,
+      "loss": 2
+    },
+    "substantive_outcome": {
+      "tie": 22,
+      "loss": 2
+    },
+    "selection_outcome": {
+      "tie": 20,
+      "loss": 4
+    }
+  }
+}

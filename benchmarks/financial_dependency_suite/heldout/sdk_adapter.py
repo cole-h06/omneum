@@ -53,4 +53,3 @@ def build_observations(case):
         )
 
     return tuple(observations), source_ids
-

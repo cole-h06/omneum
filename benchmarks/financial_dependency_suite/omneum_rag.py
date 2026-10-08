@@ -27,7 +27,11 @@ async def evaluate_context(mapped, *, estimator):
     )
 
     with benchmark_deployment() as (config, server):
-        async with open_stdio_client(config, server) as client:
+        async with open_stdio_client(
+            config,
+            server,
+            local_persistence=None,
+        ) as client:
             return await client.evaluate_context(
                 observations,
                 estimator=estimator,

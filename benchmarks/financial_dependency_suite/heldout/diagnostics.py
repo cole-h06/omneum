@@ -155,6 +155,7 @@ def safe_artifact(record):
                 if _BLOCKED.search(key) or (_SENSITIVE.search(key) and key not in {
                     "input_tokens", "output_tokens", "total_tokens", "reasoning_tokens",
                     "evaluator_input_tokens", "evaluator_output_tokens",
+                    "cohere_input_tokens", "cohere_output_tokens",
                     *_MEASUREMENT_FIELDS,
                 }):
                     continue

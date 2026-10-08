@@ -68,6 +68,8 @@ __all__ = [
     "ContextEvaluationResponseError",
     "ContextEvaluationTransportError",
     "LinkageToken",
+    "LocalPersistenceConfig",
+    "LocalPersistenceError",
     "Observation",
     "PairwiseDependencyResult",
     "Retrieval",
@@ -91,25 +93,15 @@ __all__ = [
 from .local_persistence import LocalPersistenceConfig
 from .contribution import (
     HTTPSContributionTransport,
+    HTTPSNetworkEvaluator,
     NetworkContributionConfig,
     NetworkLinkageConfig,
+    OmneumNetwork,
 )
 from .storage import ContextStorage, SQLiteStorage
 from .client import LocalPersistenceError, NetworkContributionError
-
-from .local_persistence import LocalPersistenceConfig
-from .contribution import (
-    HTTPSContributionTransport,
-    NetworkContributionConfig,
-    NetworkLinkageConfig,
-)
-from .storage import ContextStorage, SQLiteStorage
-from .client import LocalPersistenceError, NetworkContributionError
-from .contribution import HTTPSNetworkEvaluator, OmneumNetwork
 
 __all__ += [
-    "LocalPersistenceConfig",
-    "LocalPersistenceError",
     "NetworkContributionError",
     "NetworkContributionConfig",
     "NetworkLinkageConfig",
