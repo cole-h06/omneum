@@ -97,6 +97,16 @@ from .contribution import (
 from .storage import ContextStorage, SQLiteStorage
 from .client import LocalPersistenceError, NetworkContributionError
 
+from .local_persistence import LocalPersistenceConfig
+from .contribution import (
+    HTTPSContributionTransport,
+    NetworkContributionConfig,
+    NetworkLinkageConfig,
+)
+from .storage import ContextStorage, SQLiteStorage
+from .client import LocalPersistenceError, NetworkContributionError
+from .contribution import HTTPSNetworkEvaluator, OmneumNetwork
+
 __all__ += [
     "LocalPersistenceConfig",
     "LocalPersistenceError",
@@ -106,4 +116,6 @@ __all__ += [
     "HTTPSContributionTransport",
     "ContextStorage",
     "SQLiteStorage",
+    "HTTPSNetworkEvaluator",
+    "OmneumNetwork",
 ]

@@ -13,7 +13,7 @@ from uuid import UUID
 
 from .linkage import NetworkLinkageConfig
 from .models import EvaluationContribution
-from .validation import decode
+from .validation import decode, _object
 from ..oprf import VOPRFEvaluation
 
 
@@ -21,6 +21,12 @@ class NetworkEvaluator(Protocol):
     async def evaluate(self, *, key_version: int, blinded_element: bytes) -> VOPRFEvaluation:
         """Use authenticated network VOPRF service; never receive unblinded inputs."""
         ...
+
+
+def _validate_credential(token):
+    if (type(token) is not str or len(token) > 4089
+            or not re.fullmatch(r"[A-Za-z0-9._~+/=-]+", token)):
+        raise ValueError("invalid network credential")
 
 
 class _NoRedirect(HTTPRedirectHandler):
@@ -51,9 +57,7 @@ class HTTPSContributionTransport:
         if (url.scheme != "https" or not url.hostname or url.username is not None
                 or url.password is not None or url.query or url.fragment):
             raise ValueError("ingestion requires an HTTPS endpoint without credentials or query")
-        if (type(self.bearer_token) is not str or len(self.bearer_token) > 4089
-                or not re.fullmatch(r"[A-Za-z0-9._~+/=-]+", self.bearer_token)):
-            raise ValueError("invalid ingestion credential")
+        _validate_credential(self.bearer_token)
         if (type(self.timeout_seconds) not in (float, int)
                 or not math.isfinite(self.timeout_seconds) or self.timeout_seconds <= 0):
             raise ValueError("invalid ingestion deadline")
@@ -84,7 +88,7 @@ class HTTPSContributionTransport:
             raw = response.read(4097)
             if response.status != 200 or len(raw) > 4096:
                 raise ValueError("invalid ingestion response")
-            result = json.loads(raw)
+            result = json.loads(raw, object_pairs_hook=_object)
             if (set(result) != {"status", "code", "receipt_id", "evaluation_run_id"}
                     or type(result["status"]) is not int or result["status"] != 200
                     or result["code"] != "accepted"):

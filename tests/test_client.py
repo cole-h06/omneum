@@ -82,6 +82,8 @@ def test_package_exports() -> None:
         "HTTPSContributionTransport",
         "ContextStorage",
         "SQLiteStorage",
+        "HTTPSNetworkEvaluator",
+        "OmneumNetwork",
     ]
 
 
