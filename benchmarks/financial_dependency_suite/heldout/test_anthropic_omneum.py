@@ -18,28 +18,20 @@ from benchmarks.financial_dependency_suite.heldout.loader import load_case
 BASELINE = Path(__file__).parent / "results/clean-validation-1trial-20261004T013826Z/results.jsonl"
 
 
-@pytest.mark.parametrize("count,budget,depth", [(10, 3, 6), (3, 2, 3), (1, 1, 1)])
-def test_claude_shortlist_omneum_final_budget_and_scoring(monkeypatch, count, budget, depth):
+@pytest.mark.parametrize("count,budget", [(10, 3), (3, 2), (1, 1)])
+def test_omneum_uses_full_pool_without_claude_selector(monkeypatch, count, budget):
     candidates = [{"source": f"s{i}", "text": f"candidate {i}"} for i in range(count)]
     case = NS(question="question", context_budget=budget)
-    shortlist = candidates[::-1][:depth]
-    final = shortlist[:budget]
+    final = candidates[::-1][:budget]
     truth_data = truth()
-    calls, generated, evaluated = [], [], []
-    observations, source_ids = [object()], {item["source"]: item["source"] for item in candidates}
+    generated, evaluated = [], []
+    observations, source_ids = (), {item["source"]: item["source"] for item in candidates}
 
     monkeypatch.setattr(runner, "application_candidates", lambda _: candidates)
     monkeypatch.setattr(runner, "build_observations", lambda _: (observations, source_ids))
 
-    async def claude(query, pool, *, provider, model, top_n):
-        # Ground truth is intentionally absent from the evaluator call contract.
-        calls.append((query, pool, provider, model, top_n))
-        return {"failure": None, "selection": {
-            "selected": shortlist, "provider": provider, "model": model,
-            "latency_seconds": .2, "input_tokens": 30, "output_tokens": 8,
-            "raw_output": json.dumps({"selected_sources": [x["source"] for x in shortlist]}),
-            "response_diagnostics": {"stop_reason": "end_turn"},
-        }}
+    async def claude(*args, **kwargs):
+        pytest.fail("anthropic_omneum must not invoke the Anthropic relevance selector")
 
     async def omneum(pool, obs, ids, *, estimator, top_n):
         evaluated.append((pool, obs, ids, top_n))
@@ -54,7 +46,8 @@ def test_claude_shortlist_omneum_final_budget_and_scoring(monkeypatch, count, bu
             "latency_seconds": .5, "input_tokens": 11, "output_tokens": 4,
         }}
 
-    monkeypatch.setattr(runner, "select_llm_safe", claude)
+    monkeypatch.setattr(runner, "select_llm_safe", claude, raising=False)
+    monkeypatch.setattr(runner.frozen, "select_llm_safe", claude)
     monkeypatch.setattr(runner, "select_omneum", omneum)
     monkeypatch.setattr(runner, "generate_answer_safe", generate)
     result = asyncio.run(runner.run_method(
@@ -63,20 +56,27 @@ def test_claude_shortlist_omneum_final_budget_and_scoring(monkeypatch, count, bu
         generator_model="claude-sonnet-5-5",
     ))
 
-    assert calls == [("question", candidates, "anthropic", "claude-sonnet-5-5", depth)]
-    assert evaluated == [(shortlist, observations, source_ids, budget)]
+    assert evaluated == [(candidates, observations, source_ids, budget)]
     assert result["selected"] == [item["source"] for item in final]
     assert generated == [("question", final, "anthropic", "claude-sonnet-5-5")]
     assert len(final) == budget
     assert result["selection_score"] == runner.score_selection(result["selected"], truth_data)
     assert result["answer_score"] == runner.score_answer("answer 42", truth_data)
-    assert result["selection"]["relevance_depth"] == depth
-    assert result["selection"]["evaluator_input_tokens"] == 30
-    assert result["selection"]["evaluator_output_tokens"] == 8
+    assert result["selection"]["candidate_pool_size"] == count
+    assert result["selection"]["candidate_pool_sources"] == [item["source"] for item in candidates]
+    assert result["selection"]["evaluator_provider"] == "local"
+    assert result["selection"]["evaluator_model"] == "Omneum"
+    assert result["selection"]["evaluator_input_tokens"] == 0
+    assert result["selection"]["evaluator_output_tokens"] == 0
+    assert result["selection"]["evaluator_latency_seconds"] == .1
+    assert result["selection"]["evaluation_latency_seconds"] == .1
+    assert result["selection"]["cold_integration_latency_seconds"] == .4
+    assert result["generation"]["input_tokens"] == 11
+    assert result["generation"]["output_tokens"] == 4
     assert result["selection"]["request_hash"]
     assert result["generation"]["request_hash"]
-    assert result["selection"]["latency_seconds"] == pytest.approx(.6)
-    assert result["end_to_end_latency_seconds"] == pytest.approx(1.1)
+    assert result["selection"]["latency_seconds"] == pytest.approx(.4)
+    assert result["end_to_end_latency_seconds"] == pytest.approx(.9)
     assert result["inference_cost"] == {"usd": None, "availability": "no_pricing_defined"}
 
 
@@ -110,17 +110,10 @@ def test_omneum_underfill_is_a_selection_failure_without_generation(monkeypatch)
     case = NS(question="question", context_budget=2)
     monkeypatch.setattr(runner, "application_candidates", lambda _: candidates)
     monkeypatch.setattr(runner, "build_observations", lambda _: ([], {}))
-    async def claude(*args, top_n, **kwargs):
-        return {"failure": None, "selection": {
-            "selected": candidates[:top_n], "provider": "anthropic",
-            "model": "claude-sonnet-5-5", "latency_seconds": .1,
-            "input_tokens": 4, "output_tokens": 2, "raw_output": "{}",
-        }}
     async def underfilled(*args, **kwargs):
         return {"selected": candidates[:1], "model": "Omneum", "latency_seconds": .2}
     async def no_generation(*args, **kwargs):
         pytest.fail("must not answer from fewer than the final context budget")
-    monkeypatch.setattr(runner, "select_llm_safe", claude)
     monkeypatch.setattr(runner, "select_omneum", underfilled)
     monkeypatch.setattr(runner, "generate_answer_safe", no_generation)
     result = asyncio.run(runner.run_method(
@@ -137,18 +130,11 @@ def test_generation_failure_keeps_selection_score_and_request_identity(monkeypat
     case = NS(question="question", context_budget=2)
     monkeypatch.setattr(runner, "application_candidates", lambda _: candidates)
     monkeypatch.setattr(runner, "build_observations", lambda _: ([], {}))
-    async def claude(*args, top_n, **kwargs):
-        return {"failure": None, "selection": {
-            "selected": candidates[:top_n], "provider": "anthropic",
-            "model": "claude-sonnet-5-5", "latency_seconds": .1,
-            "input_tokens": 4, "output_tokens": 2, "raw_output": "{}",
-        }}
     async def omneum(*args, top_n, **kwargs):
         return {"selected": candidates[:top_n], "model": "Omneum", "latency_seconds": .2}
     async def failed_generation(*args, **kwargs):
         return {"failure": {"answer": None, "answer_score": "generation_failure",
                             "failure_type": "provider_error", "generation": None}}
-    monkeypatch.setattr(runner, "select_llm_safe", claude)
     monkeypatch.setattr(runner, "select_omneum", omneum)
     monkeypatch.setattr(runner, "generate_answer_safe", failed_generation)
     result = asyncio.run(runner.run_method(
@@ -197,11 +183,7 @@ def test_baseline_import_and_paired_schedule_never_regenerate_claude_rows(monkey
 
     async def evaluator(query, candidates, *, provider, model, top_n):
         calls["evaluator"] += 1
-        return {"failure": None, "selection": {
-            "selected": candidates[:top_n], "provider": provider, "model": model,
-            "latency_seconds": .01, "input_tokens": 12, "output_tokens": 5,
-            "raw_output": json.dumps({"selected_sources": [x["source"] for x in candidates[:top_n]]}),
-        }}
+        pytest.fail("paired baseline reuse must not call the Claude selector")
 
     async def omneum(pool, observations, source_ids, *, estimator, top_n):
         calls["omneum"] += 1
@@ -216,7 +198,8 @@ def test_baseline_import_and_paired_schedule_never_regenerate_claude_rows(monkey
         }}
 
     monkeypatch.setattr(driver, "warm_local_models", lambda *args: pytest.fail("unexpected local model warmup"))
-    monkeypatch.setattr(runner, "select_llm_safe", evaluator)
+    monkeypatch.setattr(runner, "select_llm_safe", evaluator, raising=False)
+    monkeypatch.setattr(runner.frozen, "select_llm_safe", evaluator)
     monkeypatch.setattr(runner, "select_omneum", omneum)
     monkeypatch.setattr(runner, "generate_answer_safe", generator)
     directory = asyncio.run(driver.run_benchmark(
@@ -228,15 +211,19 @@ def test_baseline_import_and_paired_schedule_never_regenerate_claude_rows(monkey
                 (json.loads(line) for line in BASELINE.read_text().splitlines())
                 if row.get("method") == "anthropic"}
     assert len(rows) == 48
-    assert calls == {"evaluator": 24, "generator": 24, "omneum": 24}
+    assert calls == {"evaluator": 0, "generator": 24, "omneum": 24}
     assert all(row == original[row["case_id"]] for row in rows if row["method"] == "anthropic")
     assert all(row["method"] in {"anthropic", "anthropic_omneum"} for row in rows)
     output_manifest = json.loads((directory / "manifest.json").read_text())
     assert output_manifest["baseline_reuse"]["reused_records"] == 24
-    assert output_manifest["selection_pipeline"]["anthropic_omneum"]["shortlist_depth"].startswith("min(")
+    pipeline = output_manifest["selection_pipeline"]["anthropic_omneum"]
+    assert pipeline["relevance_shortlist"] is False
+    assert pipeline["evaluator_provider"] == "local"
+    assert output_manifest["models"]["anthropic_omneum"] == "Omneum"
+    assert pipeline["generator_model"] == "claude-sonnet-5-5"
     paired = next(row for row in rows if row["method"] == "anthropic_omneum")
-    assert paired["selection"]["evaluator_input_tokens"] == 12
-    assert paired["selection"]["evaluator_output_tokens"] == 5
-    assert paired["selection"]["evaluator_raw_output"]
+    assert paired["selection"]["evaluator_input_tokens"] == 0
+    assert paired["selection"]["evaluator_output_tokens"] == 0
+    assert paired["selection"]["evaluator_raw_output"] is None
     assert paired["selection"]["request_hash"]
     assert paired["generation"]["request_hash"]

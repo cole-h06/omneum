@@ -106,15 +106,15 @@ async def run_benchmark(
     baseline_reference = None
     if baseline_results is not None:
         names = {method.name for method in methods}
-        if not {"anthropic", "anthropic_omneum"}.issubset(names):
-            raise ValueError("baseline reuse requires both anthropic and anthropic_omneum methods")
+        if "anthropic" not in names or not names.intersection({"anthropic_omneum", "bge_omneum"}):
+            raise ValueError("baseline reuse requires anthropic and either anthropic_omneum or bge_omneum")
         if trials != 1:
             raise ValueError("baseline reuse requires --trials 1")
         reused_records, baseline_reference = load_anthropic_baseline(
             baseline_results, discovered, generator_model=GENERATOR_MODEL,
         )
         if not methods or methods[0].name != "anthropic":
-            raise ValueError("put anthropic before anthropic_omneum when reusing the baseline")
+            raise ValueError("put anthropic first when reusing the baseline")
     identifier = identifier or (Path(resume).name if resume is not None else run_id())
     if Path(identifier).name != identifier or identifier in {".", ".."}:
         raise ValueError("identifier must be a single directory name")
@@ -152,16 +152,29 @@ async def run_benchmark(
     if baseline_reference is not None:
         contract["baseline_reuse"] = baseline_reference
         manifest_data["baseline_reuse"] = baseline_reference
-        manifest_data["selection_pipeline"] = {
-            "anthropic_omneum": {
-                "evaluator_provider": "anthropic",
-                "evaluator_model": "claude-sonnet-5-5",
-                "shortlist_depth": "min(candidate_count, 2 * final_context_budget)",
+        manifest_data["selection_pipeline"] = {}
+        if "anthropic_omneum" in names:
+            manifest_data["selection_pipeline"]["anthropic_omneum"] = {
+                "evaluator_provider": "local",
+                "evaluator_model": "Omneum",
+                "candidate_pool": "same full application_candidates pool as the Claude judge",
+                "relevance_shortlist": False,
                 "final_selector": "Omneum dependency-estimator-v4",
                 "generator_provider": GENERATOR_PROVIDER,
                 "generator_model": GENERATOR_MODEL,
             }
-        }
+        if "bge_omneum" in names:
+            manifest_data["selection_pipeline"]["bge_omneum"] = {
+                "candidate_pool": "same full application_candidates pool as the Claude judge",
+                "relevance_model": "BAAI/bge-reranker-v2-m3",
+                "relevance_shortlist": True,
+                "relevance_depth": "min(candidate_pool_size, 2 * context_budget)",
+                "evaluator_provider": "local",
+                "evaluator_model": "Omneum",
+                "final_selector": "Omneum dependency-estimator-v4",
+                "generator_provider": GENERATOR_PROVIDER,
+                "generator_model": GENERATOR_MODEL,
+            }
     manifest_data["checkpoint_contract"] = contract
     schedule = build_schedule(discovered, methods, trials)
     with TrialCheckpoint(run_dir, contract, schedule, resume=resume is not None) as progress:

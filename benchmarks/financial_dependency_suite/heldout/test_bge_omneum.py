@@ -245,6 +245,88 @@ def test_paired_cli(monkeypatch, tmp_path, capsys):
     assert str(tmp_path) in capsys.readouterr().out
 
 
+def test_claude_baseline_with_existing_bge_omneum_pipeline(monkeypatch, tmp_path):
+    import json
+    from benchmarks.financial_dependency_suite import clients
+    from . import run_benchmark as driver
+
+    baseline = Path(__file__).parent / "results/clean-validation-1trial-20261004T013826Z/results.jsonl"
+    original = {row["case_id"]: row for row in map(json.loads, baseline.read_text().splitlines())
+                if row["method"] == "anthropic"}
+    cases = driver.discover_cases(driver.CASES_DIR)
+    calls = {"bge": 0, "omneum": 0, "generator": 0, "warmup": 0}
+
+    def warmup(query, pool):
+        calls["warmup"] += 1
+
+    def bge(query, pool, *, top_n):
+        _, _, case, _ = cases[calls["bge"]]
+        assert query == case.question
+        assert pool == runner.application_candidates(case)
+        assert top_n == min(len(pool), 2 * case.context_budget)
+        calls["bge"] += 1
+        return {"selected": pool[:top_n], "model": "BAAI/bge-reranker-v2-m3",
+                "latency_seconds": .2}
+
+    async def reliability(pool, observations, source_ids, *, estimator, top_n):
+        _, _, case, _ = cases[calls["omneum"]]
+        assert pool == runner.application_candidates(case)[:min(len(case.candidates), 2 * case.context_budget)]
+        assert (observations, source_ids) == runner.build_observations(case)
+        assert estimator == runner.estimator_config()
+        assert top_n == case.context_budget
+        calls["omneum"] += 1
+        return {"selected": pool[:top_n], "model": "Omneum", "latency_seconds": .3,
+                "cold_integration_latency_seconds": .3, "evaluation_latency_seconds": .05}
+
+    async def anthropic(prompt, model, max_tokens, *, response_schema=None):
+        _, _, case, _ = cases[calls["generator"]]
+        documents = runner.application_candidates(case)[:case.context_budget]
+        context = "\n\n".join(f"Source: {item['source']}\n{item['text']}" for item in documents)
+        assert prompt == f"Answer the question using only the sources below.\n\nQuestion:\n\n{case.question}\n\nSources:\n\n{context}\n\nGive a concise answer and identify which sources support it.\n"
+        assert model == "claude-sonnet-5-5"
+        assert max_tokens == 1024
+        assert response_schema is None
+        calls["generator"] += 1
+        return {"text": "fixture", "provider": "anthropic", "model": model,
+                "latency_seconds": .4, "input_tokens": 11, "output_tokens": 7}
+
+    async def no_claude_judge(*args, **kwargs):
+        pytest.fail("frozen Claude baseline must never be regenerated")
+
+    monkeypatch.setattr(driver, "warm_local_models", warmup)
+    monkeypatch.setattr(runner, "select_bge", bge)
+    monkeypatch.setattr(runner, "select_omneum", reliability)
+    monkeypatch.setattr(runner, "select_llm_safe", no_claude_judge)
+    monkeypatch.setattr(clients, "_generate_anthropic", anthropic)
+    directory = asyncio.run(driver.run_benchmark(
+        results_dir=tmp_path, trials=1, identifier="claude-bge-omneum",
+        methods=tuple(map(method_by_name, ("anthropic", "bge_omneum"))),
+        baseline_results=baseline,
+    ))
+    records = list(map(json.loads, (directory / "results.jsonl").read_text().splitlines()))
+    assert len(records) == 48
+    assert calls == {"bge": 24, "omneum": 24, "generator": 24, "warmup": 1}
+    assert all(row == original[row["case_id"]] for row in records if row["method"] == "anthropic")
+    for row in (row for row in records if row["method"] == "bge_omneum"):
+        selection = row["selection"]
+        assert selection["bge_latency_seconds"] == .2
+        assert selection["omneum_latency_seconds"] == .3
+        assert selection["evaluation_latency_seconds"] == .05
+        assert selection["cold_integration_latency_seconds"] == .3
+        assert selection["latency_seconds"] == .5
+        assert row["generation"]["latency_seconds"] == .4
+        assert row["generation"]["input_tokens"] == 11
+        assert row["generation"]["output_tokens"] == 7
+        assert row["end_to_end_latency_seconds"] == pytest.approx(.9)
+    manifest = json.loads((directory / "manifest.json").read_text())
+    assert set(manifest["selection_pipeline"]) == {"bge_omneum"}
+    pipeline = manifest["selection_pipeline"]["bge_omneum"]
+    assert pipeline["relevance_model"] == "BAAI/bge-reranker-v2-m3"
+    assert pipeline["relevance_shortlist"] is True
+    assert pipeline["generator_provider"] == "anthropic"
+    assert pipeline["generator_model"] == "claude-sonnet-5-5"
+
+
 
 @pytest.mark.parametrize("budget,expected", [
     (2, ["current_a", "current_b"]),
