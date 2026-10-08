@@ -1,0 +1,167 @@
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/D_double_edge"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:3ba1f77f-0629-55d4-a911-0658d4b4ef68": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:482b016d-39b3-589d-87ce-f2d0f5586f4a": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7ee05e31-fce1-5c62-a570-f625dd880156": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:b2dd9664-c9e9-5ccb-b1c3-2e2d47d3af69": reliability 0.250000
+  c0001 "tideline-alerting"."dedupe_key" = "sensor_id,alert_type"
+    support 0.250000; sources 4; estimated independent support 1.000000
+    supporting: s0001, s0002, s0003, s0004; assertions: "tideline-alert-dedupe-key-v1", "tideline-alert-dedupe-key-v2", "tideline-alert-dedupe-key-v3", "tideline-alert-dedupe-key-v4"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.250..0.450; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.600 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/I_independent"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:1aa647ce-c721-514b-9d7e-23f99065261c": reliability 0.333333
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:5cea5045-94e0-5af9-8fc4-76538dd3f329": reliability 0.333333
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:f69439df-aab1-591e-a87e-fb91891979a4": reliability 0.333333
+  c0001 "tideline-sync"."cold_start_above_2s_causes_full_resync" = true
+    support 1.000000; sources 3; estimated independent support 3.000000
+    supporting: s0001, s0002, s0003; assertions: "tideline-cold-start-breaks-mobile-sync-postmortem", "tideline-cold-start-customer-report", "tideline-cold-start-load-test-finding"
+    conflicts: none
+  Dependencies: 3 pairs; max 0.000000; coverage 0.000..0.000; 3 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.394 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/L_lineage_only"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:501af4ba-882d-55e3-88be-7beb197ddf5d": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:66449b15-fbd8-5a10-b7e5-aea781dd8471": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:a07417c2-85b7-5839-936e-24ffa9581458": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c65b8893-a735-536f-a8ac-f6a37acef3fe": reliability 0.250000
+  c0001 "tideline-gateway"."heartbeat_interval_seconds" = 30
+    support 0.416667; sources 4; estimated independent support 1.600000
+    supporting: s0001, s0003, s0002, s0004; assertions: "tideline-heartbeat-interval-v1", "tideline-heartbeat-interval-v2", "tideline-heartbeat-interval-v3", "tideline-heartbeat-interval-v4"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.000..0.200; 2 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.614 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/S_shared_root"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:85e951c1-3638-5e54-81fd-b9f9fb3bdb31": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:a833e834-b832-5608-a4af-39b2209b9476": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c3cac467-6227-5f03-be8f-c8954f84c3a5": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:df017556-ba7f-59b1-979b-4806bf137521": reliability 0.250000
+  c0001 "tideline-ingest"."write_path_idempotent" = true
+    support 0.250000; sources 4; estimated independent support 1.000000
+    supporting: s0001, s0002, s0003, s0004; assertions: "tideline-idempotency-dedupe-window", "tideline-idempotency-ingest-path", "tideline-idempotency-replay-tooling", "tideline-idempotency-retry-policy"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.250..0.250; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.861 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "head_parents_empty/D_double_edge"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:3ba1f77f-0629-55d4-a911-0658d4b4ef68": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:482b016d-39b3-589d-87ce-f2d0f5586f4a": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7ee05e31-fce1-5c62-a570-f625dd880156": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:b2dd9664-c9e9-5ccb-b1c3-2e2d47d3af69": reliability 0.250000
+  c0001 "tideline-alerting"."dedupe_key" = "sensor_id,alert_type"
+    support 0.250000; sources 4; estimated independent support 1.000000
+    supporting: s0001, s0002, s0003, s0004; assertions: "tideline-alert-dedupe-key-v1", "tideline-alert-dedupe-key-v2", "tideline-alert-dedupe-key-v3", "tideline-alert-dedupe-key-v4"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.450..0.450; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.595 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "head_parents_empty/L_lineage_only"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:501af4ba-882d-55e3-88be-7beb197ddf5d": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:66449b15-fbd8-5a10-b7e5-aea781dd8471": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:a07417c2-85b7-5839-936e-24ffa9581458": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c65b8893-a735-536f-a8ac-f6a37acef3fe": reliability 0.250000
+  c0001 "tideline-gateway"."heartbeat_interval_seconds" = 30
+    support 0.416667; sources 4; estimated independent support 1.600000
+    supporting: s0001, s0003, s0002, s0004; assertions: "tideline-heartbeat-interval-v1", "tideline-heartbeat-interval-v2", "tideline-heartbeat-interval-v3", "tideline-heartbeat-interval-v4"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.200..0.200; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.585 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/D_double_edge"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:3ba1f77f-0629-55d4-a911-0658d4b4ef68": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:482b016d-39b3-589d-87ce-f2d0f5586f4a": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7ee05e31-fce1-5c62-a570-f625dd880156": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:b2dd9664-c9e9-5ccb-b1c3-2e2d47d3af69": reliability 0.250000
+  c0001 "tideline-alerting"."dedupe_key" = "sensor_id,alert_type"
+    support 0.250000; sources 4; estimated independent support 1.000000
+    supporting: s0001, s0002, s0003, s0004; assertions: "tideline-alert-dedupe-key-v1", "tideline-alert-dedupe-key-v2", "tideline-alert-dedupe-key-v3", "tideline-alert-dedupe-key-v4"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.350..0.550; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.598 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/I_independent"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:1aa647ce-c721-514b-9d7e-23f99065261c": reliability 0.333333
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:5cea5045-94e0-5af9-8fc4-76538dd3f329": reliability 0.333333
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:f69439df-aab1-591e-a87e-fb91891979a4": reliability 0.333333
+  c0001 "tideline-sync"."cold_start_above_2s_causes_full_resync" = true
+    support 0.833333; sources 3; estimated independent support 2.500000
+    supporting: s0001, s0002, s0003; assertions: "tideline-cold-start-breaks-mobile-sync-postmortem", "tideline-cold-start-customer-report", "tideline-cold-start-load-test-finding"
+    conflicts: none
+  Dependencies: 3 pairs; max 0.100000; coverage 0.100..0.100; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.384 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/L_lineage_only"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:501af4ba-882d-55e3-88be-7beb197ddf5d": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:66449b15-fbd8-5a10-b7e5-aea781dd8471": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:a07417c2-85b7-5839-936e-24ffa9581458": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c65b8893-a735-536f-a8ac-f6a37acef3fe": reliability 0.250000
+  c0001 "tideline-gateway"."heartbeat_interval_seconds" = 30
+    support 0.388563; sources 4; estimated independent support 1.509434
+    supporting: s0001, s0003, s0002, s0004; assertions: "tideline-heartbeat-interval-v1", "tideline-heartbeat-interval-v2", "tideline-heartbeat-interval-v3", "tideline-heartbeat-interval-v4"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.100..0.300; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.589 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/S_shared_root"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:85e951c1-3638-5e54-81fd-b9f9fb3bdb31": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:a833e834-b832-5608-a4af-39b2209b9476": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c3cac467-6227-5f03-be8f-c8954f84c3a5": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:df017556-ba7f-59b1-979b-4806bf137521": reliability 0.250000
+  c0001 "tideline-ingest"."write_path_idempotent" = true
+    support 0.250000; sources 4; estimated independent support 1.000000
+    supporting: s0001, s0002, s0003, s0004; assertions: "tideline-idempotency-dedupe-window", "tideline-idempotency-ingest-path", "tideline-idempotency-replay-tooling", "tideline-idempotency-retry-policy"
+    conflicts: none
+  Dependencies: 6 pairs; max 1.000000; coverage 0.350..0.350; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.610 ms (estimator + graph + inference)

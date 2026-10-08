@@ -1,0 +1,451 @@
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/K1_batch_size_conflict"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9387c353-6d69-5402-94a8-44c88ac1f512": reliability 0.500000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:d12ab08b-dabf-5d1f-9541-e5778b3b9bc6": reliability 0.500000
+  c0001 "tideline-ingest"."batch_size_readings" = 500
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-ingest-batch-size"
+    conflicts: c0002 (0.250000)
+  c0002 "tideline-ingest"."batch_size_readings" = 50
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-ingest-batch-size-small"
+    conflicts: c0001 (0.250000)
+  Dependencies: 1 pairs; max 0.000000; coverage 0.000..0.000; 1 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.234 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/K2_primary_store_conflict"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:0e5017f0-b491-5083-9e98-5eb7d0efec63": reliability 0.500000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325f715-394a-5de2-bb6f-2fb6c678db3d": reliability 0.500000
+  c0001 "tideline-storage"."authoritative_store" = "ClickHouse"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-primary-store-clickhouse"
+    conflicts: c0002 (0.250000)
+  c0002 "tideline-storage"."authoritative_store" = "Postgres"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-primary-store"
+    conflicts: c0001 (0.250000)
+  Dependencies: 1 pairs; max 0.000000; coverage 0.000..0.000; 1 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.236 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/K3_rate_limit_chain_plus_export_conflict"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:66548bf6-cb77-5052-8ff6-d57c93c2be59": reliability 0.366025
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:81a10854-b6c8-5368-ae01-49af79403e63": reliability 0.267949
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325343f-2b8e-5b58-b807-65b75c9478e8": reliability 0.183013
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c57c217c-cb45-557c-9c29-555446f041ef": reliability 0.183013
+  c0002 "tideline-api"."export_rate_limit" = "shares general 1000/min bucket"
+    support 0.183013; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-api-rate-limit-export-shared"
+    conflicts: c0001 (0.066987)
+  c0001 "tideline-api"."export_rate_limit" = "separate 50/min ceiling"
+    support 0.066987; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-api-rate-limit-v3#export_rate_limit"
+    conflicts: c0002 (0.183013)
+  c0003 "tideline-api"."public_rate_limit" = "100/min"
+    support 0.061004; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-api-rate-limit-v1"
+    conflicts: c0005 (0.061004), c0004 (0.044658)
+  c0005 "tideline-api"."public_rate_limit" = "300/min"
+    support 0.061004; sources 1; estimated independent support 1.000000
+    supporting: s0004; assertions: "tideline-api-rate-limit-v2"
+    conflicts: c0003 (0.061004), c0004 (0.044658)
+  c0004 "tideline-api"."public_rate_limit" = "1000/min"
+    support 0.044658; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-api-rate-limit-v3#public_rate_limit"
+    conflicts: c0003 (0.061004), c0005 (0.061004)
+  Dependencies: 6 pairs; max 1.000000; coverage 0.000..0.200; 4 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 14
+  Evaluation latency: 0.789 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/R1_rate_limit_chain"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325343f-2b8e-5b58-b807-65b75c9478e8": reliability 0.333333
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:81a10854-b6c8-5368-ae01-49af79403e63": reliability 0.333333
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c57c217c-cb45-557c-9c29-555446f041ef": reliability 0.333333
+  c0001 "tideline-api"."public_rate_limit" = "100/min"
+    support 0.111111; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-api-rate-limit-v1"
+    conflicts: c0002 (0.111111), c0003 (0.111111)
+  c0002 "tideline-api"."public_rate_limit" = "1000/min"
+    support 0.111111; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-api-rate-limit-v3"
+    conflicts: c0001 (0.111111), c0003 (0.111111)
+  c0003 "tideline-api"."public_rate_limit" = "300/min"
+    support 0.111111; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-api-rate-limit-v2"
+    conflicts: c0001 (0.111111), c0002 (0.111111)
+  Dependencies: 3 pairs; max 1.000000; coverage 0.000..0.200; 1 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.981 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/R2_deploy_target_chain"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:3b3ac5c6-ee9c-5c39-bebd-d877071e44cb": reliability 0.500000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:e52fa0ff-7f76-5ad4-b30a-48a121e19dd8": reliability 0.500000
+  c0001 "tideline-platform"."deploy_target" = "Fly.io"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-deploy-target-v2"
+    conflicts: c0002 (0.250000)
+  c0002 "tideline-platform"."deploy_target" = "Heroku"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-deploy-target-v1"
+    conflicts: c0001 (0.250000)
+  Dependencies: 1 pairs; max 1.000000; coverage 0.200..0.200; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.221 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/R3_retention_chain"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:2550760d-819f-5430-b021-e2ef72e3e93e": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:56fbbcaa-5ab2-5353-b5f3-e7ca9f4d80fd": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:6242b39b-a6cb-5f7a-8437-4f2873da54a9": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9d8d2a39-3c49-520a-8234-581eda0d5cc6": reliability 0.250000
+  c0001 "tideline-storage"."raw_reading_retention" = "180d tiered"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-retention-v4"
+    conflicts: c0002 (0.062500), c0003 (0.062500), c0004 (0.062500)
+  c0002 "tideline-storage"."raw_reading_retention" = "30d"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-retention-v2"
+    conflicts: c0001 (0.062500), c0003 (0.062500), c0004 (0.062500)
+  c0003 "tideline-storage"."raw_reading_retention" = "7d"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0004; assertions: "tideline-retention-v1"
+    conflicts: c0001 (0.062500), c0002 (0.062500), c0004 (0.062500)
+  c0004 "tideline-storage"."raw_reading_retention" = "90d"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-retention-v3"
+    conflicts: c0001 (0.062500), c0002 (0.062500), c0003 (0.062500)
+  Dependencies: 6 pairs; max 1.000000; coverage 0.000..0.200; 2 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.586 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "base/RK_all_combined"
+  s0006 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:66548bf6-cb77-5052-8ff6-d57c93c2be59": reliability 0.122008
+  s0009 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:81a10854-b6c8-5368-ae01-49af79403e63": reliability 0.089316
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:0e5017f0-b491-5083-9e98-5eb7d0efec63": reliability 0.083333
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:3b3ac5c6-ee9c-5c39-bebd-d877071e44cb": reliability 0.083333
+  s0008 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325f715-394a-5de2-bb6f-2fb6c678db3d": reliability 0.083333
+  s0010 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9387c353-6d69-5402-94a8-44c88ac1f512": reliability 0.083333
+  s0013 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:d12ab08b-dabf-5d1f-9541-e5778b3b9bc6": reliability 0.083333
+  s0014 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:e52fa0ff-7f76-5ad4-b30a-48a121e19dd8": reliability 0.083333
+  s0007 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325343f-2b8e-5b58-b807-65b75c9478e8": reliability 0.061004
+  s0012 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c57c217c-cb45-557c-9c29-555446f041ef": reliability 0.061004
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:2550760d-819f-5430-b021-e2ef72e3e93e": reliability 0.041667
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:56fbbcaa-5ab2-5353-b5f3-e7ca9f4d80fd": reliability 0.041667
+  s0005 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:6242b39b-a6cb-5f7a-8437-4f2873da54a9": reliability 0.041667
+  s0011 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9d8d2a39-3c49-520a-8234-581eda0d5cc6": reliability 0.041667
+  c0001 "tideline-storage"."authoritative_store" = "ClickHouse"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0008; assertions: "tideline-primary-store-clickhouse"
+    conflicts: c0002 (0.041667)
+  c0002 "tideline-storage"."authoritative_store" = "Postgres"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-primary-store"
+    conflicts: c0001 (0.041667)
+  c0003 "tideline-ingest"."batch_size_readings" = 500
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0013; assertions: "tideline-ingest-batch-size"
+    conflicts: c0004 (0.041667)
+  c0004 "tideline-ingest"."batch_size_readings" = 50
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0010; assertions: "tideline-ingest-batch-size-small"
+    conflicts: c0003 (0.041667)
+  c0005 "tideline-platform"."deploy_target" = "Fly.io"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-deploy-target-v2"
+    conflicts: c0006 (0.041667)
+  c0006 "tideline-platform"."deploy_target" = "Heroku"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0014; assertions: "tideline-deploy-target-v1"
+    conflicts: c0005 (0.041667)
+  c0008 "tideline-api"."export_rate_limit" = "shares general 1000/min bucket"
+    support 0.061004; sources 1; estimated independent support 1.000000
+    supporting: s0006; assertions: "tideline-api-rate-limit-export-shared"
+    conflicts: c0007 (0.022329)
+  c0007 "tideline-api"."export_rate_limit" = "separate 50/min ceiling"
+    support 0.022329; sources 1; estimated independent support 1.000000
+    supporting: s0009; assertions: "tideline-api-rate-limit-v3#export_rate_limit"
+    conflicts: c0008 (0.061004)
+  c0009 "tideline-api"."public_rate_limit" = "100/min"
+    support 0.020335; sources 1; estimated independent support 1.000000
+    supporting: s0007; assertions: "tideline-api-rate-limit-v1"
+    conflicts: c0011 (0.020335), c0010 (0.014886)
+  c0011 "tideline-api"."public_rate_limit" = "300/min"
+    support 0.020335; sources 1; estimated independent support 1.000000
+    supporting: s0012; assertions: "tideline-api-rate-limit-v2"
+    conflicts: c0009 (0.020335), c0010 (0.014886)
+  c0010 "tideline-api"."public_rate_limit" = "1000/min"
+    support 0.014886; sources 1; estimated independent support 1.000000
+    supporting: s0009; assertions: "tideline-api-rate-limit-v3#public_rate_limit"
+    conflicts: c0009 (0.020335), c0011 (0.020335)
+  c0012 "tideline-storage"."raw_reading_retention" = "180d tiered"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0004; assertions: "tideline-retention-v4"
+    conflicts: c0013 (0.010417), c0014 (0.010417), c0015 (0.010417)
+  c0013 "tideline-storage"."raw_reading_retention" = "30d"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0005; assertions: "tideline-retention-v2"
+    conflicts: c0012 (0.010417), c0014 (0.010417), c0015 (0.010417)
+  c0014 "tideline-storage"."raw_reading_retention" = "7d"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0011; assertions: "tideline-retention-v1"
+    conflicts: c0012 (0.010417), c0013 (0.010417), c0015 (0.010417)
+  c0015 "tideline-storage"."raw_reading_retention" = "90d"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-retention-v3"
+    conflicts: c0012 (0.010417), c0013 (0.010417), c0014 (0.010417)
+  Dependencies: 91 pairs; max 1.000000; coverage 0.000..0.200; 73 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 13
+  Evaluation latency: 5.174 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/K1_batch_size_conflict"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9387c353-6d69-5402-94a8-44c88ac1f512": reliability 0.500000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:d12ab08b-dabf-5d1f-9541-e5778b3b9bc6": reliability 0.500000
+  c0001 "tideline-ingest"."batch_size_readings" = 500
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-ingest-batch-size"
+    conflicts: c0002 (0.250000)
+  c0002 "tideline-ingest"."batch_size_readings" = 50
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-ingest-batch-size-small"
+    conflicts: c0001 (0.250000)
+  Dependencies: 1 pairs; max 0.000000; coverage 0.000..0.000; 1 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.201 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/K2_primary_store_conflict"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:0e5017f0-b491-5083-9e98-5eb7d0efec63": reliability 0.500000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325f715-394a-5de2-bb6f-2fb6c678db3d": reliability 0.500000
+  c0001 "tideline-storage"."authoritative_store" = "ClickHouse"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-primary-store-clickhouse"
+    conflicts: c0002 (0.250000)
+  c0002 "tideline-storage"."authoritative_store" = "Postgres"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-primary-store"
+    conflicts: c0001 (0.250000)
+  Dependencies: 1 pairs; max 0.000000; coverage 0.000..0.000; 1 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.200 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/K3_rate_limit_chain_plus_export_conflict"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:66548bf6-cb77-5052-8ff6-d57c93c2be59": reliability 0.366025
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:81a10854-b6c8-5368-ae01-49af79403e63": reliability 0.267949
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325343f-2b8e-5b58-b807-65b75c9478e8": reliability 0.183013
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c57c217c-cb45-557c-9c29-555446f041ef": reliability 0.183013
+  c0002 "tideline-api"."export_rate_limit" = "shares general 1000/min bucket"
+    support 0.183013; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-api-rate-limit-export-shared"
+    conflicts: c0001 (0.066987)
+  c0001 "tideline-api"."export_rate_limit" = "separate 50/min ceiling"
+    support 0.066987; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-api-rate-limit-v3#export_rate_limit"
+    conflicts: c0002 (0.183013)
+  c0003 "tideline-api"."public_rate_limit" = "100/min"
+    support 0.061004; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-api-rate-limit-v1"
+    conflicts: c0005 (0.061004), c0004 (0.044658)
+  c0005 "tideline-api"."public_rate_limit" = "300/min"
+    support 0.061004; sources 1; estimated independent support 1.000000
+    supporting: s0004; assertions: "tideline-api-rate-limit-v2"
+    conflicts: c0003 (0.061004), c0004 (0.044658)
+  c0004 "tideline-api"."public_rate_limit" = "1000/min"
+    support 0.044658; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-api-rate-limit-v3#public_rate_limit"
+    conflicts: c0003 (0.061004), c0005 (0.061004)
+  Dependencies: 6 pairs; max 1.000000; coverage 0.000..0.200; 4 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 14
+  Evaluation latency: 0.732 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/R1_rate_limit_chain"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325343f-2b8e-5b58-b807-65b75c9478e8": reliability 0.333333
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:81a10854-b6c8-5368-ae01-49af79403e63": reliability 0.333333
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c57c217c-cb45-557c-9c29-555446f041ef": reliability 0.333333
+  c0001 "tideline-api"."public_rate_limit" = "100/min"
+    support 0.111111; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-api-rate-limit-v1"
+    conflicts: c0002 (0.111111), c0003 (0.111111)
+  c0002 "tideline-api"."public_rate_limit" = "1000/min"
+    support 0.111111; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-api-rate-limit-v3"
+    conflicts: c0001 (0.111111), c0003 (0.111111)
+  c0003 "tideline-api"."public_rate_limit" = "300/min"
+    support 0.111111; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-api-rate-limit-v2"
+    conflicts: c0001 (0.111111), c0002 (0.111111)
+  Dependencies: 3 pairs; max 1.000000; coverage 0.000..0.200; 1 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.357 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/R2_deploy_target_chain"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:3b3ac5c6-ee9c-5c39-bebd-d877071e44cb": reliability 0.500000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:e52fa0ff-7f76-5ad4-b30a-48a121e19dd8": reliability 0.500000
+  c0001 "tideline-platform"."deploy_target" = "Fly.io"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-deploy-target-v2"
+    conflicts: c0002 (0.250000)
+  c0002 "tideline-platform"."deploy_target" = "Heroku"
+    support 0.250000; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-deploy-target-v1"
+    conflicts: c0001 (0.250000)
+  Dependencies: 1 pairs; max 1.000000; coverage 0.200..0.200; 0 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.206 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/R3_retention_chain"
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:2550760d-819f-5430-b021-e2ef72e3e93e": reliability 0.250000
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:56fbbcaa-5ab2-5353-b5f3-e7ca9f4d80fd": reliability 0.250000
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:6242b39b-a6cb-5f7a-8437-4f2873da54a9": reliability 0.250000
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9d8d2a39-3c49-520a-8234-581eda0d5cc6": reliability 0.250000
+  c0001 "tideline-storage"."raw_reading_retention" = "180d tiered"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-retention-v4"
+    conflicts: c0002 (0.062500), c0003 (0.062500), c0004 (0.062500)
+  c0002 "tideline-storage"."raw_reading_retention" = "30d"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-retention-v2"
+    conflicts: c0001 (0.062500), c0003 (0.062500), c0004 (0.062500)
+  c0003 "tideline-storage"."raw_reading_retention" = "7d"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0004; assertions: "tideline-retention-v1"
+    conflicts: c0001 (0.062500), c0002 (0.062500), c0004 (0.062500)
+  c0004 "tideline-storage"."raw_reading_retention" = "90d"
+    support 0.062500; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-retention-v3"
+    conflicts: c0001 (0.062500), c0002 (0.062500), c0003 (0.062500)
+  Dependencies: 6 pairs; max 1.000000; coverage 0.000..0.200; 2 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 1
+  Evaluation latency: 0.545 ms (estimator + graph + inference)
+
+Local algorithm evaluation (no MCP, VOPRF verification, or daemon isolation)
+Scores describe this supplied graph; they are not truth probabilities.
+
+Case "temporal-updated/RK_all_combined"
+  s0006 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:66548bf6-cb77-5052-8ff6-d57c93c2be59": reliability 0.122008
+  s0009 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:81a10854-b6c8-5368-ae01-49af79403e63": reliability 0.089316
+  s0001 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:0e5017f0-b491-5083-9e98-5eb7d0efec63": reliability 0.083333
+  s0003 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:3b3ac5c6-ee9c-5c39-bebd-d877071e44cb": reliability 0.083333
+  s0008 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325f715-394a-5de2-bb6f-2fb6c678db3d": reliability 0.083333
+  s0010 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9387c353-6d69-5402-94a8-44c88ac1f512": reliability 0.083333
+  s0013 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:d12ab08b-dabf-5d1f-9541-e5778b3b9bc6": reliability 0.083333
+  s0014 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:e52fa0ff-7f76-5ad4-b30a-48a121e19dd8": reliability 0.083333
+  s0007 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:7325343f-2b8e-5b58-b807-65b75c9478e8": reliability 0.061004
+  s0012 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:c57c217c-cb45-557c-9c29-555446f041ef": reliability 0.061004
+  s0002 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:2550760d-819f-5430-b021-e2ef72e3e93e": reliability 0.041667
+  s0004 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:56fbbcaa-5ab2-5353-b5f3-e7ca9f4d80fd": reliability 0.041667
+  s0005 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:6242b39b-a6cb-5f7a-8437-4f2873da54a9": reliability 0.041667
+  s0011 internal_resource "v1:078f7cb4-30aa-5735-9022-8358f321652a:9d8d2a39-3c49-520a-8234-581eda0d5cc6": reliability 0.041667
+  c0001 "tideline-storage"."authoritative_store" = "ClickHouse"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0008; assertions: "tideline-primary-store-clickhouse"
+    conflicts: c0002 (0.041667)
+  c0002 "tideline-storage"."authoritative_store" = "Postgres"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0001; assertions: "tideline-primary-store"
+    conflicts: c0001 (0.041667)
+  c0003 "tideline-ingest"."batch_size_readings" = 500
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0013; assertions: "tideline-ingest-batch-size"
+    conflicts: c0004 (0.041667)
+  c0004 "tideline-ingest"."batch_size_readings" = 50
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0010; assertions: "tideline-ingest-batch-size-small"
+    conflicts: c0003 (0.041667)
+  c0005 "tideline-platform"."deploy_target" = "Fly.io"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0003; assertions: "tideline-deploy-target-v2"
+    conflicts: c0006 (0.041667)
+  c0006 "tideline-platform"."deploy_target" = "Heroku"
+    support 0.041667; sources 1; estimated independent support 1.000000
+    supporting: s0014; assertions: "tideline-deploy-target-v1"
+    conflicts: c0005 (0.041667)
+  c0008 "tideline-api"."export_rate_limit" = "shares general 1000/min bucket"
+    support 0.061004; sources 1; estimated independent support 1.000000
+    supporting: s0006; assertions: "tideline-api-rate-limit-export-shared"
+    conflicts: c0007 (0.022329)
+  c0007 "tideline-api"."export_rate_limit" = "separate 50/min ceiling"
+    support 0.022329; sources 1; estimated independent support 1.000000
+    supporting: s0009; assertions: "tideline-api-rate-limit-v3#export_rate_limit"
+    conflicts: c0008 (0.061004)
+  c0009 "tideline-api"."public_rate_limit" = "100/min"
+    support 0.020335; sources 1; estimated independent support 1.000000
+    supporting: s0007; assertions: "tideline-api-rate-limit-v1"
+    conflicts: c0011 (0.020335), c0010 (0.014886)
+  c0011 "tideline-api"."public_rate_limit" = "300/min"
+    support 0.020335; sources 1; estimated independent support 1.000000
+    supporting: s0012; assertions: "tideline-api-rate-limit-v2"
+    conflicts: c0009 (0.020335), c0010 (0.014886)
+  c0010 "tideline-api"."public_rate_limit" = "1000/min"
+    support 0.014886; sources 1; estimated independent support 1.000000
+    supporting: s0009; assertions: "tideline-api-rate-limit-v3#public_rate_limit"
+    conflicts: c0009 (0.020335), c0011 (0.020335)
+  c0012 "tideline-storage"."raw_reading_retention" = "180d tiered"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0004; assertions: "tideline-retention-v4"
+    conflicts: c0013 (0.010417), c0014 (0.010417), c0015 (0.010417)
+  c0013 "tideline-storage"."raw_reading_retention" = "30d"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0005; assertions: "tideline-retention-v2"
+    conflicts: c0012 (0.010417), c0014 (0.010417), c0015 (0.010417)
+  c0014 "tideline-storage"."raw_reading_retention" = "7d"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0011; assertions: "tideline-retention-v1"
+    conflicts: c0012 (0.010417), c0013 (0.010417), c0015 (0.010417)
+  c0015 "tideline-storage"."raw_reading_retention" = "90d"
+    support 0.010417; sources 1; estimated independent support 1.000000
+    supporting: s0002; assertions: "tideline-retention-v3"
+    conflicts: c0012 (0.010417), c0013 (0.010417), c0014 (0.010417)
+  Dependencies: 91 pairs; max 1.000000; coverage 0.000..0.200; 73 pairs with no observed weighted signals
+  Missing signals remain unknown; low dependency does not establish independence.
+  Converged: True; iterations: 13
+  Evaluation latency: 5.258 ms (estimator + graph + inference)
