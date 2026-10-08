@@ -38,8 +38,8 @@ def test_trial_counts(monkeypatch):
             stochastic=True,
         ),
         MethodSpec(
-            name="braid",
-            method="braid",
+            name="omneum",
+            method="omneum",
         ),
     )
 
@@ -71,7 +71,7 @@ def test_trial_counts(monkeypatch):
     assert [
         record["trial"]
         for record in records
-        if record["method"] == "braid"
+        if record["method"] == "omneum"
     ] == [1]
 
 

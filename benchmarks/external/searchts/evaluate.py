@@ -112,7 +112,7 @@ async def main():
         print(f"Dependency: {item.dependency:.4f}")
     conflicts = sum(len(item.conflicting_claims) for item in evaluation.claim_support)
     print(f"\nConflicts: {conflicts}")
-    print(f"BRAID iterations: {evaluation.convergence.iterations}")
+    print(f"Omneum iterations: {evaluation.convergence.iterations}")
     print("\nTwo retrieval backends; one shared upstream document.")
     print(f"Structured result: {output.relative_to(DATA.parents[3])}")
 

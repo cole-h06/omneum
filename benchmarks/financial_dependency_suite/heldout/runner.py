@@ -1,7 +1,7 @@
 from benchmarks.financial_dependency_suite.application_comparison import (
     generate_answer_safe,
     select_bge,
-    select_braid,
+    select_omneum_reranked,
     select_cohere_safe,
     select_llm_provenance_safe,
     select_llm_safe,
@@ -67,8 +67,9 @@ async def run_selection(
             top_n=top_n,
         )
 
-    if method == "braid":
-        return await select_braid(
+    if method == "omneum":
+        return await select_omneum_reranked(
+            case.question,
             candidates,
             observations,
             source_ids,

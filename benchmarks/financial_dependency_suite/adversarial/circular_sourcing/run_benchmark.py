@@ -15,7 +15,7 @@ from ..comparison import (
     mean_or_none,
     summarize_llm_judges,
 )
-from ...braid_rag import evaluate_context, map_observations, select_context
+from ...omneum_rag import evaluate_context, map_observations, select_context
 from ...config import estimator_config
 from ...reproducibility import manifest, write_manifest
 
@@ -124,7 +124,7 @@ def selected_record(selected):
             "source": item["retrieved"]["source"],
             "claim_value": item["claim"].value,
             "claim_support": item["claim_support"],
-            "braid_contribution": item["braid_contribution"],
+            "omneum_contribution": item["omneum_contribution"],
         }
         for item in selected
     ]
@@ -141,6 +141,7 @@ async def evaluate(case):
     )
 
     selected = select_context(
+        QUERY,
         case_mapped,
         result,
         top_n=4,
@@ -159,7 +160,7 @@ def by_value(result):
 
 
 async def evaluate_condition(case, expected_relationships):
-    result, selected, braid_latency = await evaluate(case)
+    result, selected, omneum_latency = await evaluate(case)
 
     llm_judges = await evaluate_llm_judges(
         query="What is the payments-api request timeout?",
@@ -168,7 +169,7 @@ async def evaluate_condition(case, expected_relationships):
         include_text=False,
     )
 
-    return result, selected, braid_latency, llm_judges
+    return result, selected, omneum_latency, llm_judges
 
 
 async def run_trial(trial_number):
@@ -232,7 +233,7 @@ async def run_trial(trial_number):
         "dependent_value": DEPENDENT_VALUE,
         "independent_value": INDEPENDENT_VALUE,
         "circular_treatment": {
-            "braid_latency_seconds": circular_latency,
+            "omneum_latency_seconds": circular_latency,
             "claims": [
                 claim_record(claim)
                 for claim in circular_result.claim_support
@@ -242,7 +243,7 @@ async def run_trial(trial_number):
             "llm_judges": circular_llm,
         },
         "acyclic_chain_control": {
-            "braid_latency_seconds": acyclic_latency,
+            "omneum_latency_seconds": acyclic_latency,
             "claims": [
                 claim_record(claim)
                 for claim in acyclic_result.claim_support
@@ -252,7 +253,7 @@ async def run_trial(trial_number):
             "llm_judges": acyclic_llm,
         },
         "no_relationship_control": {
-            "braid_latency_seconds": control_latency,
+            "omneum_latency_seconds": control_latency,
             "claims": [
                 claim_record(claim)
                 for claim in control_result.claim_support
@@ -288,16 +289,16 @@ async def run_trial(trial_number):
 
 
 def summarize_condition(trials, condition):
-    braid_latencies = [
-        trial[condition]["braid_latency_seconds"]
+    omneum_latencies = [
+        trial[condition]["omneum_latency_seconds"]
         for trial in trials
     ]
 
     return {
-        "braid": {
+        "omneum": {
             "trials": len(trials),
             "mean_latency_seconds":
-                mean_or_none(braid_latencies),
+                mean_or_none(omneum_latencies),
         },
         "llm_judges":
             summarize_llm_judges(trials, condition),
@@ -325,7 +326,7 @@ def build_summary(trials):
             summarize_condition(trials, "no_relationship_control"),
         "mean_relative_cycle_reduction":
             mean_or_none(cycle_reductions),
-        "braid_checks": {
+        "omneum_checks": {
             key: all(
                 trial["checks"][key]
                 for trial in trials

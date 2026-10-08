@@ -2,7 +2,7 @@
 
 Omneum evaluates structured information before it enters downstream agent control flow.
 
-The Python SDK adapts application data into Omneum's canonical representation, estimates source dependencies, and performs client-side VOPRF operations. The Python MCP server validates evaluation requests, constructs the source-claim graph, and runs BRAID. Server-side VOPRF evaluation is isolated in `omneumd`, a Rust daemon that owns the deployment private key and exposes a narrow local evaluation interface to the MCP process.
+The Python SDK adapts application data into Omneum's canonical representation, estimates source dependencies, and performs client-side VOPRF operations. The Python MCP server validates evaluation requests, constructs the source-claim graph, and runs Omneum. Server-side VOPRF evaluation is isolated in `omneumd`, a Rust daemon that owns the deployment private key and exposes a narrow local evaluation interface to the MCP process.
 
 ## 1. Evaluation Path
 
@@ -54,7 +54,7 @@ Retrieval / Tools / Workflow State
          Bipartite Graph
                 │
                 ▼
-    BRAID Reliability Propagation
+    Omneum Reliability Propagation
                 │
                 ▼
         Evaluation Result
@@ -189,7 +189,7 @@ dependency = 1.0
 
 Coverage records that only part of the configured dependency model was observable. It does not weaken the dependency relationship that was actually observed.
 
-Pairwise dependency is converted into the claim-specific independence weights consumed by BRAID.
+Pairwise dependency is converted into the claim-specific independence weights consumed by Omneum.
 
 ## 5. Privacy-Preserving Linkage
 
@@ -232,7 +232,7 @@ See [`protocol.md`](protocol.md) for the VOPRF and MCP wire contracts.
 
 ## 6. Bipartite Graph
 
-BRAID operates on a bipartite graph containing source nodes and claim nodes. Assertions form edges between the two partitions.
+Omneum operates on a bipartite graph containing source nodes and claim nodes. Assertions form edges between the two partitions.
 
 ~~~text
 S1 ───── C1
@@ -313,11 +313,11 @@ The MCP server returns the graph evaluation as structured SDK data.
 
 Claim results contain the propagated support score and conflict information. The result also exposes dependency-derived diagnostics including estimated independent support and pairwise source dependency.
 
-`estimated_independent_support_count` is distinct from the BRAID propagation score:
+`estimated_independent_support_count` is distinct from the Omneum propagation score:
 
 ~~~text
 support
-    = BRAID graph propagation result
+    = Omneum graph propagation result
 
 estimated_independent_support_count
     = dependency-adjusted supporting-source count
@@ -348,7 +348,7 @@ Omneum's local evaluation path spans three execution components with separate re
 │                         │
 │ request validation      │
 │ graph construction      │
-│ BRAID propagation       │
+│ Omneum propagation       │
 └────────────┬────────────┘
              │
              │ authenticated AF_UNIX
@@ -383,7 +383,7 @@ The MCP server handles:
 - forwarding blinded VOPRF elements to `omneumd`
 - returning VOPRF evaluations and proofs to the SDK
 - graph construction
-- BRAID reliability propagation
+- Omneum reliability propagation
 - structured evaluation responses
 
 The MCP process does not own or load the VOPRF deployment private key.
@@ -397,9 +397,9 @@ The MCP process does not own or load the VOPRF deployment private key.
 - blinded-element evaluation
 - VOPRF proof generation
 
-The daemon accepts only the local VOPRF operations required by the MCP server. Graph construction, dependency processing, assertion evaluation, and BRAID remain outside the daemon.
+The daemon accepts only the local VOPRF operations required by the MCP server. Graph construction, dependency processing, assertion evaluation, and Omneum remain outside the daemon.
 
-Raw source identifiers, structured values, detailed provenance, and retrieval records are not required by the MCP server for graph evaluation. The MCP server receives opaque linkage identifiers and the numeric dependency information consumed by BRAID.
+Raw source identifiers, structured values, detailed provenance, and retrieval records are not required by the MCP server for graph evaluation. The MCP server receives opaque linkage identifiers and the numeric dependency information consumed by Omneum.
 
 ## 10. Deployment
 
@@ -444,7 +444,7 @@ The Python SDK currently communicates with the local MCP server over `stdio`. Re
 
 Open-source assertion evaluation is request-scoped.
 
-For each evaluation request, the MCP server validates the submitted graph inputs, constructs the source-claim graph, runs BRAID, and returns the resulting evaluation. The local evaluation path does not require the hosted Omneum database.
+For each evaluation request, the MCP server validates the submitted graph inputs, constructs the source-claim graph, runs Omneum, and returns the resulting evaluation. The local evaluation path does not require the hosted Omneum database.
 
 The VOPRF deployment key is persistent state owned by `omneumd`. The daemon loads the key into its server context at startup and retains that context for its lifetime.
 
@@ -488,7 +488,7 @@ opaque linkage token
 
 The MCP server receives blinded VOPRF elements but not the private linkage inputs from which they were derived. `omneumd` receives blinded elements and owns the deployment private key. The private key does not cross the daemon boundary.
 
-During assertion evaluation, the MCP server receives opaque source and claim identifiers together with the numeric dependency information required by BRAID. It can observe the submitted graph structure and relationships among opaque identifiers.
+During assertion evaluation, the MCP server receives opaque source and claim identifiers together with the numeric dependency information required by Omneum. It can observe the submitted graph structure and relationships among opaque identifiers.
 
 VOPRF does not conceal graph topology or other information explicitly included in an evaluation request.
 

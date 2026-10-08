@@ -451,7 +451,7 @@ async def select_llm_safe(
     }
 
 
-def braid_documents(selected):
+def omneum_documents(selected):
     return [
         {
             "source": item["retrieved"]["source"],
@@ -518,7 +518,8 @@ async def generate_answer_safe(
     }
 
 
-async def select_braid(
+async def select_omneum_reranked(
+    query,
     candidates,
     observations,
     source_ids,
@@ -527,7 +528,7 @@ async def select_braid(
     top_n,
     evaluation_observations=None,
 ):
-    from .braid_rag import (
+    from .omneum_rag import (
         evaluate_context,
         map_observations,
         select_context,
@@ -555,6 +556,7 @@ async def select_braid(
     )
 
     selected = select_context(
+        query,
         mapped,
         evaluation,
         top_n=top_n,
@@ -568,7 +570,7 @@ async def select_braid(
     )
 
     return {
-        "selected": braid_documents(selected),
+        "selected": omneum_documents(selected),
         "evaluation": evaluation,
         "latency_seconds": latency,
         "cold_integration_latency_seconds": latency,
@@ -577,7 +579,7 @@ async def select_braid(
             if evaluation_latency_ms is not None
             else None
         ),
-        "model": "BRAID",
+        "model": "Omneum",
     }
 
 

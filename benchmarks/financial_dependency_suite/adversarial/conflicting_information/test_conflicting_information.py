@@ -6,7 +6,7 @@ from .cases import (
     balanced_control,
     conflict,
 )
-from ...braid_rag import evaluate_context, map_observations
+from ...omneum_rag import evaluate_context, map_observations
 from ...config import estimator_config
 
 
@@ -125,7 +125,7 @@ async def test_network_breaks_tie():
 
 
 def test_application_case():
-    from .application import case_data
+    from .application import QUERY, case_data
 
     candidates, observations, source_ids = case_data()
 
@@ -142,10 +142,10 @@ def test_application_case():
 
 
 @pytest.mark.anyio
-async def test_application_braid(monkeypatch):
-    from ... import application_comparison, braid_rag
+async def test_application_omneum(monkeypatch):
+    from ... import application_comparison, omneum_rag
     from ...config import estimator_config
-    from .application import case_data
+    from .application import QUERY, case_data
 
     candidates, observations, source_ids = case_data()
     seen = {}
@@ -154,22 +154,23 @@ async def test_application_braid(monkeypatch):
         seen["count"] = len(mapped)
         return object()
 
-    def select(mapped, evaluation, *, top_n):
+    def select(query, mapped, evaluation, *, top_n):
         seen["selectable"] = len(mapped)
         return []
 
     monkeypatch.setattr(
-        braid_rag,
+        omneum_rag,
         "evaluate_context",
         evaluate,
     )
     monkeypatch.setattr(
-        braid_rag,
+        omneum_rag,
         "select_context",
         select,
     )
 
-    await application_comparison.select_braid(
+    await application_comparison.select_omneum_reranked(
+        QUERY,
         candidates,
         observations,
         source_ids,

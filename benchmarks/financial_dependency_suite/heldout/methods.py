@@ -50,8 +50,8 @@ METHODS = (
         for provider, model in LLM_SELECTORS
     ),
     MethodSpec(
-        name="braid",
-        method="braid",
+        name="omneum",
+        method="omneum",
     ),
 )
 

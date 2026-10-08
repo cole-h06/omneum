@@ -4,7 +4,7 @@ from benchmarks.financial_dependency_suite.adversarial.circular_sourcing.cases i
     independent_sources_control,
     circular_sources,
 )
-from benchmarks.financial_dependency_suite.braid_rag import (
+from benchmarks.financial_dependency_suite.omneum_rag import (
     evaluate_context,
     map_observations,
 )

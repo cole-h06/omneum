@@ -3,7 +3,7 @@ from ...application_comparison import (
     application_record,
     generate_answer_safe,
     select_bge,
-    select_braid,
+    select_omneum_reranked,
     select_cohere_safe,
     select_llm_safe,
     select_vector,
@@ -88,8 +88,9 @@ async def run():
     else:
         results["cohere"] = await finish(cohere["selection"])
 
-    results["braid"] = await finish(
-        await select_braid(
+    results["omneum"] = await finish(
+        await select_omneum_reranked(
+            QUERY,
             candidates,
             observations,
             ids,

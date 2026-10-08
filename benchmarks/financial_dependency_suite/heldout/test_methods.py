@@ -15,7 +15,7 @@ def test_method_matrix():
         "anthropic_provenance",
         "openai_provenance",
         "google_provenance",
-        "braid",
+        "omneum",
     ]
 
 
@@ -41,4 +41,4 @@ def test_frontier_models():
 
 
 def test_method_lookup():
-    assert method_by_name("braid").method == "braid"
+    assert method_by_name("omneum").method == "omneum"

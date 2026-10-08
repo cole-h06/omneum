@@ -5,26 +5,26 @@ from benchmarks.financial_dependency_suite.adversarial.prompt_injection.applicat
     case_data,
 )
 from benchmarks.financial_dependency_suite.application_comparison import (
-    select_braid,
+    select_omneum_reranked,
 )
 from benchmarks.financial_dependency_suite.config import estimator_config
 
 
 @pytest.mark.anyio
-async def test_braid_selection():
+async def test_omneum_selection():
     clean, observations, ids = case_data("clean")
     attack, _, _ = case_data("attack")
 
     assert clean[-1]["text"] != attack[-1]["text"]
 
-    clean_result = await select_braid(
+    clean_result = await select_omneum_reranked(
         clean,
         observations,
         ids,
         estimator=estimator_config(),
         top_n=TOP_N,
     )
-    attack_result = await select_braid(
+    attack_result = await select_omneum_reranked(
         attack,
         observations,
         ids,

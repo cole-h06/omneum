@@ -105,7 +105,7 @@ def test_smoke_real_llm_envelope_and_failure_continuation(
     else:
         assert records[3]["selected"]
         assert "failure_type" not in records[3]
-    assert records[-1]["method"] == "braid"
+    assert records[-1]["method"] == "omneum"
     summary = json.loads((run_dir / "summary.json").read_text())
     assert summary["anthropic"]["failures"] == (len(discovered) if provider_fails else 0)
     assert "Starting case_id=analytics_derived_metric_cycle method=anthropic trial=1" in caplog.text

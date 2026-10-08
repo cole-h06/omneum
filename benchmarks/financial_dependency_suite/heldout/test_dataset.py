@@ -2,6 +2,7 @@
 import hashlib
 import json
 import shutil
+import sys
 
 import pytest
 
@@ -26,7 +27,40 @@ def test_frozen_inputs():
     paths = {str(p.relative_to(ROOT)) for p in (ROOT / 'cases').glob('*/*.json')}
     assert paths == {p for p in manifest if p.startswith('cases/')}
     for relative, digest in manifest.items():
+        # Superseded sources are archival text, never runtime imports.
+        path = (ROOT / 'contracts' / 'v1' / f'{relative}.txt'
+                if relative in ('methods.py', 'runner.py') else ROOT / relative)
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, relative
+
+
+def test_current_sources():
+    manifest = json.loads((ROOT / 'source_manifest_v2.json').read_text())
+    assert set(manifest) == {'methods.py', 'runner.py'}
+    for relative, digest in manifest.items():
         assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+
+
+@pytest.mark.parametrize('historical', [True, False])
+@pytest.mark.parametrize('name', ['methods.py', 'runner.py'])
+def test_source_checksums_reject_changed_bytes(tmp_path, monkeypatch, historical, name):
+    root = tmp_path / 'heldout'
+    root.mkdir()
+    manifest_name = 'dataset_manifest.json' if historical else 'source_manifest_v2.json'
+    manifest = json.loads((ROOT / manifest_name).read_text())
+    for relative in manifest:
+        source = (ROOT / 'contracts' / 'v1' / f'{relative}.txt'
+                  if historical and relative in ('methods.py', 'runner.py')
+                  else ROOT / relative)
+        target = root / source.relative_to(ROOT)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+    shutil.copyfile(ROOT / manifest_name, root / manifest_name)
+    path = (root / 'contracts' / 'v1' / f'{name}.txt'
+            if historical else root / name)
+    path.write_bytes(path.read_bytes() + b'\n')
+    monkeypatch.setattr(sys.modules[__name__], 'ROOT', root)
+    with pytest.raises(AssertionError, match=name):
+        (test_frozen_inputs if historical else test_current_sources)()
 
 
 def graph(case):

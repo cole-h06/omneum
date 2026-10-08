@@ -175,38 +175,39 @@ async def test_llm_selector_rejects_invalid_selection(monkeypatch):
 
 
 @pytest.mark.anyio
-async def test_braid_selection(monkeypatch):
+async def test_omneum_selection(monkeypatch):
     async def fake_evaluate(mapped, *, estimator):
         return object()
 
     def fake_map(candidates, observations, source_ids):
         return candidates
 
-    def fake_select(mapped, evaluation, *, top_n):
+    def fake_select(query, mapped, evaluation, *, top_n):
         return [
             {"retrieved": candidate}
             for candidate in mapped[:top_n]
         ]
 
-    import benchmarks.financial_dependency_suite.braid_rag as braid
+    import benchmarks.financial_dependency_suite.omneum_rag as omneum
 
     monkeypatch.setattr(
-        braid,
+        omneum,
         "evaluate_context",
         fake_evaluate,
     )
     monkeypatch.setattr(
-        braid,
+        omneum,
         "map_observations",
         fake_map,
     )
     monkeypatch.setattr(
-        braid,
+        omneum,
         "select_context",
         fake_select,
     )
 
-    result = await app.select_braid(
+    result = await app.select_omneum_reranked(
+        QUERY,
         CANDIDATES,
         observations=(),
         source_ids={},
@@ -215,7 +216,7 @@ async def test_braid_selection(monkeypatch):
     )
 
     assert_valid_selection(result, top_n=2)
-    assert result["model"] == "BRAID"
+    assert result["model"] == "Omneum"
 
 
 

@@ -6,7 +6,8 @@ from benchmarks.financial_dependency_suite.adversarial.data_staleness.cases impo
     dependent_stale_data,
     independent_stale_data,
 )
-from benchmarks.financial_dependency_suite.braid_rag import (
+from benchmarks.financial_dependency_suite.adversarial.data_staleness.application import QUERY
+from benchmarks.financial_dependency_suite.omneum_rag import (
     evaluate_context,
     map_observations,
 )
@@ -118,7 +119,8 @@ async def test_stale_selection():
     dependent = dependent_stale_data()
     independent = independent_stale_data()
 
-    from benchmarks.financial_dependency_suite.braid_rag import (
+    from benchmarks.financial_dependency_suite.adversarial.data_staleness.application import QUERY
+from benchmarks.financial_dependency_suite.omneum_rag import (
         select_context,
     )
 
@@ -128,6 +130,7 @@ async def test_stale_selection():
         estimator=estimator_config(),
     )
     dependent_selected = select_context(
+        QUERY,
         dependent_mapped,
         dependent_result,
         top_n=4,
@@ -139,6 +142,7 @@ async def test_stale_selection():
         estimator=estimator_config(),
     )
     independent_selected = select_context(
+        QUERY,
         independent_mapped,
         independent_result,
         top_n=4,

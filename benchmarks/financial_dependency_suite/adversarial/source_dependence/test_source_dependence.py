@@ -88,7 +88,7 @@ async def test_dependency_changes_balanced_conflict():
         source_dependence,
         independent_sources_control,
     )
-    from ...braid_rag import evaluate_context, map_observations
+    from ...omneum_rag import evaluate_context, map_observations
     from ...naive_rag import load_documents
     from ...config import estimator_config
 
@@ -214,7 +214,7 @@ def test_independent_ground_truth():
 @pytest.mark.anyio
 async def test_sparse_provenance():
     from .cases import sparse_provenance_control
-    from ...braid_rag import evaluate_context, map_observations
+    from ...omneum_rag import evaluate_context, map_observations
     from ...naive_rag import load_documents
     from ...config import estimator_config
 
@@ -281,7 +281,7 @@ async def test_sparse_provenance():
 @pytest.mark.anyio
 async def test_noisy_metadata():
     from .cases import noisy_metadata_control
-    from ...braid_rag import evaluate_context, map_observations
+    from ...omneum_rag import evaluate_context, map_observations
     from ...naive_rag import load_documents
     from ...config import estimator_config
 
@@ -357,12 +357,13 @@ async def test_semantic_noise():
 
     from omneum import Claim, Observation, Source
 
-    from ...braid_rag import (
+    from ...omneum_rag import (
         evaluate_context,
         map_observations,
         select_context,
     )
     from ...config import estimator_config
+    from .application import QUERY
 
     revenue_source = Source(
         "web_document",
@@ -450,6 +451,7 @@ async def test_semantic_noise():
     ]
 
     selected = select_context(
+        QUERY,
         mapped,
         evaluation,
         top_n=2,

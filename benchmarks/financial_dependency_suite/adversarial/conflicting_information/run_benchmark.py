@@ -10,7 +10,7 @@ from .cases import (
     balanced_control,
     conflict,
 )
-from ...braid_rag import evaluate_context
+from ...omneum_rag import evaluate_context
 from ...config import estimator_config
 from ...reproducibility import manifest, write_manifest
 

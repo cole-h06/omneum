@@ -282,10 +282,10 @@ async def test_provenance_injection():
 
 
 @pytest.mark.anyio
-async def test_braid_text_invariance():
+async def test_omneum_text_invariance():
     from omneum import Claim, Source
 
-    from benchmarks.financial_dependency_suite.braid_rag import (
+    from benchmarks.financial_dependency_suite.omneum_rag import (
         evaluate_context,
         map_observations,
         select_context,
@@ -387,17 +387,19 @@ async def test_braid_text_invariance():
         estimator=estimator_config(),
     )
 
-    # Retrieved text is not an input to BRAID's structural evaluation.
+    # Retrieved text is not an input to Omneum's structural evaluation.
     # Equality covers source reliability, claim support,
     # pairwise dependencies, and convergence metadata.
     assert clean_evaluation == attacked_evaluation
 
     clean_selected = select_context(
+        QUERY,
         clean_mapped,
         clean_evaluation,
         top_n=4,
     )
     attacked_selected = select_context(
+        QUERY,
         attacked_mapped,
         attacked_evaluation,
         top_n=4,
@@ -409,7 +411,7 @@ async def test_braid_text_invariance():
                 item["retrieved"]["source"],
                 item["claim"].value,
                 item["claim_support"],
-                item["braid_contribution"],
+                item["omneum_contribution"],
             )
             for item in selected
         ]

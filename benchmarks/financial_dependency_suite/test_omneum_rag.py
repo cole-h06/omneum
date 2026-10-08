@@ -1,4 +1,4 @@
-from .braid_rag import (
+from .omneum_rag import (
     evaluate_context,
     map_observations,
     select_context,
@@ -61,7 +61,7 @@ async def test_evaluates_context():
 
 
 @pytest.mark.anyio
-async def test_prints_braid_evaluation():
+async def test_prints_omneum_evaluation():
     retrieved = retrieve(
         "What was Arm Holdings' total revenue for fiscal 2023?",
         case_directory="arm_ipo_2023",
@@ -114,7 +114,7 @@ async def test_prints_braid_evaluation():
 
 
 @pytest.mark.anyio
-async def test_braid_reranking():
+async def test_omneum_reranking():
     retrieved = retrieve(
         "What was Arm Holdings' total revenue for fiscal 2023?",
         case_directory="arm_ipo_2023",
@@ -144,7 +144,7 @@ async def test_braid_reranking():
     assert len(reranked) == 3
 
     contributions = [
-        item["braid_contribution"]
+        item["omneum_contribution"]
         for item in reranked
     ]
 
@@ -153,11 +153,11 @@ async def test_braid_reranking():
         reverse=True,
     )
 
-    print("\nBRAID TOP 3")
+    print("\nOmneum TOP 3")
     for item in reranked:
         print(
             item["retrieved"]["source"],
-            f"contribution={item['braid_contribution']:.6f}",
+            f"contribution={item['omneum_contribution']:.6f}",
         )
 
 

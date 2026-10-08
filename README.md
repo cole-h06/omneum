@@ -288,7 +288,7 @@ Search / Retrieval / Tool Execution
                 ↓
           Bipartite Graph
                 ↓
-    BRAID Reliability Propagation
+    Omneum Reliability Propagation
                 ↓
         Evaluation Result
                 ↓
@@ -345,9 +345,9 @@ The SDK estimates pairwise source dependency from the provenance and structural 
 
 Missing information is not treated as evidence of independence. If a dependency signal cannot be observed for a source pair, it remains unavailable. Dependency is calculated from the signals that were observable, while `weighted_signal_coverage` records how much of the configured signal space was available.
 
-The resulting dependency estimates are used to derive the independence weights applied during BRAID reliability propagation. BRAID runs over the bipartite graph of sources and claims and propagates reliability between them until the scores converge.
+The resulting dependency estimates are used to derive the independence weights applied during Omneum reliability propagation. Omneum runs over the bipartite graph of sources and claims and propagates reliability between them until the scores converge.
 
-The returned evaluation includes claim support, pairwise dependency results, conflicts, and signal coverage. `estimated_independent_support_count` is reported separately as a dependency-adjusted source count; it is not the BRAID support score.
+The returned evaluation includes claim support, pairwise dependency results, conflicts, and signal coverage. `estimated_independent_support_count` is reported separately as a dependency-adjusted source count; it is not the Omneum support score.
 
 Applications can provide explicit dependency signals when their runtime already computes one of Omneum's canonical signals. Most integrations should supply the provenance they actually have and let the SDK derive the corresponding signals.
 

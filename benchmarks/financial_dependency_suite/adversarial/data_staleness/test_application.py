@@ -41,7 +41,8 @@ async def test_application_run(monkeypatch):
         },
     )
 
-    async def braid_select(
+    async def omneum_select(
+        query,
         candidates,
         observations,
         source_ids,
@@ -53,10 +54,10 @@ async def test_application_run(monkeypatch):
             "selected": candidates[:top_n],
             "latency_seconds": 0.01,
             "evaluation": object(),
-            "model": "BRAID",
+            "model": "Omneum",
         }
 
-    monkeypatch.setattr(app, "select_braid", braid_select)
+    monkeypatch.setattr(app, "select_omneum_reranked", omneum_select)
 
     async def llm_select(
         query,

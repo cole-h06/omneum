@@ -823,7 +823,7 @@ def test_records_evaluation_metrics(tmp_path):
         assert metrics["pair_count"] == len(
             result.pairwise_dependencies
         )
-        assert metrics["braid_iterations"] == (
+        assert metrics["convergence_iterations"] == (
             result.convergence.iterations
         )
         assert metrics["convergence_delta"] == (

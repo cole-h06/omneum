@@ -11,7 +11,7 @@ from ..comparison import (
     mean_or_none,
     summarize_llm_judges,
 )
-from ...braid_rag import evaluate_context, map_observations, select_context
+from ...omneum_rag import evaluate_context, map_observations, select_context
 from ...config import estimator_config
 from ...reproducibility import manifest, write_manifest
 
@@ -113,7 +113,7 @@ def selected_record(selected):
             "source": item["retrieved"]["source"],
             "claim_value": item["claim"].value,
             "claim_support": item["claim_support"],
-            "braid_contribution": item["braid_contribution"],
+            "omneum_contribution": item["omneum_contribution"],
         }
         for item in selected
     ]
@@ -130,6 +130,7 @@ async def evaluate(case):
     )
 
     selected = select_context(
+        QUERY,
         case_mapped,
         result,
         top_n=4,
@@ -147,13 +148,13 @@ async def run_trial(trial_number):
     (
         dependent_result,
         dependent_selected,
-        dependent_braid_latency,
+        dependent_omneum_latency,
     ) = await evaluate(dependent_case)
 
     (
         independent_result,
         independent_selected,
-        independent_braid_latency,
+        independent_omneum_latency,
     ) = await evaluate(independent_case)
 
     query = "What is the current retention period for payments-api?"
@@ -189,7 +190,7 @@ async def run_trial(trial_number):
         "stale_value": STALE_VALUE,
         "current_value": CURRENT_VALUE,
         "dependent_treatment": {
-            "braid_latency_seconds": dependent_braid_latency,
+            "omneum_latency_seconds": dependent_omneum_latency,
             "claims": [
                 claim_record(claim)
                 for claim in dependent_result.claim_support
@@ -199,7 +200,7 @@ async def run_trial(trial_number):
             "llm_judges": dependent_llm_judges,
         },
         "independent_control": {
-            "braid_latency_seconds": independent_braid_latency,
+            "omneum_latency_seconds": independent_omneum_latency,
             "claims": [
                 claim_record(claim)
                 for claim in independent_result.claim_support
@@ -233,16 +234,16 @@ async def run_trial(trial_number):
 
 
 def summarize_condition(trials, condition):
-    braid_latencies = [
-        trial[condition]["braid_latency_seconds"]
+    omneum_latencies = [
+        trial[condition]["omneum_latency_seconds"]
         for trial in trials
     ]
 
     return {
-        "braid": {
+        "omneum": {
             "trials": len(trials),
             "mean_latency_seconds":
-                mean_or_none(braid_latencies),
+                mean_or_none(omneum_latencies),
         },
         "llm_judges":
             summarize_llm_judges(trials, condition),
@@ -259,7 +260,7 @@ def build_summary(trials):
             summarize_condition(trials, "dependent_treatment"),
         "independent_control":
             summarize_condition(trials, "independent_control"),
-        "braid_checks": {
+        "omneum_checks": {
             key: all(
                 trial["checks"][key]
                 for trial in trials

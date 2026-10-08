@@ -23,7 +23,7 @@ class EvaluationMetrics:
 
     conflict_count: int
 
-    braid_iterations: int
+    convergence_iterations: int
     convergence_delta: float
     evaluation_latency_ms: float
 
@@ -113,7 +113,7 @@ def build_evaluation_metrics(
             mean_independent_support
         ),
         conflict_count=conflict_count,
-        braid_iterations=evaluation.convergence.iterations,
+        convergence_iterations=evaluation.convergence.iterations,
         convergence_delta=(
             evaluation.convergence.convergence_delta
         ),
