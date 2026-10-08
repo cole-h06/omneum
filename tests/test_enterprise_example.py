@@ -66,16 +66,16 @@ def test_observations():
     assert all(value.source_modified_at is not None for value in values)
     assert all(value.upstream_sources is not None for value in values)
     assert all(value.cited_sources is not None for value in values)
-    assert all(value.parent_assertion_ids is not None for value in values)
+    assert all(value.parent_observation_ids is not None for value in values)
 
-    by_id = {value.assertion_id: value for value in values}
+    by_id = {value.observation_id: value for value in values}
     for suffix in ("input-data", "retention", "region"):
         brief = by_id[f"brief-{suffix}"]
         registry = by_id[f"registry-{suffix}"]
         gateway = by_id[f"gateway-{suffix}"]
-        assert brief.parent_assertion_ids == (f"runbook-{suffix}",)
-        assert registry.parent_assertion_ids == (f"policy-{suffix}",)
-        assert gateway.parent_assertion_ids == (f"registry-{suffix}",)
+        assert brief.parent_observation_ids == (f"runbook-{suffix}",)
+        assert registry.parent_observation_ids == (f"policy-{suffix}",)
+        assert gateway.parent_observation_ids == (f"registry-{suffix}",)
 
 
 def test_dependencies():
@@ -173,7 +173,7 @@ def test_stdio_workflow(monkeypatch, example_daemon):
     ]
     observations = collect_observations()
     private_values = {
-        value.assertion_id
+        value.observation_id
         for value in observations
     } | {
         value.source.identifier

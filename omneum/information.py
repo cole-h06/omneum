@@ -289,11 +289,14 @@ class Observation:
         repr=False,
     )
 
+    observation_type: str = field(default="assertion")
+
     def __init__(
         self, observation_id=None, source=None, claim=None, observed_at=None,
         source_modified_at=None, upstream_sources=None, cited_sources=None,
         parent_observation_ids=None, retrievals=None, metadata=_DEFAULT,
-        dependency_signals=_DEFAULT, *, assertion_id=None, parent_assertion_ids=None,
+        dependency_signals=_DEFAULT, observation_type="assertion", *,
+        assertion_id=None, parent_assertion_ids=None,
     ):
         # Preserve existing clients while occurrence IDs move to observation names.
         if assertion_id is not None:
@@ -312,6 +315,7 @@ class Observation:
             "parent_observation_ids": parent_observation_ids, "retrievals": retrievals,
             "metadata": {} if metadata is _DEFAULT else metadata,
             "dependency_signals": {} if dependency_signals is _DEFAULT else dependency_signals,
+            "observation_type": observation_type,
         }
         for name, value in values.items():
             object.__setattr__(self, name, value)
@@ -326,6 +330,8 @@ class Observation:
         return self.parent_observation_ids
 
     def __post_init__(self):
+        if self.observation_type != "assertion":
+            raise ValueError("Observation currently supports assertion observations only")
         _string(self.observation_id, "observation_id")
 
         if type(self.source) is not Source:

@@ -72,7 +72,7 @@ def test_stdio_client(tmp_path: Path) -> None:
             result = await client.evaluate_context(
                 (
                     Observation(
-                        assertion_id="assertion-a",
+                        observation_id="assertion-a",
                         source=Source(
                             "web_publisher",
                             "https://example.com",
@@ -87,7 +87,7 @@ def test_stdio_client(tmp_path: Path) -> None:
                         source_modified_at=None,
                         upstream_sources=(),
                         cited_sources=(),
-                        parent_assertion_ids=(),
+                        parent_observation_ids=(),
                         retrievals=(),
                     ),
                 ),
@@ -139,7 +139,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
     }
     observations = tuple(
         Observation(
-            assertion_id=item["assertion_id"],
+            observation_id=item["assertion_id"],
             source=sources[item["source"]],
             claim=Claim(
                 item["entity_namespace"],
@@ -153,7 +153,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
                 references[name] for name in item["upstream_sources"]
             ),
             cited_sources=tuple(references[name] for name in item["cited_sources"]),
-            parent_assertion_ids=tuple(item["parent_assertion_ids"]),
+            parent_observation_ids=tuple(item["parent_assertion_ids"]),
             retrievals=(),
         )
         for item in fixture["observations"]

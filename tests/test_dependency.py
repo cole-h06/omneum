@@ -92,7 +92,7 @@ def empty_signals(**changes):
 
 def vector_observation(item, sources):
     return Observation(
-        observation_id=item["assertion_id"],
+        observation_id=item["observation_id"],
         source=sources[item["source_id"]],
         claim=Claim("service", "Entity", item["attribute"], item["value"]),
         observed_at=datetime.fromisoformat(item["observed_at"]),
@@ -112,8 +112,8 @@ def vector_observation(item, sources):
             else None
         ),
         parent_observation_ids=(
-            tuple(item["parent_assertion_ids"])
-            if item["parent_assertion_ids"] is not None
+            tuple(item["parent_observation_ids"])
+            if item["parent_observation_ids"] is not None
             else None
         ),
         retrievals=(),

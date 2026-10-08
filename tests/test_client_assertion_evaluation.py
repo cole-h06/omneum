@@ -14,12 +14,12 @@ from omneum.client import (
     ClaimSupportResult,
     ConflictingClaimResult,
     ConvergenceMetadata,
-    AssertionEvaluation,
+    ContextEvaluation,
     EvaluationTransportError,
-    AssertionEvaluationMappingError,
-    AssertionEvaluationRejectedError,
-    AssertionEvaluationResponseError,
-    AssertionEvaluationTransportError,
+    ContextEvaluationMappingError,
+    ContextEvaluationRejectedError,
+    ContextEvaluationResponseError,
+    ContextEvaluationTransportError,
     LinkageToken,
     SourceEvaluation,
     SupportingSourceResult,
@@ -126,18 +126,18 @@ def observations():
     claim = Claim("service", "Product", "Return Window", "30 days")
     return (
         Observation(
-            assertion_id="a1",
+            observation_id="a1",
             source=Source("web_publisher", "https://a.example", "owner"),
             claim=claim,
             observed_at=datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
             source_modified_at=datetime(2026, 1, 1, 11, tzinfo=timezone.utc),
             upstream_sources=(),
             cited_sources=(),
-            parent_assertion_ids=(),
+            parent_observation_ids=(),
             retrievals=(),
         ),
         Observation(
-            assertion_id="b1",
+            observation_id="b1",
             source=Source("web_publisher", "https://b.example", "owner"),
             claim=claim,
             observed_at=datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
@@ -146,22 +146,22 @@ def observations():
             cited_sources=(
                 SourceReference("web_publisher", "https://a.example"),
             ),
-            parent_assertion_ids=(),
+            parent_observation_ids=(),
             retrievals=(),
         ),
     )
 
 
-def make_observation(assertion_id, source, claim, **changes):
+def make_observation(observation_id, source, claim, **changes):
     values = {
-        "assertion_id": assertion_id,
+        "observation_id": observation_id,
         "source": source,
         "claim": claim,
         "observed_at": datetime(2026, 1, 1, 12, tzinfo=timezone.utc),
         "source_modified_at": None,
         "upstream_sources": (),
         "cited_sources": (),
-        "parent_assertion_ids": (),
+        "parent_observation_ids": (),
         "retrievals": (),
     }
     values.update(changes)
@@ -299,7 +299,7 @@ def test_result_types():
         ConvergenceMetadata("omneum-v2", True, True, 1e-8, 0.0)
     convergence = ConvergenceMetadata("omneum-v2", 1, True, 1e-8, 0.0)
     with pytest.raises(TypeError):
-        AssertionEvaluation([], (), (), convergence, None)
+        ContextEvaluation([], (), (), convergence, None)
 
 
 def result_values():
@@ -339,7 +339,7 @@ def result_values():
 def test_evaluation_explanation():
     sources, claims, pairs, convergence = result_values()
 
-    evaluation = AssertionEvaluation(
+    evaluation = ContextEvaluation(
         sources,
         claims,
         pairs,
@@ -385,7 +385,7 @@ def test_result_pairs(change):
     sources, claims, pairs, convergence = result_values()
 
     with pytest.raises(ValueError):
-        AssertionEvaluation(
+        ContextEvaluation(
             sources, claims, change(pairs), convergence, None
         )
 
@@ -643,10 +643,10 @@ def test_unavailable(tmp_path):
         server = make_server(tmp_path)
         evaluator = Evaluator(server)
         client = OmneumClient(
-            make_config(server), evaluator, assertion_evaluation_available=False
+            make_config(server), evaluator, context_evaluation_available=False
         )
         with pytest.raises(
-            AssertionEvaluationResponseError,
+            ContextEvaluationResponseError,
             match="The evaluate_context tool is unavailable",
         ):
             await client.evaluate_context((), estimator=estimator())
@@ -659,12 +659,12 @@ def test_unavailable(tmp_path):
 def test_transport(tmp_path):
     class Broken(Evaluator):
         async def evaluate_context(self, request):
-            raise AssertionEvaluationTransportError(uncertain=True)
+            raise ContextEvaluationTransportError(uncertain=True)
 
     async def run():
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Broken(server))
-        with pytest.raises(AssertionEvaluationTransportError) as error:
+        with pytest.raises(ContextEvaluationTransportError) as error:
             await client.evaluate_context(observations(), estimator=estimator())
         assert error.value.uncertain
 
@@ -683,7 +683,7 @@ def test_injected_error(tmp_path):
     async def run():
         server = make_server(tmp_path)
         inference = OmneumClient(make_config(server), BrokenInference(server))
-        with pytest.raises(AssertionEvaluationTransportError) as caught:
+        with pytest.raises(ContextEvaluationTransportError) as caught:
             await inference.evaluate_context(observations(), estimator=estimator())
         assert caught.value.uncertain
         assert "secret" not in str(caught.value)
@@ -753,9 +753,9 @@ def test_malformed(tmp_path, change):
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Malformed(server))
         error = (
-            AssertionEvaluationMappingError
+            ContextEvaluationMappingError
             if change == "cross_purpose"
-            else AssertionEvaluationResponseError
+            else ContextEvaluationResponseError
         )
         with pytest.raises(error):
             await client.evaluate_context(observations(), estimator=estimator())
@@ -784,7 +784,7 @@ def test_rejected(tmp_path, code):
     async def run():
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Rejected(server))
-        with pytest.raises(AssertionEvaluationRejectedError) as error:
+        with pytest.raises(ContextEvaluationRejectedError) as error:
             await client.evaluate_context(observations(), estimator=estimator())
         assert error.value.omneum_code == code
         assert "secret" not in str(error.value)
@@ -868,7 +868,7 @@ def test_appends_evaluation_metrics(tmp_path):
 def test_failed_evaluation_does_not_record_metrics(tmp_path):
     class Broken(Evaluator):
         async def evaluate_context(self, request):
-            raise AssertionEvaluationTransportError(uncertain=True)
+            raise ContextEvaluationTransportError(uncertain=True)
 
     async def run():
         server = make_server(tmp_path)
@@ -880,7 +880,7 @@ def test_failed_evaluation_does_not_record_metrics(tmp_path):
             metrics_recorder=JsonlMetricsRecorder(metrics_path),
         )
 
-        with pytest.raises(AssertionEvaluationTransportError):
+        with pytest.raises(ContextEvaluationTransportError):
             await client.evaluate_context(
                 observations(),
                 estimator=estimator(),

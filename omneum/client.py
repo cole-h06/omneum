@@ -9,7 +9,7 @@ import uuid
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field, replace
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from mcp import ClientSession, StdioServerParameters, stdio_client
 from mcp.types import CallToolResult
@@ -46,13 +46,11 @@ from .inference import (
 )
 from .mapping import ContextMapper
 from .information import (
-    AssertionSource,
     Claim,
     Observation,
     Retrieval,
     Source,
     SourceReference,
-    StructuredAssertion,
 )
 from .linkage import (
     ENCODING_VERSION,
@@ -79,6 +77,9 @@ from .oprf import (
     VOPRFEvaluation,
 )
 from .serialization import serialize_claim, serialize_source
+from .local_persistence import LocalPersistenceConfig, _DefaultLocalPersistence
+from .contribution.config import NetworkContributionConfig
+from .contribution.models import EvaluationContribution
 
 
 class OmneumClientError(Exception):
@@ -113,24 +114,54 @@ class EvaluationVerificationError(OmneumClientError):
     """The VOPRF proof or finalization result was invalid."""
 
 
-class AssertionEvaluationTransportError(OmneumClientError):
+class ContextEvaluationTransportError(OmneumClientError):
     def __init__(self, *, uncertain: bool) -> None:
-        super().__init__("Assertion evaluation transport failed.")
+        super().__init__("Context evaluation transport failed.")
         self.uncertain = uncertain
 
 
-class AssertionEvaluationRejectedError(OmneumClientError):
+class ContextEvaluationRejectedError(OmneumClientError):
     def __init__(self, omneum_code: str) -> None:
-        super().__init__("Assertion evaluation was rejected.")
+        super().__init__("Context evaluation was rejected.")
         self.omneum_code = omneum_code
 
 
-class AssertionEvaluationResponseError(OmneumClientError):
-    """The assertion-evaluation response was malformed or inconsistent."""
+class ContextEvaluationResponseError(OmneumClientError):
+    """The context-evaluation response was malformed or inconsistent."""
 
 
-class AssertionEvaluationMappingError(OmneumClientError):
-    """The assertion-evaluation response could not be mapped locally."""
+class ContextEvaluationMappingError(OmneumClientError):
+    """The context-evaluation response could not be mapped locally."""
+
+
+class LocalPersistenceError(OmneumClientError):
+    """Evaluation succeeded, but explicitly requested local persistence failed."""
+
+    def __init__(self, evaluation: ContextEvaluation) -> None:
+        super().__init__("Context evaluation succeeded; local persistence failed.")
+        self.evaluation = evaluation
+
+
+class NetworkContributionError(OmneumClientError):
+    """Evaluation succeeded; pseudonymous network contribution failed.
+
+    A prepared contribution can be retried with its original idempotency key.
+    Do not rerun evaluation to retry an uncertain ingestion request.
+    """
+
+    def __init__(
+        self,
+        evaluation: ContextEvaluation,
+        *,
+        reason: Literal["contribution_preparation_failed", "ingestion_failed_or_uncertain"],
+        local_persistence_succeeded: bool,
+        contribution: EvaluationContribution | None = None,
+    ) -> None:
+        super().__init__("Context evaluation succeeded; network contribution failed: " + reason)
+        self.evaluation = evaluation
+        self.reason = reason
+        self.local_persistence_succeeded = local_persistence_succeeded
+        self.contribution = contribution
 
 
 def _exact(value, expected, name):
@@ -425,7 +456,7 @@ class ConvergenceMetadata:
 
         if not self.converged:
             raise ValueError(
-                "assertion evaluation must be converged"
+                "context evaluation must be converged"
             )
 
         _result_number(
@@ -458,7 +489,7 @@ class ConvergenceMetadata:
 
 
 @dataclass(frozen=True, slots=True)
-class AssertionEvaluation:
+class ContextEvaluation:
     source_reliability: tuple[SourceEvaluation, ...]
     claim_support: tuple[ClaimSupportResult, ...]
     pairwise_dependencies: tuple[
@@ -816,8 +847,10 @@ class OmneumClient:
         config: OmneumClientConfig,
         evaluator: _OmneumEvaluator,
         *,
-        assertion_evaluation_available: bool | None = None,
+        context_evaluation_available: bool | None = None,
         metrics_recorder: MetricsRecorder | None = None,
+        local_persistence: LocalPersistenceConfig | None | _DefaultLocalPersistence = _DefaultLocalPersistence.SQLITE,
+        network_contribution: NetworkContributionConfig | None = None,
     ) -> None:
         if type(config) is not OmneumClientConfig:
             raise TypeError(
@@ -856,12 +889,25 @@ class OmneumClient:
                     None,
                 )
             )
-            if assertion_evaluation_available is None
-            else assertion_evaluation_available
+            if context_evaluation_available is None
+            else context_evaluation_available
         )
 
         self._linkage = LinkageClient(oprf_client)
         self._metrics_recorder = metrics_recorder
+        if local_persistence is _DefaultLocalPersistence.SQLITE:
+            local_persistence = LocalPersistenceConfig()
+        if local_persistence is not None and type(local_persistence) is not LocalPersistenceConfig:
+            raise TypeError("local_persistence must be a LocalPersistenceConfig or None")
+        self._local_persistence = local_persistence
+        if network_contribution is not None and type(network_contribution) is not NetworkContributionConfig:
+            raise TypeError("network_contribution must be a NetworkContributionConfig or None")
+        if (network_contribution is not None
+                and network_contribution.linkage.public_key == config.voprf_public_key):
+            raise OmneumClientConfigurationError(
+                "Network linkage requires a key distinct from the local deployment key."
+            )
+        self._network_contribution = network_contribution
 
     async def link_source(
         self,
@@ -930,51 +976,13 @@ class OmneumClient:
             )
         )
 
-    async def evaluate(
-        self,
-        assertion: StructuredAssertion,
-        *,
-        estimator: DependencyEstimatorConfig,
-    ) -> AssertionEvaluation:
-        if type(assertion) is not StructuredAssertion:
-            raise TypeError(
-                "assertion must be a StructuredAssertion"
-            )
-
-        from .observations import observe
-
-        observations = tuple(
-            observe(
-                assertion_id=item.assertion_id,
-                source=item.source,
-                entity_namespace=assertion.entity_namespace,
-                entity=assertion.entity,
-                attribute=assertion.attribute,
-                value=assertion.value,
-                observed_at=item.observed_at,
-                source_modified_at=item.source_modified_at,
-                upstream_sources=item.upstream_sources,
-                cited_sources=item.cited_sources,
-                parent_assertion_ids=item.parent_assertion_ids,
-                retrievals=item.retrievals,
-                metadata=item.metadata,
-                dependency_signals=item.dependency_signals,
-            )
-            for item in assertion.sources
-        )
-
-        return await self.evaluate_context(
-            observations,
-            estimator=estimator,
-        )
-
     async def evaluate_mapped(
         self,
         items: Sequence[Any],
         mapper: ContextMapper,
         *,
         estimator: DependencyEstimatorConfig,
-    ) -> AssertionEvaluation:
+    ) -> ContextEvaluation:
         observations = mapper.map_many(items)
         return await self.evaluate_context(
             observations,
@@ -986,16 +994,16 @@ class OmneumClient:
         observations: Sequence[Observation],
         *,
         estimator: DependencyEstimatorConfig,
-    ) -> AssertionEvaluation:
+    ) -> ContextEvaluation:
         if not self._assertion_evaluation_available:
-            raise AssertionEvaluationResponseError(
+            raise ContextEvaluationResponseError(
                 "The evaluate_context tool is unavailable."
             )
 
         values = tuple(observations)
 
         if any(
-            type(value) is not Observation
+            (type(value) is not Observation or value.observation_type != "assertion")
             for value in values
         ):
             raise TypeError(
@@ -1046,6 +1054,8 @@ class OmneumClient:
 
         source_tokens = {}
         source_objects = {}
+        # Retain the exact already-issued tokens, without a second VOPRF call.
+        persistence_tokens = {}
         used_tokens = set()
 
         for key in sorted(sources_by_key):
@@ -1064,13 +1074,15 @@ class OmneumClient:
             encoded = token.to_base64url()
 
             if encoded in used_tokens:
-                raise AssertionEvaluationMappingError(
+                raise ContextEvaluationMappingError(
                     "Linkage token mapping is invalid."
                 )
 
             used_tokens.add(encoded)
             source_tokens[key] = encoded
             source_objects[encoded] = item
+            if self._local_persistence is not None:
+                persistence_tokens[encoded] = token
 
         attribute_tokens = {}
         claim_tokens = {}
@@ -1136,7 +1148,7 @@ class OmneumClient:
                 encoded = token.to_base64url()
 
                 if encoded in used_tokens:
-                    raise AssertionEvaluationMappingError(
+                    raise ContextEvaluationMappingError(
                         "Linkage token mapping "
                         "is invalid."
                     )
@@ -1163,13 +1175,15 @@ class OmneumClient:
                 encoded = token.to_base64url()
 
                 if encoded in used_tokens:
-                    raise AssertionEvaluationMappingError(
+                    raise ContextEvaluationMappingError(
                         "Linkage token mapping "
                         "is invalid."
                     )
 
                 used_tokens.add(encoded)
                 claim_tokens[claim_key] = encoded
+                if self._local_persistence is not None:
+                    persistence_tokens[encoded] = token
 
                 claim_objects[encoded] = Claim(
                     claim.entity_namespace,
@@ -1277,10 +1291,10 @@ class OmneumClient:
             )
         except asyncio.CancelledError:
             raise
-        except AssertionEvaluationTransportError:
+        except ContextEvaluationTransportError:
             raise
         except Exception:
-            raise AssertionEvaluationTransportError(
+            raise ContextEvaluationTransportError(
                 uncertain=True
             ) from None
 
@@ -1333,8 +1347,8 @@ class OmneumClient:
                 estimator.dependency_cluster_threshold,
             )
         except (KeyError, ValueError, TypeError):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation response "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation response "
                 "could not be mapped."
             ) from None
 
@@ -1355,6 +1369,40 @@ class OmneumClient:
                     evaluation_latency_ms=evaluation_latency_ms,
                 )
             )
+
+        if self._local_persistence is not None:
+            try:
+                self._local_persistence._persist(
+                    evaluation=evaluation,
+                    occurrences=tuple(
+                        (observation,
+                         persistence_tokens[source_tokens[row[0]]],
+                         persistence_tokens[claim_tokens[row[2]]])
+                        for observation, row in zip(values, canonical_rows, strict=True)
+                    ),
+                    source_tokens={source: persistence_tokens[token]
+                                   for token, source in source_objects.items()},
+                    claim_tokens={claim: persistence_tokens[token]
+                                  for token, claim in claim_objects.items()},
+                    estimator=estimator,
+                )
+            except Exception:
+                # Do not expose connection strings, SQL, or private parameters
+                # in a public error. The computed result remains recoverable.
+                raise LocalPersistenceError(evaluation) from None
+
+        network = self._network_contribution
+        if network is not None:
+            from .contribution.builder import build_contribution
+            contribution = None
+            try:
+                contribution = await build_contribution(network, evaluation, values, estimator)
+                await network.transport.submit(contribution)
+            except Exception:
+                raise NetworkContributionError(evaluation,
+                    reason="ingestion_failed_or_uncertain" if contribution is not None else "contribution_preparation_failed",
+                    local_persistence_succeeded=self._local_persistence is not None,
+                    contribution=contribution) from None
 
         return evaluation
 
@@ -1383,7 +1431,7 @@ class OmneumClient:
         )
 
         if not all(comparisons):
-            raise AssertionEvaluationMappingError(
+            raise ContextEvaluationMappingError(
                 "Linkage token identity is invalid."
             )
 
@@ -1395,7 +1443,7 @@ class OmneumClient:
             result,
             CallToolResult,
         ):
-            raise AssertionEvaluationResponseError(
+            raise ContextEvaluationResponseError(
                 "Evaluator returned an invalid response."
             )
 
@@ -1408,12 +1456,12 @@ class OmneumClient:
                     )
                 )
             except ValidationError:
-                raise AssertionEvaluationResponseError(
+                raise ContextEvaluationResponseError(
                     "Evaluator returned an invalid "
                     "structured error."
                 ) from None
 
-            raise AssertionEvaluationRejectedError(
+            raise ContextEvaluationRejectedError(
                 error.omneum_code
             )
 
@@ -1425,7 +1473,7 @@ class OmneumClient:
                 )
             )
         except ValidationError:
-            raise AssertionEvaluationResponseError(
+            raise ContextEvaluationResponseError(
                 "Evaluator returned an invalid "
                 "success response."
             ) from None
@@ -1446,8 +1494,8 @@ class OmneumClient:
         )
 
         if not all(pinned):
-            raise AssertionEvaluationResponseError(
-                "Assertion-evaluation metadata "
+            raise ContextEvaluationResponseError(
+                "Context-evaluation metadata "
                 "does not match the pin."
             )
 
@@ -1461,8 +1509,8 @@ class OmneumClient:
             != CONVERGENCE_TOLERANCE
             or not 1 <= metadata.iterations <= 1000
         ):
-            raise AssertionEvaluationResponseError(
-                "Assertion-evaluation convergence "
+            raise ContextEvaluationResponseError(
+                "Context-evaluation convergence "
                 "metadata is invalid."
             )
 
@@ -1670,7 +1718,7 @@ class _MCPOmneumEvaluator:
         request: EvaluateAssertionRequest,
     ) -> CallToolResult:
         if self._closed:
-            raise AssertionEvaluationTransportError(
+            raise ContextEvaluationTransportError(
                 uncertain=False
             )
 
@@ -1680,7 +1728,7 @@ class _MCPOmneumEvaluator:
                 request.model_dump(mode="json"),
             )
         except Exception:
-            raise AssertionEvaluationTransportError(
+            raise ContextEvaluationTransportError(
                 uncertain=True
             ) from None
 
@@ -1694,8 +1742,14 @@ async def open_stdio_client(
     server: StdioServerParameters,
     *,
     metrics_recorder: MetricsRecorder | None = None,
+    local_persistence: LocalPersistenceConfig | None | _DefaultLocalPersistence = _DefaultLocalPersistence.SQLITE,
+    network_contribution: NetworkContributionConfig | None = None,
 ) -> AsyncIterator[OmneumClient]:
-    """Open and own one local MCP stdio subprocess and client session."""
+    """Open a local MCP session; default SQLite history stays in this local SDK process.
+
+    Pass local_persistence=None to disable it, or a LocalPersistenceConfig for a
+    custom adapter. Network contribution requires its own explicit configuration.
+    """
 
     if (
         isinstance(server, StdioServerParameters)
@@ -1736,7 +1790,7 @@ async def open_stdio_client(
                     "is unavailable."
                 )
 
-            assertion_evaluation_available = any(
+            context_evaluation_available = any(
                 tool.name == "evaluate_context"
                 for tool in tools.tools
             )
@@ -1749,10 +1803,12 @@ async def open_stdio_client(
                 yield OmneumClient(
                     config,
                     evaluator,
-                    assertion_evaluation_available=(
-                        assertion_evaluation_available
+                    context_evaluation_available=(
+                        context_evaluation_available
                     ),
                     metrics_recorder=metrics_recorder,
+                    local_persistence=local_persistence,
+                    network_contribution=network_contribution,
                 )
             finally:
                 evaluator.close()
@@ -1854,7 +1910,7 @@ def _snapshot_observations(values):
 
         result.append(
             Observation(
-                assertion_id=value.assertion_id,
+                observation_id=value.observation_id,
                 source=source,
                 claim=claim,
                 observed_at=value.observed_at,
@@ -1863,10 +1919,11 @@ def _snapshot_observations(values):
                 ),
                 upstream_sources=upstream_sources,
                 cited_sources=cited_sources,
-                parent_assertion_ids=(
-                    value.parent_assertion_ids
+                parent_observation_ids=(
+                    value.parent_observation_ids
                 ),
                 retrievals=retrievals,
+                metadata=value.metadata,
             )
         )
 
@@ -1895,8 +1952,8 @@ def _compare_assertion_evaluation(
         or response.metadata.convergence_delta
         != expected.metadata.convergence_delta
     ):
-        raise AssertionEvaluationResponseError(
-            "Assertion-evaluation response "
+        raise ContextEvaluationResponseError(
+            "Context-evaluation response "
             "is inconsistent."
         )
 
@@ -1917,7 +1974,7 @@ def _compare_assertion_evaluation(
     )
 
     if actual_sources != expected_sources:
-        raise AssertionEvaluationResponseError(
+        raise ContextEvaluationResponseError(
             "Source-reliability results "
             "are inconsistent."
         )
@@ -1985,7 +2042,7 @@ def _compare_assertion_evaluation(
     )
 
     if actual_claims != expected_claims:
-        raise AssertionEvaluationResponseError(
+        raise ContextEvaluationResponseError(
             "Claim-support results are inconsistent."
         )
 
@@ -1998,8 +2055,8 @@ def _validate_mapping(
 ) -> None:
     for item in response.source_reliability:
         if item.source_id not in sources:
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2008,8 +2065,8 @@ def _validate_mapping(
             item.attribute_id not in attributes
             or item.claim_id not in claims
         ):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2017,8 +2074,8 @@ def _validate_mapping(
             source.source_id not in sources
             for source in item.supporting_sources
         ):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2026,8 +2083,8 @@ def _validate_mapping(
             claim.claim_id not in claims
             for claim in item.conflicting_claims
         ):
-            raise AssertionEvaluationMappingError(
-                "Assertion-evaluation token "
+            raise ContextEvaluationMappingError(
+                "Context-evaluation token "
                 "mapping is invalid."
             )
 
@@ -2194,7 +2251,7 @@ def _map_assertion_evaluation(
 
     metadata = response.metadata
 
-    return AssertionEvaluation(
+    return ContextEvaluation(
         source_results,
         tuple(claim_results),
         pairs,

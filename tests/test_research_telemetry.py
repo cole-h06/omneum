@@ -330,7 +330,7 @@ def test_multi_source_aggregates_are_not_raw_records():
             datetime.now(timezone.utc),
             upstream_sources=(),
             cited_sources=(),
-            parent_assertion_ids=(),
+            parent_observation_ids=(),
         )
         for name, source in sources.items()
     )
