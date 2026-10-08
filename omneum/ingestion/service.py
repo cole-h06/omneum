@@ -55,14 +55,8 @@ class IngestionService:
         reject duplicate Authorization headers, enforce TLS and apply rate limits.
         No request-controlled DB connection, principal, or workspace is accepted.
         """
-        if (type(authorization) is not str or len(authorization) > 4096
-                or not re.fullmatch(r"(?i:Bearer) [A-Za-z0-9._~+/=-]+", authorization)):
-            return IngestionResponse(401, "unauthorized")
-        try:
-            principal = self._authenticator.authenticate(authorization[7:])
-        except Exception:
-            return IngestionResponse(401, "unauthorized")
-        if type(principal) is not UUID:
+        principal = authenticate(self._authenticator, authorization)
+        if principal is None:
             return IngestionResponse(401, "unauthorized")
         if type(body) is not bytes:
             return IngestionResponse(400, "invalid_contribution")
@@ -85,3 +79,15 @@ class IngestionService:
         except Exception:
             # No exception objects, SQL text, tokens, or payloads leave this boundary.
             return IngestionResponse(503, "ingestion_unavailable")
+
+
+def authenticate(authenticator: Authenticator, authorization: str | None) -> UUID | None:
+    """Shared secret-safe authentication boundary for narrow HTTPS services."""
+    if (type(authorization) is not str or len(authorization) > 4096
+            or not re.fullmatch(r"(?i:Bearer) [A-Za-z0-9._~+/=-]+", authorization)):
+        return None
+    try:
+        principal = authenticator.authenticate(authorization[7:])
+    except Exception:
+        return None
+    return principal if type(principal) is UUID else None

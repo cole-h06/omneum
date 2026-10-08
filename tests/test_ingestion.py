@@ -139,8 +139,10 @@ def database():
             with psycopg.connect(test_dsn, autocommit=True) as db:
                 db.execute((root / "migrations/production_001.sql").read_text())
                 db.execute((root / "migrations/production_002_ingestion.sql").read_text())
+                db.execute((root / "migrations/production_003_dependency_evidence.sql").read_text())
                 db.execute((root / "migrations/production_003_observation_subtypes.sql").read_text())
                 db.execute((root / "migrations/production_004_assertion_subtype_integrity.sql").read_text())
+                db.execute((root / "migrations/production_004_retrieval_signal.sql").read_text())
                 db.execute((root / "migrations/production_005_contribution_reports.sql").read_text())
             yield test_dsn
         finally:
@@ -506,3 +508,28 @@ def test_client_scores_are_stored_without_attestation_or_recomputation(bound):
         # Identifiers are fixed test constants, never request values.
         assert db.execute(f'SELECT {column} FROM network.{table} WHERE evaluation_run_id=%s',
                           (response.evaluation_run_id,)).fetchone()[0] == expected
+
+
+def test_final_migrations_grant_persist_permissions(bound):
+    db, handler, _, _, _ = bound
+    # Exercise every persist write, RETURNING, upsert, budget query and both
+    # subtype triggers under the real NOINHERIT ingestion role, then replay.
+    accepted = submit(handler)
+    assert accepted.status == 200
+    assert submit(handler) == accepted
+    second = payload()
+    second['idempotency_key'] = 'second-run-same-tokens'
+    assert submit(handler, second).status == 200
+    for table in ('reported_sources', 'reported_claims', 'assertion_observations'):
+        assert db.execute("SELECT has_table_privilege('omneum_ingestion', %s, 'INSERT')",
+                          ('network.' + table,)).fetchone()[0]
+    for table, columns in (
+        ('observations', ('id', 'observation_type', 'evaluation_run_id')),
+        ('assertion_observations', ('observation_id',)),
+        ('reported_claims', ('evaluation_run_id', 'claim_id')),
+        ('evaluation_runs', ('id', 'installation_id', 'created_at', 'source_count',
+                             'claim_count', 'observation_count', 'dependency_count')),
+    ):
+        for column in columns:
+            assert db.execute("SELECT has_column_privilege('omneum_ingestion', %s, %s, 'SELECT')",
+                              ('network.' + table, column)).fetchone()[0]

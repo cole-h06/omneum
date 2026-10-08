@@ -35,3 +35,7 @@ from .config import (NetworkContributionConfig, NetworkEvaluator,
 
 __all__ += ["NetworkContributionConfig", "NetworkEvaluator",
             "HTTPSContributionTransport"]
+
+from .network import HTTPSNetworkEvaluator, OmneumNetwork
+
+__all__ += ["HTTPSNetworkEvaluator", "OmneumNetwork"]

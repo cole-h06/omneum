@@ -101,3 +101,7 @@ __all__ += ["NetworkContributionError", "NetworkContributionConfig", "NetworkLin
 from .storage import ContextStorage, SQLiteStorage
 
 __all__ += ["ContextStorage", "SQLiteStorage"]
+
+from .contribution import HTTPSNetworkEvaluator, OmneumNetwork
+
+__all__ += ["HTTPSNetworkEvaluator", "OmneumNetwork"]
