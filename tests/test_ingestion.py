@@ -520,7 +520,9 @@ def test_final_migrations_grant_persist_permissions(bound):
     second = payload()
     second['idempotency_key'] = 'second-run-same-tokens'
     assert submit(handler, second).status == 200
-    for table in ('reported_sources', 'reported_claims', 'assertion_observations'):
+    for table in ('sources', 'claims', 'evaluation_runs', 'observations',
+                  'source_scores', 'claim_scores', 'source_dependencies',
+                  'reported_sources', 'reported_claims', 'assertion_observations'):
         assert db.execute("SELECT has_table_privilege('omneum_ingestion', %s, 'INSERT')",
                           ('network.' + table,)).fetchone()[0]
     for table, columns in (
@@ -533,3 +535,15 @@ def test_final_migrations_grant_persist_permissions(bound):
         for column in columns:
             assert db.execute("SELECT has_column_privilege('omneum_ingestion', %s, %s, 'SELECT')",
                               ('network.' + table, column)).fetchone()[0]
+    for table in ('ingestion_principals', 'workspaces', 'consent_grants', 'ingestion_receipts'):
+        assert db.execute("SELECT has_table_privilege('omneum_ingestion', %s, 'SELECT')",
+                          ('control.' + table,)).fetchone()[0]
+    assert db.execute("SELECT has_table_privilege('omneum_ingestion', 'control.ingestion_receipts', 'INSERT')").fetchone()[0]
+    for table in ('sources', 'claims'):
+        assert db.execute("SELECT has_column_privilege('omneum_ingestion', %s, 'last_seen_at', 'UPDATE')",
+                          ('network.' + table,)).fetchone()[0]
+        assert not db.execute("SELECT has_table_privilege('omneum_ingestion', %s, 'DELETE')",
+                              ('network.' + table,)).fetchone()[0]
+    assert db.execute("""SELECT rolcanlogin, rolsuper, rolcreatedb, rolcreaterole,
+        rolinherit, rolreplication, rolbypassrls FROM pg_roles
+        WHERE rolname='omneum_ingestion'""").fetchone() == (False,) * 7

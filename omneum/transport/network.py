@@ -26,6 +26,8 @@ class NetworkHTTPApp:
     authenticated principal and route. It must enforce per-principal quotas;
     errors and non-True results deny admission. Edge/IP limits remain necessary.
     Each ingestion call uses the IngestionService's own authenticator as well.
+    Pass ingestion.authenticator as authenticator so admission and persistence
+    resolve credentials through the same authority.
     """
     def __init__(self, *, network_state: DeploymentState, local_public_key: bytes,
                  authenticator: Authenticator, ingestion: IngestionService,
@@ -34,6 +36,10 @@ class NetworkHTTPApp:
         VOPRFClient(network_state.voprf_server.public_key)
         if network_state.voprf_server.public_key == local_public_key:
             raise ValueError("Network VOPRF key must be distinct from local key")
+        if authenticator is not ingestion.authenticator:
+            raise ValueError("HTTP admission and ingestion must share one credential authority")
+        if network_state.voprf_key_version not in ingestion.allowed_key_versions:
+            raise ValueError("Network VOPRF key version must be accepted by ingestion")
         if not callable(rate_limiter):
             raise TypeError("server-owned rate limiter is required")
         self._evaluation = EvaluationService(network_state)
@@ -127,15 +133,21 @@ class NetworkHTTPApp:
         if lengths and len(body) != int(lengths[0]):
             return await reject(400, 'invalid_request')
         if path == '/v1/contributions':
-            response = await self._run_sync(self._ingestion.handle,
+            try:
+                response = await self._run_sync(self._ingestion.handle,
                                                authorization=authorization, body=bytes(body))
+            except Exception:
+                return await reject(503, 'ingestion_unavailable')
             return await self._reply(send, response.status, asdict(response))
         try:
             request = EvaluateVOPRFRequest.model_validate(
                 json.loads(body, object_pairs_hook=_object))
         except Exception:
             return await reject(400, 'invalid_request')
-        result = await self._evaluation.evaluate(request)
+        try:
+            result = await self._evaluation.evaluate(request)
+        except Exception:
+            return await reject(503, 'evaluation_unavailable')
         status = 200
         if result.isError:
             code = result.structuredContent['omneum_code']

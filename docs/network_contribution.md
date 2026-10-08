@@ -38,7 +38,9 @@ public key for the separation check, an `Authenticator`, the existing
 `IngestionService`, and a synchronous `rate_limiter(principal_uuid, route)`.
 The limiter must return exactly `True` to admit a request. Implement persistent
 or distributed quotas as appropriate. Use the same credential authority for
-both authentication boundaries: ingestion also authenticates inside its core.
+both authentication boundaries: pass `ingestion.authenticator` to the app;
+construction rejects a different authority or a VOPRF key version outside
+`ingestion.allowed_key_versions`. Ingestion also authenticates inside its core.
 Authenticators own secret storage, scope, expiry, revocation and stable bindings.
 Authentication and admission callbacks run in worker threads and must be thread
 safe. Request cancellation retains its capacity slot until blocking work ends.

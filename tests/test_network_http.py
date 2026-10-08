@@ -25,9 +25,10 @@ def app(tmp_path):
     class Auth:
         def authenticate(self, token):
             return PRINCIPAL if token == 'test-key' else None
+    auth = Auth()
     result = NetworkHTTPApp(network_state=make_state(server=remote),
-        local_public_key=local.public_key, authenticator=Auth(),
-        ingestion=service(), rate_limiter=lambda principal, path: True)
+        local_public_key=local.public_key, authenticator=auth,
+        ingestion=service(auth=auth), rate_limiter=lambda principal, path: True)
     yield result, remote, local
     result.close()
 
@@ -173,6 +174,38 @@ def test_server_key_distinct(app):
     with pytest.raises(ValueError, match='distinct'):
         NetworkHTTPApp(network_state=make_state(server=app[1]), local_public_key=app[1].public_key,
             authenticator=object(), ingestion=service(), rate_limiter=lambda *a: True)
+
+
+def test_server_requires_shared_credential_authority(app):
+    ingestion = service()
+    with pytest.raises(ValueError, match='credential authority'):
+        NetworkHTTPApp(network_state=make_state(server=app[1]),
+            local_public_key=app[2].public_key, authenticator=object(),
+            ingestion=ingestion, rate_limiter=lambda *a: True)
+
+
+def test_server_requires_ingestable_key_version(app):
+    from dataclasses import replace
+    ingestion = service()
+    with pytest.raises(ValueError, match='key version'):
+        NetworkHTTPApp(network_state=replace(make_state(server=app[1]), voprf_key_version=2),
+            local_public_key=app[2].public_key, authenticator=ingestion.authenticator,
+            ingestion=ingestion, rate_limiter=lambda *a: True)
+
+
+@pytest.mark.parametrize('path', ['/v1/voprf', '/v1/contributions'])
+def test_core_exception_is_secret_safe(app, monkeypatch, path):
+    def broken(**kwargs):
+        raise RuntimeError('private-api-key private-database-credential')
+    async def broken_evaluation(request):
+        return broken()
+    monkeypatch.setattr(app[0]._ingestion, 'handle', broken)
+    monkeypatch.setattr(app[0]._evaluation, 'evaluate', broken_evaluation)
+    _, _, value = request(app[1])
+    status, response = call(app[0], json.dumps(value).encode(), path)
+    assert status == 503
+    assert response == {'code': 'evaluation_unavailable' if path == '/v1/voprf'
+                        else 'ingestion_unavailable'}
 
 
 @pytest.mark.parametrize('mutation', [lambda v: v.update(proof='bad'),

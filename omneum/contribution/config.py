@@ -93,8 +93,10 @@ class HTTPSContributionTransport:
                     or type(result["status"]) is not int or result["status"] != 200
                     or result["code"] != "accepted"):
                 raise ValueError("invalid ingestion response")
-            UUID(result["receipt_id"])
-            UUID(result["evaluation_run_id"])
+            for name in ("receipt_id", "evaluation_run_id"):
+                value = result[name]
+                if type(value) is not str or str(UUID(value)) != value:
+                    raise ValueError("invalid ingestion response")
 
 
 @dataclass(frozen=True, slots=True)

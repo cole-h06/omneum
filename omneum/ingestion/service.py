@@ -48,6 +48,16 @@ class IngestionService:
         self._connections = connection_factory
         self._versions = frozenset(allowed_key_versions)
 
+    @property
+    def authenticator(self) -> Authenticator:
+        """Server-owned credential authority shared by the HTTP admission boundary."""
+        return self._authenticator
+
+    @property
+    def allowed_key_versions(self) -> frozenset[int]:
+        """Server-owned versions accepted by contribution validation."""
+        return self._versions
+
     def handle(self, *, authorization: str | None, body: bytes) -> IngestionResponse:
         """Accept bounded raw JSON bytes and one Authorization header.
 

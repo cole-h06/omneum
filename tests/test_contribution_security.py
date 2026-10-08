@@ -50,6 +50,28 @@ def test_endpoint_does_not_silently_normalize(endpoint):
     assert endpoint not in str(caught.value)
 
 
+@pytest.mark.parametrize('field', ['receipt_id', 'evaluation_run_id'])
+@pytest.mark.parametrize('value', [None, 1, '00000000000000000000000000000001',
+    '{00000000-0000-0000-0000-000000000001}', '00000000-0000-0000-0000-00000000000A'])
+def test_noncanonical_receipt_fails_closed(monkeypatch, field, value):
+    from omneum.contribution import config as module
+    response = dict(status=200, code='accepted',
+        receipt_id='00000000-0000-0000-0000-000000000001',
+        evaluation_run_id='00000000-0000-0000-0000-000000000002')
+    response[field] = value
+    class Response:
+        status = 200
+        def read(self, size): return json.dumps(response).encode()
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+    class Opener:
+        def open(self, *args, **kwargs): return Response()
+    monkeypatch.setattr(module, 'build_opener', lambda *args: Opener())
+    with pytest.raises(RuntimeError, match='acceptance may be uncertain'):
+        asyncio.run(HTTPSContributionTransport('https://example.test', 'private-api-key')
+                    .submit(minimal_contribution()))
+
+
 def test_environment_does_not_opt_in(runtime, network, monkeypatch):
     for name in ('OMNEUM_NETWORK_CONTRIBUTION', 'OMNEUM_CONTRIBUTE',
                  'OMNEUM_NETWORK_ENDPOINT', 'OMNEUM_POSTGRES_DSN', 'DATABASE_URL'):
