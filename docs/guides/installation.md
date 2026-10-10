@@ -178,4 +178,4 @@ Check the daemon/service status and existing public-key pin before retrying.
 ## Administrator deployments
 
 For service identities, systemd units, socket permissions, manual
-installation, and daemon administration, see [`deploy/README.md`](../deploy/README.md).
+installation, and daemon administration, see [`deploy/README.md`](../../deploy/README.md).
