@@ -1,489 +1,429 @@
-# Omneum Architecture
 
-Omneum evaluates structured information before it enters downstream agent control flow.
+# Architecture Overview
 
-The Python SDK adapts application data into Omneum's canonical representation, estimates source dependencies, and performs client-side VOPRF operations. The Python MCP server validates evaluation requests, constructs the source-claim graph, and runs Omneum. Server-side VOPRF evaluation is isolated in `omneumd`, a Rust daemon that owns the deployment private key and exposes a narrow local evaluation interface to the MCP process.
+Omneum is a context evaluation system for AI agents. It runs locally through an MCP server and provides a Python SDK for evaluating structured context. A SQLite-backed Context Graph stores observations and evaluation history.
 
-## 1. Evaluation Path
+## System Overview
 
-~~~text
-Retrieval / Tools / Workflow State
-                │
-                ▼
-        Application Data
-                │
-                ▼
-       Semantic Normalization
-                │
-                ▼
- Source + Claim / ContextMapper
-                │
-                ▼
-       Canonical Observations
-                │
-                ▼
-       Dependency Estimation
-                │
-                ▼
-    Privacy-Preserving Linkage
-                │
-                │ blinded VOPRF request
-                ▼
-        Python MCP Server
-                │
-                │ authenticated local IPC
-                ▼
-             omneumd
-                │
-                │ evaluation + proof
-                ▼
-        Python MCP Server
-                │
-                │ VOPRF response
-                ▼
-              SDK
-                │
-                │ verify + finalize
-                ▼
-         Linkage Tokens
-                │
-                ▼
-        Python MCP Server
-                │
-                ▼
-         Bipartite Graph
-                │
-                ▼
-    Omneum Reliability Propagation
-                │
-                ▼
-        Evaluation Result
-                │
-                ▼
-        Agent Control Flow
-~~~
+```mermaid
+flowchart TB
+    Agent["AI Agent / Retrieval Pipeline"]
 
-Semantic normalization is an application responsibility. Omneum does not use an LLM to infer that differently expressed values represent the same structured claim.
+    subgraph SDK["Python SDK"]
+        Mapper["ContextMapper"]
+        Client["OmneumClient"]
+        Dependency["Dependency Estimator"]
+        VOPRF["VOPRF Client"]
+    end
 
-Provenance is optional and may be incomplete. Integrations should map provenance that exists in the originating runtime and leave unavailable fields unset. Missing provenance is not evidence of independence.
+    subgraph Local["Local Evaluation"]
+        MCP["omneum-server"]
+        Daemon["omneumd"]
+    end
 
-## 2. Application Integration
+    subgraph Storage["Local Storage"]
+        SQLite[("SQLite Context Graph")]
+    end
 
-Applications use `Source`, `Claim`, and `Observation`, then call `client.evaluate_context()`.
+    Agent --> Mapper
+    Mapper --> Client
+    Client --> Dependency
+    Client --> VOPRF
+    Client <-->|"MCP stdio"| MCP
+    MCP <-->|"Authenticated local IPC"| Daemon
+    Client <-->|"Local persistence"| SQLite
 
-### Source, Claim, and Observation
+    Contributor["Network Contributor"]
+    API["Network Ingestion API"]
+    Postgres[("PostgreSQL")]
 
-`Source` identifies where information came from. `Claim` represents `(entity_namespace, entity, attribute, value)`. `Observation` connects the two and carries `observation_id`, `observed_at`, and available provenance. `parent_observation_ids` references direct parent occurrences within the evaluation.
+    Client -.->|"Optional contribution"| Contributor
+    Contributor -->|"Authenticated HTTPS"| API
+    API --> Postgres
+```
 
-These occurrence IDs remain local. The SDK compiles observations into opaque Source → Claim assertion triples for the graph protocol. Omneum continues to operate on that graph.
+The Python SDK handles observation mapping, dependency estimation, VOPRF client operations, and local persistence. `omneum-server` exposes the evaluation tools over MCP stdio. The server also forwards blinded VOPRF requests to `omneumd`, which holds the deployment private key.
 
-### `ContextMapper`
+The local Context Graph is stored in SQLite. Network contribution is optional and uses a separate ingestion API.
 
-`ContextMapper` adapts existing application records into Omneum observations without requiring the application to reshape its internal data model first.
+## Core Modules
 
-~~~text
-Application Record
-        │
-        ▼
-   ContextMapper
-        │
-        ▼
-Canonical Observation
-~~~
+| Module | Responsibility | Key Components |
+|--------|----------------|----------------|
+| **Client** | Python evaluation interface | `OmneumClient`, `OmneumClientConfig`, `open_stdio_client()` |
+| **Mapping** | Structured context mapping | `ContextMapper`, `Source`, `Claim`, `Observation` |
+| **Dependency Estimation** | Source dependency analysis | `DependencyEstimatorConfig`, `DependencySignal` |
+| **Evaluation** | Graph construction and reliability scoring | `omneum-server`, MCP evaluation tools |
+| **VOPRF** | Privacy-preserving identifier linkage | SDK VOPRF client, `omneumd` |
+| **Storage** | Local Context Graph persistence | SQLite, `omneum/storage/` |
+| **Network** | Optional contribution and ingestion | Contributor, Network API, PostgreSQL |
+| **Research** | Evaluation telemetry | `omneum.research_telemetry` |
 
-The mapper defines how application fields map to Omneum's canonical source, entity, attribute, value, observation ID, timestamp, and provenance fields.
+## Evaluation Pipeline
 
-Source lineage, citations, observation lineage, source timestamps, and retrieval records should be mapped when the originating runtime exposes them. Integrations should not synthesize provenance solely to populate the schema.
+Omneum evaluates structured observations through the Python SDK. The MCP server receives encoded graph inputs and returns source and claim scores.
 
-Application-specific fields without canonical provenance semantics can remain under `metadata`. Arbitrary metadata is not interpreted as a dependency signal.
+### Evaluating Context
 
-See [`context_mapper.md`](context_mapper.md) for the mapping contract.
+```text
+Structured Context → Observation Mapping → Dependency Estimation → VOPRF Linkage → Graph Evaluation → Results
+```
 
-## 3. Canonical Observations
+1. **Observation Mapping**: `ContextMapper` converts structured records into `Observation` objects. Sources, claims, timestamps, and provenance are mapped using field selectors or callables.
+2. **Dependency Estimation**: The SDK computes source-pair dependencies from the available provenance signals. The estimator also produces claim-specific independence weights.
+3. **VOPRF Linkage**: The SDK generates opaque identifiers using the local VOPRF evaluator. Plaintext linkage inputs remain outside the daemon.
+4. **Graph Evaluation**: `omneum-server` constructs the source–claim graph and computes reliability and support scores.
+5. **Results**: `OmneumClient` returns a `ContextEvaluation` containing scores, dependencies, and convergence information.
 
-Both integration paths produce observations.
+### Python SDK
 
-An observation records a source asserting a structured claim:
+The SDK connects to the MCP server using `open_stdio_client()`.
 
-~~~text
-Source ──asserts──> Claim
-~~~
+```python
+from mcp import StdioServerParameters
+from omneum import (
+    DependencyEstimatorConfig,
+    OmneumClientConfig,
+    open_stdio_client,
+)
 
-The observation also carries the provenance available to the dependency estimator.
+config = OmneumClientConfig.from_local_deployment()
+server = StdioServerParameters(command="omneum-server")
 
-~~~text
-application representation
-          │
-          ▼
-      Observation
-          │
-          ├── dependency estimation
-          ├── private linkage
-          └── evaluation
-~~~
+estimator = DependencyEstimatorConfig(
+    upstream_weight=0.25,
+    citation_weight=0.20,
+    assertion_lineage_weight=0.20,
+    ownership_weight=0.10,
+    temporal_weight=0.10,
+    graph_weight=0.15,
+    temporal_window_seconds=7200.0,
+)
 
-Canonicalization provides deterministic representations for source and claim identity. Private linkage inputs are serialized deterministically before VOPRF blinding so equivalent canonical inputs produce the same linkage input bytes.
+async with open_stdio_client(config, server) as client:
+    evaluation = await client.evaluate_context(
+        observations,
+        estimator=estimator,
+    )
+```
 
-See [`canonicalization.md`](canonicalization.md) for canonicalization and encoding rules.
+`evaluate_context()` accepts a sequence of `Observation` objects. For existing retrieval records, `evaluate_mapped()` accepts a `ContextMapper` and maps the records before evaluation.
 
-## 4. Dependency Estimation
+See [Python SDK](sdk.md) and [ContextMapper](context_mapper.md).
 
-Multiple sources attached to the same claim are not assumed to represent independent support.
+## Data Model
 
-Copied documents, derived agent outputs, duplicated retrievals, common upstream sources, and other shared provenance can create dependency between sources. The SDK estimates pairwise source dependency before constructing the evaluation request sent to the MCP server.
+Omneum uses three primary types for structured context: `Source`, `Claim`, and `Observation`.
 
-The estimator derives dependency from canonical signals:
+| Type | Responsibility | Key Fields |
+|------|----------------|------------|
+| **Source** | Information provider | `kind`, `identifier`, `owner_id` |
+| **Claim** | Structured assertion | `entity_namespace`, `entity`, `attribute`, `value` |
+| **Observation** | Recorded assertion and provenance | `observation_id`, `source`, `claim`, `observed_at` |
+| **ContextEvaluation** | Evaluation response | `source_reliability`, `claim_support`, `pairwise_dependencies`, `convergence` |
 
-~~~text
-upstream
-citation
-assertion_lineage
-ownership
-temporal
-graph
-retrieval
-~~~
+### Source
 
-Integrations should prefer observed provenance over manually supplied scores. `DependencySignal` is available when an integration already computes a signal with the corresponding Omneum semantics.
+`Source` identifies where an assertion originated. Source identity uses a canonical `(kind, identifier)` pair.
 
-### Missing signals
+```python
+from omneum import Source
 
-An observed zero and an unavailable signal have different meanings:
+source = Source(
+    kind="web_document",
+    identifier="https://research.example.com/report",
+    owner_id="research",
+)
+```
 
-~~~python
+Source kinds and identifier formats are defined in [Canonicalization](canonicalization.md).
+
+### Claim
+
+`Claim` stores an entity, attribute, and value under an entity namespace.
+
+```python
+from omneum import Claim
+
+claim = Claim(
+    entity_namespace="company",
+    entity="acme-corp",
+    attribute="quarterly_revenue_usd",
+    value=42_000_000,
+)
+```
+
+Claims with the same entity and attribute can have different values. These are represented separately in the evaluation graph.
+
+### Observation
+
+`Observation` connects a source to a claim and records the available provenance.
+
+```python
+from datetime import datetime, timezone
+from omneum import Observation
+
+observation = Observation(
+    observation_id="research-result-1",
+    source=source,
+    claim=claim,
+    observed_at=datetime.now(timezone.utc),
+)
+```
+
+Observations can also contain upstream sources, citations, parent observation IDs, source timestamps, retrieval records, and metadata.
+
+The Context Graph stores observations as persistent records. Assertion observations are the first supported observation type. The storage model also allows observation types beyond source–claim assertions.
+
+## Dependency Estimation
+
+The dependency estimator runs before graph evaluation. It computes dependencies between sources using provenance attached to observations.
+
+| Signal | Input | Description |
+|--------|-------|-------------|
+| **Upstream** | `upstream_sources` | Shared upstream sources |
+| **Citation** | `cited_sources` | Explicit source citations |
+| **Assertion Lineage** | `parent_observation_ids` | Direct observation ancestry |
+| **Ownership** | `owner_id` | Shared source ownership |
+| **Temporal** | Source and observation timestamps | Timestamp proximity |
+| **Graph** | Source–claim relationships | Structural overlap |
+| **Retrieval** | Retrieval records | Shared retrieval origin |
+
+`DependencyEstimatorConfig` defines the signal weights and temporal window. The estimator produces pairwise dependency values and claim-specific independence weights.
+
+Missing provenance is tracked separately from observed zero dependency. `DependencySignal` exposes both `value` and `observable`:
+
+```python
 DependencySignal(value=0.0, observable=True)
 DependencySignal(value=0.0, observable=False)
-~~~
+```
 
-`observable=True` means the information required to evaluate that signal was available. A value of zero means that mechanism produced no dependency evidence.
+The first represents an observed signal with no dependency evidence. The second represents unavailable evidence.
 
-`observable=False` means the signal could not be evaluated from the available information.
+The estimator also computes `estimated_independent_support_count`, which adjusts the number of supporting sources using their estimated dependencies.
 
-Unavailable signals are excluded from the dependency calculation. An observed zero on one mechanism does not weaken positive dependency evidence from another mechanism.
+## Evaluation Engine
 
-### Pairwise dependency
+The MCP evaluator constructs a bipartite graph from source–claim assertions. Source nodes represent information providers. Claim nodes represent structured assertion values.
 
-For each source pair, the estimator takes the strongest observed, non-excluded dependency signal.
+The graph evaluator computes source reliability and claim support through iterative propagation. Source contributions are adjusted using agreement and independence weights from the evaluation inputs.
 
-Signals represent different mechanisms through which sources may be dependent. An observed zero on one mechanism is therefore not counterevidence to positive dependency evidence from another mechanism.
+| Input | Description |
+|-------|-------------|
+| Source–claim edges | Assertion relationships |
+| Agreement weights | Edge-level agreement |
+| Independence weights | Dependency-adjusted source contributions |
+| Convergence parameters | Iteration termination settings |
 
-Weighted signal coverage is reported separately using the configured signal weights, so a strong result derived from limited provenance remains distinguishable from one derived from broad provenance coverage.
+| Output | Description |
+|--------|-------------|
+| Source reliability | Reliability score for each source |
+| Claim support | Support score for each claim |
+| Convergence | Iteration and termination diagnostics |
 
-For example, if upstream lineage is the only observable signal and establishes complete dependency:
+Provenance relationships are used during dependency estimation. They are not added to the graph as assertion edges.
 
-~~~text
-upstream = 1.0
-~~~
+The mathematical specification, propagation equations, and convergence analysis are maintained in the [algorithm repository](https://github.com/cole-h06/braid).
 
-the pairwise dependency can be:
+## Evaluation Results
 
-~~~text
-dependency = 1.0
-~~~
+`evaluate_context()` returns a `ContextEvaluation`.
 
-Coverage records that only part of the configured dependency model was observable. It does not weaken the dependency relationship that was actually observed.
+```python
+evaluation = await client.evaluate_context(
+    observations,
+    estimator=estimator,
+)
 
-Pairwise dependency is converted into the claim-specific independence weights consumed by Omneum.
+for claim in evaluation.claim_support:
+    print(claim.support)
+    print(claim.estimated_independent_support_count)
+    print(claim.conflicting_claims)
+```
 
-## 5. Privacy-Preserving Linkage
+| Field | Description |
+|-------|-------------|
+| `source_reliability` | Source reliability results |
+| `claim_support` | Claim support results |
+| `pairwise_dependencies` | Source-pair dependency diagnostics |
+| `convergence` | Propagation convergence information |
 
-The MCP server requires stable identities for sources and structured claim data, but graph evaluation does not require their plaintext values.
+The scores measure structural reliability and support. They are not calibrated probabilities of factual correctness.
 
-Omneum derives opaque linkage tokens using RFC 9497 VOPRF mode with the `ristretto255-SHA512` ciphersuite.
+The calling agent or retrieval pipeline determines how the scores affect context selection, ranking, or subsequent execution.
 
-~~~text
-Client SDK                    MCP Server                    omneumd
-    │                             │                            │
-    │ canonicalize + serialize    │                            │
-    │ blind                       │                            │
-    │                             │                            │
-    ├──── blinded element ───────►│                            │
-    │                             ├──── blinded element ──────►│
-    │                             │                            │ evaluate
-    │                             │                            │ with k
-    │                             │                            │
-    │                             │◄── evaluation + proof ─────┤
-    │◄── evaluation + proof ──────┤                            │
-    │                             │                            │
-    │ verify + finalize           │                            │
-    ▼                             │                            │
-Linkage Token
-~~~
+## Storage Architecture
 
-The SDK performs canonicalization, blinding, proof verification, and finalization. Client-side cryptographic operations use the native extension.
+Omneum uses SQLite for local Context Graph persistence. The Python SDK initializes the default storage adapter through `open_stdio_client()`.
 
-The MCP server forwards blinded elements to `omneumd` over authenticated local IPC. It receives the evaluated element and proof and returns them to the SDK.
+| Storage | Responsibility | Data |
+|---------|----------------|------|
+| **SQLite** | Local Context Graph | Sources, claims, observations, evaluation history |
+| **VOPRF Key Store** | Local cryptographic state | Deployment private key and key version |
+| **PostgreSQL** | Hosted Network storage | Authorized contributions and control-plane records |
 
-`omneumd` owns the deployment private key and performs the secret-bearing VOPRF operation. The MCP process does not load the private key or receive a secret-bearing VOPRF server context.
+### Local Context Graph
 
-The SDK verifies the returned proof against the configured public key before finalizing the linkage token.
+The Context Graph persists observations and evaluation records between SDK sessions. It runs independently of the hosted Network.
 
-Equivalent encoded inputs evaluated under the same deployment key produce stable opaque linkage tokens.
+`open_stdio_client()` enables SQLite persistence by default. Pass `local_persistence=None` to disable it:
 
-VOPRF provides linkage privacy; it does not encrypt the evaluation protocol. The MCP server can observe protocol traffic, opaque identifiers submitted later for graph evaluation, and relationships among those identifiers.
+```python
+async with open_stdio_client(
+    config,
+    server,
+    local_persistence=None,
+) as client:
+    ...
+```
 
-See [`protocol.md`](protocol.md) for the VOPRF and MCP wire contracts.
+A `LocalPersistenceConfig` can also be supplied to configure the storage adapter.
 
-## 6. Bipartite Graph
+The SQLite database belongs to the local SDK process. The VOPRF private key is stored separately and accessed only by `omneumd`.
 
-Omneum operates on a bipartite graph containing source nodes and claim nodes. Assertions form edges between the two partitions.
+See [Storage](storage.md).
 
-~~~text
-S1 ───── C1
-│
-└─────── C2
-          │
-S2 ──────┘
+## VOPRF Service
 
-S3 ───── C3
-~~~
+Omneum uses RFC 9497 VOPRF with the `ristretto255-SHA512` ciphersuite. The protocol generates stable opaque linkage identifiers without sending plaintext linkage inputs to the evaluator.
 
-A source can assert multiple claims, and multiple sources can assert the same claim.
+### Linkage Flow
 
-Shared source-claim structure allows reliability to propagate across the graph. A source connected to several claims participates in each of those claim evaluations, while a claim supported by several sources receives reliability through each corresponding assertion edge.
+```text
+Canonical Input → Blind → Evaluate → Verify → Finalize → Opaque Identifier
+```
 
-The MCP server constructs this graph from opaque source and claim identifiers. Plaintext source identifiers and structured claim values are not required for graph construction.
+1. **Canonical Input**: The SDK serializes the source or claim identity.
+2. **Blind**: The SDK blinds the input using the VOPRF client.
+3. **Evaluate**: `omneum-server` forwards the blinded element to `omneumd`.
+4. **Verify**: The SDK verifies the returned proof using the configured public key.
+5. **Finalize**: The SDK produces the opaque linkage identifier.
 
-## 7. BRAID Reliability Propagation
+`omneumd` owns the private key and performs the secret-key operation. The MCP server only forwards blinded requests and returns the evaluated elements and proofs.
 
-BRAID propagates reliability over the source-claim graph.
+VOPRF protects linkage inputs from the evaluator. It does not hide graph topology, relationships between opaque identifiers, or numeric dependency values from the MCP server.
 
-Each iteration consists of a source-to-claim pass followed by a claim-to-source pass:
+See [Protocol](protocol.md).
 
-~~~text
-Source scores
-     │
-     ▼
-source → claim
-     │
-     ▼
-Claim scores
-     │
-     ▼
-claim → source
-     │
-     ▼
-Updated source scores
-     │
-     └──────── repeat
-~~~
-
-### Source → claim
-
-Reliability contributed by a source to a claim is adjusted by the assertion's agreement and independence weights.
-
-~~~text
-source reliability
-        ×
-agreement weight
-        ×
-independence weight
-        │
-        ▼
-      claim
-~~~
-
-The independence weight is derived from the pairwise dependency estimates produced by the SDK. Sources estimated to depend on one another therefore do not contribute as fully independent support.
-
-Source degree is included in the propagation term so adding additional asserted claims does not by itself increase a source's total influence.
-
-### Claim → source
-
-Claim reliability propagates back to the sources asserting the claim.
-
-The reverse pass accounts for the number of sources attached to the claim before updating source scores. Those updated source scores become the input to the next source-to-claim pass.
-
-### Convergence
-
-BRAID repeats the two propagation passes until the score delta falls below the configured convergence tolerance or the iteration limit is reached.
+## Execution Boundaries
 
-Source and claim scores are graph-derived reliability scores. They are not probabilities that a source or claim is factually correct.
+The managed local deployment separates the SDK, MCP server, and VOPRF daemon.
 
-Dependency estimation modifies the independence of support entering propagation; it does not replace BRAID propagation.
+| Component | Process | Interface |
+|-----------|---------|-----------|
+| Python SDK | Agent or Python client process | Python API |
+| MCP Server | `omneum-server` | MCP stdio |
+| VOPRF Daemon | `omneumd` | Authenticated Unix-domain socket |
+| Context Graph | SDK process | SQLite adapter |
+| Network Contributor | Optional local contributor | HTTPS |
+| Network API | Hosted service | Authenticated ingestion endpoints |
 
-## 8. Evaluation Results
+The MCP server does not own the VOPRF private key. The daemon runs under a separate operating-system identity in protected local deployments.
 
-The MCP server returns the graph evaluation as structured SDK data.
+On Linux, the daemon uses `SO_PEERCRED` for local peer authentication. On macOS, it uses `getpeereid()`. Socket permissions restrict which local processes can invoke the evaluator.
 
-Claim results contain the propagated support score and conflict information. The result also exposes dependency-derived diagnostics including estimated independent support and pairwise source dependency.
+See [Installation](guides/installation.md) and [Deployment](guides/deployment.md).
 
-`estimated_independent_support_count` is distinct from the Omneum propagation score:
+## Deployment Modes
 
-~~~text
-support
-    = Omneum graph propagation result
-
-estimated_independent_support_count
-    = dependency-adjusted supporting-source count
-
-pairwise_dependencies
-    = estimated dependency between source pairs
-~~~
-
-Applications can use these values in retrieval, routing, verification, escalation, or other control policies. Threshold selection and downstream policy remain application responsibilities.
-
-## 9. Execution Boundaries
-
-Omneum's local evaluation path spans three execution components with separate responsibilities.
-
-~~~text
-┌─────────────────────────┐
-│       Client SDK        │
-│                         │
-│ application adaptation  │
-│ dependency estimation   │
-│ VOPRF client operations │
-└────────────┬────────────┘
-             │
-             │ MCP stdio
-             ▼
-┌─────────────────────────┐
-│    Python MCP Server    │
-│                         │
-│ request validation      │
-│ graph construction      │
-│ Omneum propagation       │
-└────────────┬────────────┘
-             │
-             │ authenticated AF_UNIX
-             ▼
-┌─────────────────────────┐
-│        omneumd          │
-│                         │
-│ VOPRF private key       │
-│ blinded evaluation      │
-│ proof generation        │
-└─────────────────────────┘
-~~~
+### Local MCP
 
-### Client SDK
+The open-source installation runs locally with MCP stdio transport.
 
-The client handles:
+```bash
+pip install omneum
+omneum install
+```
 
-- `Observation` input and `ContextMapper` adaptation
-- canonical observations and provenance
-- dependency signal derivation
-- pairwise dependency estimation
-- linkage-input canonicalization
-- VOPRF blinding, proof verification, and finalization
-- evaluation request construction
+MCP client configuration:
 
-### Python MCP Server
+```json
+{
+  "mcpServers": {
+    "omneum": {
+      "command": "omneum-server"
+    }
+  }
+}
+```
 
-The MCP server handles:
+- `omneum-server` exposes the MCP tools.
+- `omneumd` handles private-key VOPRF operations.
+- SQLite stores local Context Graph records.
+- PostgreSQL and Network credentials are not required for local evaluation.
 
-- MCP request handling
-- evaluation-request validation
-- forwarding blinded VOPRF elements to `omneumd`
-- returning VOPRF evaluations and proofs to the SDK
-- graph construction
-- Omneum reliability propagation
-- structured evaluation responses
-
-The MCP process does not own or load the VOPRF deployment private key.
-
-### `omneumd`
-
-`omneumd` handles:
+See [Installation](guides/installation.md) and [Configuration](guides/configuration.md).
 
-- VOPRF deployment private-key ownership
-- public-key retrieval
-- blinded-element evaluation
-- VOPRF proof generation
+### Omneum Network
 
-The daemon accepts only the local VOPRF operations required by the MCP server. Graph construction, dependency processing, assertion evaluation, and Omneum remain outside the daemon.
+The Omneum Network provides a separate ingestion service for authorized contributions from local deployments.
 
-Raw source identifiers, structured values, detailed provenance, and retrieval records are not required by the MCP server for graph evaluation. The MCP server receives opaque linkage identifiers and the numeric dependency information consumed by Omneum.
+```text
+Local Contributor → Network Ingestion API → Validation → PostgreSQL
+```
 
-## 10. Deployment
+1. **Contributor**: Prepares an explicitly authorized contribution payload.
+2. **Network API**: Receives authenticated HTTPS requests.
+3. **Validation**: Checks contribution structure and authorization.
+4. **PostgreSQL**: Stores accepted Network records.
 
-Protected local serving is supported on Linux and macOS. See [Linux installation](../deploy/README.md) for automated daemon setup.
+Network contribution is disabled by default. Local MCP installations do not connect directly to the production database or receive production database credentials.
 
-`omneum-server` and `omneumd` must run under distinct non-root OS identities. The VOPRF private key belongs to the `omneumd` security domain and must not be readable by the MCP identity.
+Local evaluation continues independently of Network availability.
 
-~~~text
-Application
-     │
-     │ MCP stdio
-     ▼
-┌──────────────────────┐
-│    omneum-server     │
-│                      │
-│ identity: omneum-mcp │
-└──────────┬───────────┘
-           │
-           │ authenticated Unix socket
-           ▼
-┌─────────────────────────┐
-│        omneumd          │
-│                         │
-│ identity: omneum-crypto │
-│ owns: voprf.key         │
-└─────────────────────────┘
-~~~
+See [Configuration](guides/configuration.md) and [Deployment](guides/deployment.md).
 
-A shared `omneum-ipc` group grants the MCP identity access to the daemon socket without granting access to the private key. The installed daemon binary and service configuration must be administrator-owned and unwritable by either application identity.
+## Research Telemetry
 
-The private key is provisioned administratively and retained across daemon restarts. Stable linkage under a deployment depends on retaining the same deployment key. `omneum-server` stores only public deployment configuration, including the pinned VOPRF public key and daemon endpoint.
+`omneum.research_telemetry` provides optional evaluation recording for benchmarks and research.
 
-The daemon authenticates its local peer using kernel-provided credentials. Linux uses `SO_PEERCRED`; macOS uses `getpeereid()`. The socket credential check authenticates the configured MCP OS identity, not an individual Python PID.
+```python
+from omneum.research_telemetry import (
+    JsonlResearchRecorder,
+    record_evaluation,
+)
 
-Production builds must not enable the `test-daemon` feature or daemon test mode.
+result = await record_evaluation(
+    lambda: client.evaluate_context(
+        observations,
+        estimator=estimator,
+    ),
+    estimator=estimator,
+    context=context,
+    recorder=JsonlResearchRecorder(
+        "/private/research/events.jsonl"
+    ),
+)
+```
 
-Native protected local serving is not supported on Windows. Windows builds retain client-side VOPRF functionality.
+The recorder stores aggregate evaluation metrics, including graph dimensions, dependency statistics, convergence, and execution latency.
 
-The Python SDK currently communicates with the local MCP server over `stdio`. Remote SDK transport is not part of the current local deployment architecture.
+Raw observations, claim values, source identifiers, and VOPRF material are not included in the research event.
 
-## 11. State
+See [Research Telemetry](research/telemetry.md).
 
-Open-source assertion evaluation is request-scoped.
+## Design Principles
 
-For each evaluation request, the MCP server validates the submitted graph inputs, constructs the source-claim graph, runs Omneum, and returns the resulting evaluation. The local evaluation path does not require the hosted Omneum database.
+| Principle | Description |
+|-----------|-------------|
+| **Structured Context** | `Observation` and `ContextMapper` define the input model. Entity resolution remains outside Omneum. |
+| **Dependency-Aware Evaluation** | Source dependencies are estimated before reliability propagation. |
+| **Separate Cryptographic Boundary** | `omneumd` holds the VOPRF private key outside the MCP process. |
+| **Local Context Graph** | SQLite stores observations and evaluation history without requiring a hosted database. |
+| **Content-Blind Evaluation** | The MCP evaluator operates on opaque identifiers and numeric graph inputs. |
+| **Explicit Network Contribution** | Network uploads require separate configuration and authorization. |
+| **Application-Controlled Decisions** | Evaluation results are returned to the calling code without enforcing retrieval or agent policies. |
 
-The VOPRF deployment key is persistent state owned by `omneumd`. The daemon loads the key into its server context at startup and retains that context for its lifetime.
+## Related Documents
 
-The MCP process retains public deployment configuration and the information required to connect to the daemon. It does not retain the VOPRF private key.
-
-Organizations, workspaces, agents, historical evaluations, and other persistent control-plane state belong to the hosted deployment rather than the open-source local evaluation path.
-
-## 12. Trust Boundaries
-
-The client retains application data that is not required for server-side graph evaluation, including raw source identifiers, structured claim values, detailed provenance, retrieval records, and application metadata.
-
-The VOPRF path crosses two boundaries:
-
-~~~text
-private linkage input
-        │
-        │ client-side blind
-        ▼
-blinded element
-        │
-        │ MCP
-        ▼
-Python MCP Server
-        │
-        │ authenticated local IPC
-        ▼
-     omneumd
-        │
-        │ evaluation + proof
-        ▼
-Python MCP Server
-        │
-        │ MCP
-        ▼
-Client SDK
-        │
-        │ verify + finalize
-        ▼
-opaque linkage token
-~~~
-
-The MCP server receives blinded VOPRF elements but not the private linkage inputs from which they were derived. `omneumd` receives blinded elements and owns the deployment private key. The private key does not cross the daemon boundary.
-
-During assertion evaluation, the MCP server receives opaque source and claim identifiers together with the numeric dependency information required by Omneum. It can observe the submitted graph structure and relationships among opaque identifiers.
-
-VOPRF does not conceal graph topology or other information explicitly included in an evaluation request.
-
-Protocol changes should preserve these boundaries. Raw application provenance or private linkage inputs should not cross into the MCP or daemon security domains unless a protocol operation requires them.
+- [Python SDK](sdk.md) — Client API and evaluation examples
+- [API Reference](api/) — Public interfaces and data types
+- [ContextMapper](context_mapper.md) — Mapping structured records
+- [Canonicalization](canonicalization.md) — Source and claim identity rules
+- [Protocol](protocol.md) — MCP and VOPRF operations
+- [Storage](storage.md) — Local persistence and database configuration
+- [Installation](guides/installation.md) — Local installation and evaluator setup
+- [Configuration](guides/configuration.md) — SDK, storage, and Network configuration
+- [Deployment](guides/deployment.md) — Service deployment and security boundaries
+- [Research Telemetry](research/telemetry.md) — Evaluation diagnostics
+- [Algorithm Specification](https://github.com/cole-h06/braid) — Reliability propagation and convergence
