@@ -1,3 +1,4 @@
+from omneum.explanations import explain_evaluation
 import asyncio
 
 from omneum import (
@@ -88,24 +89,16 @@ def render_result(result):
     sections = [QUESTION, render_conclusion(result), "Source reliability"]
     for item in sorted(
         result.source_reliability,
-        key=lambda value: SOURCE_LABELS[value.source],
-    ):
-        sections.append(
-            f"{SOURCE_LABELS[item.source]}\n"
-            f"Reliability: {item.reliability:.2f}"
-        )
-
-    sections.append("Claims")
-    for item in sorted(
-        result.claim_support,
-        key=lambda value: (
-            value.claim.attribute,
-            str(value.claim.value),
+        key=lambda value: SOURCE_LABELS.get(
+            value.source, value.source.identifier
         ),
     ):
         sections.append(
-            explain_claim(item, source_labels=SOURCE_LABELS)
+            f"{SOURCE_LABELS.get(item.source, item.source.identifier)}\n"
+            f"Reliability: {item.reliability:.2f}"
         )
+
+    sections.append(explain_evaluation(result))
 
     sections.append("Pair dependencies")
     for item in result.pairwise_dependencies:
@@ -122,59 +115,78 @@ def render_result(result):
             )
         ):
             sections.append(
-                explain_dependency(item, source_labels=SOURCE_LABELS)
+                explain_dependency(
+                    item,
+                    source_labels={
+                        **SOURCE_LABELS,
+                        **{
+                            source.source: source.source.identifier
+                            for source in result.source_reliability
+                            if source.source not in SOURCE_LABELS
+                        },
+                    },
+                )
             )
     return "\n\n".join(sections)
 
 
 def render_conclusion(result):
-    winners = {}
+    """Apply an example application policy to Omneum's claim-support results."""
+    required = (
+        "input_data_policy",
+        "provider_retention",
+        "processing_region",
+    )
+
+    groups = {}
     for item in result.claim_support:
-        if item.is_attribute_max_support:
-            winners.setdefault(item.claim.attribute, []).append(item)
-    expected = {
-        "input_data_policy": "redacted customer content only",
-        "provider_retention": "0 days",
-        "processing_region": "EU",
-    }
-    for attribute, value in expected.items():
-        if (
-            len(winners.get(attribute, ())) != 1
-            or winners[attribute][0].claim.value != value
-        ):
-            raise RuntimeError("The expected deployment controls were not resolved.")
+        groups.setdefault(item.claim.attribute, []).append(item)
 
-    runbook_brief = _dependency(result, RUNBOOK_SOURCE, BRIEF_SOURCE)
-    if not (
-        runbook_brief.signals.assertion_lineage > 0.0
-        and runbook_brief.signals.ownership > 0.0
-    ):
-        raise RuntimeError("Readiness-brief lineage was not preserved.")
-
-    vendor_claims = {
-        item.claim.attribute
-        for item in result.claim_support
-        if any(
-            source.source == VENDOR_SOURCE
-            for source in item.supporting_sources
+    selected = {}
+    for attribute in required:
+        candidates = sorted(
+            groups.get(attribute, ()),
+            key=lambda item: item.support,
+            reverse=True,
         )
-    }
-    if vendor_claims != {"provider_retention", "processing_region"}:
-        raise RuntimeError("Vendor support was not preserved.")
 
-    return "\n".join((
-        "Application conclusion",
-        "Customer content must be redacted.",
-        "Provider retention must be 0 days.",
-        "Processing must remain in the EU.",
-        "The stale deployment runbook and recent readiness brief disagree "
-        "with these controls.",
-        "The readiness brief is derived from the stale runbook and is not "
-        "an independent source.",
-        "Vendor documentation confirms only:",
-        "• Provider retention",
-        "• Processing region",
-    ))
+        if not candidates:
+            return (
+                "Application decision: ESCALATE\n"
+                f"Missing evidence for {attribute}."
+            )
+
+        if (
+            len(candidates) > 1
+            and candidates[0].support <= candidates[1].support
+        ):
+            return (
+                "Application decision: RETRIEVE MORE\n"
+                f"Unresolved competing claims for {attribute}."
+            )
+
+        selected[attribute] = candidates[0]
+
+    lines = [
+        "Application decision: EVALUATION COMPLETE",
+        "Highest-supported claims:",
+    ]
+
+    for attribute in required:
+        item = selected[attribute]
+        lines.append(
+            f"{attribute}: {item.claim.value} "
+            f"(support {item.support:.4f}, "
+            f"independent support "
+            f"{item.estimated_independent_support_count:.2f})"
+        )
+
+    lines.append(
+        "These are relative evidence-support scores, "
+        "not probabilities or authorization decisions."
+    )
+
+    return "\n".join(lines)
 
 
 def _dependency(result, first, second):

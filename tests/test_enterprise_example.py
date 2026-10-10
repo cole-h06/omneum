@@ -148,13 +148,26 @@ def test_stdio_workflow(monkeypatch, example_daemon):
     (first, first_output), (second, second_output) = asyncio.run(run())
 
     assert first == second
-    assert first_output == second_output
+    import re
+
+    def stable_output(output):
+        return re.sub(
+            r"Evaluation latency: [0-9]+(?:\.[0-9]+)? ms",
+            "Evaluation latency: <measured> ms",
+            output,
+        )
+
+    assert stable_output(first_output) == stable_output(second_output)
     assert len(first.source_reliability) == 6
     assert len(first.claim_support) == 6
     assert len(first.pairwise_dependencies) == 15
-    assert "Customer content must be redacted." in first_output
-    assert "Provider retention must be 0 days." in first_output
-    assert "Processing must remain in the EU." in first_output
+    assert "Application decision: EVALUATION COMPLETE" in first_output
+    assert "input_data_policy: redacted customer content only" in first_output
+    assert "provider_retention: 0 days" in first_output
+    assert "processing_region: EU" in first_output
+    assert "Omneum Evaluation" in first_output
+    assert re.search(r"Evaluation latency: [0-9]+(?:\.[0-9]+)? ms", first_output)
+    assert "Conflicting values:" in first_output
     assert "Estimated independent support: 1.00" in first_output
     assert "Stale deployment runbook ↔ Copilot readiness brief" in first_output
     assert "corroboration" not in first_output.lower()

@@ -18,7 +18,7 @@ _INTERNAL_LABELS = {
 
 
 def explain_evaluation(evaluation) -> str:
-    """Render an Omneum evaluation grouped by attribute."""
+    """Render an Omneum evaluation grouped by attribute, ranked by support."""
     latency = evaluation.evaluation_latency_ms
 
     lines = ["Omneum Evaluation"]
@@ -38,7 +38,7 @@ def explain_evaluation(evaluation) -> str:
     for (_, _, attribute), results in groups.items():
         lines.extend(("", _attribute(attribute)))
 
-        for result in results:
+        for result in sorted(results, key=lambda r: r.support, reverse=True):
             lines.extend(
                 (
                     "",
@@ -64,6 +64,13 @@ def explain_evaluation(evaluation) -> str:
                     "  Dependency signal coverage: "
                     f"{result.dependency_signal_coverage:.2f}"
                 )
+
+            if result.conflicting_claims:
+                lines.append("  Conflicting values:")
+                for conflict in result.conflicting_claims:
+                    lines.append(
+                        f"    {_value(conflict.claim.value)} (support {conflict.support:.2f})"
+                    )
 
             explanation = _claim_explanation(
                 result,
