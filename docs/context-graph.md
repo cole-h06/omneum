@@ -416,4 +416,4 @@ local_persistence=None
 
 Network contribution requires an explicit `NetworkContributionConfig`.
 
-[Configuration docs →](configuration.md) · [Storage docs →](storage.md)
+[Configuration docs →](guides/configuration.md) · [Storage docs →](storage.md)
