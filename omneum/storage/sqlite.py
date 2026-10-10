@@ -5,6 +5,7 @@ from collections.abc import Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import asdict, is_dataclass
 from hashlib import sha256
+from functools import lru_cache
 import json
 import math
 import os
@@ -22,8 +23,35 @@ from ..dependency import DependencyEstimatorConfig
 from ..information import Claim, Observation, Source
 from ..linkage import LinkagePurpose
 from .base import PersistedObservation
-from .filesystem import require_local_filesystem
+from .filesystem import require_local_filesystem, require_safe_acl, require_safe_directory_acl
 from .schema import APPLICATION_ID, MIGRATIONS
+
+
+_MIGRATION_TABLE = '''CREATE TABLE IF NOT EXISTS schema_migrations (
+    version INTEGER PRIMARY KEY, checksum TEXT NOT NULL,
+    applied_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+)'''
+
+
+def _schema(connection):
+    # Include autoindexes as well as triggers/views: the migration ledger alone
+    # does not prove that constraints or executable schema objects are intact.
+    rows = connection.execute(
+        "SELECT type, name, tbl_name, sql FROM sqlite_master "
+        "WHERE name NOT GLOB 'sqlite_*' OR type='index' ORDER BY type, name")
+    return tuple((*row[:3], None if row[3] is None else ' '.join(row[3].split())) for row in rows)
+
+
+@lru_cache(maxsize=len(MIGRATIONS) + 1)
+def _expected_schema(count):
+    connection = sqlite3.connect(':memory:')
+    try:
+        connection.execute(_MIGRATION_TABLE)
+        for _, script in MIGRATIONS[:count]:
+            connection.executescript(script)
+        return _schema(connection)
+    finally:
+        connection.close()
 
 if TYPE_CHECKING:
     from ..client import ContextEvaluation, LinkageToken
@@ -99,6 +127,7 @@ class SQLiteStorage:
             if os.name == 'posix':
                 if directory.st_uid != os.getuid() or stat.S_IMODE(directory.st_mode) & 0o077:
                     raise ValueError('SQLite directory must be owner-only')
+                require_safe_directory_acl(directory_path)
                 # Resolve trusted platform aliases (such as macOS /tmp) once.
                 # Writable non-sticky ancestors permit replacement by other users.
                 for parent in directory_path.parents:
@@ -107,6 +136,7 @@ class SQLiteStorage:
                     if (info.st_uid not in (0, os.getuid())
                             or mode & 0o022 and not mode & stat.S_ISVTX):
                         raise ValueError('SQLite directory has an unsafe ancestor')
+                    require_safe_directory_acl(parent, ancestor=True)
             require_local_filesystem(directory_path)
             path = directory_path / self.path.name
             self._prepare_file(path, create=True)
@@ -119,16 +149,21 @@ class SQLiteStorage:
             )
 
         try:
+            connection.execute('PRAGMA trusted_schema=OFF')
+            # Extensions are disabled by default; explicitly retain that boundary
+            # on Python builds supporting loadable extensions.
+            if hasattr(connection, 'enable_load_extension'):
+                connection.enable_load_extension(False)
+            if hasattr(connection, 'setconfig'):
+                connection.setconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE, True)
             connection.execute('PRAGMA foreign_keys=ON')
             if connection.execute('PRAGMA foreign_keys').fetchone()[0] != 1:
                 raise RuntimeError('SQLite foreign keys unavailable')
             connection.execute(f'PRAGMA busy_timeout={int(self.timeout_seconds * 1000)}')
             # Only the legacy envelope rebuild needs FK enforcement suspended.
             # Ordinary connections and new databases keep it enabled throughout.
-            history = connection.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_migrations'").fetchone()
-            if (history and connection.execute('PRAGMA application_id').fetchone()[0] == APPLICATION_ID
-                    and connection.execute('SELECT version FROM schema_migrations ORDER BY version').fetchall() == [(1,)]):
+            if (connection.execute('PRAGMA application_id').fetchone()[0] == APPLICATION_ID
+                    and _schema(connection) == _expected_schema(1)):
                 connection.execute('PRAGMA foreign_keys=OFF')
             connection.execute('BEGIN IMMEDIATE')
             migrated = self._migrate(connection)
@@ -192,6 +227,7 @@ class SQLiteStorage:
             if os.name == 'posix':
                 if info.st_uid != os.getuid():
                     raise ValueError('SQLite files must be user-owned')
+                require_safe_acl(fd)
                 os.fchmod(fd, 0o600)
         finally:
             os.close(fd)
@@ -204,13 +240,15 @@ class SQLiteStorage:
         if application_id == 0 and connection.execute('PRAGMA user_version').fetchone()[0] != 0:
             raise ValueError('refusing to initialize an existing unrelated database')
         objects = {row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")}
+            "SELECT name FROM sqlite_master WHERE name NOT GLOB 'sqlite_*'")}
         if objects and (application_id != APPLICATION_ID or 'schema_migrations' not in objects):
             raise ValueError('refusing to initialize an existing unrelated database')
-        connection.execute('''CREATE TABLE IF NOT EXISTS schema_migrations (
-            version INTEGER PRIMARY KEY, checksum TEXT NOT NULL,
-            applied_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
-        )''')
+        connection.execute(_MIGRATION_TABLE)
+        # Validate objects before querying the ledger: a replaced ledger view
+        # could itself execute attacker SQL or exhaust resources.
+        actual_schema = _schema(connection)
+        if actual_schema not in tuple(_expected_schema(n) for n in range(len(MIGRATIONS) + 1)):
+            raise ValueError('unsupported or modified SQLite schema')
         applied = dict(connection.execute('SELECT version, checksum FROM schema_migrations'))
         expected = {version: sha256(script.encode()).hexdigest() for version, script in MIGRATIONS}
         if any(version not in expected or checksum != expected[version]
@@ -218,6 +256,8 @@ class SQLiteStorage:
             raise ValueError('unsupported or modified SQLite schema migration')
         if sorted(applied) != [v for v, _ in MIGRATIONS[:len(applied)]]:
             raise ValueError('SQLite migration history is incomplete')
+        if _schema(connection) != _expected_schema(len(applied)):
+            raise ValueError('unsupported or modified SQLite schema')
         for version, script in MIGRATIONS:
             if version in applied:
                 continue
@@ -231,6 +271,8 @@ class SQLiteStorage:
                 raise ValueError('incomplete SQLite migration')
             connection.execute('INSERT INTO schema_migrations(version, checksum) VALUES (?, ?)',
                                (version, expected[version]))
+        if _schema(connection) != _expected_schema(len(MIGRATIONS)):
+            raise ValueError('unsupported or modified SQLite schema')
         connection.execute(f'PRAGMA application_id={APPLICATION_ID}')
         return len(applied) != len(MIGRATIONS)
 

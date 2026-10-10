@@ -5,6 +5,76 @@ import re
 import sys
 
 
+def require_safe_acl(fd, *, ancestor=False):
+    """Darwin ACL grants are independent of chmod's POSIX mode bits.
+
+    Deny entries (including the standard home-directory deny-delete entry)
+    remain valid. Reject grants on private objects and mutation grants on
+    ancestors. Linux ACL access masks are already bounded by the mode checks.
+    """
+    if sys.platform != 'darwin':
+        return
+    import ctypes
+    import errno
+
+    libc = ctypes.CDLL(None, use_errno=True)
+    pointer = ctypes.c_void_p
+    signatures = {
+        'acl_get_fd_np': ([ctypes.c_int, ctypes.c_int], pointer),
+        'acl_get_entry': ([pointer, ctypes.c_int, ctypes.POINTER(pointer)], ctypes.c_int),
+        'acl_get_tag_type': ([pointer, ctypes.POINTER(ctypes.c_int)], ctypes.c_int),
+        'acl_get_permset': ([pointer, ctypes.POINTER(pointer)], ctypes.c_int),
+        'acl_get_perm_np': ([pointer, ctypes.c_uint32], ctypes.c_int),
+        'acl_free': ([pointer], ctypes.c_int),
+    }
+    for name, (arguments, result) in signatures.items():
+        function = getattr(libc, name)
+        function.argtypes, function.restype = arguments, result
+    acl = libc.acl_get_fd_np(fd, 0x100)  # ACL_TYPE_EXTENDED
+    if not acl:
+        error = ctypes.get_errno()
+        if error == errno.ENOENT:
+            return
+        raise OSError(error, 'cannot inspect SQLite ACL')
+    try:
+        entry, selector = pointer(), 0  # ACL_FIRST_ENTRY
+        while True:
+            result = libc.acl_get_entry(acl, selector, ctypes.byref(entry))
+            if result == -1 and ctypes.get_errno() == errno.EINVAL:
+                return  # Darwin end-of-entries convention
+            if result != 0:
+                raise OSError(ctypes.get_errno(), 'cannot inspect SQLite ACL')
+            selector = -1  # ACL_NEXT_ENTRY
+            tag = ctypes.c_int()
+            if libc.acl_get_tag_type(entry, ctypes.byref(tag)) != 0:
+                raise OSError(ctypes.get_errno(), 'cannot inspect SQLite ACL')
+            if tag.value == 2:  # ACL_EXTENDED_DENY
+                continue
+            if tag.value != 1 or not ancestor:  # ACL_EXTENDED_ALLOW
+                raise ValueError('SQLite private objects must not have ACL grants')
+            permissions = pointer()
+            if libc.acl_get_permset(entry, ctypes.byref(permissions)) != 0:
+                raise OSError(ctypes.get_errno(), 'cannot inspect SQLite ACL')
+            for bit in (2, 4, 5, 6, 8, 10, 12, 13):
+                allowed = libc.acl_get_perm_np(permissions, 1 << bit)
+                if allowed < 0:
+                    raise OSError(ctypes.get_errno(), 'cannot inspect SQLite ACL')
+                if allowed:
+                    raise ValueError('SQLite directory has an unsafe ancestor ACL')
+    finally:
+        libc.acl_free(acl)
+
+
+def require_safe_directory_acl(path, *, ancestor=False):
+    if sys.platform != 'darwin':
+        return
+    fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        require_safe_acl(fd, ancestor=ancestor)
+    finally:
+        os.close(fd)
+
+
 _NETWORK_FILESYSTEMS = frozenset({
     'nfs', 'nfs4', 'cifs', 'smbfs', 'smb3', 'afpfs', 'afs', 'ceph',
     'glusterfs', 'davfs', 'fuse.sshfs', 'fuse.glusterfs', 'fuse.ceph', 'fuse.davfs',

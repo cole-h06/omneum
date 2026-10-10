@@ -107,8 +107,12 @@ def test_lossless_version_one_migration(tmp_path):
     workspace = str(uuid4())
     with sqlite3.connect(path) as c:
         c.executescript(script)
-        c.execute('CREATE TABLE schema_migrations(version INTEGER PRIMARY KEY, checksum TEXT NOT NULL)')
-        c.execute('INSERT INTO schema_migrations VALUES (?,?)', (version, sha256(script.encode()).hexdigest()))
+        c.execute('''CREATE TABLE schema_migrations (
+            version INTEGER PRIMARY KEY, checksum TEXT NOT NULL,
+            applied_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+        )''')
+        c.execute('INSERT INTO schema_migrations(version,checksum) VALUES (?,?)',
+                  (version, sha256(script.encode()).hexdigest()))
         c.execute(f'PRAGMA application_id={APPLICATION_ID}')
         c.execute('INSERT INTO sources VALUES (?,?,?,?,?,?,?)', ('s', workspace, 'deployment', 1, b's'*64, 'web_document', 'https://example.com/a'))
         c.execute('INSERT INTO claims VALUES (?,?,?,?,?,?,?,?,?)', ('c', workspace, 'deployment', 1, b'c'*64, 'service', 'entity', 'status', '"ok"'))
