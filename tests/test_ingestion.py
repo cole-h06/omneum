@@ -144,10 +144,12 @@ def database():
                 db.execute((root / "migrations/production_004_assertion_subtype_integrity.sql").read_text())
                 db.execute((root / "migrations/production_004_retrieval_signal.sql").read_text())
                 db.execute((root / "migrations/production_005_contribution_reports.sql").read_text())
+                db.execute((root / "migrations/production_006_credentials.sql").read_text())
             yield test_dsn
         finally:
             admin.execute(sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name)))
             admin.execute("DROP ROLE IF EXISTS omneum_ingestion")
+            admin.execute("DROP ROLE IF EXISTS omneum_network_operator")
 
 
 @pytest.fixture

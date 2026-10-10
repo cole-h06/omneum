@@ -16,7 +16,7 @@ class Rejected(Exception):
         super().__init__(code)
 
 
-def persist(connection, principal, contribution, fingerprint, limits=IngestionLimits()):
+def persist(connection, principal, contribution, fingerprint, limits=IngestionLimits(), *, authorization_check=None):
     from psycopg.pq import TransactionStatus
     from psycopg.rows import tuple_row
 
@@ -61,6 +61,8 @@ def persist(connection, principal, contribution, fingerprint, limits=IngestionLi
             """, (principal,))
             if cur.fetchone() != binding:
                 raise Rejected(403, "forbidden")
+            if authorization_check is not None and authorization_check() is not True:
+                raise Rejected(401, "unauthorized")
             cur.execute("""
                 SELECT id, payload_sha256, evaluation_run_id, accepted_at
                 FROM control.ingestion_receipts

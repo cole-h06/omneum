@@ -82,7 +82,8 @@ class IngestionService:
         try:
             # One exclusive, idle connection per call; persist commits before reply.
             with self._connections() as connection:
-                receipt, run = persist(connection, principal, contribution, fingerprint, self._limits)
+                receipt, run = persist(connection, principal, contribution, fingerprint, self._limits,
+                    authorization_check=lambda: authenticate(self._authenticator, authorization) == principal)
             return IngestionResponse(200, "accepted", receipt, run)
         except Rejected as error:
             return IngestionResponse(error.status, error.code)
