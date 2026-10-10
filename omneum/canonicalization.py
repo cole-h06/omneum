@@ -7,12 +7,6 @@ import math
 from typing import Any
 
 
-ENTITY_NAMESPACES = {
-    "service": {
-        "lowercase": True,
-    },
-}
-
 INTERNAL_SOURCE_KINDS = {
     "internal_resource",
     "internal_service",
@@ -29,42 +23,20 @@ NIL_UUID = "00000000-0000-0000-0000-000000000000"
 MAX_UUID = "ffffffff-ffff-ffff-ffff-ffffffffffff"
 
 
-def canonicalize_entity(
-    entity_namespace: str,
-    entity: str,
-) -> str:
-    """
-    Converts an entity into its canonical form.
-    """
+def canonicalize_entity(entity_namespace: str, entity: str) -> str:
+    if not isinstance(entity_namespace, str):
+        raise TypeError("entity_namespace must be a string")
+    if not entity_namespace or entity_namespace != entity_namespace.strip():
+        raise ValueError("entity_namespace must be a non-empty canonical string")
 
     if not isinstance(entity, str):
-        raise TypeError(
-            "entity must be a string"
-        )
+        raise TypeError("entity must be a string")
 
-    if entity_namespace not in ENTITY_NAMESPACES:
-        raise ValueError(
-            "unknown entity namespace"
-        )
-
-    entity = unicodedata.normalize(
-        "NFC",
-        entity,
-    )
-
-    entity = entity.strip()
-
+    entity = unicodedata.normalize("NFC", entity).strip()
     if not entity:
-        raise ValueError(
-            "entity cannot be empty"
-        )
+        raise ValueError("entity cannot be empty")
 
-    if ENTITY_NAMESPACES[
-        entity_namespace
-    ]["lowercase"]:
-        entity = entity.lower()
-
-    return entity
+    return entity.lower()
 
 
 def canonicalize_attribute(
