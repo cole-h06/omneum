@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 from unittest.mock import patch
 import zipfile
@@ -55,7 +56,8 @@ class WheelReleaseTests(unittest.TestCase):
             f"{info}/WHEEL": "Wheel-Version: 1.0\n" + (metadata_tags if metadata_tags is not None else
                 "".join(f"Tag: {python}-{python}-{tag}\n" for tag in tags.split("."))),
             f"{info}/entry_points.txt": entries if entries is not None else
-                "[console_scripts]\nomneum = omneum.cli:app\nomneum-server = omneum.proxy:main\n",
+                "[console_scripts]\nomneum = omneum.cli:app\nomneum-server = omneum.proxy:main\n"
+                "omneum-contributor = omneum.contributor:main\n",
             **{f"omneum/{resource}": "{}" for resource in release.RESOURCES},
         }
         with zipfile.ZipFile(path, "w") as wheel:
@@ -69,6 +71,11 @@ class WheelReleaseTests(unittest.TestCase):
 
     def test_complete_matrix_including_compressed_linux_tags(self):
         self.assertEqual(self.verify(), "1.0.3")
+
+    def test_entry_points_match_project_contract(self):
+        project = Path(__file__).resolve().parents[1] / "pyproject.toml"
+        with project.open("rb") as source:
+            self.assertEqual(release.ENTRY_POINTS, tomllib.load(source)["project"]["scripts"])
 
     def test_prepare_flattens_artifacts_and_preserves_only_wheel_bytes(self):
         expected = {path.name: path.read_bytes() for path in self.wheels.glob("*.whl")}
@@ -141,6 +148,15 @@ class WheelReleaseTests(unittest.TestCase):
         self.wheel(entries="[console_scripts]\nomneum = omneum.cli:app\n")
         with self.assertRaisesRegex(ValueError, "entry points"):
             self.verify()
+
+    def test_stale_or_incorrect_contributor_entry_point_is_rejected(self):
+        base = "[console_scripts]\nomneum = omneum.cli:app\nomneum-server = omneum.proxy:main\n"
+        for entries in (base, base + "omneum-contributor = omneum.proxy:main\n",
+                        base + "omneum-contributor = omneum.contributor:main\nextra = omneum.cli:app\n"):
+            with self.subTest(entries=entries):
+                self.wheel(entries=entries)
+                with self.assertRaisesRegex(ValueError, "entry points"):
+                    self.verify()
 
     def test_missing_resource(self):
         self.wheel(omit="omneum/schemas/research-event-v1.schema.json")

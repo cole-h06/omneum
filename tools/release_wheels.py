@@ -4,6 +4,7 @@ import argparse
 import configparser
 from email.parser import Parser
 import itertools
+import json
 import os
 from pathlib import Path
 import re
@@ -21,7 +22,11 @@ import release_daemon
 PYTHONS = ("cp311", "cp312", "cp313", "cp314")
 # Preserve the existing wheel matrix. Windows is SDK-only: no local daemon bundle.
 PLATFORMS = ("linux-x86_64", "macos-aarch64", "macos-x86_64", "windows-x64")
-ENTRY_POINTS = {"omneum": "omneum.cli:app", "omneum-server": "omneum.proxy:main"}
+ENTRY_POINTS = {
+    "omneum": "omneum.cli:app",
+    "omneum-server": "omneum.proxy:main",
+    "omneum-contributor": "omneum.contributor:main",
+}
 RESOURCES = ("algorithm_compatibility.json", "schemas/research-event-v1.schema.json")
 
 
@@ -133,17 +138,17 @@ import importlib.resources as resources
 import json
 from pathlib import Path
 import sys
-import omneum, omneum.server, omneum.installation, omneum.proxy, omneum_oprf
+import omneum, omneum.server, omneum.installation, omneum.proxy, omneum.contributor, omneum_oprf
 assert metadata.version('omneum') == sys.argv[1]
-for module in (omneum, omneum.server, omneum.installation, omneum.proxy, omneum_oprf):
+for module in (omneum, omneum.server, omneum.installation, omneum.proxy, omneum.contributor, omneum_oprf):
     assert Path(module.__file__).resolve().is_relative_to(Path(sys.prefix).resolve()), module.__file__
 for name in ('algorithm_compatibility.json', 'schemas/research-event-v1.schema.json'):
     json.loads(resources.files('omneum').joinpath(name).read_text())
 entries = {entry.name: entry for entry in metadata.distribution('omneum').entry_points
            if entry.group == 'console_scripts'}
-assert set(entries) == {'omneum', 'omneum-server'}
+assert {name: entry.value for name, entry in entries.items()} == json.loads(sys.argv[2])
 assert all(callable(entry.load()) for entry in entries.values())
-""", version)
+""", version, json.dumps(ENTRY_POINTS))
         cli = scripts / ("omneum.exe" if os.name == "nt" else "omneum")
         subprocess.run([str(cli), "install", "--help"], cwd=root, env=env, check=True)
     return version

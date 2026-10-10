@@ -26,11 +26,13 @@ dependencies = [
 [project.scripts]
 omneum = "omneum.cli:app"
 omneum-server = "omneum.proxy:main"
+omneum-contributor = "omneum.contributor:main"
 
 [dependency-groups]
 dev = ["pytest>=8", "hypothesis>=6.161,<7", "maturin>=1,<2"]
 benchmarks = [
     "sentence-transformers>=5,<6",
+    "pillow>=12.3,<13",
     "numpy>=2,<3",
     "anthropic>=0.64,<1",
     "openai",
@@ -39,6 +41,7 @@ benchmarks = [
     "python-dotenv>=1",
     "pytest>=8",
 ]
+google-adk = ["google-adk>=1,<2"]
 langgraph = ["langgraph>=1,<2"]
 openai-agents = ["openai-agents>=0.13,<1"]
 llamaindex = ["llama-index>=0.13,<1"]
