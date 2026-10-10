@@ -1,7 +1,7 @@
 {
   "observations": [
     {
-      "assertion_id": "searchts:curl_cffi:https://thenewstack.io/golang-1-22-redefines-the-for-loop-for-easier-concurrency/",
+      "observation_id": "searchts:curl_cffi:https://thenewstack.io/golang-1-22-redefines-the-for-loop-for-easier-concurrency/",
       "source": {
         "kind": "internal_service",
         "identifier": "v1:6ba7b811-9dad-11d1-80b4-00c04fd430c8:e8aae539-ffbb-50d2-971d-61ffe81d3bb7",
@@ -22,7 +22,7 @@
         }
       ],
       "cited_sources": null,
-      "parent_assertion_ids": null,
+      "parent_observation_ids": null,
       "retrievals": [
         {
           "retrieval_id": "searchts:curl_cffi:https://thenewstack.io/golang-1-22-redefines-the-for-loop-for-easier-concurrency/",
@@ -47,10 +47,11 @@
         "input_file": "cole-searchts-eval4-curl_cffi.json",
         "document_url": "https://thenewstack.io/golang-1-22-redefines-the-for-loop-for-easier-concurrency/"
       },
-      "dependency_signals": {}
+      "dependency_signals": {},
+      "observation_type": "assertion"
     },
     {
-      "assertion_id": "searchts:stealth-browser:https://go.dev/doc/go1.22",
+      "observation_id": "searchts:stealth-browser:https://go.dev/doc/go1.22",
       "source": {
         "kind": "internal_service",
         "identifier": "v1:6ba7b811-9dad-11d1-80b4-00c04fd430c8:1c80a176-37c9-57df-b8b5-7d3e25798375",
@@ -71,7 +72,7 @@
         }
       ],
       "cited_sources": null,
-      "parent_assertion_ids": null,
+      "parent_observation_ids": null,
       "retrievals": [
         {
           "retrieval_id": "searchts:stealth-browser:https://go.dev/doc/go1.22",
@@ -96,7 +97,8 @@
         "input_file": "cole-searchts-eval4-stealth.json",
         "document_url": "https://go.dev/doc/go1.22"
       },
-      "dependency_signals": {}
+      "dependency_signals": {},
+      "observation_type": "assertion"
     }
   ],
   "estimator": {
@@ -236,6 +238,6 @@
       "convergence_delta": 0.0
     },
     "dependency_cluster_threshold": 0.3,
-    "evaluation_latency_ms": 11.855666991323233
+    "evaluation_latency_ms": 10.85891597904265
   }
 }

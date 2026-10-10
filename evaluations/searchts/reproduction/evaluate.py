@@ -1,4 +1,4 @@
-"""Evaluate saved SearchTS retrievals: python -m benchmarks.external.searchts.evaluate."""
+"""Evaluate saved SearchTS retrievals: python evaluations/searchts/reproduction/evaluate.py."""
 
 import asyncio
 from dataclasses import fields, is_dataclass
@@ -14,28 +14,28 @@ from omneum import (
 from omneum.explanations import explain_evaluation
 from omneum.sources import internal_source_id
 
-from benchmarks.financial_dependency_suite.config import estimator_config
-from benchmarks.financial_dependency_suite.deployment import benchmark_deployment
+from benchmarks.context_evaluation.config import estimator_config
+from benchmarks.context_evaluation.deployment import benchmark_deployment
 
 
-DATA = Path(__file__).resolve().parent / "data" / "run2"
+DATA = Path(__file__).resolve().parent / "data"
 CLAIM_TEXT = (
-    "Go 1.22 changes for-loop variables so each iteration creates new variables, "
-    "avoiding accidental sharing bugs."
+    "For Go 1.22, we plan to change `for` loops to make these variables have\n"
+    "per-iteration scope instead of per-loop scope."
 )
 
 
 def load_observations():
     observations = []
     for filename, backend in (
-        ("cole-searchts-eval4-curl_cffi.json", "curl_cffi"),
-        ("cole-searchts-eval4-stealth.json", "stealth-browser"),
+        ("curl_cffi.json", "curl_cffi"),
+        ("stealth.json", "stealth-browser"),
     ):
         result = json.loads((DATA / filename).read_text(encoding="utf-8"))
         if result["backend"] != backend or result["status"] != 200:
             raise ValueError(f"Unexpected backend or unsuccessful retrieval: {filename}")
-        if not result["text"].strip():
-            raise ValueError(f"Empty retrieval text: {filename}")
+        if CLAIM_TEXT not in result["text"]:
+            raise ValueError(f"Expected verbatim claim missing: {filename}")
         url = result["final_url"]
         observed_at = datetime.fromisoformat(result["fetched_at"].replace("Z", "+00:00"))
         assertion_id = f"searchts:{backend}:{url}"
@@ -45,13 +45,10 @@ def load_observations():
                 kind="internal_service",
                 identifier=internal_source_id(str(NAMESPACE_URL), f"searchts:{backend}"),
             ),
-            claim=Claim(
-                "service", "go", "loop_variable_scope",
-                CLAIM_TEXT,
-            ),
+            claim=Claim("service", url, "planned_loop_scope_change", CLAIM_TEXT),
             observed_at=observed_at,
-            # The two retrievals point to different web documents.
-            # Ownership, publication time and lineage remain unspecified.
+            # Separate retrieval services share the actual document as upstream.
+            # Unknown ownership, publication time and lineage remain unspecified.
             upstream_sources=(SourceReference("web_document", url),),
             retrievals=(Retrieval(
                 retrieval_id=assertion_id,
@@ -63,7 +60,7 @@ def load_observations():
             metadata={"backend": backend, "input_file": filename, "document_url": url},
         ))
     if observations[0].claim != observations[1].claim:
-        raise ValueError("The captures must contain the same claim")
+        raise ValueError("The captures must contain the same document and claim")
     return tuple(observations)
 
 
@@ -91,7 +88,7 @@ async def main():
         async with open_stdio_client(config, server) as client:
             evaluation = await client.evaluate_context(observations, estimator=estimator)
 
-    output = DATA / "run2_evaluation.json"
+    output = DATA / "evaluation.json"
     output.write_text(json.dumps(json_value({
         "observations": observations,
         "estimator": estimator,
@@ -115,8 +112,8 @@ async def main():
         print(f"Dependency: {item.dependency:.4f}")
     conflicts = sum(len(item.conflicting_claims) for item in evaluation.claim_support)
     print(f"\nConflicts: {conflicts}")
-    print(f"Convergence iterations: {evaluation.convergence.iterations}")
-    print("\nTwo retrieval backends; different web documents on different hosts.")
+    print(f"Omneum iterations: {evaluation.convergence.iterations}")
+    print("\nTwo retrieval backends; one shared upstream document.")
     print(f"Structured result: {output.relative_to(DATA.parents[3])}")
 
 
