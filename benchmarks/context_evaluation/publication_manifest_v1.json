@@ -56,7 +56,7 @@
     }
   },
   "artifacts": {
-    "benchmarks/context_evaluation/README.md": "3aba8c9e22b92ef3d7eca69afbe8830b016b7846d57ad6ffb39144214f726de0",
+    "benchmarks/context_evaluation/README.md": "3607be93a3a680270a5764d8a38f3f0091a95d10bce3a88f38dc86a0ef6966a0",
     "benchmarks/context_evaluation/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "benchmarks/context_evaluation/adversarial/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "benchmarks/context_evaluation/adversarial/circular_sourcing/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -550,6 +550,16 @@
           "previous_sha256": "51fe68a07ad036dbd962a4fea8fadd4387de82cfd37ee07c2d613e2fc93f4b5a",
           "sha256": "ac82d9b0e0557bd1b707a8c53069e71042fc00a8290763036108273be5d88b94",
           "reason": "Reviewed source-contract revision preserves prior source hashes for six verified changes."
+        }
+      }
+    },
+    {
+      "previous_contract_sha256": "c5d6d98674b80803ffe681c2b417c1fee45fb656c233fee66f04aac33ad1c9ed",
+      "changes": {
+        "benchmarks/context_evaluation/README.md": {
+          "previous_sha256": "3aba8c9e22b92ef3d7eca69afbe8830b016b7846d57ad6ffb39144214f726de0",
+          "sha256": "3607be93a3a680270a5764d8a38f3f0091a95d10bce3a88f38dc86a0ef6966a0",
+          "reason": "Update context evaluation README navigation and verification instructions."
         }
       }
     }
