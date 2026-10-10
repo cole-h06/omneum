@@ -9,11 +9,14 @@ import stat
 from uuid import UUID, uuid4
 
 from .ingestion.credentials import generate
+from .storage.filesystem import require_safe_acl
+
+
 def setting(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        raise ValueError(f"missing required setting: {name}")
-    return value
+    value, filename = os.environ.get(name), os.environ.get(name + '_FILE')
+    if (value is None) == (filename is None):
+        raise ValueError(f'configure exactly one of {name} and {name}_FILE')
+    return Path(filename).read_text().strip() if filename else value
 
 
 
@@ -54,6 +57,7 @@ def private_output(path):
         info = os.fstat(directory)
         if info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) & 0o077:
             raise PermissionError('issuance directory must be owned by the operator and private (0700)')
+        require_safe_acl(directory)
         fd = os.open(path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                      0o600, dir_fd=directory)
         return os.fdopen(fd, 'w', encoding='ascii')

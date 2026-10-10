@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import ipaddress
 import time
 from pathlib import Path
 
@@ -12,6 +13,46 @@ from .ingestion.service import IngestionService
 from .ingestion.credentials import CredentialAuthenticator
 from .oprf import VOPRFServer
 from .transport.network import NetworkHTTPApp
+
+
+def validate_database_transport(config):
+    """Local test sockets/loopback are allowed; remote credentials require verified TLS."""
+    hosts = config.get('host', os.environ.get('PGHOST', '')).split(',')
+    addresses = config.get('hostaddr', os.environ.get('PGHOSTADDR', '')).split(',')
+    # libpq service files can override host/TLS defaults. Require the TLS mode
+    # in the DSN itself when connection details come from a service file.
+    if (config.get('service') or os.environ.get('PGSERVICE')) and config.get('sslmode') != 'verify-full':
+        raise ValueError('Network database services require explicit sslmode=verify-full')
+    def local(value):
+        if not value or value.startswith('/') or value == 'localhost':
+            return True
+        try:
+            return ipaddress.ip_address(value).is_loopback
+        except ValueError:
+            return False
+    if (not all(local(value) for value in (*hosts, *addresses))
+            and config.get('sslmode', os.environ.get('PGSSLMODE')) != 'verify-full'):
+        raise ValueError('remote Network database requires sslmode=verify-full')
+
+
+def validate_database_role(db):
+    """A role name alone does not prove least privilege after administrator changes."""
+    if db.execute('SELECT current_user').fetchone()[0] != 'omneum_ingestion':
+        raise ValueError('dedicated ingestion role required')
+    unsafe = db.execute('''SELECT EXISTS (
+        SELECT 1 FROM pg_roles r WHERE pg_has_role(current_user, r.oid, 'MEMBER')
+          AND (r.rolname <> current_user OR r.rolsuper OR r.rolcreaterole
+               OR r.rolcreatedb OR r.rolreplication OR r.rolbypassrls)
+    ) OR EXISTS (
+        SELECT 1 FROM pg_namespace n WHERE n.nspname IN ('control', 'network', 'public')
+          AND pg_has_role(current_user, n.nspowner, 'MEMBER')
+    ) OR EXISTS (
+        SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+        WHERE n.nspname IN ('control', 'network')
+          AND pg_has_role(current_user, c.relowner, 'MEMBER')
+    )''').fetchone()[0]
+    if unsafe:
+        raise ValueError('Network database role has unsafe privileges or ownership')
 
 
 def setting(name: str) -> str:
@@ -58,16 +99,17 @@ def create_app() -> NetworkHTTPApp:
         daemon_uid=int(os.environ.get("OMNEUM_DAEMON_UID", "10002")),
     )
     dsn = setting("OMNEUM_NETWORK_DATABASE_DSN")
-    if conninfo_to_dict(dsn).get("user") != "omneum_ingestion":
+    database_config = conninfo_to_dict(dsn)
+    if database_config.get("user") != "omneum_ingestion":
         raise ValueError("Network database must use the omneum_ingestion role")
+    validate_database_transport(database_config)
 
     def connection():
         return psycopg.connect(dsn, autocommit=True, connect_timeout=5)
 
     # Fail startup on incorrect privileges or incomplete migrations.
     with connection() as db:
-        if db.execute("SELECT current_user").fetchone()[0] != "omneum_ingestion":
-            raise ValueError("dedicated ingestion role required")
+        validate_database_role(db)
         if not db.execute("SELECT to_regclass('network.reported_sources') IS NOT NULL").fetchone()[0]:
             raise ValueError("Network migrations are incomplete")
         db.execute("SELECT 1 FROM control.ingestion_principals LIMIT 0")

@@ -1,335 +1,380 @@
-# Omneum-hosted Network deployment
 
-This infrastructure runs the Network API for Omneum operators. Standalone local
-MCP installation remains `omneum install` and `omneum-server`; contributors do
-not install Docker, Kubernetes, Helm or PostgreSQL and receive no database
-credentials. The local Context Graph operates independently of the Network.
-See [MCP contribution setup](configuration.md#enable-network-contribution-mcp) for the optional local adapter
-and production provisioning requirements.
+# Network Deployment
 
-The ASGI application is `omneum.transport.network.NetworkHTTPApp`. The minimal
-entrypoint `python -m omneum.network_api` constructs that application and the
-existing `IngestionService`, then serves HTTPS on port 8443 with Uvicorn.
-Forwarded headers are disabled. There is no second HTTP implementation.
+The Omneum Network runs an HTTPS ingestion API backed by PostgreSQL and a protected VOPRF evaluator.
 
-The protected Rust `omneumd` owns the Network private key under UID 10002. The
-API runs as UID 10001, verifies daemon UID and the configured public-key pin on
-Unix-socket connections, and never mounts the private key. The local-domain
-public key must be valid and distinct from the Network key. One long-lived
-`EvaluationService` owns a bounded worker pool; ASGI shutdown drains it. The
-daemon handles SIGTERM and preserves its provisioned key across restarts.
+Local MCP installations do not require Network infrastructure. Contributors connect through the authenticated ingestion API when Network contribution is explicitly enabled. They never receive PostgreSQL credentials.
 
-The image builds the native RFC 9497 extension and production daemon from
-`Cargo.lock`. Python runtime requirements are pinned in
-`deploy/network/requirements.txt`, exported from the existing `uv.lock` plus
-Network-only psycopg 3.3.6. MCP dependencies remain unchanged. Refresh that file
-when updating the Python lock; do not include benchmark dependency groups.
-Base images use version tags; immutable registry digests should be recorded by
-the operator for released images. This checkout has not yet had a container build
-verified (see validation status below).
+For local installation, see [Installation](installation.md). For administrator-managed Linux MCP services, see [`deploy/README.md`](../../deploy/README.md).
 
-## Disposable local integration
+## Architecture
 
-Run from the repository root on a Docker host with Compose v2:
+```text
+Local MCP contributor
+        │
+        │ HTTPS
+        ▼
+Network API (UID 10001)
+        │
+        ├── PostgreSQL
+        │
+        └── Unix socket
+                │
+                ▼
+          omneumd (UID 10002)
+                │
+                ▼
+          Network VOPRF key
+```
 
-```sh
-env -u OMNEUM_TEST_POSTGRES_DSN -u OMNEUM_INGESTION_TEST_ADMIN_DSN .venv/bin/python -m pytest tests -q
+`omneum.transport.network.NetworkHTTPApp` implements the HTTP application. `python -m omneum.network_api` starts Uvicorn on port `8443` with forwarded headers disabled.
+
+The API uses `IngestionService` for authenticated ingestion and a long-lived `EvaluationService` for VOPRF requests. Evaluation workers are bounded and drained during ASGI shutdown.
+
+`omneumd` owns the Network private key. The API verifies the daemon's Unix-socket peer UID and pinned public key before accepting evaluations. The private key is never mounted into the API container.
+
+The Network and local-domain public keys must be distinct.
+
+## Docker Compose
+
+`compose.yaml` provides a disposable Network deployment with PostgreSQL, the evaluator, and the HTTPS API.
+
+Run from the repository root:
+
+```bash
 docker build -t omneum-network:local .
 docker compose up -d --wait
 docker compose run --rm smoke
+```
+
+Compose binds HTTPS to localhost and does not publish PostgreSQL. The setup service generates test credentials and a Network VOPRF key in named volumes. The TLS certificate is valid for seven days.
+
+`enroll-test` provisions a disposable contributor. Its credential is written to a private client volume that the API cannot access.
+
+The API does not read the repository `.env` or mount operator credentials.
+
+### Restart verification
+
+```bash
 docker compose stop
 docker compose start --wait
 docker compose run --rm smoke
+
 docker compose restart evaluator network-api
 docker compose run --rm smoke
-# Remove only this stack's disposable database, keys and credentials:
+```
+
+`deploy/network/smoke.py` exercises HTTPS authentication, VOPRF proof verification, authorized ingestion, and PostgreSQL persistence.
+
+The smoke client reuses its idempotency key after restart. Repeated ingestion must not create duplicate records.
+
+### Cleanup
+
+```bash
 docker compose down --volumes
 ```
 
-Compose binds HTTPS only to localhost, publishes no PostgreSQL port, and uses
-`omneum_network_test`. The setup service generates random database passwords,
-independent Network key and a seven-day test TLS certificate in named volumes.
-A separate operator-only `enroll-test` service enrolls a disposable consenting
-contributor and issues its credential into the private client volume. The API
-never mounts that volume or the administrator/operator credentials. It never reads the repository `.env`. Incomplete
-provisioning fails rather than silently rotating keys; remove these disposable
-volumes and retry. Do not reuse these test credentials or database in production.
-The smoke check verifies HTTPS startup, rejected authentication, real VOPRF proof
-verification, authorized ingestion, idempotent replay and persisted rows. Reusing
-its fixed idempotency key after restarting verifies persistence and key stability.
+This deletes the disposable database, keys, and credentials. Do not use these volumes in production.
 
-PostgreSQL initializes the following existing migrations, in this exact order:
+Incomplete provisioning fails instead of replacing existing keys. Remove the disposable volumes before retrying a failed test bootstrap.
 
-1. `production_001.sql`
-2. `production_002_ingestion.sql`
-3. `production_003_dependency_evidence.sql`
-4. `production_003_observation_subtypes.sql`
-5. `production_004_assertion_subtype_integrity.sql`
-6. `production_004_retrieval_signal.sql`
-7. `production_005_contribution_reports.sql`
-8. `production_006_credentials.sql`
+## PostgreSQL
 
-`production_002_context_graph.sql` belongs to another schema path and is not
-required by ingestion. Network ingestion does not require Apache AGE. Database
-initialization uses a disposable administrator; request processing connects
-as the restricted `omneum_ingestion` role. Production migrations and control
-plane enrollment (principal, installation, workspace, consent) must be performed
-separately by an operator. API startup never applies migrations or grants consent.
+The Network API connects as `omneum_ingestion`. Database initialization runs separately with administrator privileges.
 
-## Production configuration and Helm
+Apply these migrations in order:
 
-There was no existing Helm chart in this checkout. The chart at
-`deploy/helm/omneum-network` uses the same image, API entrypoint and evaluator
-command as Compose. PostgreSQL is externally managed; the chart does not create
-or migrate a production database. The API uses one database-backed credential
-authority shared by HTTP admission and ingestion. Each credential maps to an
-independently enrolled immutable principal/installation, with enabled enrollment,
-active consent, expiry and revocation checked on every authentication. No raw
-bearer tokens or principal IDs are configured in the API environment or Helm
-values. PostgreSQL admission counters enforce per-principal budgets across API
-instances, restarts and overlapping/rotated credentials. Daily ingestion quotas
-remain tied to the permanent installation binding.
-
-The API accepts each required setting as an environment variable or a `_FILE`
-path, but rejects configuring both:
-
-| Setting | Value |
-| --- | --- |
-| `OMNEUM_NETWORK_DEPLOYMENT_ID` | `urn:uuid:...` Network deployment identity |
-| `OMNEUM_NETWORK_KEY_VERSION` | Active positive key version |
-| `OMNEUM_NETWORK_PUBLIC_KEY` | Pinned unpadded base64url Network public key |
-| `OMNEUM_LOCAL_PUBLIC_KEY` | Distinct unpadded base64url local-domain public key |
-| `OMNEUM_NETWORK_DATABASE_DSN` | PostgreSQL DSN for `omneum_ingestion` |
-| `OMNEUM_NETWORK_TLS_CERT` / `OMNEUM_NETWORK_TLS_KEY` | TLS file paths |
-
-Optional settings: `OMNEUM_NETWORK_REQUESTS_PER_MINUTE` (600),
-`OMNEUM_DAEMON_SOCKET` (`/run/omneum/eval.sock`) and `OMNEUM_DAEMON_UID` (10002).
-Use PostgreSQL TLS and a trusted HTTPS certificate in production. The local HTTPS
-probe trusts the mounted certificate for the container's loopback listener;
-contributors still verify the public HTTPS endpoint's certificate and hostname. Add edge/IP admission
-limits at the deployment boundary. Never commit credentials, scalar keys or secret
-values files.
-
-Create Kubernetes Secrets through your existing secret-management system:
-`omneum-network-api` with `database-dsn`, `tls.crt`, `tls.key`, and
-`omneum-network-evaluator` with raw 32-byte `voprf.key`. The chart copies the
-scalar into a daemon-only memory volume with the ownership and permissions
-required by the protected daemon. API TLS volumes contain only TLS entries.
-
-Create a public operator values file outside source control with `deploymentId`,
-`keyVersion`, `networkPublicKey`, `localPublicKey`, and the image
-repository and immutable release tag. Then:
-
-```sh
-helm lint deploy/helm/omneum-network -f /path/to/operator-values.yaml
-helm template omneum-network deploy/helm/omneum-network -f /path/to/operator-values.yaml > /tmp/omneum-network.yaml
-helm upgrade --install omneum-network deploy/helm/omneum-network -f /path/to/operator-values.yaml
+```text
+migrations/production_001.sql
+migrations/production_002_ingestion.sql
+migrations/production_003_dependency_evidence.sql
+migrations/production_003_observation_subtypes.sql
+migrations/production_004_assertion_subtype_integrity.sql
+migrations/production_004_retrieval_signal.sql
+migrations/production_005_contribution_reports.sql
+migrations/production_006_credentials.sql
 ```
 
-Do not connect these validation commands to `omneum_prod`.
+`production_002_context_graph.sql` belongs to another schema path. Network ingestion does not require Apache AGE.
 
-## Operator-controlled contributor enrollment
+API startup never applies migrations or grants contributor consent.
 
-There is no public self-registration or management HTTP endpoint. Run the
-operator CLI from a trusted host with the Network package and its psycopg driver.
-Only this host receives an operator database identity; contributors receive only
-their API credential and enable it through ordinary MCP configuration.
+### Database transport
 
-Apply `production_006_credentials.sql` after the existing Network migrations.
-Use an administrator's private PostgreSQL service file, keeping passwords out of
-arguments and shell history. For an existing administrator-provisioned login
-`network_control_plane`, the exact migration/role commands are:
+Remote PostgreSQL connections require `sslmode=verify-full` with a trusted CA.
 
-```sh
+A libpq service file must specify `sslmode=verify-full` explicitly. Unix sockets and loopback connections are permitted for local testing.
+
+Startup checks the effective privileges of `omneum_ingestion`, not only its role name. Elevated role memberships or ownership of application tables and schemas cause startup to fail.
+
+The ingestion role cannot issue credentials or modify contributor enrollment.
+
+## Configuration
+
+Required settings can be supplied directly or through corresponding `_FILE` variables. The API rejects configurations that provide both forms.
+
+| Variable | Value |
+|---|---|
+| `OMNEUM_NETWORK_DEPLOYMENT_ID` | Network identity (`urn:uuid:...`) |
+| `OMNEUM_NETWORK_KEY_VERSION` | Positive VOPRF key version |
+| `OMNEUM_NETWORK_PUBLIC_KEY` | Pinned unpadded base64url Network public key |
+| `OMNEUM_LOCAL_PUBLIC_KEY` | Distinct local-domain public key |
+| `OMNEUM_NETWORK_DATABASE_DSN` | PostgreSQL DSN for `omneum_ingestion` |
+| `OMNEUM_NETWORK_TLS_CERT` | HTTPS certificate path |
+| `OMNEUM_NETWORK_TLS_KEY` | HTTPS private-key path |
+
+Optional settings:
+
+| Variable | Default |
+|---|---|
+| `OMNEUM_NETWORK_REQUESTS_PER_MINUTE` | `600` |
+| `OMNEUM_DAEMON_SOCKET` | `/run/omneum/eval.sock` |
+| `OMNEUM_DAEMON_UID` | `10002` |
+
+The public HTTPS endpoint requires a trusted certificate. Configure additional edge/IP admission limits before exposing the service.
+
+Never commit private keys, database credentials, or secret values files.
+
+## Kubernetes
+
+The Helm chart is located at:
+
+```text
+deploy/helm/omneum-network
+```
+
+It deploys the API and evaluator using the same entrypoints as Compose. PostgreSQL must already exist; the chart does not create databases or apply migrations.
+
+### Secrets
+
+Create these Kubernetes Secrets using your existing secret-management system:
+
+| Secret | Keys |
+|---|---|
+| `omneum-network-api` | `database-dsn`, `tls.crt`, `tls.key` |
+| `omneum-network-evaluator` | `voprf.key` |
+
+`voprf.key` contains the raw 32-byte VOPRF private key.
+
+The chart copies the scalar into a daemon-only memory volume. API TLS volumes contain only the TLS certificate and key.
+
+The API must not receive the VOPRF scalar or operator database identity.
+
+### Install
+
+Create `/path/to/operator-values.yaml` outside source control with the deployment ID, key version, pinned public keys, and image reference.
+
+```bash
+helm lint deploy/helm/omneum-network \
+  -f /path/to/operator-values.yaml
+
+helm template omneum-network deploy/helm/omneum-network \
+  -f /path/to/operator-values.yaml \
+  > /tmp/omneum-network.yaml
+
+helm upgrade --install omneum-network \
+  deploy/helm/omneum-network \
+  -f /path/to/operator-values.yaml
+```
+
+Use an immutable image digest for production releases.
+
+The deployment requires production-specific verification of pod isolation and evaluator key permissions. Successful template rendering does not establish runtime isolation.
+
+## Contributor enrollment
+
+Network credentials are issued by an operator. There is no public registration endpoint.
+
+Run `python -m omneum.network_operator` from a trusted host with the Network package and `psycopg` installed.
+
+The operator database identity must not be mounted in API pods.
+
+### Operator role
+
+`production_006_credentials.sql` creates credential storage, shared admission budgets, and the `omneum_network_operator` role.
+
+For an existing administrator-provisioned login named `network_control_plane`:
+
+```bash
 export PGSERVICEFILE=/secure/operator/pg_service.conf
 export PGSERVICE=network_migrations
-psql -X -v ON_ERROR_STOP=1 -f migrations/production_006_credentials.sql
-psql -X -v ON_ERROR_STOP=1 -c 'GRANT omneum_network_operator TO network_control_plane;'
+
+psql -X -v ON_ERROR_STOP=1 \
+  -f migrations/production_006_credentials.sql
+
+psql -X -v ON_ERROR_STOP=1 \
+  -c 'GRANT omneum_network_operator TO network_control_plane;'
 ```
 
-Provision this login through your normal PostgreSQL identity/TLS system; it must
-inherit the operator role or explicitly select it via libpq `options`. The API's
-`omneum_ingestion` login must never receive that membership. Migration 006 creates
-hash-only credential storage, immutable credential bindings, shared admission
-budgets and the least privileged `omneum_network_operator` role. The ingestion
-role can read credentials and consume admission budgets, but cannot enroll,
-issue, rebind, revoke, or grant consent. Existing migrations are not reapplied.
+The operator login must inherit `omneum_network_operator` or select it through libpq `options`.
 
-Store an operator DSN in a private mounted secret file (0600); use PostgreSQL
-`sslmode=verify-full` for remote access. The operator CLI accepts
-`OMNEUM_NETWORK_OPERATOR_DSN` or `OMNEUM_NETWORK_OPERATOR_DSN_FILE`, never a DSN
-argument. Do not mount this identity in API pods. Prepare a private issuance
-directory and create a workspace if you do not already have one:
+Do not grant this role to `omneum_ingestion`.
 
-```sh
+### Operator credentials
+
+Store the operator DSN in a private file with mode `0600`. Remote connections must use `sslmode=verify-full`.
+
+```bash
 export OMNEUM_NETWORK_OPERATOR_DSN_FILE=/secure/operator/network-operator.dsn
+
 install -d -m 700 /secure/operator/issued
+```
+
+The CLI also accepts `OMNEUM_NETWORK_OPERATOR_DSN`, but not a DSN argument. Use the mounted file for normal administration.
+
+### Create a workspace
+
+```bash
 python -m omneum.network_operator create-workspace
 ```
 
-Copy the returned non-secret workspace UUID into `NETWORK_WORKSPACE_ID`. After
-verifying the contributor's explicit consent, enroll them with the applicable
-consent-policy version:
+Copy the returned UUID into `NETWORK_WORKSPACE_ID`.
 
-```sh
+```bash
+export NETWORK_WORKSPACE_ID="<workspace-uuid>"
+```
+
+### Enroll
+
+Verify the contributor's consent before issuing a credential.
+
+```bash
 python -m omneum.network_operator enroll \
   --workspace-id "$NETWORK_WORKSPACE_ID" \
-  --consent-version consent-2026-10 --confirm-consent \
-  --expires-days 90 --output /secure/operator/issued/contributor-a.token
+  --consent-version consent-2026-10 \
+  --confirm-consent \
+  --expires-days 90 \
+  --output /secure/operator/issued/contributor-a.token
 ```
 
-The command returns only `principal_id`, `installation_id`, `credential_id` and
-`expires_at`. Keep those identifiers for administration. It creates a new
-installation, permanently binds it to its independently identified principal and
-workspace, records an active `research_context_graph` consent grant, and issues
-one random credential. Omitting `--confirm-consent` is an error. Repeat with a
-new output filename for each independently consenting contributor.
+`enroll` creates a principal-bound installation, records `research_context_graph` consent, and issues a credential. Omitting `--confirm-consent` fails.
 
-The raw token is issued once into the operator-owned 0600 file in a private 0700
-directory; it never appears in stdout, stderr, arguments, database rows or API
-configuration. Transfer that file's contents through your approved private
-credential-delivery channel, then delete the operator's delivery copy. The
-recipient keeps their credential in private MCP settings/secret storage. This
-issuance artifact is the only operator-side plaintext copy; there is no token
-retrieval endpoint or command. Tokens contain a public UUID selector and 256 bits
-of random secret material. The database stores a domain-separated SHA-256 digest,
-verified using constant-time comparison. This is hashing for random API tokens,
-not a password-hashing scheme. Leaked database hashes do not supply usable bearer
-credentials. Credential lifetimes default to 90 days and must be 1–365 days.
+The command returns `principal_id`, `installation_id`, `credential_id`, and `expires_at`.
 
-Rotation preserves the principal, installation, consent and quota history. Copy
-the public identifiers from the prior JSON into `NETWORK_PRINCIPAL_ID` and
-`NETWORK_CREDENTIAL_ID`; then:
+The token is written to the specified file, not stdout. Files are created exclusively with mode `0600`; existing files and symlinks are rejected. The parent directory must be private.
 
-```sh
+Deliver the token through an approved private channel and delete the operator's delivery copy afterward.
+
+PostgreSQL stores a domain-separated SHA-256 digest rather than the raw credential. Tokens contain a UUID selector and 256 bits of random secret material.
+
+Credential expiry defaults to 90 days and supports 1–365 days.
+
+## Credential management
+
+### Rotate
+
+Issue a new credential for the existing principal:
+
+```bash
+export NETWORK_PRINCIPAL_ID="<principal-uuid>"
+
 python -m omneum.network_operator issue \
   --principal-id "$NETWORK_PRINCIPAL_ID" \
-  --expires-days 90 --output /secure/operator/issued/contributor-a-rotated.token
-# Deliver the new credential before revoking the old credential ID:
+  --expires-days 90 \
+  --output /secure/operator/issued/contributor-a-rotated.token
+```
+
+Deliver the replacement before revoking the old credential.
+
+Rotation preserves the installation binding and its existing ingestion history.
+
+### Revoke
+
+```bash
+export NETWORK_CREDENTIAL_ID="<credential-uuid>"
+
 python -m omneum.network_operator revoke-credential \
   --credential-id "$NETWORK_CREDENTIAL_ID"
-# Disable the entire contributor, revoke all their credentials and active consent:
+```
+
+Revocation is effective without restarting the API.
+
+To disable the contributor entirely:
+
+```bash
 python -m omneum.network_operator revoke-contributor \
   --principal-id "$NETWORK_PRINCIPAL_ID"
-# Schedule daily; current admission windows are never removed:
-python -m omneum.network_operator prune-quotas --retention-days 2
 ```
 
-Revocation is idempotent and does not require restarting the API. Both HTTP routes
-honor it. Operator issuance/revocation and ingestion share the installation lock;
-ingestion reauthenticates after taking that lock, before replay or writes. A
-successful revocation waits for earlier locked ingestion to finish and prevents
-subsequent pending ingestion with the revoked credential from committing.
-Revoked/expired credentials cannot be reactivated or rebound; issue a new
-credential. Disabling a contributor also revokes their consent, so issuance then
-fails. Previously accepted reports remain in their original installation history.
+This also revokes active consent. Previously accepted reports remain associated with their installation.
 
-All output files are created exclusively; existing files and symlinks are rejected.
-If issuance or commit fails, inspect any reserved private file and the database
-before retrying: the file may be empty, or may hold a credential whose commit
-outcome is uncertain. Never overwrite it or automatically issue a replacement.
-Commands exit nonzero on failure and sanitize error messages. Authentication,
-admission-store or database outages deny Network requests; local MCP evaluation
-continues under the existing failure behavior.
+Revoked or expired credentials cannot be reactivated.
 
-For upgrades, remove obsolete singleton `OMNEUM_NETWORK_API_TOKEN` and
-`OMNEUM_NETWORK_PRINCIPAL_ID` settings (including `_FILE` variants). No static-token
-fallback exists. Apply migration 006 and use `issue` for an existing enabled,
-consenting principal to preserve its history. New contributors use `enroll`.
-Recreate old disposable Compose volumes with `docker compose down --volumes`
-before testing this changed bootstrap; production databases are migrated in place.
+### Admission history
 
-The CLI command forms above are exercised with a disposable database and the
-least privileged operator role. Production migration/grant commands are supplied
-for administrators and have not been run against production.
-
-## Validation status
-
-Multi-contributor enrollment validation passed **272 tests, 1 skipped** against a
-new disposable cluster on port 55443. This includes independently enrolled
-principals, hash-only storage, least privileged operator CLI commands, consent,
-expiry, credential rotation, cross-principal isolation, revocation during pending
-ingestion, concurrent shared admission budgets, both HTTP routes, native HTTPS
-startup/restart, and local MCP fallback. The skipped legacy local-storage test
-requires the separate `OMNEUM_TEST_POSTGRES_DSN`, which was left unset. Network
-persistence was tested against the disposable ingestion database. The exact
-focused command was:
-
-```sh
-OMNEUM_INGESTION_TEST_ADMIN_DSN='host=/private/tmp/omneum-enrollment-pg/socket port=55443 dbname=omneum_enrollment_test user=network_test_admin' .venv/bin/python -m pytest tests/test_network_enrollment.py tests/test_network_bootstrap.py tests/test_ingestion.py tests/test_network_trust.py tests/test_network_http.py tests/test_contributor.py tests/test_contribution_security.py tests/test_voprf_boundary.py tests/test_client_contribution.py -q
+```bash
+python -m omneum.network_operator prune-quotas \
+  --retention-days 2
 ```
 
-The cluster was initialized with the following commands, stopped after testing,
-and its data directory removed. Trust authentication was restricted to this
-temporary test cluster; it is not production configuration.
+Run quota pruning periodically. Current admission windows are retained.
 
-```sh
-initdb -D /private/tmp/omneum-enrollment-pg/data --auth=trust -U network_test_admin
-pg_ctl -D /private/tmp/omneum-enrollment-pg/data -l /private/tmp/omneum-enrollment-pg/server.log -o '-k /private/tmp/omneum-enrollment-pg/socket -h 127.0.0.1 -p 55443' start
-createdb -h /private/tmp/omneum-enrollment-pg/socket -p 55443 -U network_test_admin omneum_enrollment_test
-pg_ctl -D /private/tmp/omneum-enrollment-pg/data stop -m fast
-.venv/bin/python -m compileall -q omneum/ingestion/credentials.py omneum/network_operator.py omneum/network_api.py deploy/network tests/test_network_enrollment.py tests/test_network_bootstrap.py
-sh -n deploy/network/init-postgres.sh
-git diff --check
-.venv/bin/python -m omneum.network_operator --help
-env -u OMNEUM_TEST_POSTGRES_DSN -u OMNEUM_INGESTION_TEST_ADMIN_DSN .venv/bin/python -m pytest tests/test_client_contribution.py::test_both_with_real_storage -q -rs
+Admission budgets are stored in PostgreSQL and shared across API instances. Rotating credentials does not reset a principal's budget.
+
+### Concurrent operations
+
+Credential revocation and ingestion synchronize on the installation lock.
+
+Ingestion reauthenticates after acquiring that lock. A completed revocation prevents later pending ingestion using the revoked credential from committing.
+
+If credential issuance fails, inspect the reserved output file and database before retrying. A failed command may leave a file whose credential commit outcome is uncertain.
+
+Do not overwrite that file or automatically issue another credential.
+
+Database or admission-store failures deny Network requests. Local MCP evaluation remains available independently.
+
+## Upgrades
+
+Apply required migrations before starting a Network API version that depends on them.
+
+Remove the obsolete singleton-token configuration:
+
+```text
+OMNEUM_NETWORK_API_TOKEN
+OMNEUM_NETWORK_PRINCIPAL_ID
 ```
 
-The last command confirms the skipped-test reason. Its first sandboxed attempt
-failed to start the Unix-socket fixture daemon; rerunning outside the sandbox
-confirmed the database configuration skip. Compose, Chart.yaml and values.yaml
-also passed PyYAML parsing; Docker and Helm are still unavailable, so this does
-not verify container execution or template rendering.
+Remove their `_FILE` variants as well. The API does not support static-token fallback.
 
-The following counts describe the earlier container/bootstrap and contributor
-work, before the multi-contributor changes:
+Use `issue` to provision a credential for an existing enabled contributor with active consent. New contributors use `enroll`.
 
-On this workstation the baseline free regression suite passed: **1,091 passed,
-82 skipped**. The final free suite passed: **1,107 passed, 83 skipped**.
-The existing release contract checks passed: **31 tests**.
-An additional native Network integration run passed **186 tests** against a
-fresh PostgreSQL cluster under `/private/tmp`, using only disposable fixture
-keys and identities. It exercised the shipped HTTPS entrypoint, authentication
-rejection, VOPRF evaluation, authorized ingestion, PostgreSQL persistence,
-ASGI shutdown and restart, and real MCP stdio local-only and outage paths. Unix-socket fixture tests require execution outside the filesystem
-sandbox. PostgreSQL tests in the free-suite runs were skipped with both database test
-DSNs unset. The separate integration run used this command:
+For disposable Compose installations:
 
-```sh
-OMNEUM_INGESTION_TEST_ADMIN_DSN='host=/private/tmp/omneum-network-pg/socket port=55439 dbname=omneum_network_test user=network_test_admin' .venv/bin/python -m pytest tests/test_ingestion.py tests/test_network_trust.py tests/test_network_http.py tests/test_network_bootstrap.py tests/test_contributor.py -q
+```bash
+docker compose down --volumes
+docker compose up -d --wait
+docker compose run --rm smoke
 ```
 
-The temporary cluster was created with `initdb --auth=trust`, explicitly bound
-to a temporary Unix socket and port 55439, then stopped with `pg_ctl`. It was
-never an existing or production cluster. Its data directory was removed after
-tests completed. These native tests use the repository
-fixture daemon and do not establish container/Linux isolation guarantees.
-Docker and Helm are absent from PATH, so image build, Compose integration,
-container restart and Helm rendering commands above are supplied for execution,
-not claimed as tested. No production database or paid API was used.
+Production PostgreSQL databases must be migrated in place. Never delete production volumes as part of this procedure.
 
+## Verification
 
-Additional commands executed during validation:
+Run the repository's Network tests before deploying a modified API:
 
-```sh
-initdb -D /private/tmp/omneum-network-pg/data --auth=trust -U network_test_admin
-pg_ctl -D /private/tmp/omneum-network-pg/data -l /private/tmp/omneum-network-pg/server.log -o '-k /private/tmp/omneum-network-pg/socket -h 127.0.0.1 -p 55439' start
-createdb -h /private/tmp/omneum-network-pg/socket -p 55439 -U network_test_admin omneum_network_test
-pg_ctl -D /private/tmp/omneum-network-pg/data stop -m fast
-UV_CACHE_DIR=/private/tmp/omneum-container-uv uv --no-config export --frozen --no-dev --no-emit-project --no-hashes --no-annotate --format requirements-txt --output-file deploy/network/requirements.txt
-.venv/bin/python -m pytest tests/test_network_http.py -xq
-.venv/bin/python -m pytest tests/test_network_bootstrap.py tests/test_contributor.py -q
-.venv/bin/python -m pytest tests/test_contributor.py -q
-.venv/bin/python -m unittest discover -s tools -p 'test_release_*.py' -q
-sh -n deploy/network/init-postgres.sh
-.venv/bin/python -m compileall -q omneum/contributor.py omneum/network_api.py deploy/network
-git diff --check
+```bash
+uvx --from uv==0.12.10 uv run --locked --python 3.13 \
+  pytest -q \
+  tests/test_network_bootstrap.py \
+  tests/test_network_enrollment.py
 ```
 
-Plain Compose, chart metadata and values YAML were parsed with PyYAML. This is
-not a substitute for Compose validation or Helm template rendering. The local
-uv executable was 0.12.12 rather than the project's required 0.12.10, so export
-used `--no-config --frozen` solely to read the existing lock without changing it.
-The generated requirements file includes explicit Network-only driver pins.
-Initial sandbox fixture failures were resolved by allowing disposable socket
-and PostgreSQL shared-memory operations outside the sandbox.
+For the container integration check:
+
+```bash
+docker compose up -d --wait
+docker compose run --rm smoke
+```
+
+For Kubernetes manifests:
+
+```bash
+helm lint deploy/helm/omneum-network \
+  -f /path/to/operator-values.yaml
+```
+
+The local and hosted security audit also exercised the protected evaluator, database privilege checks, Docker Compose startup, and Linux cross-UID isolation.
+
+These checks do not replace production provisioning or runtime verification.
+
+See [Local and Hosted Security Audit](../security-audit-local-hosted.md) for the recorded findings and remaining production requirements.

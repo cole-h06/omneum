@@ -188,3 +188,94 @@ def test_authorization_outage_is_secret_safe():
     auth = CredentialAuthenticator(unavailable)
     token = generate(datetime.now(timezone.utc) + timedelta(days=1)).token
     assert auth.authenticate(token) is None
+
+
+@pytest.mark.parametrize('config', [
+    {'host': 'db.example.com'},
+    {'host': 'db.example.com', 'sslmode': 'require'},
+    {'host': 'localhost', 'hostaddr': '192.0.2.1', 'sslmode': 'prefer'},
+    {'host': 'localhost,db.example.com'},
+])
+def test_remote_database_requires_verified_tls(config, monkeypatch):
+    from omneum.network_api import validate_database_transport
+    monkeypatch.delenv('PGSSLMODE', raising=False)
+    with pytest.raises(ValueError, match='verify-full'):
+        validate_database_transport(config)
+
+
+@pytest.mark.parametrize('config', [
+    {'host': '/tmp/test-postgres'}, {'host': 'localhost'}, {'host': '127.0.0.1'},
+    {'host': '::1'}, {'host': 'db.example.com', 'sslmode': 'verify-full'},
+])
+def test_local_database_and_verified_remote_allowed(config, monkeypatch):
+    from omneum.network_api import validate_database_transport
+    monkeypatch.delenv('PGHOSTADDR', raising=False)
+    validate_database_transport(config)
+
+
+def test_remote_database_environment_is_checked(monkeypatch):
+    from omneum.network_api import validate_database_transport
+    monkeypatch.setenv('PGHOST', 'db.example.com')
+    monkeypatch.setenv('PGSSLMODE', 'prefer')
+    with pytest.raises(ValueError, match='verify-full'):
+        validate_database_transport({})
+
+
+@pytest.mark.parametrize('attribute', ['SUPERUSER', 'CREATEROLE', 'CREATEDB', 'REPLICATION', 'BYPASSRLS'])
+def test_elevated_ingestion_role_rejected(bound, attribute):
+    from omneum.network_api import validate_database_role
+    db, _, connections, _, _ = bound
+    db.execute('ALTER ROLE omneum_ingestion ' + attribute)
+    try:
+        with connections() as connection:
+            with pytest.raises(ValueError, match='unsafe privileges'):
+                validate_database_role(connection)
+    finally:
+        db.execute('ALTER ROLE omneum_ingestion NO' + attribute)
+
+
+def test_role_membership_cannot_bypass_privilege_check(bound):
+    from omneum.network_api import validate_database_role
+    db, _, connections, _, _ = bound
+    db.execute('GRANT omneum_network_operator TO omneum_ingestion')
+    db.execute('ALTER ROLE omneum_network_operator CREATEROLE')
+    try:
+        with connections() as connection:
+            with pytest.raises(ValueError, match='unsafe privileges'):
+                validate_database_role(connection)
+    finally:
+        db.execute('REVOKE omneum_network_operator FROM omneum_ingestion')
+        db.execute('ALTER ROLE omneum_network_operator NOCREATEROLE')
+
+
+def test_database_service_cannot_hide_insecure_transport(monkeypatch):
+    from omneum.network_api import validate_database_transport
+    monkeypatch.setenv('PGSSLMODE', 'verify-full')
+    with pytest.raises(ValueError, match='explicit sslmode'):
+        validate_database_transport({'service': 'hidden-remote'})
+
+
+def test_ingestion_schema_ownership_rejected(bound):
+    from omneum.network_api import validate_database_role
+    db, _, connections, _, _ = bound
+    owner = db.execute('SELECT current_user').fetchone()[0]
+    from psycopg import sql
+    db.execute('ALTER SCHEMA network OWNER TO omneum_ingestion')
+    try:
+        with connections() as connection:
+            with pytest.raises(ValueError, match='unsafe privileges'):
+                validate_database_role(connection)
+    finally:
+        db.execute(sql.SQL('ALTER SCHEMA network OWNER TO {}').format(sql.Identifier(owner)))
+
+
+def test_operator_mounted_dsn_and_ambiguity(tmp_path, monkeypatch):
+    from omneum.network_operator import setting as operator_setting
+    path = tmp_path / 'dsn'
+    path.write_text('disposable-test-dsn\n')
+    monkeypatch.delenv('OMNEUM_NETWORK_OPERATOR_DSN', raising=False)
+    monkeypatch.setenv('OMNEUM_NETWORK_OPERATOR_DSN_FILE', str(path))
+    assert operator_setting('OMNEUM_NETWORK_OPERATOR_DSN') == 'disposable-test-dsn'
+    monkeypatch.setenv('OMNEUM_NETWORK_OPERATOR_DSN', 'ambiguous')
+    with pytest.raises(ValueError, match='exactly one'):
+        operator_setting('OMNEUM_NETWORK_OPERATOR_DSN')
