@@ -10,7 +10,7 @@ pip install omneum
 omneum install
 ```
 
-See [Installation](../docs/installation.md).
+See [Installation](../docs/guides/installation.md).
 
 The instructions below are for administrators installing or operating the
 services directly.
@@ -323,4 +323,4 @@ deploy/
 ```
 
 For the normal `pip install omneum` installation path, see
-[Installation](../docs/installation.md).
+[Installation](../docs/guides/installation.md).

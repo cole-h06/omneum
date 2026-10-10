@@ -1,0 +1,117 @@
+# Omneum-hosted Network integration only. Local MCP users do not run this stack.
+name: omneum-network-test
+services:
+  setup:
+    image: omneum-network:local
+    build: .
+    user: '0:0'
+    command: [python, /opt/omneum-deploy/init-local.py]
+    volumes:
+      - config:/config
+      - admin-config:/admin-config
+      - client:/client
+      - keys:/keys
+      - ipc:/run/omneum
+      - database-tls:/database-tls
+  postgres:
+    image: postgres:17.6-bookworm
+    command: [postgres, -c, ssl=on, -c, ssl_cert_file=/database-tls/tls.crt, -c, ssl_key_file=/database-tls/tls.key]
+    environment:
+      POSTGRES_DB: omneum_network_test
+      POSTGRES_USER: network_test_admin
+      POSTGRES_PASSWORD_FILE: /admin-config/admin-password
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - admin-config:/admin-config:ro
+      - config:/config:ro
+      - database-tls:/database-tls:ro
+      - ./migrations:/migrations:ro
+      - ./deploy/network/init-postgres.sh:/docker-entrypoint-initdb.d/10-network.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U network_test_admin -d omneum_network_test']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  enroll-test:
+    image: omneum-network:local
+    command: [python, /opt/omneum-deploy/enroll-local.py]
+    environment:
+      OMNEUM_NETWORK_OPERATOR_DSN_FILE: /admin-config/operator-dsn
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - admin-config:/admin-config:ro
+      - config:/config:ro
+      - client:/client
+  smoke:
+    image: omneum-network:local
+    profiles: [test]
+    command: [python, /opt/omneum-deploy/smoke.py]
+    environment:
+      OMNEUM_SMOKE_URL: https://network-api:8443
+    depends_on:
+      network-api:
+        condition: service_healthy
+      enroll-test:
+        condition: service_completed_successfully
+    volumes:
+      - config:/config:ro
+      - client:/client:ro
+  evaluator:
+    image: omneum-network:local
+    user: '10002:10001'
+    command: [omneumd, serve, --key-dir, /keys, --socket, /run/omneum/eval.sock, --client-uid, '10001']
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    volumes:
+      - keys:/keys:ro
+      - ipc:/run/omneum
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, test, -S, /run/omneum/eval.sock]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  network-api:
+    image: omneum-network:local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      evaluator:
+        condition: service_healthy
+    environment:
+      OMNEUM_NETWORK_DEPLOYMENT_ID_FILE: /config/deployment-id
+      OMNEUM_NETWORK_KEY_VERSION: '1'
+      OMNEUM_NETWORK_PUBLIC_KEY_FILE: /config/public-key
+      OMNEUM_LOCAL_PUBLIC_KEY_FILE: /config/local-public-key
+      OMNEUM_NETWORK_DATABASE_DSN_FILE: /config/database-dsn
+      OMNEUM_NETWORK_TLS_CERT: /config/tls.crt
+      OMNEUM_NETWORK_TLS_KEY: /config/tls.key
+    volumes:
+      - config:/config:ro
+      - ipc:/run/omneum:ro
+    ports: ['127.0.0.1:8443:8443']
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 40s
+    healthcheck:
+      test: [CMD, python, /opt/omneum-deploy/probe.py]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+volumes:
+  admin-config:
+  client:
+  config:
+  keys:
+  ipc:
+  postgres:
+  database-tls:

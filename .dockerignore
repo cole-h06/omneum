@@ -1,0 +1,20 @@
+# Allow-list build context: excludes secrets, local runtime data and benchmarks.
+**
+!Dockerfile
+!.dockerignore
+!Cargo.toml
+!Cargo.lock
+!build.rs
+!pyproject.toml
+!README.md
+!src/
+!src/**
+!omneum/
+!omneum/**
+!deploy/
+!deploy/network/
+!deploy/network/**
+**/__pycache__/
+**/*.pyc
+**/.env*
+**/*.key
