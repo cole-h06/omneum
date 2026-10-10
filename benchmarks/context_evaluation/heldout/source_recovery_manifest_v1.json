@@ -1,0 +1,14 @@
+{
+  "loader.py": {
+    "git_object": "f7f0af6f37f653dea3990cd611e28d3a24422c8b",
+    "object_kind": "blob",
+    "sha256": "ec4a9432c93832b0cdb274f2e3fd1082b3a7dba98d2e8ca21c3385cfad0290e1",
+    "snapshot": "contracts/v1/loader.py.txt"
+  },
+  "schema.py": {
+    "git_object": "320ec4c1d340:benchmarks/financial_dependency_suite/heldout/schema.py",
+    "object_kind": "revision_path",
+    "sha256": "403d1a2c69f5851eae9092df47e84b9c864254e1d14e4fcc354d5b7768124188",
+    "snapshot": "contracts/v1/schema.py.txt"
+  }
+}

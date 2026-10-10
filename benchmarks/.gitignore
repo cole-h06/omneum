@@ -1,0 +1,11 @@
+# Unreviewed offline analysis output; reviewed evidence remains in analysis/.
+context_evaluation/heldout/reproductions/
+
+# Locks coordinate local execution; completed evidence does not need them.
+context_evaluation/heldout/results/**/.run.lock
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Interrupted atomic writes can be recovery evidence: inspect before deleting.
+context_evaluation/heldout/results/**/.results-*

@@ -1,6 +1,0 @@
-sentence-transformers>=5,<6
-numpy>=2,<3
-anthropic>=0.64,<1
-openai
-google-genai
-cohere

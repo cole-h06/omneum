@@ -1,0 +1,1850 @@
+{
+  "aggregate_bge": {
+    "false_negative": 56,
+    "false_positive": 21,
+    "precision": 0.6956521739130435,
+    "recall": 0.46153846153846156,
+    "true_positive": 48
+  },
+  "aggregate_bge_omneum": {
+    "false_negative": 44,
+    "false_positive": 9,
+    "precision": 0.8695652173913043,
+    "recall": 0.5769230769230769,
+    "true_positive": 60
+  },
+  "candidate_pool_source": "benchmarks/financial_dependency_suite/heldout/results/bge-omneum-final-smoke-20261007/results.jsonl",
+  "cases": 24,
+  "generation_calls": 0,
+  "improved_cases": [
+    "coding_config_conflict",
+    "research_syndicated_reporting"
+  ],
+  "paid_model_api_calls": 0,
+  "per_case": [
+    {
+      "bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "source_table_2",
+        "source_table",
+        "query_result"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "dashboard",
+        "source_table_2",
+        "derived_table"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9879085421562195,
+          "source": "dashboard",
+          "text": "Operations dashboard: August 17 daily active accounts=840, populated from daily_activity."
+        },
+        {
+          "reranker_score": 0.9857660531997681,
+          "source": "source_table_2",
+          "text": "Account activity source ledger: 612 production account IDs have one or more August 17 session events."
+        },
+        {
+          "reranker_score": 0.9793621301651001,
+          "source": "derived_table",
+          "text": "Derived daily_activity table: August 17 active accounts=840. Nightly repair imports the dashboard CSV when the source scan is skipped."
+        },
+        {
+          "reranker_score": 0.9719088077545166,
+          "source": "source_table",
+          "text": "Production session source table for August 17: 840 sessions belong to 612 distinct account IDs; test tenants have already been excluded."
+        },
+        {
+          "reranker_score": 0.9308289289474487,
+          "source": "query_result",
+          "text": "Fresh query joining production sessions to accounts: COUNT(DISTINCT account_id)=612 for August 17."
+        },
+        {
+          "reranker_score": 0.8593699932098389,
+          "source": "exported_dataset",
+          "text": "Dashboard CSV export: August 17 active accounts 840. This export is reimported by the daily_activity repair job."
+        }
+      ],
+      "case_id": "analytics_derived_metric_cycle",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "source_table_2",
+        "source_table",
+        "query_result"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "source_table",
+        "source_table_2",
+        "metric_store"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "dashboard",
+        "source_table",
+        "source_table_2"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9984700083732605,
+          "source": "dashboard",
+          "text": "Dashboard Noria delivery count: August 16 cohort delivered 520. The copied SQL attachment is no longer available."
+        },
+        {
+          "reranker_score": 0.9967514276504517,
+          "source": "source_table",
+          "text": "Dispatch source table: August 16 cohort contains 520 parcel IDs. Reconciliation records 487 delivered and 33 returned."
+        },
+        {
+          "reranker_score": 0.9907824397087097,
+          "source": "source_table_2",
+          "text": "Carrier receipt source table: 487 unique parcel IDs from the August 16 dispatch cohort have delivered receipts; returned status appears for 33 others."
+        },
+        {
+          "reranker_score": 0.9290282130241394,
+          "source": "derived_table",
+          "text": "Derived delivery_summary partition: cohort August 16, delivered_count=520. Catalog retains a link to the migrated transformation, but no run ID."
+        },
+        {
+          "reranker_score": 0.8149043321609497,
+          "source": "metric_store",
+          "text": "Metric store reconciled deliveries: August 16 cohort delivered_count=487; broad catalog import tag points to delivery_summary although reconciliation uses carrier receipts."
+        },
+        {
+          "reranker_score": 0.7846032381057739,
+          "source": "query_result",
+          "text": "Ad hoc reconciliation query: join dispatch IDs to carrier receipts, filter final_status=delivered, COUNT(DISTINCT parcel_id)=487 for August 16."
+        }
+      ],
+      "case_id": "analytics_incomplete_lineage",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "source_table",
+        "source_table_2",
+        "metric_store"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "finance_report",
+        "metric_docs",
+        "warehouse_query"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "finance_report",
+        "metric_docs",
+        "semantic_layer"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.997005045413971,
+          "source": "finance_report",
+          "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded."
+        },
+        {
+          "reranker_score": 0.9954109787940979,
+          "source": "metric_docs",
+          "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%."
+        },
+        {
+          "reranker_score": 0.8982994556427002,
+          "source": "semantic_layer",
+          "text": "Semantic layer field labeled gross_revenue_retention uses (opening - churn - contraction + expansion) / opening and returns 112% for July."
+        },
+        {
+          "reranker_score": 0.8738519549369812,
+          "source": "dashboard",
+          "text": "Sales dashboard: July gross revenue retention 112%, sourced from the semantic layer gross_revenue_retention field."
+        },
+        {
+          "reranker_score": 0.8360430002212524,
+          "source": "warehouse_query",
+          "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%."
+        },
+        {
+          "reranker_score": 0.7395906448364258,
+          "source": "exported_report",
+          "text": "Exported sales report: gross revenue retention July 112%, copied from the dashboard."
+        }
+      ],
+      "case_id": "analytics_metric_definition_conflict",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "finance_report",
+        "metric_docs",
+        "warehouse_query"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "warehouse_table",
+        "api_result",
+        "metric_store"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "warehouse_table",
+        "api_result",
+        "metric_store"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9860550761222839,
+          "source": "warehouse_table",
+          "text": "Warehouse billing_seats partition 2026-07 after backfill batch B12: 1,284 paid seats. Partition rebuilt August 12."
+        },
+        {
+          "reranker_score": 0.9804584980010986,
+          "source": "api_result",
+          "text": "Metrics API response for July 2026: paid_seats=1284, revision=B12, finalized=true."
+        },
+        {
+          "reranker_score": 0.9785895943641663,
+          "source": "metric_store",
+          "text": "Metric store meridian.paid_seats, period=2026-07, revision=B12, status=final: 1284."
+        },
+        {
+          "reranker_score": 0.7689352035522461,
+          "source": "current_query",
+          "text": "Warehouse query August 18 on the rebuilt July partition: SUM(paid_seats)=1284; backfill watermark B12."
+        },
+        {
+          "reranker_score": 0.7066367268562317,
+          "source": "transformation",
+          "text": "July seat transformation selects active paid subscriptions and sums seats. Run B12 against billing_seats emits 1,284 for July 2026."
+        },
+        {
+          "reranker_score": 0.16908590495586395,
+          "source": "exported_report",
+          "text": "Board report export generated August 3 from the August 2 dashboard image: July paid seats 1,190."
+        }
+      ],
+      "case_id": "analytics_stale_dashboard",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "warehouse_table",
+        "api_result",
+        "metric_store"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "current_api_docs",
+        "repository_code",
+        "changelog"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.2,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "current_api_docs",
+        "old_api_docs",
+        "old_example"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9848012328147888,
+          "source": "current_api_docs",
+          "text": "LedgerKit 3.0 API: client.exports.create(account_id=account_id, format=\"csv\") submits an export and returns ExportJob."
+        },
+        {
+          "reranker_score": 0.9352385401725769,
+          "source": "old_api_docs",
+          "text": "LedgerKit 2.6 API reference: submit a CSV export with client.export_csv(account_id). The method returns a job ID."
+        },
+        {
+          "reranker_score": 0.7989856600761414,
+          "source": "old_example",
+          "text": "Example pinned to ledgerkit==2.6: job = client.export_csv(account_id). Poll job.status until complete."
+        },
+        {
+          "reranker_score": 0.7626423835754395,
+          "source": "repository_code",
+          "text": "Installed ledgerkit/exports.py, version 3.0: Exports.create(self, *, account_id, format) posts to /exports. Client initializes self.exports = Exports(transport)."
+        },
+        {
+          "reranker_score": 0.418359637260437,
+          "source": "changelog",
+          "text": "3.0 changelog: export_csv was removed. Export submission moved to client.exports.create with an explicit format."
+        },
+        {
+          "reranker_score": 0.39692145586013794,
+          "source": "package_metadata",
+          "text": "uv.lock resolves ledgerkit 3.0.0 for the export worker; requires Python >=3.11."
+        }
+      ],
+      "case_id": "coding_api_version_change",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "current_api_docs",
+        "repository_code",
+        "changelog"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "integration_test",
+        "repository_code",
+        "release_notes"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "integration_test",
+        "repository_code",
+        "release_notes"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.2950269877910614,
+          "source": "integration_test",
+          "text": "Integration test kills the worker before commit and replays evt_47. A unique constraint on processed_events.event_id plus the shared balance transaction leaves one committed balance update."
+        },
+        {
+          "reranker_score": 0.23528802394866943,
+          "source": "repository_code",
+          "text": "consumer.py opens one database transaction, inserts event_id into processed_events, and applies the balance update only if the insert succeeds. Both writes commit together."
+        },
+        {
+          "reranker_score": 0.2114325612783432,
+          "source": "release_notes",
+          "text": "Sable 1.8 release notes: replay handling uses a unique processed_events.event_id and an atomic balance transaction."
+        },
+        {
+          "reranker_score": 0.07745156437158585,
+          "source": "current_docs",
+          "text": "Consumer guide: enforce a unique event_id in processed_events and write it in the same transaction as the balance change; a duplicate skips the change."
+        },
+        {
+          "reranker_score": 0.043554726988077164,
+          "source": "example",
+          "text": "Example transaction: INSERT INTO processed_events(event_id) ... ON CONFLICT DO NOTHING RETURNING event_id; if a row was returned, update balances before COMMIT."
+        },
+        {
+          "reranker_score": 0.0009001142461784184,
+          "source": "unit_test",
+          "text": "Unit test replays event evt_47 twice: the second processed_events insert conflicts; apply_balance is called once."
+        }
+      ],
+      "case_id": "coding_clean_dependency",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "integration_test",
+        "repository_code",
+        "release_notes"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.5,
+        "true_positive": 1
+      },
+      "bge_omneum_selected_ids": [
+        "readme",
+        "deployment_config"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.5,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "readme",
+        "deployment_config"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9917866587638855,
+          "source": "readme",
+          "text": "README quick start: Harbor API listens on port 8080; configure the readiness probe for 8080. This example runs the binary directly."
+        },
+        {
+          "reranker_score": 0.8079466819763184,
+          "source": "deployment_config",
+          "text": "deploy/prod.yaml: container env APP_PORT=\"9092\"; readinessProbe.httpGet.path=/ready; readinessProbe.httpGet.port=9092. No port remapping is present."
+        },
+        {
+          "reranker_score": 0.053020041435956955,
+          "source": "ci_config",
+          "text": "CI unit job unsets APP_PORT and checks /ready on 8080. The production manifest is not used in this job."
+        },
+        {
+          "reranker_score": 0.024326182901859283,
+          "source": "test_output",
+          "text": "Manifest integration run: applied deploy/prod.yaml; APP_PORT=9092; GET localhost:9092/ready -> 200; localhost:8080 -> connection refused."
+        }
+      ],
+      "case_id": "coding_config_conflict",
+      "context_budget": 2,
+      "previous_bge_omneum_ids": [
+        "readme",
+        "ci_config"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "release_notes",
+        "package_docs",
+        "pull_request"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.2,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "issue_origin",
+        "release_notes",
+        "issue_comment"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9710679054260254,
+          "source": "issue_origin",
+          "text": "A workaround for connection-pool exhaustion is to disable connection reuse."
+        },
+        {
+          "reranker_score": 0.8524588942527771,
+          "source": "release_notes",
+          "text": "Version 4.2 fixes pool exhaustion by bounding idle connections and evicting expired entries; connection reuse remains enabled."
+        },
+        {
+          "reranker_score": 0.5141892433166504,
+          "source": "issue_comment",
+          "text": "Disabling connection reuse resolves the pool exhaustion problem."
+        },
+        {
+          "reranker_score": 0.06705012917518616,
+          "source": "package_docs",
+          "text": "Connection reuse should remain enabled under normal operation. Pool size and idle-entry eviction are bounded by the client."
+        },
+        {
+          "reranker_score": 0.055812422186136246,
+          "source": "pull_request",
+          "text": "This change bounds idle pool entries and evicts expired connections to eliminate pool exhaustion without disabling reuse."
+        },
+        {
+          "reranker_score": 0.01961047202348709,
+          "source": "community_note",
+          "text": "The recommended fix is to turn off connection reuse."
+        }
+      ],
+      "case_id": "coding_package_fix_lineage",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "release_notes",
+        "package_docs",
+        "pull_request"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "announcement",
+        "email",
+        "drive_document_2"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "announcement",
+        "email",
+        "drive_document_2"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9674185514450073,
+          "source": "announcement",
+          "text": "Records announcement: CS-8 production chat retention is 90 days. Link: signed retention schedule in Drive."
+        },
+        {
+          "reranker_score": 0.9531646966934204,
+          "source": "email",
+          "text": "Records email: apply 90 days to production chat transcripts under CS-8. The mail archive retained a folder-level reference to the onboarding materials, not the attachment ID."
+        },
+        {
+          "reranker_score": 0.9280489087104797,
+          "source": "drive_document_2",
+          "text": "Drive schedule CS-8, signed by Records on August 4: production customer chat transcripts expire after 90 days; legal holds are excluded."
+        },
+        {
+          "reranker_score": 0.8375532031059265,
+          "source": "system_record",
+          "text": "Retention service record cs8-prod: ttl_days=90; scope=customer_chat_transcript; legal_hold bypass enabled."
+        },
+        {
+          "reranker_score": 0.7678014039993286,
+          "source": "drive_document",
+          "text": "Drive onboarding checklist: production customer chat transcripts are retained for 180 days. Document imported from a departmental folder; revision history was not retained."
+        },
+        {
+          "reranker_score": 0.7608138918876648,
+          "source": "confluence_page",
+          "text": "Confluence mirror of the onboarding checklist: retain production chat transcripts for 180 days."
+        }
+      ],
+      "case_id": "enterprise_partial_lineage",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "announcement",
+        "email",
+        "drive_document_2"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "policy_changelog",
+        "policy_record",
+        "hr_system"
+      ],
+      "bge_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "policy_changelog",
+        "policy_record",
+        "hr_system"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9566716551780701,
+          "source": "policy_changelog",
+          "text": "TR-17 change log entry signed July 1: domestic employee meal receipt threshold set to $40."
+        },
+        {
+          "reranker_score": 0.9022939801216125,
+          "source": "policy_record",
+          "text": "Policy record TR-17, effective July 1: a receipt is required for domestic employee meals of $40 or more; lower amounts need a business purpose."
+        },
+        {
+          "reranker_score": 0.8388429284095764,
+          "source": "hr_system",
+          "text": "Expense system rule TR-17-US-MEAL, effective July 1: receipt_required when amount_usd >= 40 for employee domestic meals."
+        },
+        {
+          "reranker_score": 0.1342097520828247,
+          "source": "team_wiki",
+          "text": "Sales team travel wiki: use the travel Confluence FAQ threshold of $75 for domestic meal receipts."
+        },
+        {
+          "reranker_score": 0.1251683086156845,
+          "source": "drive_document",
+          "text": "Drive trip checklist, copied from Sales wiki: domestic meal receipt threshold $75."
+        },
+        {
+          "reranker_score": 0.04921683669090271,
+          "source": "confluence_page",
+          "text": "Travel Confluence FAQ: receipts are required for domestic meals at $75 or more. Published from the travel desk briefing, revision 6."
+        }
+      ],
+      "case_id": "enterprise_policy_copy_chain",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "policy_changelog",
+        "policy_record",
+        "hr_system"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "policy",
+        "system_record",
+        "operations_doc"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "policy",
+        "system_record",
+        "operations_doc"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9933586716651917,
+          "source": "policy",
+          "text": "Access policy AC-9: revoke contractor production VPN access within 4 hours of the engagement end timestamp. The project owner opens the offboarding request."
+        },
+        {
+          "reranker_score": 0.9771178960800171,
+          "source": "system_record",
+          "text": "Access scheduler policy AC-9: contractor production VPN revoke_due = engagement_end + 4 hours."
+        },
+        {
+          "reranker_score": 0.9660362601280212,
+          "source": "operations_doc",
+          "text": "Operations AC-9 offboarding procedure: disable contractor production VPN within 4 hours after the recorded engagement end."
+        },
+        {
+          "reranker_score": 0.9518167972564697,
+          "source": "hr_record",
+          "text": "Contractor HR workflow AC-9: the engagement end timestamp starts a 4-hour production VPN revocation timer."
+        },
+        {
+          "reranker_score": 0.8485680818557739,
+          "source": "drive_document",
+          "text": "Drive contractor equipment guide: return the VPN hardware token within 7 days after the engagement."
+        },
+        {
+          "reranker_score": 0.19279219210147858,
+          "source": "project_doc",
+          "text": "Iris project closeout plan: archive project documentation within 14 days of the final milestone."
+        }
+      ],
+      "case_id": "enterprise_semantic_distractors",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "policy",
+        "system_record",
+        "operations_doc"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.75,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "current_policy",
+        "confluence_page",
+        "announcement"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "current_policy",
+        "confluence_page",
+        "announcement"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9796276092529297,
+          "source": "current_policy",
+          "text": "Volunteer leave policy effective January 1, 2026: full-time staff receive four paid volunteer days each calendar year."
+        },
+        {
+          "reranker_score": 0.9281979203224182,
+          "source": "confluence_page",
+          "text": "Confluence new-starter benefits page: four paid volunteer days annually for full-time staff in the 2026 plan."
+        },
+        {
+          "reranker_score": 0.7556512355804443,
+          "source": "announcement",
+          "text": "People team December announcement: the full-time volunteer allowance increases to four days from January 2026."
+        },
+        {
+          "reranker_score": 0.6936250329017639,
+          "source": "archived_handbook",
+          "text": "Archived 2024 employee handbook: full-time staff receive two paid volunteer days per calendar year."
+        },
+        {
+          "reranker_score": 0.24326030910015106,
+          "source": "hr_system",
+          "text": "HR leave-plan configuration VOL-FT-2026: annual entitlement 4 days for full-time employees, effective 2026-01-01."
+        },
+        {
+          "reranker_score": 0.08246181905269623,
+          "source": "drive_document",
+          "text": "Drive benefits overview exported for the 2024 recruiting cycle: two paid volunteer days per year."
+        }
+      ],
+      "case_id": "enterprise_stale_handbook",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "current_policy",
+        "confluence_page",
+        "announcement"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "verifier_agent",
+        "tool_result",
+        "web_result"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.2,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "analyst_agent",
+        "verifier_agent",
+        "researcher_agent"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9631763100624084,
+          "source": "analyst_agent",
+          "text": "Analyst shared note a118: Aster 118 is approved for production; basis is researcher r118. No gate API request attached."
+        },
+        {
+          "reranker_score": 0.9057592749595642,
+          "source": "verifier_agent",
+          "text": "Verifier agent queried gate CLI and release registry: build 118 remains blocked; no production approval recorded."
+        },
+        {
+          "reranker_score": 0.8212437033653259,
+          "source": "researcher_agent",
+          "text": "Researcher shared note r118, revision 3: Aster 118 is approved for production, citing reviewer v118. The reviewer link was added after the initial handoff."
+        },
+        {
+          "reranker_score": 0.366262823343277,
+          "source": "tool_result",
+          "text": "Release gate CLI for Aster 118: gate RG-2 status=blocked; unresolved check=load_test; check result=failed."
+        },
+        {
+          "reranker_score": 0.21329066157341003,
+          "source": "web_result",
+          "text": "Release portal for build 118 renders RG-2 blocked while load_test remains failed."
+        },
+        {
+          "reranker_score": 0.19343309104442596,
+          "source": "database_result",
+          "text": "Release registry row: build=118, gate=RG-2, decision=blocked, override_id=NULL."
+        }
+      ],
+      "case_id": "multi_agent_feedback_loop",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "verifier_agent",
+        "tool_result",
+        "web_result"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_omneum_selected_ids": [
+        "api_result",
+        "database_result"
+      ],
+      "bge_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "api_result",
+        "database_result"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.8265049457550049,
+          "source": "api_result",
+          "text": "EU invoice API response schema: Retry-After is delay-seconds or an HTTP date. A numeric value of 120 requires a 120-second wait."
+        },
+        {
+          "reranker_score": 0.6582675576210022,
+          "source": "database_result",
+          "text": "Integration trace database: invoice 429 received at 10:00:00Z with Retry-After=120; client next_allowed_at=10:02:00Z, delta_seconds=120."
+        },
+        {
+          "reranker_score": 0.4551433026790619,
+          "source": "researcher_agent",
+          "text": "Researcher agent, isolated prompt with response headers: interprets Retry-After: 120 as 120 milliseconds and proposes a 0.12-second delay."
+        },
+        {
+          "reranker_score": 0.2131996899843216,
+          "source": "tool_result",
+          "text": "HTTP conformance tool against the invoice sandbox: Retry-After numeric values are seconds. For header 120, retry timer is 120 seconds."
+        }
+      ],
+      "case_id": "multi_agent_independent_error",
+      "context_budget": 2,
+      "previous_bge_omneum_ids": [
+        "api_result",
+        "database_result"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "bge_omneum_selected_ids": [
+        "operations_agent",
+        "code_agent",
+        "api_result"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "operations_agent",
+        "code_agent",
+        "api_result"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.99305659532547,
+          "source": "operations_agent",
+          "text": "Operations agent read the production storage lifecycle: unfinished multipart uploads are aborted after 48 hours."
+        },
+        {
+          "reranker_score": 0.9067176580429077,
+          "source": "code_agent",
+          "text": "Code agent inspected the test fixture: staging multipart uploads are aborted after 2 hours to reduce test storage."
+        },
+        {
+          "reranker_score": 0.816227376461029,
+          "source": "api_result",
+          "text": "GET /prod/storage/lifecycle: incomplete_multipart_abort_after_hours=48. Completed objects use a separate retention rule."
+        },
+        {
+          "reranker_score": 0.5324363112449646,
+          "source": "database_result",
+          "text": "Production cleanup job config table: unfinished multipart sessions are eligible at created_at + 48 hours."
+        },
+        {
+          "reranker_score": 0.4473620355129242,
+          "source": "tool_result",
+          "text": "Production lifecycle inspection: rule abort_incomplete_multipart, age_hours=48, enabled=true."
+        },
+        {
+          "reranker_score": 0.13593421876430511,
+          "source": "data_agent",
+          "text": "Data agent measured completed-upload audit retention: completed object events stay in the warehouse for 720 hours."
+        }
+      ],
+      "case_id": "multi_agent_relevant_wrong_task",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "operations_agent",
+        "code_agent",
+        "api_result"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.5,
+        "true_positive": 2
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      },
+      "bge_omneum_selected_ids": [
+        "web_result",
+        "database_result",
+        "tool_result"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "analyst_agent",
+        "summary_agent",
+        "database_result"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9838143587112427,
+          "source": "analyst_agent",
+          "text": "Analyst run a12 consumed researcher r81: dispatch for OR-821 is August 22, 2026; add this to the customer timeline."
+        },
+        {
+          "reranker_score": 0.9766448736190796,
+          "source": "summary_agent",
+          "text": "Summary agent merged analyst a12 and a13: both entries give OR-821 a dispatch date of August 22, 2026."
+        },
+        {
+          "reranker_score": 0.9750350713729858,
+          "source": "database_result",
+          "text": "Fulfillment database query: order OR-821, status=dispatched, dispatched_at=2026-08-19T16:42:00Z; planned_dispatch_at=2026-08-22."
+        },
+        {
+          "reranker_score": 0.9647852182388306,
+          "source": "analyst_agent_2",
+          "text": "Analyst run a13 used researcher r81 to populate the shipping estimate: OR-821 dispatch August 22, 2026."
+        },
+        {
+          "reranker_score": 0.9416335821151733,
+          "source": "web_result",
+          "text": "Order portal cached estimate: OR-821 planned dispatch August 22, 2026. This field is the scheduling estimate."
+        },
+        {
+          "reranker_score": 0.6541220545768738,
+          "source": "tool_result",
+          "text": "Carrier scan tool: OR-821 handoff accepted at depot D4 on August 19, 2026, 16:42 UTC; tracking event type=dispatched."
+        }
+      ],
+      "case_id": "multi_agent_repeated_subagent",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "web_result",
+        "database_result",
+        "tool_result"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 1,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.6666666666666666,
+        "true_positive": 2
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "primary_record",
+        "filing",
+        "publication"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "primary_record",
+        "filing",
+        "publication"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.998885452747345,
+          "source": "primary_record",
+          "text": "Municipal opening certificate: Eastbank pedestrian bridge opened to public pedestrians on June 14, 2026, at 09:00."
+        },
+        {
+          "reranker_score": 0.9932643175125122,
+          "source": "filing",
+          "text": "Completion filing: public access to Eastbank pedestrian bridge began June 14, 2026."
+        },
+        {
+          "reranker_score": 0.9922905564308167,
+          "source": "publication",
+          "text": "Eastbank walking guide records the pedestrian bridge opening as June 14, 2026."
+        },
+        {
+          "reranker_score": 0.991459846496582,
+          "source": "dataset",
+          "text": "Municipal asset register: Eastbank pedestrian bridge public_open_date=2026-06-14."
+        },
+        {
+          "reranker_score": 0.9895797371864319,
+          "source": "report",
+          "text": "Local accessibility group field report: members crossed the newly opened Eastbank pedestrian bridge on opening day, June 14, 2026."
+        },
+        {
+          "reranker_score": 0.9451786279678345,
+          "source": "report_2",
+          "text": "Eastbank Gazette on-site report: barriers were removed for the public opening on June 14, 2026."
+        }
+      ],
+      "case_id": "research_clean_consensus",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "primary_record",
+        "filing",
+        "publication"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "primary_publication",
+        "dataset",
+        "report_2"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "primary_publication",
+        "report",
+        "dataset"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9990233182907104,
+          "source": "primary_publication",
+          "text": "Maren land office annual publication: district forest gains 120 ha; losses 180 ha; net forest-cover change -60 ha for 2025."
+        },
+        {
+          "reranker_score": 0.9864622950553894,
+          "source": "report",
+          "text": "Canopy Watch report: Maren forest cover rose 120 hectares in 2025. Its summary equates newly wooded parcels with net change."
+        },
+        {
+          "reranker_score": 0.9564141631126404,
+          "source": "dataset",
+          "text": "District-boundary raster summary: 120 hectares converted to forest and 180 converted from forest during 2025, giving a net change of -60 hectares."
+        },
+        {
+          "reranker_score": 0.9296913743019104,
+          "source": "report_2",
+          "text": "Land Review report: Maren lost a net 60 hectares in 2025 after adding 120 hectares and losing 180 hectares."
+        },
+        {
+          "reranker_score": 0.8738274574279785,
+          "source": "filing",
+          "text": "Land office filing annex F: net district forest change in 2025 equals -60 hectares."
+        },
+        {
+          "reranker_score": 0.6818441152572632,
+          "source": "news_article",
+          "text": "Maren Gazette quotes Canopy Watch: a 120-hectare forest increase in 2025."
+        }
+      ],
+      "case_id": "research_conflicting_reports",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "primary_publication",
+        "dataset",
+        "report_2"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      },
+      "bge_omneum_selected_ids": [
+        "analysis",
+        "report",
+        "publication"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.3333333333333333,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "dataset",
+        "analysis",
+        "report"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9885224103927612,
+          "source": "dataset",
+          "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12."
+        },
+        {
+          "reranker_score": 0.9757828712463379,
+          "source": "analysis",
+          "text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay."
+        },
+        {
+          "reranker_score": 0.9729679822921753,
+          "source": "report",
+          "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed."
+        },
+        {
+          "reranker_score": 0.7544775009155273,
+          "source": "publication",
+          "text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings."
+        },
+        {
+          "reranker_score": 0.6921607255935669,
+          "source": "web_page",
+          "text": "Neighborhood association census summary: 216 homes occupied in the August enumeration; 24 were vacant."
+        },
+        {
+          "reranker_score": 0.5554463267326355,
+          "source": "news_article",
+          "text": "Quay Observer reporter counted door numbers during a separate site walk and described all 240 as occupied homes."
+        }
+      ],
+      "case_id": "research_independent_false_consensus",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "analysis",
+        "report",
+        "publication"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_omneum_selected_ids": [
+        "original_report",
+        "news_article",
+        "dataset"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 2,
+        "precision": 0.3333333333333333,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "original_report",
+        "news_article",
+        "dataset"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9947351217269897,
+          "source": "original_report",
+          "text": "Transit Market Report: Riverton has accepted all 60 battery-electric buses into service. The report treats the order quantity as the fleet addition."
+        },
+        {
+          "reranker_score": 0.9789135456085205,
+          "source": "news_article",
+          "text": "Metro News wire edition: Riverton adds 60 electric buses to passenger service, according to Transit Market Report."
+        },
+        {
+          "reranker_score": 0.971956193447113,
+          "source": "dataset",
+          "text": "Fleet dataset export August 18: acceptance_state=passenger_service for 36 vehicle IDs in order RV-2026; 24 IDs have state=pending."
+        },
+        {
+          "reranker_score": 0.9536722302436829,
+          "source": "news_article_2",
+          "text": "Regional Daily republishes Metro News: the Riverton electric bus fleet gained 60 buses in service."
+        },
+        {
+          "reranker_score": 0.9480631947517395,
+          "source": "news_article_3",
+          "text": "Transport Today roundup quotes Transit Market Report: Riverton now has 60 new electric buses operating."
+        },
+        {
+          "reranker_score": 0.936072826385498,
+          "source": "web_page",
+          "text": "City mobility landing page embeds the Metro News headline: 60 new Riverton electric buses enter service."
+        }
+      ],
+      "case_id": "research_syndicated_reporting",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "original_report",
+        "news_article",
+        "news_article_2"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "true_positive": 0
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "current_runbook",
+        "kb_article",
+        "monitoring_result"
+      ],
+      "bge_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "current_runbook",
+        "kb_article",
+        "monitoring_result"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9623937606811523,
+          "source": "current_runbook",
+          "text": "Current Marlin runbook: after completed maintenance, resume the export worker with marlinctl worker resume export and check that pending exports drain."
+        },
+        {
+          "reranker_score": 0.7966216802597046,
+          "source": "kb_article",
+          "text": "KB worker maintenance guide: run marlinctl worker resume export when maintenance completes, then watch the export queue drain."
+        },
+        {
+          "reranker_score": 0.7271915078163147,
+          "source": "monitoring_result",
+          "text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs."
+        },
+        {
+          "reranker_score": 0.5523415803909302,
+          "source": "change_record",
+          "text": "Maintenance change record completed: storage checks pass; final operator step is marlinctl worker resume export."
+        },
+        {
+          "reranker_score": 0.4949458837509155,
+          "source": "service_state",
+          "text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export."
+        },
+        {
+          "reranker_score": 0.39031311869621277,
+          "source": "deployment_config",
+          "text": "Deployment config exposes worker resume for the export pool; maintenance pause is a durable flag cleared by marlinctl worker resume export."
+        }
+      ],
+      "case_id": "support_clean_resolution",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "current_runbook",
+        "kb_article",
+        "monitoring_result"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 4,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_omneum_selected_ids": [
+        "service_state",
+        "deployment_config"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.25,
+        "true_positive": 1
+      },
+      "bge_selected_ids": [
+        "service_state",
+        "deployment_config"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.5626950263977051,
+          "source": "service_state",
+          "text": "Service state: upstream_tls_verify_failed; upstream certificate chain terminates at Alder-CA; the current tb18 bundle does not contain that issuer."
+        },
+        {
+          "reranker_score": 0.2821744680404663,
+          "source": "deployment_config",
+          "text": "Production deployment: trust_bundle=tb18; upstream_tls_verify=true. Revision tb17 remains available for rollback and includes issuer Alder-CA."
+        },
+        {
+          "reranker_score": 0.25861528515815735,
+          "source": "runbook",
+          "text": "TLS incident runbook: when a trust-bundle deployment removes an upstream issuer, roll back to the last working trust bundle and retain certificate verification."
+        },
+        {
+          "reranker_score": 0.1759781688451767,
+          "source": "monitoring_result",
+          "text": "Monitoring replay: tb18 fails issuer validation for the upstream chain; tb17 passes the same probe with TLS verification enabled."
+        }
+      ],
+      "case_id": "support_resolution_conflict",
+      "context_budget": 2,
+      "previous_bge_omneum_ids": [
+        "service_state",
+        "deployment_config"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.5,
+        "recall": 0.25,
+        "true_positive": 1
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "current_runbook",
+        "incident_record",
+        "deployment_config"
+      ],
+      "bge_scores": {
+        "false_negative": 3,
+        "false_positive": 1,
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "true_positive": 2
+      },
+      "bge_selected_ids": [
+        "current_runbook",
+        "incident_record",
+        "old_runbook"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9913971424102783,
+          "source": "current_runbook",
+          "text": "Nimbus v5 runbook: to refresh credentials after routine signing-key rotation, POST /admin/keys/refresh and confirm the loaded key ID."
+        },
+        {
+          "reranker_score": 0.523321270942688,
+          "source": "incident_record",
+          "text": "Incident N-510 on v5: key rotation left one cache behind; POST /admin/keys/refresh reloaded the current key and authentication recovered without a rollout."
+        },
+        {
+          "reranker_score": 0.4709486961364746,
+          "source": "old_runbook",
+          "text": "Nimbus v3 runbook: after rotating signing keys, restart the gateway pods to reload credentials."
+        },
+        {
+          "reranker_score": 0.3836466073989868,
+          "source": "deployment_config",
+          "text": "Nimbus v5 production config: key_reload_mode=watch; admin endpoint POST /admin/keys/refresh triggers immediate credential-cache refresh."
+        },
+        {
+          "reranker_score": 0.18318235874176025,
+          "source": "kb_article",
+          "text": "Knowledge base article for Nimbus v3: restart gateway pods after every signing-key rotation; keys are only read at startup."
+        },
+        {
+          "reranker_score": 0.012961647473275661,
+          "source": "service_state",
+          "text": "Nimbus live state: version=5.2; admin keys refresh endpoint enabled; active key mount is present; process has not restarted since deployment."
+        }
+      ],
+      "case_id": "support_stale_runbook",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "current_runbook",
+        "incident_record",
+        "deployment_config"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    },
+    {
+      "bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_omneum_selected_ids": [
+        "runbook",
+        "service_state",
+        "deployment_config"
+      ],
+      "bge_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      },
+      "bge_selected_ids": [
+        "runbook",
+        "service_state",
+        "deployment_config"
+      ],
+      "candidate_pool": [
+        {
+          "reranker_score": 0.9368224740028381,
+          "source": "runbook",
+          "text": "Vega runbook: with consumer paused and storage healthy, resume the ingest consumer and observe queue drain before any destructive queue action."
+        },
+        {
+          "reranker_score": 0.8443572521209717,
+          "source": "service_state",
+          "text": "Vega service state: ingest consumer paused=true; queue depth=18000; storage health=ok; no corrupt messages reported. Resume operation is available."
+        },
+        {
+          "reranker_score": 0.23319582641124725,
+          "source": "deployment_config",
+          "text": "Deployment config: ingest consumer supports POST /consumers/ingest/resume; pause persists across restarts; queue purge discards pending records."
+        },
+        {
+          "reranker_score": 0.18685759603977203,
+          "source": "kb_article",
+          "text": "KB-12: clear Vega backlog by purging the ingest queue, following incident VG-71."
+        },
+        {
+          "reranker_score": 0.07193794846534729,
+          "source": "change_record",
+          "text": "Change VG-103 paused ingest consumer for maintenance; maintenance is complete and the recorded follow-up is to resume the consumer."
+        },
+        {
+          "reranker_score": 0.023309210315346718,
+          "source": "ticket",
+          "text": "Ticket VG-88 resolution note: purge the ingest queue to clear backlog; cites KB-12. This ticket is also listed as precedent in incident VG-71."
+        }
+      ],
+      "case_id": "support_ticket_reference_loop",
+      "context_budget": 3,
+      "previous_bge_omneum_ids": [
+        "runbook",
+        "service_state",
+        "deployment_config"
+      ],
+      "previous_bge_omneum_scores": {
+        "false_negative": 2,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.6,
+        "true_positive": 3
+      }
+    }
+  ],
+  "previous_aggregate_bge_omneum": {
+    "false_negative": 46,
+    "false_positive": 11,
+    "precision": 0.8405797101449275,
+    "recall": 0.5576923076923077,
+    "true_positive": 58
+  },
+  "protected_file_count": 113,
+  "protected_sha256": {
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_derived_metric_cycle/case.json": "5e54f50db313feab8b95fbdc54c1ffeaea537901c586a7546626c2a9d4f7e32f",
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_derived_metric_cycle/ground_truth.json": "edf2ced18b0c593549d158c47b06fcca7d4fcaf7693ab4ed7e6a7d33d8c78256",
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_incomplete_lineage/case.json": "38727829924c44ea87408fb23ea360353adabc39e77ed16bfc09eb5e60e19618",
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_incomplete_lineage/ground_truth.json": "729605db48078ee9c6702bf72b8a271f28d9df64b475f1f64fbc81715ed4168f",
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_metric_definition_conflict/case.json": "5ab33268aed65fcc98384f19c41d974e8b2dd72087b1d586e821c82ba1ac6950",
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_metric_definition_conflict/ground_truth.json": "b5157322a805be084a945d7054338b797fe906a2f482162b9f6c74e9455fe4dd",
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_stale_dashboard/case.json": "d1708a3d99926004e1662f5986dc7bc39fa7c92b2a8ee75ee79540bc9f96522e",
+    "benchmarks/financial_dependency_suite/heldout/cases/analytics_stale_dashboard/ground_truth.json": "0f5335e1b94e04a9cd46e21e58a0a72731f7ca50afc8a5170774761cfe2e6b87",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_api_version_change/case.json": "19c88401760843ec0f7ee9eac8145c68efdac951d2f0d0893ff04ea3909e6de3",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_api_version_change/ground_truth.json": "49163680e3fb2b7ffa29061e533a28108d14e3e3ebf74d9c43d577210573ed6f",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_clean_dependency/case.json": "22c5690c59b2d844c9dc70fc0c0f252e8d508de91be9e510e11c8a072e5b78df",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_clean_dependency/ground_truth.json": "ebc8b31854570d9501d92e6c02d49906e9e4a8b86c08a2cb8623142a806123f9",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_config_conflict/case.json": "c90a19805ba7ead6675041f109b8ee66367b7892d61e003ee3eb1e3e07c9d6c9",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_config_conflict/ground_truth.json": "cf83de7c6d1b1fa0b0b5f578e545dd65e90249d6ae64fec94efe38650ebb00b5",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_package_fix_lineage/case.json": "b90f6a1ca49d64888029eb21f2356e23f4f211fdeb1da3c5385ec3190833c248",
+    "benchmarks/financial_dependency_suite/heldout/cases/coding_package_fix_lineage/ground_truth.json": "567adef95dada2de266a7c340259f69efcd102e40a9e1d4153a5102c2979973f",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_partial_lineage/case.json": "100b250c701f3c1ce82a220e7f3aa183d0b06b33a751ff17d9f4c31daf3e2e58",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_partial_lineage/ground_truth.json": "d9c64d9de26639269b2b755bf768918d6c1d5ab109d70722f87f7b574ed199ad",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_policy_copy_chain/case.json": "40e35764a6b9c844d58af48e4b8c35d9f1c0235a5244e88db2f7a10809ad42ce",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_policy_copy_chain/ground_truth.json": "0d261457f011ae0437b7f6dbfe87cb71c998417d9074f0bccae7ac64e3369286",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_semantic_distractors/case.json": "640de286172859bb428d6d1cb7680c6e489dc56b99dea719f56b085832da165f",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_semantic_distractors/ground_truth.json": "6df65cd6662dfe11c20b3c126c83799d12c9877d5f9f071c25ac9163520cc3a0",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_stale_handbook/case.json": "4c659eb40256078d40f229126ec762883c605bacfc85da86f671676156a14b45",
+    "benchmarks/financial_dependency_suite/heldout/cases/enterprise_stale_handbook/ground_truth.json": "777af9d1e1b186f9266d5f3d96dc69924b7f799572dd7c7b0806471414844a0e",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_feedback_loop/case.json": "19fe348f70e08f2c94b469f6292ef831d73137adc9ee5722b9fe2e1c540b6bad",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_feedback_loop/ground_truth.json": "7d9bc787769eed93379caa7b7ac21f04ce13a1e82419ed07115e5d3d4708aa23",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_independent_error/case.json": "79acbf5c5e91c1b85521e9c14bad2669b4e66e613f922e97e60ece08118dab65",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_independent_error/ground_truth.json": "d493a02472a1e07403b75c7ecf706fcd571f3890cba29bf35dfa595c8bfeef05",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_relevant_wrong_task/case.json": "65141ee94e06756f5f68673306048a2aa26c49ebcf383bb10734609a576a00cc",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_relevant_wrong_task/ground_truth.json": "8b688fab36f1f5813073ca56bf136e45a66962fb469548abd114165a1b2de0bd",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_repeated_subagent/case.json": "d5f6d9625d7ba150267d65f84c7c007f39f163a0ca641bfe75e29c0bfbe8433c",
+    "benchmarks/financial_dependency_suite/heldout/cases/multi_agent_repeated_subagent/ground_truth.json": "856c643c9e380db0ac3475a0cd648f2377cbab1a3f67918943b18daeaaec522b",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_clean_consensus/case.json": "95f346883f5c79af0e2eed9fa5f27a9408e428927d857aeea114b98736ae472d",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_clean_consensus/ground_truth.json": "3b0d045f1ebae1bf53d27a0519fce4ebb3b3e6d89498f425a7b62ff0b5708af1",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_conflicting_reports/case.json": "ac13326263e0e8460f49f35de3806a47d8dbded8ff84f0469f931ab581b95630",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_conflicting_reports/ground_truth.json": "a3e3950f0b3280c8f98a4e703814b6a801b47a035e5be28783e6f87527da4476",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_independent_false_consensus/case.json": "497fcf9e5b1104160fefb3daf512cf79769089de81f60c0919db8b6365f5d7bd",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_independent_false_consensus/ground_truth.json": "91c1f06c387ada2b63a3468051e1e80ed8e981a108012c2a461113d2f1ee1430",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_syndicated_reporting/case.json": "a67831e0baf8f9934872a4f66b42099b13a253fa814ed1814bbb4348053b4b9f",
+    "benchmarks/financial_dependency_suite/heldout/cases/research_syndicated_reporting/ground_truth.json": "52fb1f81ec19a1a10546c4975dee9ee154f8ba74cbaba12f7d78a45e5e0fd299",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_clean_resolution/case.json": "e22fa399937733f6416ec08f4188f7730b9faeef888663f7a25ba8a8cb6bcc42",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_clean_resolution/ground_truth.json": "98049d4b8998a6a0cb6dee533118739add73d225212fccc2256b28a57e9eb71c",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_resolution_conflict/case.json": "3e7c8152c9a9e4b005195c5f3c70f5b98d1f4697b1120e599afaf8721769d8e3",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_resolution_conflict/ground_truth.json": "09a92b92e243b1425d0a50886dd9563ba41cd6e63376e83a34dbe95400479d39",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_stale_runbook/case.json": "b064c3e5656193aa699486b7157f60bffda5f50ffdb74aa71439078397933839",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_stale_runbook/ground_truth.json": "7d1bd2b1fbec17023cf110ac73d403bc9f4bd73b66bc0c0e8a637494538368ff",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_ticket_reference_loop/case.json": "455dce63a25875ab36c6babb6cabc977451989375185cd13e0660207e67d4b74",
+    "benchmarks/financial_dependency_suite/heldout/cases/support_ticket_reference_loop/ground_truth.json": "902b2755f922eea55108f3ca8fa28157fb2f02a68884a5f02b9b621a2ce74a8c",
+    "benchmarks/financial_dependency_suite/heldout/dataset_manifest.json": "582ce8a702cb47acf2f4cff90b57a9092923dc49e732c5c20c32d107bdf78e78",
+    "benchmarks/financial_dependency_suite/heldout/results/20261007T204230Z/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/20261007T204230Z/manifest.json": "6fe640f83f7f8d115a676e74b206e496f0b248b3f84e947de57c7488d1e01e04",
+    "benchmarks/financial_dependency_suite/heldout/results/20261007T204230Z/results.jsonl": "a55bb65353da38b54de47385bd1f67fb63c2a31c8cbb9b7d8dc2112cf88239c6",
+    "benchmarks/financial_dependency_suite/heldout/results/20261007T204230Z/summary.json": "df1f62a54969312fbc29487d8b590cf41d1ae81d6940c0a91147f292084eb3e1",
+    "benchmarks/financial_dependency_suite/heldout/results/20261007T212522Z/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/20261007T212522Z/manifest.json": "1828d8e2ad9e07ef4ab2b3e9c4180e77fbaed9cebd15eb50900d85be9fced4cc",
+    "benchmarks/financial_dependency_suite/heldout/results/20261007T212522Z/results.jsonl": "8fbe1ca18a4151780fe72fd71573a42d23987010ab2fce3a2fb88e9b57b2b9cc",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-20261006/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-20261006/manifest.json": "f116b4bdd50c0dd8f847422acde5510b2abdc4eb5ae0b7ac4b866118f0e0284c",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-20261006/results.jsonl": "b20d042fd1333d173a44de244435f6bf1478261898a1a572d3ba9c198ae9b10d",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-20261006/summary.json": "f9a9ce4f8dfac5b6a0b07411038521b5cfd0b7f4fea301c25d5da9e095d86cf9",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-clean-20261006/manifest.original.json": "f116b4bdd50c0dd8f847422acde5510b2abdc4eb5ae0b7ac4b866118f0e0284c",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-clean-20261006/manifest.repair.json": "01293e505303c8effa407bc851c7500ec89741413f3565d3aeb01f84d07eff2b",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-10trial-clean-20261006/results.jsonl": "9dadb3d790cde3a49d342f07e65ebac58ae9196c2051745abcf923863d1c1448",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-provenance-repair-20261006/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-provenance-repair-20261006/manifest.json": "01293e505303c8effa407bc851c7500ec89741413f3565d3aeb01f84d07eff2b",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-provenance-repair-20261006/results.jsonl": "51fdaa6635431a07ed70d562c239b84e52bcee52c58533e884ba89ec6b39ccd6",
+    "benchmarks/financial_dependency_suite/heldout/results/additive-bge-omneum-provenance-repair-20261006/summary.json": "575611bf2e17727f587754ca7ba15bad693e02b80aa19511f2b70a272838c856",
+    "benchmarks/financial_dependency_suite/heldout/results/bge-omneum-final-smoke-20261007/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/bge-omneum-final-smoke-20261007/manifest.json": "d0ebe64c5fca34b74d154a5a2e4f2c44ee1e1ae030d8fba9e11125c28ad9649e",
+    "benchmarks/financial_dependency_suite/heldout/results/bge-omneum-final-smoke-20261007/results.jsonl": "b2b098f51e356952dc0eb1ad677fb580bbb3cdcdd98e3c9e03932de4ee426695",
+    "benchmarks/financial_dependency_suite/heldout/results/bge-omneum-final-smoke-20261007/summary.json": "19f4672e91fc8c2b485e2788a3ca5e155b7f9112d9264b2c1189792143c561a3",
+    "benchmarks/financial_dependency_suite/heldout/results/braid-1.1-omneum-only-20261006/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/braid-1.1-omneum-only-20261006/manifest.json": "dec5ef39322ab5e3e1c133bfaf240dcf26376a5fd045090643ff6e91ddd2b818",
+    "benchmarks/financial_dependency_suite/heldout/results/braid-1.1-omneum-only-20261006/results.jsonl": "86889ffec4ca539528a74bd2b194b91094a0dae88e34b326e5cd3e9c2ebc20be",
+    "benchmarks/financial_dependency_suite/heldout/results/braid-1.1-omneum-only-20261006/summary.json": "25e63b22288bc5914f51e3c883f0ea7df43f57ed12f26d1fad9589d21a7dd182",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-1trial-20261004T013826Z/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-1trial-20261004T013826Z/manifest.json": "9cbd3b1ea2ff4e11fe0b0235e86a832246346e7be71b287918198ef2a759dd28",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-1trial-20261004T013826Z/results.jsonl": "3965eeec69b9341dcb8bf79c632a5dcdba6b4b28155248ef13994c288569ac47",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-1trial-20261004T013826Z/summary.json": "89759357d213e7d8e227f3523ab27c1961b43b38858e9ae531c37b01160853dc",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-credits-1trial-20261004T180605Z/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-credits-1trial-20261004T180605Z/manifest.json": "c859f9dd22facf8f07cfb360aaacd0478aa089a4807e5cf9f86b24496e12c578",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-credits-1trial-20261004T180605Z/results.jsonl": "987ba29e37ee03745f3df6053ecb870538113cd8e45efbea7e3dddcf7c339621",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-credits-1trial-20261004T180605Z/summary.json": "d407230d02d3a943feb8eb93ef72418f58039366778fe0e66fa40e3ea8cdc4d2",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-f1f2-1trial-20261005T001500Z/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-f1f2-1trial-20261005T001500Z/manifest.json": "dffc5231b712a797bead9b1d682c529b2d6c782b34cdda30b1ef7ed95fa5daa7",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-f1f2-1trial-20261005T001500Z/results.jsonl": "eebee8878ec6026a453ac01d7121183123c361230bc8ed86e96ea14b49c71f66",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-f1f2-1trial-20261005T001500Z/summary.json": "d52485a4ca65a0d2c039917b137c636649739ac752ea42b32e71c14cc0dfd5a9",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T030546Z/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T030546Z/manifest.json": "de2d98b8527a13d66c9fb703ea309148f6cfd610352c615fbe25d92b32c2ea57",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T030546Z/results.jsonl": "aa5d6065a242d36e22e1edbd765f8743c8d4e45ebb621c78f8ca099832718062",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T030546Z/summary.json": "d90f195bba81e467630780c8cc92f228f6fa55d47becfea8573ee56fa449acb5",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T034451Z/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T034451Z/manifest.json": "1c01af257f8c9ea79d2ca0d763b689a340e366781de219f404ec4fd7e1db33b0",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T034451Z/results.jsonl": "ca16429c6fe42315e02f82aef6b3adadd346ac953904bf58dd6e265e8503a5bb",
+    "benchmarks/financial_dependency_suite/heldout/results/clean-validation-google8192-1trial-20261004T034451Z/summary.json": "c6117035f6a90ae212cdf5c2abeb27d96345e36d82b2217a018db3f800aacb3c",
+    "benchmarks/financial_dependency_suite/heldout/results/diagnostic-exact-equivalence-selection-only-20261007/selection_only_diagnostic.json": "5a8bf6f8ea312b006a5f9d891e49f5707d82c93f9f8fd7a486b8dda434602cbe",
+    "benchmarks/financial_dependency_suite/heldout/results/diagnostic-smoke-1trial/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/diagnostic-smoke-1trial/manifest.json": "f1f7a33c4d16ce6877bb34f5977e1a82febaf9270f4f15e090c840cae386bfbc",
+    "benchmarks/financial_dependency_suite/heldout/results/diagnostic-smoke-1trial/results.jsonl": "b3035b7b7fcc9ea944f7c9ee8b9db9f4f602fd42c17c3e32341490d9ea8533b3",
+    "benchmarks/financial_dependency_suite/heldout/results/diagnostic-smoke-1trial/summary.json": "ea1873143227886d683f3364a0860545fb993d9dd5c23a8df1b20b03a2759c32",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-20261005/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-20261005/manifest.json": "950d778c62839fa5cceb7aa67da541964807032921f9bff1a9e0602e37dafc76",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-20261005/results.jsonl": "2855487e74f2a3807ed4632e787da53fb6bc8e3389b702e17ea30e46a39268c7",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-definitive-20261005/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-definitive-20261005/manifest.json": "19c00f618225b458f3a45e5f34c8ce2928f75eb927a3f963502388f0a2aac87d",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-definitive-20261005/results.jsonl": "aabcf5ce4286bcd533ac5dce8b4b2b12c4a9abd60028ab8c49af1203875e0190",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-definitive-fresh-20261005/.run.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-definitive-fresh-20261005/manifest.json": "d5e929cadede4f541915469e47a48a70340502d0003281400668213197eac73c",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-definitive-fresh-20261005/results.jsonl": "752c3a078e7d5bbd1f2df4ee37b74b8910608826940b9b1aa277744cb61474e5",
+    "benchmarks/financial_dependency_suite/heldout/results/final-10trial-definitive-fresh-20261005/summary.json": "fc2557bf045f0df87e2946d5b3da436bea529e10f5bf22cb3c8bf0a7804efbb0",
+    "benchmarks/financial_dependency_suite/heldout/scoring.py": "14318e74d44de591865de02ead3984da859527a2a3fd4aeb17f68442ee50c030",
+    "omneum/dependency.py": "b045abbf1b0ebedb3a90b218fba4cdc028453f092e47b551c204c43144743c02",
+    "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0"
+  },
+  "regressed_cases": [],
+  "regressions_relative_to_bge": [
+    "research_independent_false_consensus"
+  ],
+  "run_utc": "2026-10-07T23:57:34.432627+00:00",
+  "score_recovery": "Cached local BGE on frozen candidate pools; membership and order preserved.",
+  "tcp_connections": 0,
+  "public_representation": {
+    "version": 1,
+    "original_sha256": "545a3fc79f838074d13dc61f9f443e126fd6b35a428958285cf17a9a38e4df31",
+    "transformation": "Benchmark-local absolute paths normalized to recorded repository-relative names; original bytes preserved privately. Historical fingerprints are recorded, not recomputed from this projection."
+  }
+}
