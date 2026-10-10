@@ -186,7 +186,7 @@ uv run --locked --python 3.13 --group google-adk \
 
 **18 passed.** Tests cover ADK Runner execution, MCP evaluation, conditional routing, retrieval, claim selection, retry exhaustion, and escalation.
 
-The enterprise Runner was validated using a model stub and a real MCP evaluation. Live Gemini generation has not been validated.
+The enterprise Runner was validated against the live Gemini API using `gemini-3.8-flash`, including a real Omneum MCP evaluation and model-generated response.
 
 ## Files
 

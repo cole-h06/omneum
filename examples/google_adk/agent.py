@@ -53,7 +53,7 @@ evaluation_tool = FunctionTool(evaluate_context)
 def build_agent() -> LlmAgent:
     return LlmAgent(
         name="enterprise_assistant",
-        model=os.environ.get("GOOGLE_ADK_MODEL", "gemini-2.5-flash"),
+        model=os.environ.get("GOOGLE_ADK_MODEL", "gemini-3.8-flash"),
         instruction=(
             "Answer deployment-readiness questions using the evaluate_context tool. "
             "Call the tool before answering. Base your response on its evaluation "
