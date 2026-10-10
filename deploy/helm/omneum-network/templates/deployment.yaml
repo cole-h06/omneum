@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 40
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: prepare-evaluator
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [sh, -ec]
+          args:
+            - 'mkdir -p /keys/private; cp /secret/voprf.key /keys/private/voprf.key; chown -R 10002:10001 /keys/private /run/omneum; chmod 700 /keys/private; chmod 600 /keys/private/voprf.key; chmod 750 /run/omneum'
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+              add: [CHOWN, FOWNER, DAC_OVERRIDE]
+          volumeMounts:
+            - {name: evaluator-secret, mountPath: /secret, readOnly: true}
+            - {name: keys, mountPath: /keys}
+            - {name: ipc, mountPath: /run/omneum}
+      containers:
+        - name: network-api
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [python, -m, omneum.network_api]
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          env:
+            - {name: OMNEUM_NETWORK_DEPLOYMENT_ID, value: {{ .Values.deploymentId | quote }}}
+            - {name: OMNEUM_NETWORK_KEY_VERSION, value: {{ .Values.keyVersion | quote }}}
+            - {name: OMNEUM_NETWORK_PUBLIC_KEY, value: {{ .Values.networkPublicKey | quote }}}
+            - {name: OMNEUM_LOCAL_PUBLIC_KEY, value: {{ .Values.localPublicKey | quote }}}
+            - {name: OMNEUM_NETWORK_REQUESTS_PER_MINUTE, value: {{ .Values.requestsPerMinute | quote }}}
+            - name: OMNEUM_NETWORK_DATABASE_DSN
+              valueFrom:
+                secretKeyRef: {name: {{ .Values.apiSecret }}, key: database-dsn}
+            - {name: OMNEUM_NETWORK_TLS_CERT, value: /tls/tls.crt}
+            - {name: OMNEUM_NETWORK_TLS_KEY, value: /tls/tls.key}
+          ports:
+            - {name: https, containerPort: 8443}
+          startupProbe:
+            exec: {command: [python, /opt/omneum-deploy/probe.py]}
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            exec: {command: [python, /opt/omneum-deploy/probe.py]}
+            periodSeconds: 10
+          resources: {{ .Values.resources.api | toJson }}
+          volumeMounts:
+            - {name: tls, mountPath: /tls, readOnly: true}
+            - {name: ipc, mountPath: /run/omneum, readOnly: true}
+        - name: evaluator
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [omneumd, serve, --key-dir, /keys/private, --socket, /run/omneum/eval.sock, --client-uid, '10001']
+          securityContext:
+            runAsUser: 10002
+            runAsGroup: 10001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          resources: {{ .Values.resources.evaluator | toJson }}
+          volumeMounts:
+            - {name: keys, mountPath: /keys, readOnly: true}
+            - {name: ipc, mountPath: /run/omneum}
+      volumes:
+        - name: evaluator-secret
+          secret: {secretName: {{ .Values.evaluatorSecret }}, defaultMode: 256}
+        - name: tls
+          secret:
+            secretName: {{ .Values.apiSecret }}
+            defaultMode: 288
+            items:
+              - {key: tls.crt, path: tls.crt}
+              - {key: tls.key, path: tls.key}
+        - {name: keys, emptyDir: {medium: Memory}}
+        - {name: ipc, emptyDir: {}}

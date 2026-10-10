@@ -1,0 +1,21 @@
+image:
+  repository: omneum-network
+  tag: '1.0.3'
+  pullPolicy: IfNotPresent
+# Provision these public pins and the secrets before installation.
+deploymentId: ''
+keyVersion: 1
+networkPublicKey: ''
+localPublicKey: ''
+requestsPerMinute: 600
+# keys: database-dsn, tls.crt, tls.key
+apiSecret: omneum-network-api
+# key: voprf.key (raw 32-byte scalar matching networkPublicKey)
+evaluatorSecret: omneum-network-evaluator
+resources:
+  api:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: '1', memory: 512Mi}
+  evaluator:
+    requests: {cpu: 100m, memory: 64Mi}
+    limits: {cpu: '1', memory: 256Mi}

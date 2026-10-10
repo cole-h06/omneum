@@ -1,0 +1,6 @@
+apiVersion: v2
+name: omneum-network
+version: 0.1.0
+appVersion: '1.0.3'
+description: Omneum-hosted Network API and protected VOPRF evaluator
+type: application
