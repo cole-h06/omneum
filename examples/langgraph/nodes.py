@@ -10,8 +10,7 @@ from omneum import ContextMapper, Observation, open_stdio_client
 from .state import ObservationBatch, WorkflowState
 
 
-# Parallel branches may finish in any order. 
-# Restore canonical retrieval order before evaluation so results stay stable.
+# Preserve retrieval order across parallel branches.
 _AGENT_ORDER = {
     "documents": 0,
     "research": 1,
