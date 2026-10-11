@@ -79,6 +79,94 @@ def test_native_paths(tmp_path, monkeypatch, platform, variables, parts):
     assert not get_context_db_path().parent.exists()
 
 
+@pytest.mark.skipif(os.name != 'posix', reason='POSIX permissions')
+def test_default_private_fallback_preserves_permissions_and_restart(tmp_path, monkeypatch):
+    import omneum.paths as module
+    monkeypatch.setattr(module, 'get_context_db_path', get_context_db_path)
+    monkeypatch.setattr(module.sys, 'platform', 'linux')
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    monkeypatch.delenv('XDG_DATA_HOME', raising=False)
+    shared = tmp_path / '.local' / 'share'
+    shared.mkdir(parents=True)
+    shared.parent.chmod(0o775)
+    shared.chmod(0o775)
+    expected = tmp_path / '.omneum' / 'data' / 'context.db'
+    assert get_context_db_path() == expected
+    assert not expected.parent.exists()  # Resolving a location never creates it.
+    with SQLiteStorage().transaction():
+        pass
+    assert stat.S_IMODE(expected.stat().st_mode) == 0o600
+    assert stat.S_IMODE(expected.parent.stat().st_mode) == 0o700
+    assert stat.S_IMODE(shared.stat().st_mode) == 0o775
+    assert stat.S_IMODE(shared.parent.stat().st_mode) == 0o775
+    shared.chmod(0o755)
+    shared.parent.chmod(0o755)
+    assert get_context_db_path() == expected
+    with SQLiteStorage().transaction():
+        pass
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='POSIX permissions')
+def test_existing_native_graph_is_not_redirected(tmp_path, monkeypatch):
+    import omneum.paths as module
+    monkeypatch.setattr(module, 'get_context_db_path', get_context_db_path)
+    monkeypatch.setattr(module.sys, 'platform', 'linux')
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    monkeypatch.delenv('XDG_DATA_HOME', raising=False)
+    native = tmp_path / '.local' / 'share' / 'omneum'
+    native.mkdir(parents=True, mode=0o700)
+    native.parent.chmod(0o775)
+    assert get_context_db_path() == native / 'context.db'
+    with pytest.raises(ValueError, match='unsafe ancestor'):
+        with SQLiteStorage().transaction():
+            pass
+    assert not (tmp_path / '.omneum').exists()
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='POSIX permissions')
+def test_explicit_unsafe_data_directory_does_not_fallback(tmp_path, monkeypatch):
+    import omneum.paths as module
+    monkeypatch.setattr(module, 'get_context_db_path', get_context_db_path)
+    monkeypatch.setattr(module.sys, 'platform', 'linux')
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    shared = tmp_path / 'chosen'
+    shared.mkdir(mode=0o775)
+    shared.chmod(0o775)
+    monkeypatch.setenv('XDG_DATA_HOME', str(shared))
+    assert get_context_db_path() == shared / 'omneum' / 'context.db'
+    with pytest.raises(ValueError, match='unsafe ancestor'):
+        with SQLiteStorage().transaction():
+            pass
+    assert not (tmp_path / '.omneum').exists()
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='POSIX permissions')
+def test_fallback_does_not_bypass_unsafe_home(tmp_path, monkeypatch):
+    import omneum.paths as module
+    monkeypatch.setattr(module, 'get_context_db_path', get_context_db_path)
+    monkeypatch.setattr(module.sys, 'platform', 'linux')
+    home = tmp_path / 'home'
+    home.mkdir()
+    home.chmod(0o775)
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: home))
+    monkeypatch.delenv('XDG_DATA_HOME', raising=False)
+    with pytest.raises(ValueError, match='unsafe ancestor'):
+        with SQLiteStorage().transaction():
+            pass
+    assert not (home / '.omneum').exists()
+
+
+def test_two_graph_locations_require_explicit_selection(tmp_path, monkeypatch):
+    import omneum.paths as module
+    monkeypatch.setattr(module.sys, 'platform', 'linux')
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    monkeypatch.delenv('XDG_DATA_HOME', raising=False)
+    (tmp_path / '.local' / 'share' / 'omneum').mkdir(parents=True)
+    (tmp_path / '.omneum').mkdir()
+    with pytest.raises(ValueError, match='explicit selection'):
+        get_context_db_path()
+
+
 def test_custom_path_and_restart(runtime, tmp_path):
     path = tmp_path / 'custom' / 'context.db'
     for _ in range(2):

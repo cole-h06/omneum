@@ -26,7 +26,7 @@ Chunks can still hold conflicting or stale information. Multiple retrieved chunk
 
 Omneum addresses many of these limitations: it uses a graph-based mathematical analysis to model  the relationships between claims and their supporting sources. Importantly, this analysis does not naively assume every source has derived its information independently. The same information often propagates across multiple sources. Without dependency tracking, an agent cannot distinguish five independent observations from the same information repeated five times.
 
-Agent pipelines already handle structured metadata alongside retrieved content. Omneum uses available provenance and lineage metadata to estimate source dependencies, then incorporates those estimates into its calculation of source reliability and claim support scores.
+Agent pipelines already handle structured metadata alongside retrieved context. Omneum uses available provenance and lineage metadata to estimate source dependencies, then incorporates those estimates into its calculation of source reliability and claim support scores.
 
 These scores are computed without interpreting the semantic meaning of the context. For instance, when considering a claim such as:
 
@@ -44,13 +44,13 @@ Omneum runs locally as a [Model Context Protocol (MCP)](https://modelcontextprot
 
 **Retrieval / tools → Reranking (optional) → Omneum evaluation → agent control flow → LLM**
 
-Omneum returns context-quality signals; your application decides how to use them.
+Omneum returns context-quality signals; your agent makes evidence-aware decisions throughout its workflow.
 
 [Architecture and design →](docs/architecture.md)
 
 ## Quick Start
 
-**Note:** This tutorial assumes a Python 3.11–3.14 application. Other language SDKs are not yet available.
+**Note:** This tutorial assumes Python 3.11–3.14. SDKs for other languages are not currently supported.
 
 ### 1. Install
 
@@ -62,9 +62,7 @@ Omneum returns context-quality signals; your application decides how to use them
 | macOS (Intel / x86_64) | ✅ |
 | Linux (Ubuntu 22.04+ / x86_64) | ✅ |
 
-Install Omneum using pip in a Python 3.11–3.14 environment. A virtual
-environment is recommended; Ubuntu 22.04 requires installing a supported
-Python because its default Python is 3.10. See the [installation guide](docs/guides/installation.md).
+Install Omneum using pip:
 
 ```bash
 pip install omneum
@@ -248,11 +246,15 @@ Fy2025 gross revenue
     3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
 ```
 
+The evaluation identifies dependency between sources that support the same claim. Although three sources report the same value, two reference a shared upstream document, reducing the estimated independent support to 2.00.
+
+An agent can use this result to trigger additional retrieval or route execution back to a verification step before generating a response.
+
 See [Evaluation schema](docs/architecture.md#evaluation-results) for result fields.
 
 ## Integrations
 
-Use the [Python SDK](docs/sdk.md) and [ContextMapper](docs/context_mapper.md) to add Omneum to your agent.
+Use the [Python SDK](docs/sdk.md) and [ContextMapper](docs/context-mapper.md) to add Omneum to your agent.
 
 Framework examples:
 
@@ -274,7 +276,7 @@ Network contributions help build a shared evidence base for evaluating AI contex
 
 Contributions use privacy-preserving cryptographic linkage via an RFC 9497 VOPRF. Network contribution is disabled by default. Local evaluation works without it.
 
-See [Enable Network contribution (MCP)](docs/guides/configuration.md#enable-network-contribution-mcp) to get started, or [How Network contribution works](docs/context-graph.md#omneum-network) for technical details.
+See [Enable Network contribution (MCP)](docs/guides/configuration.md#mcp-configuration) to get started, or [How Network contribution works](docs/context-graph.md#omneum-network) for technical details.
 
 ## Data Model & Evaluation
 
@@ -415,6 +417,10 @@ Linux
 ~/.local/share/omneum/context.db
 ```
 
+For a new default graph with unsafe data-directory ancestors, Omneum uses
+`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+silently relocated; shared directory permissions are preserved.
+
 PostgreSQL can be configured for deployments that use an external database. Apache AGE provides the graph projection for PostgreSQL deployments.
 
 See [`docs/storage.md`](docs/storage.md) for the storage schema and deployment options.
@@ -452,7 +458,7 @@ Local persistence and Omneum Network contribution are configured independently.
 | **Local persistence** | Writes observations to `context.db` |
 | **Network contribution** | Sends pseudonymous observations to the Omneum Network through the ingestion API |
 
-See [`docs/context-graph.md`](docs/context-graph.md) for Context Graph contribution and [`docs/storage.md`](docs/storage.md) for storage configuration.
+See [Omneum Network](docs/context-graph.md#omneum-network) for Network contribution and [Local Persistence](docs/context-graph.md#local-persistence) for Context Graph storage.
 
 ## External Evaluations
 

@@ -29,9 +29,34 @@ def get_context_db_path() -> Path:
         local_data = os.environ.get("LOCALAPPDATA")
         base = Path(local_data) if local_data and Path(local_data).is_absolute() else Path.home() / "AppData" / "Local"
         directory = base / "Omneum"
+        return directory / "context.db"
     else:
         xdg_data = os.environ.get("XDG_DATA_HOME")
         # The XDG specification requires an absolute path; ignore relative values.
         base = Path(xdg_data) if xdg_data and Path(xdg_data).is_absolute() else Path.home() / ".local" / "share"
         directory = base / "omneum"
+        if xdg_data and Path(xdg_data).is_absolute():
+            return directory / "context.db"
+    # Existing data and explicit locations must never be silently redirected.
+    # A fallback remains stable after another tool repairs the native ancestors.
+    fallback = Path.home() / ".omneum" / "data"
+    native_exists = os.path.lexists(directory)
+    fallback_exists = os.path.lexists(fallback.parent)
+    if native_exists and fallback_exists:
+        raise ValueError("multiple local Context Graph locations require explicit selection")
+    if native_exists:
+        return directory / "context.db"
+    if fallback_exists:
+        return fallback / "context.db"
+    from .storage.filesystem import private_directory
+    parent = directory.parent
+    while not os.path.lexists(parent):
+        parent = parent.parent
+    try:
+        with private_directory(parent, ancestor=True):
+            pass
+    except ValueError:
+        # Do not chmod shared Python/data directories. The storage adapter still
+        # validates every fallback ancestor and creates only private directories.
+        directory = fallback
     return directory / "context.db"

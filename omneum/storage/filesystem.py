@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def private_directory(path, *, create=False):
+def private_directory(path, *, create=False, ancestor=False):
     """Walk and validate before mutation; never follow caller-owned symlinks.
 
     Keep the directory descriptor alive during file validation/opening. Other UIDs
@@ -53,7 +53,7 @@ def private_directory(path, *, create=False):
             os.close(fd)
             fd = child
             info = os.fstat(fd)
-            final = index == len(path.parts) - 2
+            final = index == len(path.parts) - 2 and not ancestor
             if final:
                 if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o700:
                     raise ValueError('SQLite directory must be owner-only (0700)')

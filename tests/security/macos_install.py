@@ -28,7 +28,7 @@ KEY = KEY_DIR / "voprf.key"
 SOCKET_DIR = Path("/Library/Application Support/OmneumIPC")
 SOCKET = SOCKET_DIR / "eval.sock"
 PLIST = Path("/Library/LaunchDaemons/ai.omneum.omneumd.plist")
-BINARY = Path("/usr/local/libexec/omneumd")
+BINARY = Path("/Library/Omneum/omneumd")
 LABEL = "system/ai.omneum.omneumd"
 COMMAND = get_command(app)
 

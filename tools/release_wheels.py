@@ -1,6 +1,10 @@
 """Validate the release wheel matrix and smoke-test an installed wheel (Python 3.11+)."""
 
 import argparse
+import base64
+import csv
+import hashlib
+import io
 import configparser
 from email.parser import Parser
 import itertools
@@ -28,6 +32,63 @@ ENTRY_POINTS = {
     "omneum-contributor": "omneum.contributor:main",
 }
 RESOURCES = ("algorithm_compatibility.json", "schemas/research-event-v1.schema.json")
+
+
+def sanitize(wheels, project=None):
+    """Replace local Cargo SBOM identifiers before smoke testing and publication.
+
+    Compiler paths must already be remapped by RUSTFLAGS; fail rather than
+    rewriting native binaries. Recompute RECORD after changing SBOM bytes.
+    """
+    readme = None
+    if project is not None:
+        with project.open('rb') as source:
+            readme_name = tomllib.load(source)['project']['readme']
+        if not isinstance(readme_name, str):
+            raise ValueError('release README must be a file')
+        readme = (project.parent / readme_name).read_bytes()
+    for path in sorted(wheels.glob("*.whl")):
+        with zipfile.ZipFile(path) as archive:
+            entries = [(info, archive.read(info.filename)) for info in archive.infolist()]
+        normalized = []
+        record = None
+        for info, data in entries:
+            if info.filename.endswith('.dist-info/RECORD'):
+                record = info
+                continue
+            if readme is not None and info.filename.endswith('.dist-info/METADATA'):
+                header, separator, _ = data.partition(b'\n\n')
+                if not separator:
+                    raise ValueError('wheel METADATA has no description boundary')
+                data = header + separator + readme
+            if '/sboms/' in info.filename and info.filename.endswith('.json'):
+                document = json.loads(data)
+                def rewrite(value):
+                    if isinstance(value, dict):
+                        return {key: rewrite(item) for key, item in value.items()}
+                    if isinstance(value, list):
+                        return [rewrite(item) for item in value]
+                    if isinstance(value, str):
+                        return re.sub(r'path\+file://[^#]+#([^" ]+)', r'pkg:cargo/\1', value)
+                    return value
+                data = (json.dumps(rewrite(document), sort_keys=True) + '\n').encode()
+            if re.search(rb'(?:/Users/|/home/runner/|[A-Z]:\\Users\\)', data):
+                raise ValueError(f'unremapped developer path: {info.filename}')
+            normalized.append((info, data))
+        if record is None:
+            raise ValueError('wheel has no RECORD')
+        rows = [[info.filename, 'sha256=' + base64.urlsafe_b64encode(hashlib.sha256(data).digest()).rstrip(b'=').decode(), str(len(data))]
+                for info, data in normalized]
+        rows.append([record.filename, '', ''])
+        output = io.StringIO(newline='')
+        csv.writer(output, lineterminator='\n').writerows(rows)
+        with tempfile.TemporaryDirectory(dir=path.parent) as directory:
+            candidate = Path(directory) / path.name
+            with zipfile.ZipFile(candidate, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+                for info, data in normalized:
+                    archive.writestr(info, data)
+                archive.writestr(record, output.getvalue())
+            candidate.replace(path)
 
 
 def platform_for_tag(tag):
@@ -130,7 +191,7 @@ def smoke(wheels, project):
         def run(*args):
             subprocess.run([str(python), "-I", *args], cwd=root, env=env, check=True)
 
-        run("-m", "pip", "install", "--disable-pip-version-check", str(wheel))
+        run("-m", "pip", "install", "--only-binary=:all:", "--disable-pip-version-check", str(wheel))
         run("-m", "pip", "check")
         run("-c", """
 import importlib.metadata as metadata
@@ -156,13 +217,17 @@ assert all(callable(entry.load()) for entry in entries.values())
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("verify", "prepare", "smoke"))
+    parser.add_argument("command", choices=("verify", "prepare", "smoke", "sanitize"))
     parser.add_argument("--project", type=Path, default=Path("pyproject.toml"))
     parser.add_argument("--wheels", type=Path, required=True)
     parser.add_argument("--daemon-assets", type=Path, default=Path("release-assets"))
     parser.add_argument("--tag")
     parser.add_argument("--output", type=Path, default=Path("pypi-dist"))
     args = parser.parse_args()
+    if args.command == "sanitize":
+        sanitize(args.wheels, args.project)
+        print("Wheel paths normalized")
+        return
     if args.command in ("verify", "prepare"):
         if not args.tag:
             parser.error(f"{args.command} requires --tag")

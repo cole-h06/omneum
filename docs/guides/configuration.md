@@ -84,6 +84,10 @@ SQLite creates the database on first use.
 | macOS | `~/Library/Application Support/Omneum/context.db` |
 | Linux | `~/.local/share/omneum/context.db` |
 
+For a new default graph with unsafe data-directory ancestors, Omneum uses
+`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+silently relocated; shared directory permissions are preserved.
+
 To use another database path, construct a `SQLiteStorage` adapter with the desired location and pass it to `LocalPersistenceConfig`.
 
 The Omneum process requires write access to the database directory.

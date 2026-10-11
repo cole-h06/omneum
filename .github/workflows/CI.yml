@@ -7,6 +7,9 @@ on:
     tags:
       - "v*"
 
+env:
+  RUSTFLAGS: --remap-path-prefix=/home/runner=/build/runner --remap-path-prefix=/Users/runner=/build/runner --remap-path-prefix=/io=/build/omneum --remap-path-prefix=C:\Users=/build/user --remap-path-prefix=D:\a=/build/omneum
+
 permissions:
   contents: read
 
@@ -154,10 +157,6 @@ jobs:
             runner: ubuntu-22.04
             target: x86_64
 
-          - os: windows
-            runner: windows-latest
-            target: x64
-
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
@@ -173,14 +172,61 @@ jobs:
           args: --locked --release --out dist --interpreter python${{ matrix.python }}
           manylinux: auto
 
-      - name: Install and smoke-test built wheel outside checkout
-        run: python tools/release_wheels.py smoke --wheels dist
+      - name: Normalize SBOM paths and smoke-test built wheel outside checkout
+        run: |
+          python tools/release_wheels.py sanitize --wheels dist
+          python tools/release_wheels.py smoke --wheels dist
 
       - name: Upload wheel
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python }}
           path: dist/*.whl
+          if-no-files-found: error
+
+  windows-sdk:
+    name: Build windows x64 Python ${{ matrix.python }}
+    if: github.event_name != 'pull_request'
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Build with the selected Windows interpreter
+        run: |
+          python -m pip install maturin==1.15.0
+          python -m maturin build --locked --release --out dist --interpreter python
+          python tools/release_wheels.py sanitize --wheels dist
+          python tools/release_wheels.py smoke --wheels dist
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wheel-windows-x64-py${{ matrix.python }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  source-distribution:
+    name: Build and verify source distribution
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - run: python -m pip install maturin==1.15.0
+      - name: Build source distribution
+        run: |
+          maturin sdist --out source-dist
+          version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          python tools/release_sdist.py --sdist "source-dist/omneum-$version.tar.gz" --version "$version"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: python-source-distribution
+          path: source-dist/*.tar.gz
           if-no-files-found: error
 
   macos-install:
@@ -207,6 +253,9 @@ jobs:
 
       - name: Build daemon
         run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
+
+      - name: Test protected macOS installation parents
+        run: python -m unittest discover -s tools -p 'test_macos_install_boundary.py' -v
 
       - name: Verify macOS installation
         run: sudo .venv/bin/python tests/security/macos_install.py target/release/omneumd "$(id -u)"
@@ -240,6 +289,10 @@ jobs:
 
       - name: Build daemon
         run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
+
+      - name: Require protected evaluator build
+        shell: bash
+        run: test "$(target/release/omneumd capabilities)" = protected-voprf-v1
 
       - name: Stage macOS artifact
         if: matrix.platform.os == 'macos'
@@ -313,7 +366,7 @@ jobs:
 
   prepare-daemon-release:
     name: Validate wheels and prepare daemon release assets
-    needs: [test, build, linux-foreground, macos-install, daemon-artifacts]
+    needs: [test, build, windows-sdk, source-distribution, linux-foreground, macos-install, daemon-artifacts]
     if: github.event_name != 'pull_request' && github.repository == 'cole-h06/omneum'
     runs-on: ubuntu-22.04
     permissions:
@@ -354,11 +407,18 @@ jobs:
             --pattern 'wheel-*' --dir wheel-artifacts
           python tools/release_wheels.py prepare --tag "$RELEASE_TAG" \
             --wheels wheel-artifacts --daemon-assets release-assets --output pypi-dist
-      - name: Upload validated Python wheels without rebuilding
+      - name: Add verified source distribution
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name python-source-distribution --dir source-dist
+          python tools/release_sdist.py --sdist "source-dist/omneum-${RELEASE_TAG#v}.tar.gz" --version "${RELEASE_TAG#v}"
+          cp source-dist/*.tar.gz pypi-dist/
+      - name: Upload validated Python distributions without rebuilding
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: python-release-wheels
-          path: pypi-dist/*.whl
+          path: pypi-dist/*
           if-no-files-found: error
       - name: Upload complete release asset set
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -367,14 +427,135 @@ jobs:
           path: release-assets/
           if-no-files-found: error
 
+  prepare-install-assets:
+    name: Prepare candidate installer assets independently of SDK matrix
+    needs: daemon-artifacts
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - name: Prepare exact complete installer asset set
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for platform in linux-x86_64 macos-aarch64 macos-x86_64; do
+            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "daemon-$platform" --dir "daemon-artifacts/daemon-$platform"
+          done
+          tag=$(python -c 'import tomllib; print("v" + tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          python tools/release_daemon.py prepare --tag "$tag"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: daemon-install-assets
+          path: release-assets/
+          if-no-files-found: error
+
+  candidate-install-diagnostics:
+    name: Fresh candidate installation ${{ matrix.runner }}
+    needs: prepare-install-assets
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            wheel: '*cp314*manylinux*x86_64.whl'
+          - runner: macos-15
+            wheel: '*cp314*arm64.whl'
+          - runner: macos-15-intel
+            wheel: '*cp314*x86_64.whl'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14"
+      - name: Download unpublished candidate distributions and assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-install-assets --dir candidate-assets
+      - name: Build this platform's candidate wheel
+        run: |
+          python -m pip install maturin==1.15.0
+          python -m maturin build --locked --release --out candidate-wheels --interpreter python
+          python tools/release_wheels.py sanitize --wheels candidate-wheels
+      - name: Secure writable hosted Linux runner installation parents
+        if: runner.os == 'Linux'
+        run: |
+          test ! -L /opt
+          test ! -L /usr/local/bin
+          sudo chown root:root /opt /usr/local/bin
+          sudo chmod 755 /opt /usr/local/bin
+      - name: Install wheel in fresh environment and exercise real installer
+        env:
+          WHEEL_PATTERN: ${{ matrix.wheel }}
+        run: |
+          python -m venv "$RUNNER_TEMP/fresh-omneum"
+          wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
+          test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
+
+  public-install-acceptance:
+    name: Fresh public installation ${{ matrix.runner }}
+    needs: prepare-daemon-release
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            wheel: '*cp314*manylinux*x86_64.whl'
+          - runner: macos-15
+            wheel: '*cp314*arm64.whl'
+          - runner: macos-15-intel
+            wheel: '*cp314*x86_64.whl'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14"
+      - name: Download unpublished candidate distributions and assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-release-assets --dir candidate-assets
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name python-release-wheels --dir candidate-wheels
+      - name: Secure writable hosted Linux runner installation parents
+        if: runner.os == 'Linux'
+        run: |
+          test ! -L /opt
+          test ! -L /usr/local/bin
+          sudo chown root:root /opt /usr/local/bin
+          sudo chmod 755 /opt /usr/local/bin
+      - name: Install wheel in fresh environment and exercise real installer
+        env:
+          WHEEL_PATTERN: ${{ matrix.wheel }}
+        run: |
+          python -m venv "$RUNNER_TEMP/fresh-omneum"
+          wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
+          test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
+
   publish-daemon-release:
     name: Publish daemon GitHub Release
-    needs: prepare-daemon-release
+    environment: github-release
+    needs: [prepare-daemon-release, public-install-acceptance]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'cole-h06/omneum'
     runs-on: ubuntu-22.04
     permissions:
       contents: write
       actions: read
+      attestations: write
+      id-token: write
     concurrency:
       group: daemon-release-${{ github.ref }}
       cancel-in-progress: false
@@ -394,6 +575,10 @@ jobs:
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
             --name daemon-release-assets --dir release-assets
           python tools/release_daemon.py verify --tag "$RELEASE_TAG"
+      - name: Attest verified daemon asset provenance
+        uses: actions/attest-build-provenance@9d57eef8c06cd9d6b433effeeb7a6a77b3ff94ad
+        with:
+          subject-path: release-assets/*
       - name: Upload assets to a draft, verify uploaded bytes, then publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -456,7 +641,9 @@ jobs:
           diff -r release-assets public-release-assets
           python tools/release_wheels.py verify --tag "$RELEASE_TAG" \
             --wheels pypi-dist --daemon-assets public-release-assets
-      - name: Publish wheels using PyPI Trusted Publishing
+      - name: Verify source distribution before publication
+        run: python tools/release_sdist.py --sdist "pypi-dist/omneum-${RELEASE_TAG#v}.tar.gz" --version "${RELEASE_TAG#v}"
+      - name: Publish distributions using PyPI Trusted Publishing
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
         with:
           packages-dir: pypi-dist/

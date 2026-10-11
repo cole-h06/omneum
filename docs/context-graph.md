@@ -257,6 +257,10 @@ Linux
 ~/.local/share/omneum/context.db
 ```
 
+For a new default graph with unsafe data-directory ancestors, Omneum uses
+`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+silently relocated; shared directory permissions are preserved.
+
 Linux honors an absolute `XDG_DATA_HOME`:
 
 ```text

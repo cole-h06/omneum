@@ -203,8 +203,14 @@ def deploy_bundle(bundle: Path, target: str) -> None:
                    str(bundle), str(os.getuid()), package_version("omneum")]
     if not Path("/usr/bin/sudo").is_file():
         raise InstallError("Administrator authorization requires sudo. Ask your administrator to install it.")
+    # A cloud/CI account may authorize commands without a password while its
+    # sudo verifypw policy still requires one for -v. Probe an innocuous command
+    # first; interactive authorization remains necessary when it is denied.
+    authorized = subprocess.run(["/usr/bin/sudo", "-n", "--", "/usr/bin/true"],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                check=False).returncode == 0
     # Keep the password prompt on the terminal; never capture or handle credentials.
-    if subprocess.run(["/usr/bin/sudo", "-v"], check=False).returncode:
+    if not authorized and subprocess.run(["/usr/bin/sudo", "-v"], check=False).returncode:
         raise InstallError("Administrator authorization failed. Retry with an account allowed to use sudo.")
     result = subprocess.run(["/usr/bin/sudo", "-n", "--", *command],
                             capture_output=True, text=True, check=False)

@@ -25,6 +25,29 @@ esac
 [ "$client_uid" -gt 0 ] || fail 'CLIENT_UID must be non-root'
 [ -f "$daemon_binary" ] && [ -x "$daemon_binary" ] || fail 'daemon binary is required'
 
+# Homebrew's Intel /usr/local may be login-user writable. Protected daemon
+# executables must live below an administrator-owned, non-writable hierarchy.
+trusted_parent() {
+    [ -d "$1" ] && [ ! -L "$1" ] || fail "untrusted installation parent: $1"
+    owner=$(stat -f '%u' "$1")
+    permissions=$(stat -f '%Lp' "$1")
+    [ "$owner" = 0 ] && [ "$((0$permissions & 022))" = 0 ] ||
+        fail "installation parent must be root-owned and not group/world writable: $1"
+    # Darwin ACL grants are independent of POSIX mode bits. Match the protected
+    # evaluator's no-ACL ancestor policy rather than accepting hidden write grants.
+    listing=$(LC_ALL=C /bin/ls -lde "$1") || fail "cannot inspect installation parent ACL: $1"
+    printf '%s\n' "$listing" | awk '/^[[:space:]]*[0-9]+:/ { bad=1 } END { exit bad }' ||
+        fail "installation parent must not have extended ACL entries: $1"
+}
+
+for parent in / /Library "/Library/Application Support" /Library/LaunchDaemons /private /private/var /private/var/log; do
+    trusted_parent "$parent"
+done
+if [ -e /Library/Omneum ] || [ -L /Library/Omneum ]; then
+    trusted_parent /Library/Omneum
+fi
+install -d -o root -g wheel -m 0755 /Library/Omneum
+
 source_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 plist_template="$source_dir/launchd/ai.omneum.omneumd.plist"
 
@@ -58,21 +81,19 @@ install -d -o omneum-crypto -g staff -m 0700 \
 install -d -o omneum-crypto -g staff -m 0750 \
     "/Library/Application Support/OmneumIPC"
 
-install -d -o root -g wheel -m 0755 /usr/local/libexec
-
 touch /var/log/omneumd.log
 chown omneum-crypto:staff /var/log/omneumd.log
 chmod 0600 /var/log/omneumd.log
 
 install -o root -g wheel -m 0755 \
     "$daemon_binary" \
-    /usr/local/libexec/omneumd
+    /Library/Omneum/omneumd
 
 key="/Library/Application Support/OmneumCrypto/voprf.key"
 
 if [ ! -e "$key" ]; then
     sudo -u omneum-crypto \
-        /usr/local/libexec/omneumd provision >/dev/null
+        /Library/Omneum/omneumd provision >/dev/null
     printf '%s\n' 'Provisioned server key.'
 fi
 

@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "maturin>=1,<2",
+    "maturin==1.15.0",
 ]
 build-backend = "maturin"
 
@@ -10,6 +10,15 @@ version = "1.0.3"
 description = "An open-source context evaluator for AI agents."
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+]
 
 dependencies = [
     "mcp>=1.27,<2",
@@ -21,12 +30,19 @@ dependencies = [
     "orjson>=3.10",
     "rfc8785==0.1.4",
     "platformdirs>=4,<5",
+    "PyJWT>=2.15.0,<3",
+    "starlette>=1.6.0",
+    "cryptography>=50.0.1",
 ]
 
 [project.scripts]
 omneum = "omneum.cli:app"
 omneum-server = "omneum.proxy:main"
 omneum-contributor = "omneum.contributor:main"
+
+[project.urls]
+Repository = "https://github.com/cole-h06/omneum"
+Issues = "https://github.com/cole-h06/omneum/issues"
 
 [dependency-groups]
 dev = ["pytest>=8", "hypothesis>=6.161,<7", "maturin>=1,<2"]
@@ -52,6 +68,9 @@ crewai = ["crewai>=1.15,<2; python_version < '3.14'"]
 required-version = "==0.12.10"
 default-groups = ["dev"]
 exclude-newer = "7 days"
+# These independent framework examples require incompatible OpenTelemetry ranges.
+# Resolve them separately instead of downgrading ADK and its security dependencies.
+conflicts = [[{ group = "google-adk" }, { group = "crewai" }]]
 # Isolated PEP 517 builds are resolved separately from uv.lock.
 build-constraint-dependencies = ["maturin==1.15.0"]
 
@@ -62,6 +81,7 @@ crewai = { requires-python = ">=3.11,<3.14" }
 testpaths = ["tests"]
 
 [tool.maturin]
+exclude = ["evaluate.py", "**/*.zip", "tools/provenance_explorer/**", "docs/reviews/**", "deploy/network/vm/production-audit.py", "src/__fuzz__/**", "**/*.pem", "**/*.key", ".env", ".env.*"]
 include = [
     { path = "omneum/algorithm_compatibility.json", format = ["sdist", "wheel"] },
     { path = "omneum/schemas/research-event-v1.schema.json", format = ["sdist", "wheel"] },

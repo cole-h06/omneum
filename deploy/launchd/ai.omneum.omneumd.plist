@@ -7,7 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/libexec/omneumd</string>
+        <string>/Library/Omneum/omneumd</string>
         <string>serve</string>
         <string>--client-uid</string>
         <string>__OMNEUM_CLIENT_UID__</string>

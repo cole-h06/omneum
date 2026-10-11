@@ -233,6 +233,22 @@ try:
             last_error = error
             time.sleep(.1)
     else: raise last_error
+    # Exercise the existing-Certbot layout with actual Nginx, preserving its
+    # lineage/SSL-options/redirect structure. All material is disposable.
+    lineage = Path('/etc/letsencrypt/live') / c['domain']
+    write(lineage/'fullchain.pem', pem+ca_pem, 0o644)
+    write(lineage/'privkey.pem', secret)
+    write('/etc/letsencrypt/options-ssl-nginx.conf', 'ssl_protocols TLSv1.2 TLSv1.3;\n', 0o644)
+    run('openssl', 'dhparam', '-dsaparam', '-out', '/etc/letsencrypt/ssl-dhparams.pem', '2048')
+    Path('/etc/nginx/conf.d/omneum-network.conf').unlink()
+    write('/etc/nginx/conf.d/omneum-network-limits.conf', deploy.nginx_limits(c))
+    write('/etc/nginx/sites-available/omneum-network', deploy.nginx_certbot_site(c), 0o644)
+    Path('/etc/nginx/sites-enabled/omneum-network').symlink_to('/etc/nginx/sites-available/omneum-network')
+    deploy.check_nginx(c)
+    run('nginx', '-t')
+    run('nginx', '-s', 'reload')
+    time.sleep(.2)
+    print('PASS: Certbot-preserving site, active includes, TLS policy and actual Nginx reload')
     original=acceptance.__dict__.get('preflight')
     # hosted imports preflight; retain every live check except systemd PID1
     # attestation, which is explicitly unavailable in this disposable container.
@@ -261,7 +277,7 @@ try:
             error.close()
     assert 429 in statuses
     print('PASS: actual ingress body limit and source-IP admission enforcement')
-    print('PASS: generated nginx ingress, verified backend TLS, three Unix identities, evaluator authorization, synthetic-provider lifecycle acceptance')
+    print('PASS: generated standalone and Certbot-preserving ingress, verified backend TLS, three Unix identities, evaluator authorization, synthetic-provider lifecycle acceptance')
     print('UNVERIFIED: actual systemd runtime confinement, real OIDC provider, production provisioning/acceptance')
 finally:
     for process in processes:
