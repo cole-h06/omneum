@@ -472,6 +472,19 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+      # This tests a candidate-only prerequisite; the public release gate below
+      # still requires the unmodified plain PyPI dependency resolution.
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        if: matrix.runner == 'macos-15-intel'
+        with:
+          python-version: "3.11"
+      - name: Build secure unpublished Intel dependency for diagnostics
+        if: matrix.runner == 'macos-15-intel'
+        run: |
+          python -m venv "$RUNNER_TEMP/intel-build"
+          "$RUNNER_TEMP/intel-build/bin/python" -m pip install --only-binary=:all: maturin==1.15.0 cffi==2.0.0 setuptools==82.0.1
+          "$RUNNER_TEMP/intel-build/bin/python" tools/build_intel_cryptography.py --work "$RUNNER_TEMP/intel-sources" --output "$RUNNER_TEMP/intel-dependency"
+          echo "PIP_FIND_LINKS=$RUNNER_TEMP/intel-dependency" >> "$GITHUB_ENV"
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
@@ -492,6 +505,11 @@ jobs:
           test ! -L /usr/local/bin
           sudo chown root:root /opt /usr/local/bin
           sudo chmod 755 /opt /usr/local/bin
+      - name: Reproduce default Ubuntu prerequisite permissions
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p "$HOME/.local/share"
+          chmod 775 "$HOME/.local" "$HOME/.local/share"
       - name: Install wheel in fresh environment and exercise real installer
         env:
           WHEEL_PATTERN: ${{ matrix.wheel }}

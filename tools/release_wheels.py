@@ -170,7 +170,22 @@ def prepare(wheels, daemon_assets, project, tag, destination):
     return version
 
 
-def smoke(wheels, project):
+def verify_intel_dependency(path):
+    """Verify the explicitly supplied diagnostic wheel; default PyPI is unchanged."""
+    if path.name != 'cryptography-50.0.2-cp311-abi3-macosx_10_13_x86_64.whl' or path.is_symlink():
+        raise ValueError('unexpected Intel dependency wheel')
+    manifest = path.parent / 'SHA256SUMS'
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if manifest.is_symlink() or manifest.read_bytes() != f'{digest}  {path.name}\n'.encode():
+        raise ValueError('Intel dependency checksum mismatch')
+    with zipfile.ZipFile(path) as archive:
+        metadata = Parser().parsestr(archive.read('cryptography-50.0.2.dist-info/METADATA').decode())
+        if metadata.get_all('Name') != ['cryptography'] or metadata.get_all('Version') != ['50.0.2']:
+            raise ValueError('Intel dependency metadata mismatch')
+    return path.resolve()
+
+
+def smoke(wheels, project, dependency_wheel=None):
     with project.open("rb") as source:
         version = tomllib.load(source)["project"]["version"]
     paths = sorted(wheels.glob("*.whl"))
@@ -178,6 +193,7 @@ def smoke(wheels, project):
         raise ValueError("smoke test requires exactly one built wheel")
     wheel = paths[0].resolve()
     inspect_wheel(wheel, version)
+    dependency = [str(verify_intel_dependency(dependency_wheel))] if dependency_wheel else []
     # Neither the checkout nor the development environment supplies installed imports.
     env = {key: value for key, value in os.environ.items()
            if key not in {"PYTHONPATH", "PYTHONHOME"}}
@@ -191,7 +207,7 @@ def smoke(wheels, project):
         def run(*args):
             subprocess.run([str(python), "-I", *args], cwd=root, env=env, check=True)
 
-        run("-m", "pip", "install", "--only-binary=:all:", "--disable-pip-version-check", str(wheel))
+        run("-m", "pip", "install", "--only-binary=:all:", "--disable-pip-version-check", str(wheel), *dependency)
         run("-m", "pip", "check")
         run("-c", """
 import importlib.metadata as metadata
@@ -220,6 +236,8 @@ def main():
     parser.add_argument("command", choices=("verify", "prepare", "smoke", "sanitize"))
     parser.add_argument("--project", type=Path, default=Path("pyproject.toml"))
     parser.add_argument("--wheels", type=Path, required=True)
+    parser.add_argument("--dependency-wheel", type=Path,
+                        help="explicit verified Intel wheel for unpublished diagnostics only")
     parser.add_argument("--daemon-assets", type=Path, default=Path("release-assets"))
     parser.add_argument("--tag")
     parser.add_argument("--output", type=Path, default=Path("pypi-dist"))
@@ -236,7 +254,7 @@ def main():
         else:
             version = verify(args.wheels, args.daemon_assets, args.project, args.tag)
     else:
-        version = smoke(args.wheels, args.project)
+        version = smoke(args.wheels, args.project, args.dependency_wheel)
     print(f"Wheel {args.command} passed: {version}")
 
 

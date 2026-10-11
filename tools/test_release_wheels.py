@@ -275,6 +275,23 @@ class WheelReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "exactly one"):
             release.smoke(self.wheels, self.project)
 
+    def test_intel_dependency_requires_matching_manifest_and_metadata(self):
+        path = self.root / 'cryptography-50.0.2-cp311-abi3-macosx_10_13_x86_64.whl'
+        metadata = 'cryptography-50.0.2.dist-info/METADATA'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr(metadata, 'Name: cryptography\nVersion: 50.0.2\n')
+        manifest = self.root / 'SHA256SUMS'
+        manifest.write_text(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n')
+        self.assertEqual(release.verify_intel_dependency(path), path.resolve())
+        path.write_bytes(path.read_bytes() + b'tampered')
+        with self.assertRaisesRegex(ValueError, 'checksum'):
+            release.verify_intel_dependency(path)
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr(metadata, 'Name: cryptography\nVersion: 48.0.1\n')
+        manifest.write_text(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n')
+        with self.assertRaisesRegex(ValueError, 'metadata'):
+            release.verify_intel_dependency(path)
+
 
 if __name__ == "__main__":
     unittest.main()
