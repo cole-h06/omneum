@@ -116,9 +116,7 @@ Add Omneum to your MCP client configuration:
 
 Restart your MCP client to expose Omneum's tools to your agent.
 
-If the MCP client does not inherit your virtual environment's PATH, use the
-absolute executable path printed by `command -v omneum-server` as its `command`.
-The same executable can be run directly from the activated terminal.
+If your MCP client cannot find `omneum-server`, set `command` to the absolute path returned by `command -v omneum-server`.
 
 ### 4. Verify the connection
 
