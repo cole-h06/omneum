@@ -12,6 +12,140 @@ from test_storage_evaluation import computed
 from test_client_contribution import network
 
 
+def test_private_credential_store_and_default_opt_out(tmp_path, monkeypatch):
+    import os
+    import stat
+    from uuid import uuid4
+    from omneum import onboarding
+    monkeypatch.setenv('OMNEUM_CONFIG_DIR', str(tmp_path / 'config'))
+    monkeypatch.delenv('OMNEUM_API_KEY', raising=False)
+    monkeypatch.delenv('OMNEUM_NETWORK_CONTRIBUTION', raising=False)
+    state = {'installation_id': str(uuid4()), 'api_key': 'disposable-stored-key', 'expires_at': 'unused'}
+    onboarding.write_state(state)
+    path = onboarding.credential_directory() / 'credential.json'
+    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+    assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
+    assert onboarding.read_state() == state
+    monkeypatch.setattr(OmneumNetwork, 'pseudonymous', lambda **kw: kw)
+    assert network_configuration() is None
+    monkeypatch.setenv('OMNEUM_NETWORK_CONTRIBUTION', 'true')
+    assert network_configuration() == {'api_key': state['api_key']}
+    monkeypatch.setenv('OMNEUM_API_KEY', 'explicit-override')
+    assert network_configuration() == {'api_key': 'explicit-override'}
+    assert 'OMNEUM_API_KEY' not in __import__('omneum.contributor', fromlist=['local_environment']).local_environment()
+
+
+@pytest.mark.parametrize('attack', ['symlink', 'hardlink', 'mode'])
+def test_credential_store_rejects_unsafe_existing_file(tmp_path, monkeypatch, attack):
+    from uuid import uuid4
+    from omneum import onboarding
+    monkeypatch.setenv('OMNEUM_CONFIG_DIR', str(tmp_path))
+    state = {'installation_id': str(uuid4())}
+    onboarding.write_state(state)
+    path = onboarding.credential_directory() / 'credential.json'
+    victim = tmp_path / 'victim'
+    victim.write_text('private-test-marker')
+    victim.chmod(0o600)
+    if attack == 'mode':
+        path.chmod(0o644)
+    else:
+        path.unlink()
+        if attack == 'symlink':
+            path.symlink_to(victim)
+        else:
+            path.hardlink_to(victim)
+    with pytest.raises((ValueError, OSError)):
+        onboarding.read_state()
+    with pytest.raises((ValueError, OSError)):
+        onboarding.write_state(state)
+    assert victim.read_text() == 'private-test-marker'
+
+
+def test_device_flow_and_lifecycle_cli_never_prints_tokens(tmp_path, monkeypatch):
+    from datetime import datetime, timedelta, timezone
+    from typer.testing import CliRunner
+    from omneum import onboarding
+    from omneum.cli import app
+    from omneum.ingestion.credentials import generate
+    from omneum.contribution import network as module
+    monkeypatch.setenv('OMNEUM_CONFIG_DIR', str(tmp_path))
+    pins = onboarding.OnboardingPins('https://network.example.test/v1/enrollment',
+        'https://account.example.test/device', 'https://account.example.test/token',
+        'https://account.example.test/verify', 'public-client', 'openid omneum:enroll',
+        'https://network.example.test/consent', 'consent-test-1', 'omneum-enrollment')
+    monkeypatch.setattr(onboarding, '_PRODUCTION_ONBOARDING', pins)
+    monkeypatch.setattr(module, '_PRODUCTION_NETWORK', object())
+    monkeypatch.setattr(onboarding.time, 'sleep', lambda seconds: None)
+    credential = generate(datetime.now(timezone.utc)+timedelta(days=90))
+    calls = []
+    def post(endpoint, body, **options):
+        calls.append((endpoint, body, options))
+        if endpoint == pins.device_endpoint:
+            return dict(verification_uri=pins.verification_uri, user_code='ABCD-EFGH',
+                        device_code='private-device-secret', expires_in=300)
+        if endpoint == pins.token_endpoint:
+            return dict(access_token='private-account-token', token_type='Bearer')
+        return dict(installation_id=body['installation_id'], consent_active=body['action'] != 'withdraw',
+                    **({'api_key': credential.token, 'expires_at': credential.expires_at.isoformat()}
+                       if body['action'] in ('enroll', 'renew', 'rotate') else {}))
+    monkeypatch.setattr(onboarding, 'post', post)
+    runner = CliRunner()
+    enrolled = runner.invoke(app, ['network', 'enroll'], input='y\n')
+    assert enrolled.exit_code == 0, enrolled.output
+    assert onboarding.stored_credential() == credential.token
+    assert calls[0][1]['audience'] == pins.audience
+    assert calls[-1][1]['consent'] is True and calls[-1][1]['consent_version'] == pins.consent_version
+    for action in ('renew', 'rotate', 'status', 'revoke', 'renew', 'withdraw'):
+        result = runner.invoke(app, ['network', action])
+        assert result.exit_code == 0, result.output
+        assert credential.token not in result.output and 'private-account-token' not in result.output
+    assert onboarding.stored_credential() is None
+    for secret in (credential.token, 'private-device-secret', 'private-account-token'):
+        assert secret not in enrolled.output
+
+
+def test_consent_decline_never_contacts_account_or_network(tmp_path, monkeypatch):
+    from omneum import onboarding
+    from omneum.contribution import network as module
+    monkeypatch.setenv('OMNEUM_CONFIG_DIR', str(tmp_path))
+    monkeypatch.setattr(onboarding, '_PRODUCTION_ONBOARDING', onboarding.OnboardingPins(
+        'https://network.example.test/v1/enrollment', 'https://account.example.test/device',
+        'https://account.example.test/token', 'https://account.example.test/verify', 'client',
+        'omneum:enroll', 'https://network.example.test/consent', 'v1', 'omneum-enrollment'))
+    monkeypatch.setattr(module, '_PRODUCTION_NETWORK', object())
+    monkeypatch.setattr(onboarding, 'post', lambda *args, **kwargs: pytest.fail('consent decline contacted remote service'))
+    with pytest.raises(RuntimeError, match='Consent declined'):
+        onboarding.manage('enroll', lambda text: None, lambda text: False)
+
+
+def test_device_flow_rejects_unpinned_verification_uri(monkeypatch):
+    from omneum import onboarding
+    pins = onboarding.OnboardingPins('https://network.example.test/v1/enrollment',
+        'https://account.example.test/device', 'https://account.example.test/token',
+        'https://account.example.test/verify', 'client', 'omneum:enroll',
+        'https://network.example.test/consent', 'v1', 'omneum-enrollment')
+    monkeypatch.setattr(onboarding, 'post', lambda *args, **kwargs: {'verification_uri':'https://attacker.test'})
+    with pytest.raises(ValueError, match='destination mismatch'):
+        onboarding.account_token(pins, lambda text: pytest.fail('printed attacker-selected URL'))
+
+
+def test_device_polling_honors_repeated_slow_down(monkeypatch):
+    from omneum import onboarding
+    pins = onboarding.OnboardingPins('https://network.example.test/v1/enrollment',
+        'https://account.example.test/device', 'https://account.example.test/token',
+        'https://account.example.test/verify', 'client', 'omneum:enroll',
+        'https://network.example.test/consent', 'v1', 'omneum-enrollment')
+    responses = iter([dict(verification_uri=pins.verification_uri, user_code='ABCD-EFGH',
+        device_code='disposable-device-secret', expires_in=300, interval=30),
+        {'error':'slow_down'}, {'error':'slow_down'},
+        {'access_token':'private-account-test', 'token_type':'Bearer'}])
+    monkeypatch.setattr(onboarding, 'post', lambda *args, **kwargs: next(responses))
+    sleeps = []
+    monkeypatch.setattr(onboarding.time, 'sleep', sleeps.append)
+    assert onboarding.account_token(pins, lambda text: None) == 'private-account-test'
+    assert sleeps == [30, 35, 40]
+
+
 @pytest.mark.parametrize('environ', [{}, {'OMNEUM_API_KEY': 'unused'},
     {'OMNEUM_NETWORK_CONTRIBUTION': 'false', 'OMNEUM_API_KEY': 'unused'}])
 def test_opt_out_never_constructs_network(environ, monkeypatch):

@@ -9,7 +9,8 @@ for migration in \
   production_004_assertion_subtype_integrity.sql \
   production_004_retrieval_signal.sql \
   production_005_contribution_reports.sql \
-  production_006_credentials.sql; do
+  production_006_credentials.sql \
+  production_007_self_service.sql; do
   psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -f "/migrations/$migration"
 done
 OMNEUM_LOCAL_INGESTION_PASSWORD="$(cat /config/ingestion-password)" \

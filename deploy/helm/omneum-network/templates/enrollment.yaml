@@ -1,0 +1,62 @@
+{{- if .Values.enrollment.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-enrollment
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: {{ .Release.Name }}-enrollment}
+  template:
+    metadata:
+      labels: {app: {{ .Release.Name }}-enrollment}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: enrollment
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [python, -m, omneum.enrollment_api]
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          env:
+            - {name: OMNEUM_ACCOUNT_ISSUER, value: {{ required "enrollment issuer required" .Values.enrollment.issuer | quote }}}
+            - {name: OMNEUM_ACCOUNT_AUDIENCE, value: {{ required "enrollment audience required" .Values.enrollment.audience | quote }}}
+            - {name: OMNEUM_NETWORK_CONSENT_VERSION, value: {{ required "consent version required" .Values.enrollment.consentVersion | quote }}}
+            - {name: OMNEUM_ACCOUNT_JWKS, value: /account/jwks.json}
+            - {name: OMNEUM_NETWORK_TLS_CERT, value: /account/tls.crt}
+            - {name: OMNEUM_NETWORK_TLS_KEY, value: /account/tls.key}
+            - name: OMNEUM_ENROLLMENT_DATABASE_DSN
+              valueFrom:
+                secretKeyRef: {name: {{ .Values.enrollment.secret }}, key: database-dsn}
+          ports: [{name: https, containerPort: 8444}]
+          readinessProbe:
+            tcpSocket: {port: https}
+          resources: {{ .Values.resources.api | toJson }}
+          volumeMounts: [{name: account, mountPath: /account, readOnly: true}]
+      volumes:
+        - name: account
+          secret:
+            secretName: {{ .Values.enrollment.secret }}
+            defaultMode: 288
+            items:
+              - {key: jwks.json, path: jwks.json}
+              - {key: tls.crt, path: tls.crt}
+              - {key: tls.key, path: tls.key}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-enrollment
+spec:
+  selector: {app: {{ .Release.Name }}-enrollment}
+  ports: [{name: https, port: 8444, targetPort: https}]
+{{- end }}

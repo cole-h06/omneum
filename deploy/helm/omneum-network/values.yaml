@@ -12,6 +12,20 @@ requestsPerMinute: 600
 apiSecret: omneum-network-api
 # key: voprf.key (raw 32-byte scalar matching networkPublicKey)
 evaluatorSecret: omneum-network-evaluator
+# Optional until real account infrastructure is provisioned. This service uses
+# its own DB role and receives neither ingestion DSN nor evaluator key.
+enrollment:
+  enabled: false
+  secret: omneum-network-enrollment
+  issuer: ''
+  audience: ''
+  consentVersion: ''
+# Require a CNI that enforces NetworkPolicy. Database CIDR and ingress peer are
+# supplied by infrastructure owners; defaults fail closed when enabled.
+networkPolicy:
+  enabled: false
+  databaseCIDR: ''
+  ingressNamespace: ''
 resources:
   api:
     requests: {cpu: 100m, memory: 128Mi}

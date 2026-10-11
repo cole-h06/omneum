@@ -145,18 +145,20 @@ def database():
                 db.execute((root / "migrations/production_004_retrieval_signal.sql").read_text())
                 db.execute((root / "migrations/production_005_contribution_reports.sql").read_text())
                 db.execute((root / "migrations/production_006_credentials.sql").read_text())
+                db.execute((root / "migrations/production_007_self_service.sql").read_text())
             yield test_dsn
         finally:
             admin.execute(sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name)))
             admin.execute("DROP ROLE IF EXISTS omneum_ingestion")
             admin.execute("DROP ROLE IF EXISTS omneum_network_operator")
+            admin.execute("DROP ROLE IF EXISTS omneum_enrollment")
 
 
 @pytest.fixture
 def bound(database):
     import psycopg
     with psycopg.connect(database, autocommit=True) as db:
-        db.execute("TRUNCATE control.ingestion_receipts, network.evaluation_runs, network.sources, network.claims, control.ingestion_principals, control.workspaces, control.organizations, control.installations CASCADE")
+        db.execute("TRUNCATE control.ingestion_receipts, network.evaluation_runs, network.sources, network.claims, control.ingestion_principals, control.workspaces, control.organizations, control.installations, control.enrollment_budgets CASCADE")
         org = db.execute("INSERT INTO control.organizations DEFAULT VALUES RETURNING id").fetchone()[0]
         workspace = db.execute("INSERT INTO control.workspaces(organization_id) VALUES (%s) RETURNING id", (org,)).fetchone()[0]
         installation = db.execute("INSERT INTO control.installations DEFAULT VALUES RETURNING id").fetchone()[0]

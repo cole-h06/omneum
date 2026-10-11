@@ -1,0 +1,29 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- range $name := list .Release.Name (printf "%s-enrollment" .Release.Name) }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}
+spec:
+  podSelector:
+    matchLabels: {app: {{ $name }}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ required "trusted ingress namespace required" $.Values.networkPolicy.ingressNamespace | quote }}
+      ports:
+        - {protocol: TCP, port: {{ if eq $name $.Release.Name }}8443{{ else }}8444{{ end }}}
+  egress:
+    - to:
+        - ipBlock:
+            cidr: {{ required "database CIDR required" $.Values.networkPolicy.databaseCIDR | quote }}
+      ports: [{protocol: TCP, port: 5432}]
+    - to:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: kube-system}
+      ports: [{protocol: UDP, port: 53}, {protocol: TCP, port: 53}]
+---
+{{- end }}
+{{- end }}

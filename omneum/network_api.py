@@ -35,10 +35,10 @@ def validate_database_transport(config):
         raise ValueError('remote Network database requires sslmode=verify-full')
 
 
-def validate_database_role(db):
+def validate_database_role(db, expected_role='omneum_ingestion'):
     """A role name alone does not prove least privilege after administrator changes."""
-    if db.execute('SELECT current_user').fetchone()[0] != 'omneum_ingestion':
-        raise ValueError('dedicated ingestion role required')
+    if db.execute('SELECT current_user').fetchone()[0] != expected_role:
+        raise ValueError('dedicated ingestion role required' if expected_role == 'omneum_ingestion' else 'dedicated enrollment role required')
     unsafe = db.execute('''SELECT EXISTS (
         SELECT 1 FROM pg_roles r WHERE pg_has_role(current_user, r.oid, 'MEMBER')
           AND (r.rolname <> current_user OR r.rolsuper OR r.rolcreaterole
@@ -53,6 +53,8 @@ def validate_database_role(db):
     )''').fetchone()[0]
     if unsafe:
         raise ValueError('Network database role has unsafe privileges or ownership')
+    from .network_deploy import validate_runtime_grants
+    validate_runtime_grants(db, expected_role)
 
 
 def setting(name: str) -> str:
@@ -61,6 +63,13 @@ def setting(name: str) -> str:
     if (value is None) == (filename is None):
         raise ValueError(f"configure exactly one of {name} and {name}_FILE")
     return Path(filename).read_text().strip() if filename else value
+
+
+def bind_host():
+    value = os.environ.get('OMNEUM_NETWORK_BIND_HOST', '0.0.0.0')
+    if value not in ('0.0.0.0', '127.0.0.1'):
+        raise ValueError('invalid Network bind host')
+    return value
 
 
 class MinuteQuota:
@@ -148,7 +157,7 @@ def main():
                 if time.monotonic() >= deadline:
                     raise
                 time.sleep(1)
-        uvicorn.run(app, host="0.0.0.0", port=8443, workers=1, proxy_headers=False,
+        uvicorn.run(app, host=bind_host(), port=8443, workers=1, proxy_headers=False,
                     ssl_certfile=cert, ssl_keyfile=key, access_log=False,
                     timeout_graceful_shutdown=30)
     except Exception:

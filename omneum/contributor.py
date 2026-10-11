@@ -57,6 +57,9 @@ def network_configuration(environ=None):
     if enabled != 'true':
         raise ValueError('OMNEUM_NETWORK_CONTRIBUTION must be true or false')
     credential = environ.get('OMNEUM_API_KEY')
+    if not credential and environ is os.environ:
+        from .onboarding import stored_credential
+        credential = stored_credential()
     if not credential:
         raise ValueError('Network opt-in requires OMNEUM_API_KEY')
     return OmneumNetwork.pseudonymous(api_key=credential)

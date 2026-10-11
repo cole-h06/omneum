@@ -5,11 +5,10 @@ import json
 import os
 import re
 from pathlib import Path
-import stat
 from uuid import UUID, uuid4
 
 from .ingestion.credentials import generate
-from .storage.filesystem import require_safe_acl
+from .storage.filesystem import private_directory
 
 
 def setting(name: str) -> str:
@@ -52,17 +51,17 @@ def private_output(path):
     path = Path(path)
     if not path.is_absolute():
         raise ValueError('issuance file must be an absolute path')
-    directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
-        info = os.fstat(directory)
-        if info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) & 0o077:
-            raise PermissionError('issuance directory must be owned by the operator and private (0700)')
-        require_safe_acl(directory)
-        fd = os.open(path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
-                     0o600, dir_fd=directory)
-        return os.fdopen(fd, 'w', encoding='ascii')
-    finally:
-        os.close(directory)
+        with private_directory(path.parent) as (_, directory):
+            if directory is None:
+                raise ValueError('operator issuance requires POSIX filesystem protections')
+            fd = os.open(path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                         0o600, dir_fd=directory)
+            return os.fdopen(fd, 'w', encoding='ascii')
+    except ValueError as error:
+        if str(error) == 'SQLite directory must be owner-only (0700)':
+            raise PermissionError('issuance directory must be operator-owned and private (0700)') from None
+        raise
 
 
 def issue(db, *, principal, output, expires_days=90, enroll_workspace=None,
@@ -95,6 +94,12 @@ def issue(db, *, principal, output, expires_days=90, enroll_workspace=None,
                     AND g.scope='research_context_graph' AND g.revoked_at IS NULL))""",
                 (principal,)).fetchone()[0]:
             raise PermissionError('enabled enrollment with active consent required')
+        # Operator issuance is recovery, not an account-suspension bypass.
+        if db.execute('''SELECT 1 FROM control.account_installations a
+                JOIN control.contributor_accounts u ON u.identity_sha256=a.identity_sha256
+                WHERE a.installation_id=%s AND (NOT u.enabled OR a.withdrawn_at IS NOT NULL)''',
+                (installation,)).fetchone():
+            raise PermissionError('account or installation is disabled')
         db.execute('INSERT INTO control.ingestion_credentials(id,principal_id,token_sha256,expires_at) VALUES (%s,%s,%s,%s)',
                    (credential.id, principal, credential.token_sha256, credential.expires_at))
         file.write(credential.token + '\n')
@@ -155,7 +160,11 @@ def main():
     args = parser.parse_args()
     try:
         import psycopg
-        with psycopg.connect(setting('OMNEUM_NETWORK_OPERATOR_DSN'), autocommit=True, connect_timeout=5) as db:
+        from psycopg.conninfo import conninfo_to_dict
+        from .network_api import validate_database_transport
+        dsn = setting('OMNEUM_NETWORK_OPERATOR_DSN')
+        validate_database_transport(conninfo_to_dict(dsn))
+        with psycopg.connect(dsn, autocommit=True, connect_timeout=5) as db:
             db.execute("SET statement_timeout = '10s'")
             require_operator(db)
             if args.command == 'create-workspace':
@@ -173,7 +182,10 @@ def main():
                     raise ValueError('retention must be 1–90 days')
                 cursor = db.execute("DELETE FROM control.network_admission_budgets WHERE window_start < clock_timestamp() - %s * interval '1 day'",
                                     (args.retention_days,))
-                result = {'deleted': cursor.rowcount}
+                deleted = cursor.rowcount
+                cursor = db.execute("DELETE FROM control.enrollment_budgets WHERE window_start < clock_timestamp() - %s * interval '1 day'",
+                                    (args.retention_days,))
+                result = {'deleted': deleted + cursor.rowcount}
         print(json.dumps(result))
     except Exception:
         raise SystemExit('Network operator command failed; check role, consent, configuration and private output. Inspect any reserved issuance file before retrying.') from None

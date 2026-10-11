@@ -279,3 +279,26 @@ def test_operator_mounted_dsn_and_ambiguity(tmp_path, monkeypatch):
     monkeypatch.setenv('OMNEUM_NETWORK_OPERATOR_DSN', 'ambiguous')
     with pytest.raises(ValueError, match='exactly one'):
         operator_setting('OMNEUM_NETWORK_OPERATOR_DSN')
+
+
+def test_release_configuration_fails_closed_until_verified_pins(monkeypatch):
+    from omneum.network_release import validate_release
+    monkeypatch.setattr('omneum.contribution.network._PRODUCTION_NETWORK', None)
+    monkeypatch.setattr('omneum.onboarding._PRODUCTION_ONBOARDING', None)
+    assert validate_release() is False
+    with pytest.raises(ValueError, match='must be provisioned'):
+        validate_release(require_provisioned=True)
+
+
+def test_operator_rejects_unverified_remote_database_before_connect(monkeypatch):
+    import sys
+    import psycopg
+    from omneum.network_operator import main
+    monkeypatch.setenv('OMNEUM_NETWORK_OPERATOR_DSN',
+        'host=db.example.test user=operator dbname=test sslmode=require password=disposable-private-test')
+    monkeypatch.delenv('OMNEUM_NETWORK_OPERATOR_DSN_FILE', raising=False)
+    monkeypatch.setattr(sys, 'argv', ['network_operator', 'create-workspace'])
+    monkeypatch.setattr(psycopg, 'connect', lambda *args, **kwargs: pytest.fail('unverified remote connection attempted'))
+    with pytest.raises(SystemExit) as error:
+        main()
+    assert 'disposable-private-test' not in str(error.value)

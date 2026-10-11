@@ -36,6 +36,9 @@ def persist(connection, principal, contribution, fingerprint, limits=IngestionLi
                 FROM control.ingestion_principals p
                 JOIN control.workspaces w ON w.id = p.workspace_id
                 WHERE p.principal_id = %s AND p.enabled
+                  AND NOT EXISTS (SELECT 1 FROM control.account_installations a
+                    JOIN control.contributor_accounts u ON u.identity_sha256=a.identity_sha256
+                    WHERE a.installation_id=p.installation_id AND (NOT u.enabled OR a.withdrawn_at IS NOT NULL))
                   AND EXISTS (SELECT 1 FROM control.consent_grants g
                     WHERE g.installation_id = p.installation_id
                     AND g.scope = 'research_context_graph' AND g.revoked_at IS NULL)
@@ -55,6 +58,9 @@ def persist(connection, principal, contribution, fingerprint, limits=IngestionLi
                 FROM control.ingestion_principals p
                 JOIN control.workspaces w ON w.id = p.workspace_id
                 WHERE p.principal_id = %s AND p.enabled
+                  AND NOT EXISTS (SELECT 1 FROM control.account_installations a
+                    JOIN control.contributor_accounts u ON u.identity_sha256=a.identity_sha256
+                    WHERE a.installation_id=p.installation_id AND (NOT u.enabled OR a.withdrawn_at IS NOT NULL))
                   AND EXISTS (SELECT 1 FROM control.consent_grants g
                     WHERE g.installation_id = p.installation_id
                     AND g.scope = 'research_context_graph' AND g.revoked_at IS NULL)

@@ -1,0 +1,2 @@
+# Root-owned public signing-key refresh. No JWTs or database secrets are logged.
+*/15 * * * * root /opt/omneum-network/venv/bin/python -I -B -m omneum.network_deploy refresh-jwks >/dev/null
