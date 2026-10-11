@@ -1,7 +1,11 @@
 # Omneum Network contribution
 
 Local Context Graph persistence and Network contribution have separate
-configurations. No environment variable enables contribution. Explicit opt-in:
+configurations. SDK users explicitly pass a contribution configuration; SDK
+environment variables alone never enable submission. MCP users can use
+`omneum network enroll` and the explicit `omneum-contributor` opt-in described
+in [configuration](guides/configuration.md#self-service-credential-acquisition).
+SDK opt-in:
 
 ```python
 import os
@@ -63,7 +67,7 @@ DB credentials.
 ## Database and trust boundary
 
 Apply all relational production migrations in filename order through
-`production_005_contribution_reports.sql`, including both 003 and 004 migrations.
+`production_007_self_service.sql`, including both 003 and 004 migrations.
 The AGE migration provides a separate graph projection; ingestion only writes
 relational tables. Later migrations already grant subtype INSERT/RETURNING
 validation, deferred subtype checks, report validation and quota SELECT columns.
@@ -73,6 +77,10 @@ token upserts and deferred triggers at commit.
 Provision installations, workspaces, stable ingestion principals and active
 explicit `research_context_graph` consent grants in the control plane. The
 ingestion role cannot provision these or write published semantic information.
+Normal onboarding uses account-authenticated self-service enrollment with the
+separate `omneum_enrollment` role. Operator commands remain for recovery and
+administration. Apply migration 007 before upgrading authentication or ingestion;
+existing operator-issued credentials remain supported.
 
 Contributions remain attributed reports. Ingestion does not prove VOPRF token
 issuance and stores reported scores without attestation or recomputation.

@@ -193,6 +193,83 @@ key version, ship verified release-owned pins, and enroll credentials with an
 active consent grant before production contribution works. Until then, local
 use continues with `configuration_unavailable` when opt-in is requested.
 
+### Self-service credential acquisition
+
+The repository implements the following workflow for macOS and Linux. It remains
+unavailable in public production until verified Network and account-provider pins
+ship: `_PRODUCTION_NETWORK` and `_PRODUCTION_ONBOARDING` currently remain `None`.
+The CLI fails closed when these are absent. No infrastructure setup is required
+on a contributor's computer.
+
+After normal installation, run:
+
+```bash
+omneum network enroll
+```
+
+Read the displayed consent terms and explicitly approve the
+`research_context_graph` purpose. Open the displayed account-provider verification
+page, enter the displayed code, and sign into your account. Device authorization
+does not require a local callback listener. The access token stays in memory and
+is never printed or retained. Enrollment creates a private account workspace and
+an installation-bound credential. Credentials expire after 90 days by default.
+
+The credential is saved in an owner-only `network/credential.json` beneath the
+native Omneum configuration directory (or `OMNEUM_CONFIG_DIR`). Do not copy the
+credential into MCP JSON. Configure:
+
+```json
+{
+  "mcpServers": {
+    "omneum": {
+      "command": "omneum-contributor",
+      "env": {
+        "OMNEUM_NETWORK_CONTRIBUTION": "true"
+      }
+    }
+  }
+}
+```
+
+Restart the MCP connection. Only new `evaluate_observations` calls are eligible.
+The original `omneum-server` exposes `ping`, `evaluate_context` and
+`evaluate_voprf`; it remains local-only. The contributor adapter exposes only
+`evaluate_observations`, accepting assertion occurrences plus estimator settings.
+It does not forward those original tools or upload existing history.
+
+An explicit `OMNEUM_API_KEY` remains supported and takes precedence over the
+private store. Remove that variable when switching to CLI-managed credentials.
+An absent or false contribution flag never reads the credential store or submits.
+
+Lifecycle commands require account login, not the contribution credential:
+
+```bash
+omneum network status
+omneum network renew
+omneum network rotate
+omneum network revoke
+omneum network withdraw
+```
+
+Renewal works after expiry and preserves installation history and budgets.
+Renewal and rotation revoke all previous keys for that installation atomically;
+restart MCP afterward. Revocation invalidates keys while retaining consent;
+renewal can recover access. Withdrawal also revokes consent and disables that
+installation. Renewal cannot undo withdrawal or administrative suspension.
+Disable contribution in the MCP settings if withdrawing permanently.
+
+There is no background refresh worker. Renew before expiry, or after expiry when
+contribution reports `failed_or_uncertain`; successful local evaluation continues.
+If enrollment or rotation has an uncertain response, retain the private store and
+use `renew` with the same account. Do not delete the installation identity or
+re-enroll to reset budgets. Concurrent lifecycle commands are rejected by a local
+file lock. Account authentication, explicit consent and MCP opt-in are separate
+requirements.
+
+The intended workflow is one command, browser account approval, one MCP flag and
+a restart. A two-minute production onboarding target still requires measurement
+against the provisioned account provider; local tests do not establish that timing.
+
 Network ingestion stores untrusted contributor reports. The adapter verifies
 VOPRF responses, but ingestion does not independently attest token issuance or
 reported scores; these reports must not be presented as verified consensus.

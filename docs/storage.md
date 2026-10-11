@@ -130,6 +130,18 @@ Omneum/
 
 `context.db-wal` and `context.db-shm` are managed by SQLite.
 
+On macOS and Linux the graph directory must be user-owned with mode `0700`.
+Database, WAL, SHM and journal files are checked for ownership, regular-file type,
+single-link status and unsafe ACLs; owned file permissions are tightened to
+`0600`. Existing insecure directory permissions are rejected. Caller-created
+ancestor symlinks and `..` paths are unsupported; use canonical paths. Directory
+ancestors are validated before creating descendants. Known remote filesystems
+are rejected because WAL depends on local locking.
+
+These controls protect against other OS users. They do not isolate the graph
+from malicious processes with the same UID or from root. Local storage contains
+plaintext assertions and metadata; use OS disk encryption as appropriate.
+
 ## Local MCP
 
 The default MCP installation opens the local SQLite database automatically.
