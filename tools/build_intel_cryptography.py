@@ -29,6 +29,20 @@ SOURCES = {
 }
 
 
+def build_environment(work):
+    environment = os.environ.copy()
+    # PEP 517's no-isolation backend shells out to maturin. Selecting the venv
+    # interpreter alone does not place that venv's console scripts on PATH.
+    environment['PATH'] = str(Path(sys.executable).parent) + os.pathsep + environment['PATH']
+    environment.update(CC='clang -arch x86_64', MACOSX_DEPLOYMENT_TARGET='10.13',
+                       CARGO_BUILD_TARGET='x86_64-apple-darwin',
+                       OPENSSL_STATIC='1',
+                       OPENSSL_DIR=str(work / 'openssl-staging/opt/omneum-dependency/openssl'),
+                       RUSTFLAGS=f'--remap-path-prefix={work}=/build/intel-dependency '
+                                 f'--remap-path-prefix={Path.home()}=/build/user')
+    return environment
+
+
 def build(work, output):
     if sys.platform != 'darwin' or sys.version_info[:2] != (3, 11):
         raise ValueError('use Intel macOS CPython 3.11 for the abi3 build')
@@ -48,13 +62,7 @@ def build(work, output):
             raise ValueError('source checksum mismatch: ' + name)
         with tarfile.open(archive) as source:
             source.extractall(work, filter='data')
-    environment = os.environ.copy()
-    environment.update(CC='clang -arch x86_64', MACOSX_DEPLOYMENT_TARGET='10.13',
-                       CARGO_BUILD_TARGET='x86_64-apple-darwin',
-                       OPENSSL_STATIC='1',
-                       OPENSSL_DIR=str(work / 'openssl-staging/opt/omneum-dependency/openssl'),
-                       RUSTFLAGS=f'--remap-path-prefix={work}=/build/intel-dependency '
-                                 f'--remap-path-prefix={Path.home()}=/build/user')
+    environment = build_environment(work)
     def run(*args, cwd=work):
         subprocess.run(args, cwd=cwd, env=environment, check=True)
     run('perl', 'Configure', 'darwin64-x86_64-cc', 'no-shared', 'no-module', 'no-tests',

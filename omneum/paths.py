@@ -17,7 +17,11 @@ def get_config_dir() -> Path:
     else:
         path = user_config_path(_APP_NAME)
 
-    path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    # mkdir(parents=True) applies mode only to the leaf. A umask of 0002
+    # otherwise creates writable configuration ancestors on a fresh account.
+    from .storage.filesystem import private_directory
+    with private_directory(path, create=True, ancestor=True):
+        pass
     return path
 
 
@@ -41,7 +45,7 @@ def get_context_db_path() -> Path:
     # A fallback remains stable after another tool repairs the native ancestors.
     fallback = Path.home() / ".omneum" / "data"
     native_exists = os.path.lexists(directory)
-    fallback_exists = os.path.lexists(fallback.parent)
+    fallback_exists = os.path.lexists(fallback)
     if native_exists and fallback_exists:
         raise ValueError("multiple local Context Graph locations require explicit selection")
     if native_exists:

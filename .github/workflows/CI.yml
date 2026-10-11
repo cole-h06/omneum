@@ -106,7 +106,7 @@ jobs:
           sudo chown root:root /opt /usr/local/bin
           sudo chmod 755 /opt /usr/local/bin
           sudo cp target/release/omneum-server /opt/omneum/target/release/
-          sudo env PATH="$PATH" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project /opt/omneum --locked --no-default-groups --no-editable --managed-python --python ${{ matrix.python }}
+          sudo env PATH="$PATH" RUSTFLAGS="$RUSTFLAGS" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project /opt/omneum --locked --no-default-groups --no-editable --managed-python --python ${{ matrix.python }}
           sudo chown -R root:root /opt/omneum
           sudo find /opt/omneum -type d -exec chmod a+rX,go-w {} +
           sudo find /opt/omneum -type f -exec chmod a+rX,go-w {} +
@@ -347,7 +347,7 @@ jobs:
           cp deploy/sysusers.d/omneum-server.conf daemon-artifact/sysusers.d/
           # Build at the same fixed prefix used by the existing service definition.
           sudo mkdir /opt/omneum
-          sudo env PATH="$PATH" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PROJECT_ENVIRONMENT=/opt/omneum/.venv UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project "$GITHUB_WORKSPACE" --locked --no-default-groups --no-editable --managed-python --python 3.13.15
+          sudo env PATH="$PATH" RUSTFLAGS="$RUSTFLAGS" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PROJECT_ENVIRONMENT=/opt/omneum/.venv UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project "$GITHUB_WORKSPACE" --locked --no-default-groups --no-editable --managed-python --python 3.13.15
           version=$(python -I -B -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
           sudo /usr/bin/python3 -I -B tools/build_linux_runtime.py --version "$version" --output daemon-artifact/runtime.tar.gz
           sudo chown -R "$(id -u):$(id -g)" daemon-artifact
@@ -447,6 +447,9 @@ jobs:
     name: Prepare candidate installer assets independently of SDK matrix
     needs: daemon-artifacts
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -473,6 +476,9 @@ jobs:
     name: Fresh candidate installation ${{ matrix.runner }}
     needs: prepare-install-assets
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      actions: read
     strategy:
       matrix:
         include:
@@ -535,10 +541,27 @@ jobs:
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
           "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
 
+      - name: Retain tested candidate wheel
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: accepted-candidate-${{ matrix.runner }}
+          path: candidate-wheels/*.whl
+          if-no-files-found: error
+      - name: Retain tested Intel dependency and provenance
+        if: matrix.runner == 'macos-15-intel'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: accepted-intel-dependency
+          path: ${{ runner.temp }}/intel-dependency/
+          if-no-files-found: error
+
   public-install-acceptance:
     name: Fresh public installation ${{ matrix.runner }}
     needs: prepare-daemon-release
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      actions: read
     strategy:
       matrix:
         include:
