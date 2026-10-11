@@ -10,7 +10,7 @@ Security fixes are made against the latest version of Omneum.
 
 ## Reporting a Vulnerability
 
-Please report suspected security vulnerabilities privately rather than through
+Please report suspected security vulnerabilities privately instead of opening
 a public GitHub issue.
 
 You can do this by opening a
