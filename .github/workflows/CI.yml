@@ -151,6 +151,7 @@ jobs:
     runs-on: ${{ matrix.platform.runner }}
 
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.11", "3.12", "3.13", "3.14"]
         platform:
@@ -181,12 +182,17 @@ jobs:
           args: --locked --release --out dist --interpreter python${{ matrix.python }}
           manylinux: auto
 
-      - name: Normalize SBOM paths and smoke-test built wheel outside checkout
-        run: |
-          python tools/release_wheels.py sanitize --wheels dist
-          python tools/release_wheels.py smoke --wheels dist
+      - name: Normalize SBOM paths
+        id: normalize
+        run: python tools/release_wheels.py sanitize --wheels dist
 
-      - name: Upload wheel
+      - name: Smoke-test built wheel outside checkout
+        run: python tools/release_wheels.py smoke --wheels dist
+
+      - name: Upload wheel for independent installation acceptance
+        # Retain normalized bytes even if this platform's public dependencies fail.
+        # prepare-daemon-release still requires the entire build job to succeed.
+        if: ${{ !cancelled() && steps.normalize.conclusion == 'success' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python }}
@@ -557,7 +563,9 @@ jobs:
 
   public-install-acceptance:
     name: Fresh public installation ${{ matrix.platform.runner }} Python ${{ matrix.python.version }}
-    needs: prepare-daemon-release
+    needs: [build, prepare-install-assets]
+    # A dependency failure on Intel must not hide Ubuntu/ARM acceptance results.
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.prepare-install-assets.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'failure') }}
     runs-on: ${{ matrix.platform.runner }}
     permissions:
       contents: read
@@ -572,10 +580,16 @@ jobs:
           - { version: "3.14", tag: cp314 }
         platform:
           - runner: ubuntu-22.04
+            os: linux
+            target: x86_64
             wheel: '*manylinux*x86_64'
           - runner: macos-15
+            os: macos
+            target: aarch64
             wheel: '*arm64'
           - runner: macos-15-intel
+            os: macos
+            target: x86_64
             wheel: '*x86_64'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -588,8 +602,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-release-assets --dir candidate-assets
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name python-release-wheels --dir candidate-wheels
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-install-assets --dir candidate-assets
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python.version }}" --dir candidate-wheels
       - name: Secure writable hosted Linux runner installation parents
         if: runner.os == 'Linux'
         run: |
