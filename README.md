@@ -8,7 +8,7 @@ Omneum: an open-source context evaluator for AI agents.
 
 Agents routinely assemble context from many different sources — a RAG pipeline, web search, APIs, databases, files, memory systems, other agents — but stuffing dozens of raw chunks into a single context window can leave the model working through a mess of information that was never organized for it.
 
-Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is reliable.
+Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is clean and reliable.
 
 ## Why Omneum and how it works
 
@@ -20,32 +20,33 @@ Modern agent pipelines use several different techniques to decide what context s
 
 **LLM-as-a-Judge.** An LLM reads the retrieved context and is instructed to evaluate it against a set of instructions.
 
-While these tools are highly effective at searching and filtering for relevance, relevance is not the only important dimension of context quality.
+These techniques can be highly effective at selecting context, but relevance is only one dimension of context quality.
 
-Chunks can still hold conflicting or stale information. Multiple retrieved chunks might not be deduplicated or can appear independent even when they share the same upstream source. Without another filtering step, low-quality context can consume context-window budget that could otherwise be used for higher-quality context.
+Chunks can still hold conflicting or stale information. Multiple retrieved chunks might not be deduplicated or appear independent despite sharing an upstream source. This contributes to context bloat: low-quality information consumes context-window capacity that could otherwise be used for higher quality information.
 
-To address these problems, Omneum uses a graph-based mathematical analysis to detect conflicting claims, source redundancy, and source dependencies within retrieved context. This analysis allows Omneum to estimate a global reliability score for each source and support score for each piece of context where pieces of context are ranked by the rankings of the sources supporting them.
+Omneum addresses many of these limitations: it uses a graph-based mathematical analysis to model  the relationships between claims and their supporting sources. Importantly, this analysis does not naively assume every source has derived its information independently. The same information often propagates across multiple sources. Without dependency tracking, an agent cannot distinguish five independent observations from the same information repeated five times.
 
-These scores are entirely independent of what the source is or the semantic meaning of the context. For instance, when considering a piece of context like
+Agent pipelines already handle structured metadata alongside retrieved content. Omneum uses available provenance and lineage metadata to estimate source dependencies, then incorporates those estimates into its calculation of source reliability and claim support scores.
 
-“Acme reported $4.2 billion in revenue in 2025.”
+These scores are computed without interpreting the semantic meaning of the context. For instance, when considering a claim such as:
 
-It could receive a high support score if:
+**“Acme reported $4.2 billion in revenue in 2025.”**
 
-1. Sources with high reliability support it.
-2. Those sources receive high reliability by supporting strongly supported context.
+Its support score depends on the reliability of the sources supporting it. In turn, those sources receive reliability from the claims they support.
 
-This definition seems circular, and it is. Nonetheless, it yields a well-defined notion of reliability that helps the model reason over high-quality context.
+This definition seems circular, and it is. Nonetheless, it yields a well-defined notion of reliability that helps distinguish strongly supported context from weakly supported context.
 
-Omneum uses **BRAID**, its open-source algorithm, to compute these reliability and support scores. [Learn how BRAID works →](https://github.com/cole-h06/braid/tree/main)
+Omneum uses **BRAID**, its open-source algorithm, to compute these reliability and support scores. [Explore the algorithm and research →](https://github.com/cole-h06/braid/tree/main)
 
 ## Where Omneum fits
 
-Omneum runs locally as an MCP server. It does not replace your existing retrieval or ranking stack; instead, it is designed to run alongside them. No inference request, no extra model call.
+Omneum runs locally as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
 
-**Retrieval / tools → Omneum evaluation → agent control flow → LLM**
+**Retrieval / tools → Reranking (optional) → Omneum evaluation → agent control flow → LLM**
 
 Omneum returns context-quality signals; your application decides how to use them.
+
+[Architecture and design →](docs/architecture.md)
 
 ## Quick Start
 
@@ -99,7 +100,7 @@ The evaluator runs as a system service because its VOPRF private key is isolated
 
 See [`docs/guides/installation.md`](docs/guides/installation.md) for service accounts, sockets, installed paths, custom endpoints, and failure handling.
 
-### 3. Connect your Agent
+### 3. Connect your agent
 
 Add Omneum to your MCP client configuration:
 
@@ -115,23 +116,15 @@ Add Omneum to your MCP client configuration:
 
 Restart your MCP client to expose Omneum's tools to your agent.
 
-### 4. Verify the Connection
+### 4. Verify the connection
 
-Ask your agent to call Omneum's `ping` tool. You will receive a successful response when the MCP server and local evaluator are connected.
+Ask your agent to call Omneum's `ping` tool. A successful response returns `"status": "ok"`, confirming that your agent can reach the Omneum MCP server.
 
-### Optional: Contribute to the Omneum Network
-
-Omneum runs locally by default. You can optionally contribute pseudonymous observations to the shared Omneum Context Graph, helping our research on developing the algorithm and improving how Omneum evaluates context.
-
-Network contribution is disabled by default and is not required to use Omneum.
-
-See [Enable Network contribution (MCP)](docs/guides/configuration.md#enable-network-contribution-mcp) to get started, or [How Network contribution works](docs/context-graph.md#omneum-network) for technical details.
-
-## Use Omneum with your Agent
+## Use Omneum with your agent
 
 Evaluate retrieved context using Omneum's Python SDK and local MCP server.
 
-### 1. Map Retrieved Context
+### 1. Map retrieved context
 
 Use `ContextMapper` to map retrieved records into Omneum observations. The example uses three sources, two of which reference the same upstream document.
 
@@ -191,7 +184,7 @@ mapper = ContextMapper(
 
 Source identifiers and claim values must be canonicalized upstream. See [Canonicalization](docs/canonicalization.md).
 
-### 2. Evaluate Context
+### 2. Evaluate context
 
 Connect to `omneum-server` and call `evaluate_mapped()` with a dependency estimator:
 
@@ -229,7 +222,7 @@ Save both Python blocks in `evaluate.py`, then run:
 python evaluate.py
 ```
 
-### 3. Evaluation Results
+### 3. Evaluation results
 
 `evaluation.explanation` formats the evaluation result for inspection.
 
@@ -265,6 +258,16 @@ Use Omneum with the framework your agent already runs on:
 For a complete framework-independent workflow, see the
 [enterprise policy example](examples/enterprise/).
 
+### Optional: Contribute to the Omneum Network
+
+Omneum runs locally by default. You can opt in to contribute observations to the shared Omneum Context Graph without uploading raw context.
+
+Network contributions help build a shared evidence base for evaluating AI context across real-world agent workloads, beyond what any single deployment can observe.
+
+Contributions use privacy-preserving cryptographic linkage via an RFC 9497 VOPRF. Network contribution is disabled by default. Local evaluation works without it.
+
+See [Enable Network contribution (MCP)](docs/guides/configuration.md#enable-network-contribution-mcp) to get started, or [How Network contribution works](docs/context-graph.md#omneum-network) for technical details.
+
 ## Data Model & Evaluation
 
 ### Observations
@@ -282,7 +285,7 @@ Observation(
 
 Observations retain available provenance and metadata, including source ownership, timestamps, citations, upstream source relationships, and assertion lineage. Multiple assertion observations can support the same claim or report conflicting values without being merged or overwritten. Observations are not generated judgments about what is true: they preserve the evidence as reported.
 
-[Observations docs →](docs/architecture.md#observations)
+[Observations docs →](docs/architecture.md#observation)
 
 ### Sources
 
@@ -295,7 +298,7 @@ Source(
 )
 ```
 
-[Sources docs →](docs/architecture.md#sources)
+[Sources docs →](docs/architecture.md#source)
 
 ### Claims
 
@@ -310,15 +313,15 @@ Claim(
 )
 ```
 
-[Claims docs →](docs/architecture.md#claims)
+[Claims docs →](docs/architecture.md#claim)
 
 ### Source Dependence
 
 Multiple sources can report the same claim without providing independent support. Omneum estimates source dependence from upstream lineage, citations, assertion lineage, shared ownership, timestamps, and graph structure.
 
-These estimates account for duplicated and correlated information when calculating effective independent support for each claim.
+Source dependencies reduce the weight of duplicated evidence when calculating effective independent support for each claim.
 
-[Source dependence docs →](docs/architecture.md#source-dependence)
+[Source dependence docs →](docs/architecture.md#dependency-estimation)
 
 ### ContextMapper
 
@@ -339,7 +342,7 @@ evaluation = await client.evaluate_mapped(
 print(evaluation.explanation)
 ```
 
-[ContextEvaluation docs →](docs/architecture.md#contextevaluation)
+[ContextEvaluation docs →](docs/architecture.md##evaluation-results)
 
 ## Performance & Accuracy
 
@@ -353,10 +356,10 @@ Measures how effectively Omneum improves evidence selection when combined with s
 
 | Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| BGE Reranker v2-m3 | 69.44% | 47.46% | 91.67% | 201ms | 2.467s | 11,941 | $0.074618 |
-| BGE + Omneum | **85.51%** | **59.31%** | 87.50% | 660ms | 3.020s | 11,595 | **$0.070662** |
-| Cohere Rerank v4.0 Pro | 77.78% | 53.99% | 87.50% | 151ms | 2.634s | 11,577 | $0.071242 |
-| Cohere + Omneum | **82.64%** | **55.72%** | 79.17% | 624ms | 3.176s | 11,535 | **$0.070654** |
+| BGE Reranker v2-m3 | 69.44% | 47.46% | 91.67% | 201 ms | 2.467s | 11,941 | $0.074618 |
+| BGE + Omneum | **85.51%** | **59.31%** | 87.50% | 660 ms | 3.020s | 11,595 | **$0.070662** |
+| Cohere Rerank v4.0 Pro | 77.78% | 53.99% | 87.50% | 151 ms | 2.634s | 11,577 | $0.071242 |
+| Cohere + Omneum | **82.64%** | **55.72%** | 79.17% | 624 ms | 3.176s | 11,535 | **$0.070654** |
 
 *Costs reflect estimated downstream generator API usage only; reranker API charges and local compute are excluded. Omneum improves selection precision and recall in both comparisons, with increased selection latency and lower downstream answer accuracy in these runs.*
 
@@ -368,14 +371,14 @@ Each LLM judge is evaluated alongside Omneum under the same model-specific bench
 
 | Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| BGE + Claude Sonnet 5.5 Judge | **92.36%** | **65.24%** | **95.83%** | 1.831s | 4.165s | **11,356** | **$0.068208** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.697s** | **3.141s** | 11,811 | $0.072822 |
-| BGE + GPT-6 Astra Judge | **92.78%** | **65.45%** | **92.50%** | 3.421s | 5.849s | **111,247** | **$0.658998** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.641s** | **2.983s** | 115,119 | $0.698310 |
-| BGE + Gemini 3.8 Flash Judge | **94.24%** | **66.18%** | **95.42%** | 6.826s | 9.274s | **112,349** | **$0.669282** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.639s** | **3.130s** | 115,535 | $0.702470 |
+| BGE + Claude Sonnet 5.5 Judge | **92.36%** | **65.24%** | **95.83%** | 1.831s | 4.165 s | **11,356** | **$0.068208** |
+| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.697 s** | **3.141 s** | 11,811 | $0.072822 |
+| BGE + GPT-6 Astra Judge | **92.78%** | **65.45%** | **92.50%** | 3.421s | 5.849 s | **111,247** | **$0.658998** |
+| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.641 s** | **2.983s** | 115,119 | $0.698310 |
+| BGE + Gemini 3.8 Flash Judge | **94.24%** | **66.18%** | **95.42%** | 6.826s | 9.274 s | **112,349** | **$0.669282** |
+| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.639 s** | **3.130 s** | 115,535 | $0.702470 |
 
-*Costs reflect estimated downstream generator API usage only; LLM judge inference costs and local compute are excluded. Omneum delivers competitive selection quality with 2.6–10.7× lower selection latency, without requiring an additional LLM judge inference step.*
+*Costs reflect estimated downstream generator API usage only; LLM judge inference costs and local compute are excluded. Omneum achieves competitive selection quality and downstream answer accuracy against frontier LLM judges, with 2.6–10.7× lower selection latency and no additional LLM inference step.*
 
 **Detailed evaluations:** [Methodology](benchmarks/README.md) · [Coding Agents](benchmarks/coding.md) · [Enterprise RAG](benchmarks/enterprise-rag.md) · [Research Agents](benchmarks/research.md) · [Multi-Agent Systems](benchmarks/multi-agent.md) · [Data Analytics](benchmarks/analytics.md) · [Support Operations](benchmarks/support.md)
 
