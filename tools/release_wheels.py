@@ -196,7 +196,8 @@ def smoke(wheels, project, dependency_wheel=None):
     dependency = [str(verify_intel_dependency(dependency_wheel))] if dependency_wheel else []
     # Neither the checkout nor the development environment supplies installed imports.
     env = {key: value for key, value in os.environ.items()
-           if key not in {"PYTHONPATH", "PYTHONHOME"}}
+           if key not in {"PYTHONPATH", "PYTHONHOME"} and not key.startswith("PIP_")}
+    env["PIP_CONFIG_FILE"] = os.devnull
     with tempfile.TemporaryDirectory(prefix="omneum-wheel-") as temporary:
         root = Path(temporary)
         environment = root / "venv"
@@ -207,7 +208,8 @@ def smoke(wheels, project, dependency_wheel=None):
         def run(*args):
             subprocess.run([str(python), "-I", *args], cwd=root, env=env, check=True)
 
-        run("-m", "pip", "install", "--only-binary=:all:", "--disable-pip-version-check", str(wheel), *dependency)
+        run("-m", "pip", "--isolated", "install", "--index-url", "https://pypi.org/simple",
+            "--only-binary=:all:", "--disable-pip-version-check", str(wheel), *dependency)
         run("-m", "pip", "check")
         run("-c", """
 import importlib.metadata as metadata
