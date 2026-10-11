@@ -62,7 +62,9 @@ Omneum returns context-quality signals; your application decides how to use them
 | macOS (Intel / x86_64) | ✅ |
 | Linux (Ubuntu 22.04+ / x86_64) | ✅ |
 
-Install Omneum using pip:
+Install Omneum using pip in a Python 3.11–3.14 environment. A virtual
+environment is recommended; Ubuntu 22.04 requires installing a supported
+Python because its default Python is 3.10. See the [installation guide](docs/guides/installation.md).
 
 ```bash
 pip install omneum
@@ -116,11 +118,15 @@ Add Omneum to your MCP client configuration:
 
 Restart your MCP client to expose Omneum's tools to your agent.
 
+If the MCP client does not inherit your virtual environment's PATH, use the
+absolute executable path printed by `command -v omneum-server` as its `command`.
+The same executable can be run directly from the activated terminal.
+
 ### 4. Verify the connection
 
 Ask your agent to call Omneum's `ping` tool. A successful response returns `"status": "ok"`, confirming that your agent can reach the Omneum MCP server.
 
-## Use Omneum with Your Agent
+## Running an Evaluation
 
 Evaluate retrieved context using Omneum's Python SDK and local MCP server.
 
@@ -242,11 +248,13 @@ Fy2025 gross revenue
     3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
 ```
 
-Full reference: [Python SDK](docs/sdk.md) · [ContextMapper](docs/context-mapper.md) · [Evaluation schema](docs/architecture.md#evaluation-results)
+See [Evaluation schema](docs/architecture.md#evaluation-results) for result fields.
 
 ## Integrations
 
-Use Omneum with the framework your agent already runs on:
+Use the [Python SDK](docs/sdk.md) and [ContextMapper](docs/context_mapper.md) to add Omneum to your agent.
+
+Framework examples:
 
 - [LangGraph](examples/langgraph/)
 - [LlamaIndex](examples/llamaindex/)

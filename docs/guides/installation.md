@@ -11,16 +11,30 @@ evaluation daemon.
 | macOS | Intel (x86_64) | 3.11–3.14 | launchd |
 | Linux (Ubuntu 22.04+) | x86_64 | 3.11–3.14 | systemd |
 
-Windows and Linux ARM are not currently supported.
+The managed installer does not support Windows or Linux ARM. Windows wheels
+are SDK-only and do not provide a protected local MCP deployment.
 
 ## Install
 
+Use Python 3.11–3.14 in a virtual environment, or another Python environment
+where installing packages is permitted. Ubuntu 22.04 ships Python 3.10, so
+install a supported Python first. On managed system Python installations, use
+a virtual environment to avoid the externally managed environment restriction.
+
 ```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
 pip install omneum
 omneum install
 ```
 
-Run `omneum install` as your normal login user, not with `sudo`.
+Run `omneum install` as your normal login user, not with `sudo`. It requests
+administrator authorization to install the protected daemon and service account.
+No Rust toolchain or manually supplied cryptographic key is required. Internet
+access to PyPI and public GitHub Release downloads is required.
+
+Network participation and contribution remain disabled by default. Installing
+the local MCP server does not enroll you or authorize uploading private context.
 
 The installer downloads the daemon bundle matching the installed Omneum
 version, verifies its SHA-256 checksum, installs the managed service, initializes
@@ -47,7 +61,11 @@ After installation, MCP clients can start Omneum with `omneum-server`:
 On Linux, `omneum-server` is the native proxy into the isolated systemd MCP
 session. On macOS, it connects through the installed local service.
 
-## Runtime architecture
+If the MCP client does not inherit your virtual environment's PATH, use the
+absolute executable path printed by `command -v omneum-server` as its `command`.
+The same executable can be run directly from the activated terminal.
+
+## Managed runtime
 
 ### macOS
 
@@ -62,6 +80,8 @@ Python SDK / MCP client
 ```
 
 The daemon owns the VOPRF key and is installed as a managed launchd service.
+Its executable lives at `/Library/Omneum/omneumd` below root-owned, non-writable
+parents, independent of a Homebrew installation under `/usr/local`.
 
 ### Linux
 

@@ -291,6 +291,18 @@ sudo systemctl reload nginx
 
 Do not install the rendered Nginx configuration while an overlapping `api.omneum.ai` server block remains enabled. Validate the replacement and preserve the active certificate renewal path.
 
+For the existing Ubuntu Certbot-managed maintenance site, render with
+`--nginx-layout certbot` instead. This writes `nginx-site.conf` and
+`nginx-limits.conf`, preserving the site's Certbot lineage, SSL-options include,
+dual-stack listeners and HTTP redirect. Review the site diff before applying
+only the application integration to `/etc/nginx/sites-available/omneum-network`;
+install the limits at `/etc/nginx/conf.d/omneum-network-limits.conf` with mode
+`0600`. The site must be root-owned, mode `0644`, and enabled by its existing
+root-owned symlink. Do not also install `nginx.conf` or the ACME bootstrap.
+Preflight checks this exact generated layout, its active includes, duplicate
+API server names and Certbot's TLS protocol floor. It fails closed on drift.
+The original standalone layout remains supported for fresh deployments.
+
 The APIs receive separate database credentials and CA/TLS copies through systemd `LoadCredential`. Enrollment cannot access the evaluator socket or scalar directory.
 
 Nginx verifies the loopback backends' certificate trust and hostname. It clears forwarded headers, disables access logs, limits request size and duration, and applies source-IP request and connection limits. Authorization and quotas remain application responsibilities.
