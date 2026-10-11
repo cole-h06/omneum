@@ -415,7 +415,17 @@ def test_documented_mcp_json_runs_entrypoint(tmp_path, computed, mode):
     bin_dir = tmp_path / 'bin'
     bin_dir.mkdir()
     command = bin_dir / 'omneum-contributor'
-    command.write_text(f'#!{sys.executable}\nfrom {module} import {function}\n{function}()\n')
+    # A disposable fixture supplies the backend. Linux's real managed proxy is
+    # exercised by fresh-host acceptance, never installed by this unit test.
+    command.write_text(f'''#!{sys.executable}
+import sys
+from mcp import StdioServerParameters
+import {module} as entrypoint
+factory = entrypoint.create_server
+entrypoint.create_server = lambda: factory(parameters=StdioServerParameters(
+    command=sys.executable, args=['-m', 'omneum.server'], env=entrypoint.local_environment()))
+entrypoint.{function}()
+''')
     command.chmod(0o700)
     environment['PATH'] = str(bin_dir) + os.pathsep + environment['PATH']
     flag = 'false' if mode == 'local' else 'true'

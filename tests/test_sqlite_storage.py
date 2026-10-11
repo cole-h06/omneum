@@ -69,6 +69,8 @@ def test_default_first_use(runtime):
 ])
 def test_native_paths(tmp_path, monkeypatch, platform, variables, parts):
     import omneum.paths as module
+    if platform == 'darwin' and (os.name != 'posix' or os.uname().sysname != 'Darwin'):
+        monkeypatch.setattr('omneum.storage.filesystem.require_safe_acl', lambda *args, **kwargs: None)
     monkeypatch.setattr(module.sys, 'platform', platform)
     monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
     for name in ('XDG_DATA_HOME', 'LOCALAPPDATA'):
@@ -623,6 +625,8 @@ def test_disappearing_sidecar_does_not_reject_concurrent_open(tmp_path, monkeypa
 def test_new_macos_config_directory_is_compatible_with_default_graph(tmp_path, monkeypatch):
     from omneum import paths
     from omneum.storage import filesystem
+    if os.uname().sysname != 'Darwin':
+        monkeypatch.setattr(filesystem, 'require_safe_acl', lambda *args, **kwargs: None)
     monkeypatch.setattr(filesystem, '_darwin_is_local', lambda path: True)
     monkeypatch.setattr(paths.sys, 'platform', 'darwin')
     monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))

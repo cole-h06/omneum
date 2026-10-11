@@ -263,7 +263,8 @@ jobs:
         run: sudo .venv/bin/python tests/security/macos_install.py target/release/omneumd "$(id -u)"
 
   daemon-artifacts:
-    needs: test
+    # Build diagnostics independently; prepare-daemon-release still gates all
+    # publication on the complete test matrix and exact-artifact acceptance.
     if: github.event_name != 'pull_request'
     name: Build daemon ${{ matrix.platform.os }} ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.runner }}

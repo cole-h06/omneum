@@ -17,7 +17,7 @@ from examples.langgraph.routing.scenarios import initial_observations
         ("resolve_conflicts", "resolve_conflicts"),
     ],
 )
-def test_routing_scenario(scenario, expected_first_route):
+def test_routing_scenario(scenario, expected_first_route, example_daemon):
     async def run():
         initial = initial_observations(scenario)
 

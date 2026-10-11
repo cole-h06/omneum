@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tarfile
 import urllib.request
+import zipfile
 
 from release_wheels import sanitize
 
@@ -56,7 +57,7 @@ def build(work, output):
                                  f'--remap-path-prefix={Path.home()}=/build/user')
     def run(*args, cwd=work):
         subprocess.run(args, cwd=cwd, env=environment, check=True)
-    run('perl', 'Configure', 'darwin64-x86_64-cc', 'no-shared', 'no-tests',
+    run('perl', 'Configure', 'darwin64-x86_64-cc', 'no-shared', 'no-module', 'no-tests',
         '--prefix=/opt/omneum-dependency/openssl', '--openssldir=/etc/ssl',
         cwd=work / 'openssl-3.5.9')
     run('make', '-j2', cwd=work / 'openssl-3.5.9')
@@ -68,6 +69,11 @@ def build(work, output):
     wheels = list(output.glob('cryptography-50.0.2-*-abi3-macosx_*_x86_64.whl'))
     if len(wheels) != 1:
         raise ValueError('expected one Intel abi3 dependency wheel')
+    # Static OpenSSL redistribution carries its upstream license alongside the
+    # cryptography licenses. sanitize then regenerates RECORD for these bytes.
+    with zipfile.ZipFile(wheels[0], 'a') as archive:
+        archive.writestr('cryptography-50.0.2.dist-info/licenses/OpenSSL-LICENSE.txt',
+                         (work / 'openssl-3.5.9/LICENSE.txt').read_bytes())
     sanitize(output)
     wheel = wheels[0]
     digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
