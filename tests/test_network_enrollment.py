@@ -199,11 +199,11 @@ def oidc(tmp_path):
     now = int(datetime.now(timezone.utc).timestamp())
     claims = dict(iss=auth.issuer, aud=auth.audience, sub='account-test', iat=now,
                   nbf=now, exp=now+300, scope='openid omneum:enroll')
-    def token(_omit=(), **changes):
+    def token(_omit=(), _headers=None, **changes):
         value = {**claims, **changes}
         for name in _omit:
             value.pop(name, None)
-        return jwt.encode(value, private, algorithm='RS256', headers={'kid': 'test-key'})
+        return jwt.encode(value, private, algorithm='RS256', headers={'kid': 'test-key', **(_headers or {})})
     return auth, token
 
 
@@ -238,6 +238,30 @@ def test_account_rejects_algorithm_and_key_confusion(oidc):
     from cryptography.hazmat.primitives.asymmetric import rsa
     attacker = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     assert auth.authenticate(jwt.encode({'sub': 'account-test'}, attacker, algorithm='RS256', headers={'kid':'test-key'})) is None
+
+
+@pytest.mark.parametrize('headers', [
+    {'jku': 'https://attacker.invalid/jwks'},
+    {'x5u': 'https://attacker.invalid/certificate'},
+    {'crit': ['attacker-extension']},
+    {'kid': 'unknown-key'},
+])
+def test_signed_account_token_cannot_select_remote_keys_or_extensions(oidc, headers):
+    auth, token = oidc
+    assert auth.authenticate(token()) is not None
+    assert auth.authenticate(token(_headers=headers)) is None
+
+
+def test_repeated_account_validation_retains_claim_checks(oidc):
+    auth, token = oidc
+    # Reuse one authenticator across accepted and rejected calls. This guards
+    # against the shared-options claims bypass described by CVE-2026-103001.
+    valid = token()
+    for changes in ({'exp': 1}, {'aud': 'other'}, {'iss': 'https://attacker.invalid'},
+                    {'scope': 'openid'}, {'nbf': 9999999999}):
+        assert auth.authenticate(valid) is not None
+        assert auth.authenticate(token(**changes)) is None
+        assert auth.authenticate(valid) is not None
 
 
 def test_unknown_or_ambiguous_account_keys_fail_closed(oidc):

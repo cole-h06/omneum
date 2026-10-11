@@ -415,7 +415,17 @@ def test_documented_mcp_json_runs_entrypoint(tmp_path, computed, mode):
     bin_dir = tmp_path / 'bin'
     bin_dir.mkdir()
     command = bin_dir / 'omneum-contributor'
-    command.write_text(f'#!{sys.executable}\nfrom {module} import {function}\n{function}()\n')
+    # A disposable fixture supplies the backend. Linux's real managed proxy is
+    # exercised by fresh-host acceptance, never installed by this unit test.
+    command.write_text(f'''#!{sys.executable}
+import sys
+from mcp import StdioServerParameters
+import {module} as entrypoint
+factory = entrypoint.create_server
+entrypoint.create_server = lambda: factory(parameters=StdioServerParameters(
+    command=sys.executable, args=['-m', 'omneum.server'], env=entrypoint.local_environment()))
+entrypoint.{function}()
+''')
     command.chmod(0o700)
     environment['PATH'] = str(bin_dir) + os.pathsep + environment['PATH']
     flag = 'false' if mode == 'local' else 'true'
@@ -423,13 +433,13 @@ def test_documented_mcp_json_runs_entrypoint(tmp_path, computed, mode):
     if mode in ('invalid', 'unprovisioned'):
         settings['OMNEUM_API_KEY'] = 'invalid-private-test-token\n' if mode == 'invalid' else 'YOUR_NETWORK_API_CREDENTIAL'
     import re
-    section = Path('docs/guides/configuration.md').read_text().split('### Enable Network contribution (MCP)', 1)[1].split('### Enable Network contribution (Python SDK)', 1)[0]
+    section = Path('docs/guides/configuration.md').read_text().split('### MCP Configuration', 1)[1].split('### Python SDK', 1)[0]
     examples = re.findall(r'```json\n(.*?)\n```', section, flags=re.S)
-    config = json.loads(examples[0 if mode == 'local' else 1])
-    if mode in ('invalid', 'missing'):
-        config['mcpServers']['omneum']['env'] = settings
-    else:
-        assert config['mcpServers']['omneum']['env'] == settings
+    config = json.loads(examples[0])
+    assert config['mcpServers']['omneum']['env'] == {'OMNEUM_NETWORK_CONTRIBUTION': 'true'}
+    # Exercise opt-out and invalid/missing credentials using the current
+    # documented command; credentials belong in the private store, not docs.
+    config['mcpServers']['omneum']['env'] = settings
     # Same JSON shape and command as docs. Production pins intentionally remain
     # unprovisioned; this must not stop the local MCP service.
     selected = json.loads(json.dumps(config))['mcpServers']['omneum']
