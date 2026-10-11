@@ -597,7 +597,6 @@ jobs:
     permissions:
       contents: write
       actions: read
-      actions: read
       attestations: write
       id-token: write
     concurrency:
