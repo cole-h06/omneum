@@ -374,3 +374,26 @@ def runtime_fixture():
                 item.size = len(value)
                 tar.addfile(item, io.BytesIO(value))
     return gzip.compress(data.getvalue(), mtime=0)
+
+@pytest.mark.parametrize('interactive,approved', [(False, True), (True, True), (True, False)])
+def test_sudo_command_authorization_and_prompt(monkeypatch, tmp_path, interactive, approved):
+    monkeypatch.setattr(install.os, 'getuid', lambda: 501)
+    results = [subprocess.CompletedProcess([], int(interactive))]
+    if interactive:
+        results.append(subprocess.CompletedProcess([], int(not approved)))
+    if approved:
+        results.append(subprocess.CompletedProcess([], 0, '', ''))
+    run = Mock(side_effect=results)
+    monkeypatch.setattr(install.subprocess, 'run', run)
+    if approved:
+        install.deploy_bundle(tmp_path, 'macos-aarch64')
+        assert run.call_args.args[0][:3] == ['/usr/bin/sudo', '-n', '--']
+    else:
+        with pytest.raises(install.InstallError, match='Administrator authorization failed'):
+            install.deploy_bundle(tmp_path, 'macos-aarch64')
+        assert run.call_count == 2
+    assert run.call_args_list[0].args[0] == ['/usr/bin/sudo', '-n', '--', '/usr/bin/true']
+    if interactive:
+        args, kwargs = run.call_args_list[1]
+        assert args[0] == ['/usr/bin/sudo', '-v']
+        assert not kwargs.get('capture_output')

@@ -193,7 +193,7 @@ def main(proxy, config):
                         'OMNEUM_DAEMON_UID='+str(pwd.getpwnam('omneum-crypto').pw_uid),
                         str(ROOT/'.venv/bin/python'), '-I', '-B', '-c',
                         'from omneum.config import load_deployment_state; load_deployment_state()'],
-                       check=True, timeout=10)
+                       check=True, timeout=30)
         install(HERE/'sysusers.d/omneum-server.conf', '/etc/sysusers.d/omneum-server.conf', 0o644)
         subprocess.run(['systemd-sysusers', '/etc/sysusers.d/omneum-server.conf'], check=True)
         install(proxy, '/usr/local/bin/omneum-server', 0o755)

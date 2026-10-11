@@ -21,6 +21,14 @@ where installing packages is permitted. Ubuntu 22.04 ships Python 3.10, so
 install a supported Python first. On managed system Python installations, use
 a virtual environment to avoid the externally managed environment restriction.
 
+Local SQLite storage rejects symlinked or group/world-writable ancestors and
+requires its own directory to be owner-only (0700). For a new default graph,
+Omneum uses `~/.omneum/data/context.db` if the native data-directory ancestors
+are unsafe. This private location remains stable across restarts. Existing
+graphs and explicitly selected data directories are never silently relocated;
+unsafe permissions there still require review. Omneum does not change
+permissions on directories shared with other applications.
+
 ```bash
 python3.11 -m venv .venv
 source .venv/bin/activate
