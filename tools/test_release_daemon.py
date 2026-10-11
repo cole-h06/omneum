@@ -54,7 +54,7 @@ class ReleaseContractTests(unittest.TestCase):
                 if platform.startswith("linux-")
                 else ["install-macos.sh", "launchd/ai.omneum.omneumd.plist"]
             )
-            (source / "omneumd").write_bytes(f"daemon for {platform}".encode())
+            (source / "omneumd").write_bytes(f"protected-voprf-v1 daemon for {platform}".encode())
             if platform.startswith("linux-"):
                 (source / "omneum-server").write_bytes(b"proxy")
                 shutil.copyfile(ROOT / "omneum/runtime_bundle.py", source / "runtime_bundle.py")
@@ -66,6 +66,17 @@ class ReleaseContractTests(unittest.TestCase):
 
     def prepare(self):
         release.prepare(self.staging, self.output, "1.0.3")
+
+    def test_rust_release_version_must_match(self):
+        self.project.with_name('Cargo.toml').write_text('[package]\nversion="0.1.0"\n')
+        with self.assertRaisesRegex(ValueError, 'Rust package version'):
+            release.version_for_tag(self.project, 'v1.0.3')
+
+    def test_fixture_evaluator_cannot_be_released(self):
+        (self.staging / "daemon-macos-aarch64/omneumd").write_bytes(b"fixture-voprf-v1")
+        with self.assertRaisesRegex(ValueError, "protected evaluator"):
+            self.prepare()
+        self.assertFalse(self.output.exists())
 
     def test_runtime_version_must_match_release(self):
         (self.staging / "daemon-linux-x86_64/runtime.tar.gz").write_bytes(runtime_fixture("1.0.4"))

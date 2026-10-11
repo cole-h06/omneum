@@ -2,6 +2,11 @@
 
 from pathlib import Path
 import subprocess
+import csv
+import io
+import hashlib
+import base64
+import json
 import sys
 import tempfile
 import tomllib
@@ -43,7 +48,7 @@ class WheelReleaseTests(unittest.TestCase):
                     path.mkdir(parents=True, exist_ok=True)
                 else:
                     path.parent.mkdir(parents=True, exist_ok=True)
-                    path.write_bytes(runtime_fixture() if name == "runtime.tar.gz" else b"fixture")
+                    path.write_bytes(runtime_fixture() if name == "runtime.tar.gz" else b"protected-voprf-v1 fixture")
         release_daemon.prepare(staging, self.assets, "1.0.3")
 
     def wheel(self, python="cp311", platform="linux-x86_64", version="1.0.3",
@@ -213,9 +218,79 @@ class WheelReleaseTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(list(output.glob("*.whl"))), 16)
 
+    def test_sanitize_updates_sbom_references_and_record(self):
+        path = self.wheel()
+        info = 'omneum-1.0.3.dist-info'
+        with zipfile.ZipFile(path, 'a') as archive:
+            archive.writestr(f'{info}/sboms/cargo.json', json.dumps({'ref': 'path+file:///Users/developer/checkout#omneum_oprf@1.0.3'}))
+            archive.writestr(f'{info}/RECORD', '')
+        directory = self.wheels / "single"
+        directory.mkdir()
+        path = path.rename(directory / path.name)
+        release.sanitize(directory)
+        with zipfile.ZipFile(path) as archive:
+            data = archive.read(f'{info}/sboms/cargo.json')
+            self.assertEqual(json.loads(data), {'ref': 'pkg:cargo/omneum_oprf@1.0.3'})
+            rows = list(csv.reader(io.StringIO(archive.read(f'{info}/RECORD').decode())))
+            for name, digest, size in rows:
+                if name.endswith('/RECORD'):
+                    self.assertEqual((digest, size), ('', ''))
+                    continue
+                content = archive.read(name)
+                expected = 'sha256=' + base64.urlsafe_b64encode(hashlib.sha256(content).digest()).rstrip(b'=').decode()
+                self.assertEqual(digest, expected)
+                self.assertEqual(int(size), len(content))
+
+    def test_sanitize_refuses_native_developer_paths(self):
+        path = self.wheel()
+        with zipfile.ZipFile(path, 'a') as archive:
+            archive.writestr('omneum_oprf/native.so', b'binary /Users/developer/.cargo/source')
+            archive.writestr('omneum-1.0.3.dist-info/RECORD', '')
+        directory = self.wheels / 'single'
+        directory.mkdir()
+        path.rename(directory / path.name)
+        with self.assertRaisesRegex(ValueError, 'unremapped developer path'):
+            release.sanitize(directory)
+
+    def test_sanitize_refreshes_readme_without_changing_dependency_headers(self):
+        directory = self.root / 'description-wheel'
+        directory.mkdir()
+        path = directory / 'omneum-1.0.3-cp311-cp311-macosx_11_0_arm64.whl'
+        info = 'omneum-1.0.3.dist-info'
+        headers = b'Metadata-Version: 2.4\nName: omneum\nVersion: 1.0.3\nRequires-Dist: cryptography>=50.0.1'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr(f'{info}/METADATA', headers + b'\n\nOld description\n')
+            archive.writestr(f'{info}/RECORD', '')
+        self.project.write_text('[project]\nversion = "1.0.3"\nreadme = "README.md"\n')
+        (self.root / 'README.md').write_text('Current release description\n')
+        release.sanitize(directory, self.project)
+        with zipfile.ZipFile(path) as archive:
+            metadata = archive.read(f'{info}/METADATA')
+            self.assertEqual(metadata, headers + b'\n\nCurrent release description\n')
+            row = next(csv.reader(io.StringIO(archive.read(f'{info}/RECORD').decode())))
+            expected = 'sha256=' + base64.urlsafe_b64encode(hashlib.sha256(metadata).digest()).rstrip(b'=').decode()
+            self.assertEqual(row, [f'{info}/METADATA', expected, str(len(metadata))])
+
     def test_smoke_refuses_ambiguous_wheel_selection(self):
         with self.assertRaisesRegex(ValueError, "exactly one"):
             release.smoke(self.wheels, self.project)
+
+    def test_intel_dependency_requires_matching_manifest_and_metadata(self):
+        path = self.root / 'cryptography-50.0.2-cp311-abi3-macosx_10_13_x86_64.whl'
+        metadata = 'cryptography-50.0.2.dist-info/METADATA'
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr(metadata, 'Name: cryptography\nVersion: 50.0.2\n')
+        manifest = self.root / 'SHA256SUMS'
+        manifest.write_text(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n')
+        self.assertEqual(release.verify_intel_dependency(path), path.resolve())
+        path.write_bytes(path.read_bytes() + b'tampered')
+        with self.assertRaisesRegex(ValueError, 'checksum'):
+            release.verify_intel_dependency(path)
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr(metadata, 'Name: cryptography\nVersion: 48.0.1\n')
+        manifest.write_text(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n')
+        with self.assertRaisesRegex(ValueError, 'metadata'):
+            release.verify_intel_dependency(path)
 
 
 if __name__ == "__main__":

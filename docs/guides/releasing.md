@@ -12,6 +12,9 @@ Review the candidate commit without staging unrelated worktree changes. Run
 1.97.1 and maturin 1.15.0. Native builds remap compiler paths; wheel preparation
 normalizes local Cargo SBOM identifiers and recalculates RECORD before smoke tests.
 
+Wheel smoke and fresh-host pip checks require binary dependencies, so a CI
+runner's preinstalled Rust toolchain cannot hide missing public dependency wheels.
+
 The repository must be public for anonymous installer downloads. Changing its
 visibility exposes repository history and requires explicit owner approval.
 Configure GitHub environments `github-release` and `pypi` with required human
@@ -45,6 +48,11 @@ architectures uses the installed wheel and unpublished candidate assets. It
 replaces only the download boundary; checksum validation, administrator
 installation, key provisioning, services, MCP, SQLite and restart are real.
 This is followed by an anonymous public-download check before PyPI publication.
+
+Optional framework environments are separate. `google-adk` and `crewai`
+cannot be selected together because their upstream OpenTelemetry ranges conflict.
+This avoids resolving an old ADK/Starlette combination to satisfy both examples.
+Neither optional group is included in the offline production runtime.
 
 ## Publication checkpoint
 

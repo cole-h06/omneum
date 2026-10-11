@@ -56,6 +56,11 @@ def version_for_tag(project, tag):
         raise ValueError("project.version is not safe for release asset names")
     if tag != f"v{version}":
         raise ValueError(f"release tag must be exactly v{version}; got {tag!r}")
+    cargo = project.with_name('Cargo.toml')
+    if cargo.exists():
+        with cargo.open('rb') as source:
+            if tomllib.load(source)['package']['version'] != version:
+                raise ValueError('Rust package version must match Python release version')
     return version
 
 
@@ -91,6 +96,12 @@ def verify(directory, version):
             members = archive.getmembers()
             if [m.name for m in members] != sorted(expected_layout):
                 raise ValueError(f"invalid archive layout: {platform}")
+            daemon_member = archive.getmember("omneumd")
+            if not daemon_member.isfile() or not 0 < daemon_member.size <= 128 * 1024 * 1024:
+                raise ValueError("invalid daemon archive member")
+            binary = archive.extractfile(daemon_member).read()
+            if b"protected-voprf-v1" not in binary or b"fixture-voprf-v1" in binary:
+                raise ValueError("release daemon is not a protected evaluator build")
             if platform == "linux-x86_64":
                 with archive.extractfile("runtime.tar.gz") as runtime:
                     unpack(runtime, version=version)
