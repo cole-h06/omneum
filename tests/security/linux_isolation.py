@@ -28,10 +28,11 @@ def force_openat_fallback():
                     ('jf', ctypes.c_ubyte), ('k', ctypes.c_uint)]
     class Program(ctypes.Structure):
         _fields_ = [('length', ctypes.c_ushort), ('filters', ctypes.POINTER(Filter))]
-    filters = (Filter * 4)(Filter(0x20, 0, 0, 0), Filter(0x15, 0, 1, 437),
-                          Filter(0x06, 0, 0, 0x50000 | errno.ENOSYS),
-                          Filter(0x06, 0, 0, 0x7fff0000))
-    program = Program(4, filters)
+    # Also force close_range's descriptor-directory fallback (syscall 436).
+    filters = (Filter * 5)(Filter(0x20, 0, 0, 0), Filter(0x15, 2, 0, 437),
+                          Filter(0x15, 1, 0, 436), Filter(0x06, 0, 0, 0x7fff0000),
+                          Filter(0x06, 0, 0, 0x50000 | errno.ENOSYS))
+    program = Program(5, filters)
     libc = ctypes.CDLL(None, use_errno=True)
     assert libc.prctl(38, 1, 0, 0, 0) == 0  # PR_SET_NO_NEW_PRIVS
     assert libc.prctl(22, 2, ctypes.byref(program), 0, 0) == 0  # SECCOMP_MODE_FILTER
@@ -114,11 +115,26 @@ def main(binary):
         command = [str(installed), 'serve', '--key-dir', str(private), '--socket', str(sock),
                    '--client-uid', str(MCP)]
         def start(fallback=False):
-            process = subprocess.Popen(command, preexec_fn=identity(CRYPTO, MCP, fallback),
+            import fcntl
+            import resource
+            read, write = os.pipe()
+            high = fcntl.fcntl(write, fcntl.F_DUPFD, 200)
+            os.set_inheritable(high, True)
+            os.close(write)
+            def launch():
+                resource.setrlimit(resource.RLIMIT_NOFILE, (64, 256))
+                identity(CRYPTO, MCP, fallback)()
+            process = subprocess.Popen(command, preexec_fn=launch, pass_fds=(high,),
                                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            os.close(high)
             for _ in range(500):
                 assert process.poll() is None, process.stderr.read()
                 if sock.exists():
+                    os.set_blocking(read, False)
+                    try:
+                        assert os.read(read, 1) == b'', 'high inherited descriptor remained open'
+                    finally:
+                        os.close(read)
                     return process
                 time.sleep(.01)
             process.kill(); process.wait()
@@ -192,6 +208,7 @@ def main(binary):
                                 capture_output=True, timeout=5)
         assert result.returncode != 0, 'fallback followed a key symlink'
         print('PASS: ENOSYS fallback valid traversal and parent/key symlink rejection')
+        print('PASS: high inherited descriptors closed with reduced limits, including close_range ENOSYS fallback')
         print('PASS: distinct-UID key/traversal/binary/config/memory/ptrace denial, authenticated IPC, unrelated UID rejection, key owner/mode, restart, shutdown')
     finally:
         if daemon is not None and daemon.poll() is None:

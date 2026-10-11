@@ -100,6 +100,84 @@ def test_wrong_uid(daemon):
         )
 
 
+@pytest.mark.parametrize('path,timeout', [('/private/tmp/../eval.sock', 1), ('/private/tmp/eval.sock', True),
+    ('/private/tmp/eval.sock', float('nan')), ('/private/tmp/eval.sock', float('inf'))])
+def test_invalid_endpoint_rejected_before_connect(path, timeout):
+    with pytest.raises(ValueError):
+        DaemonServerContext._validate_endpoint(path, os.getuid(), timeout)
+
+
+def test_daemon_denies_unauthorized_peer_uid(tmp_path):
+    import tempfile
+    temporary = tempfile.TemporaryDirectory(prefix='od-auth-', dir='/private/tmp' if sys.platform == 'darwin' else '/tmp')
+    root = Path(temporary.name)
+    directory = root / 'keys'
+    directory.mkdir(mode=0o700)
+    key = directory / 'voprf.key'
+    key.write_bytes(KEY)
+    key.chmod(0o600)
+    endpoint = root / 'eval.sock'
+    process = subprocess.Popen([str(BINARY), 'serve', '--test-mode', '--key-dir', str(directory),
+        '--socket', str(endpoint), '--client-uid', str(os.getuid()+1)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        for _ in range(100):
+            assert process.poll() is None
+            if endpoint.exists():
+                break
+            time.sleep(.01)
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as stream:
+            stream.settimeout(2)
+            stream.connect(str(endpoint))
+            try:
+                stream.sendall(b'\x01\x01\0\0')
+                assert stream.recv(4) == b''
+            except (ConnectionResetError, BrokenPipeError):
+                pass  # Peer denial may close before the client writes its frame.
+    finally:
+        process.terminate()
+        process.wait(timeout=3)
+        temporary.cleanup()
+
+
+def test_high_inherited_descriptor_closed_after_limit_reduction(daemon, tmp_path):
+    # Launch with a pipe above a deliberately lowered descriptor limit. The old
+    # _SC_OPEN_MAX loop left this pipe open for the daemon's entire lifetime.
+    import fcntl
+    import tempfile
+    read, write = os.pipe()
+    high = fcntl.fcntl(write, fcntl.F_DUPFD, 200)
+    os.set_inheritable(high, True)
+    os.close(write)
+    temporary = tempfile.TemporaryDirectory(prefix='od-fds-', dir='/private/tmp' if sys.platform == 'darwin' else '/tmp')
+    root = Path(temporary.name)
+    keys = root / 'keys'
+    keys.mkdir(mode=0o700)
+    (keys / 'voprf.key').write_bytes(KEY)
+    (keys / 'voprf.key').chmod(0o600)
+    script = '''import os,resource,sys
+resource.setrlimit(resource.RLIMIT_NOFILE,(64,256))
+os.execv(sys.argv[1],sys.argv[1:])
+'''
+    process = subprocess.Popen([sys.executable, '-c', script, str(BINARY), 'serve', '--test-mode',
+        '--key-dir', str(keys), '--socket', str(root/'eval.sock'), '--client-uid', str(os.getuid())],
+        pass_fds=(high,), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    os.close(high)
+    try:
+        for _ in range(200):
+            assert process.poll() is None
+            if (root/'eval.sock').exists():
+                break
+            time.sleep(.01)
+        assert (root/'eval.sock').exists()
+        os.set_blocking(read, False)
+        assert os.read(read, 1) == b''
+    finally:
+        process.terminate()
+        process.wait(timeout=3)
+        os.close(read)
+        temporary.cleanup()
+
+
 def test_wrong_public_key(daemon):
     other = FixtureDaemon(b"\x02" + b"\0" * 31)
     try:

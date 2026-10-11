@@ -118,6 +118,17 @@ pub fn main_entry() -> io::Result<()> {
     let command = args.first().ok_or_else(os::denied)?;
 
     match command.as_str() {
+        "capabilities" if args.len() == 1 => {
+            println!(
+                "{}",
+                if cfg!(feature = "test-daemon") {
+                    "fixture-voprf-v1"
+                } else {
+                    "protected-voprf-v1"
+                }
+            );
+            return Ok(());
+        }
         "--help" | "-h" => {
             println!("Usage: omneumd <provision|serve> [options]");
             return Ok(());
@@ -128,15 +139,7 @@ pub fn main_entry() -> io::Result<()> {
     let settings = Settings::parse(&args[1..])?;
     os::harden(settings.test_mode)?;
     // No socket activation or inherited IPC is supported. Close descriptors before key access.
-    let max_fd = unsafe { libc::sysconf(libc::_SC_OPEN_MAX) };
-    if max_fd < 0 {
-        return Err(os::denied());
-    }
-    for fd in 3..max_fd.min(i32::MAX as i64) as i32 {
-        unsafe {
-            libc::close(fd);
-        }
-    }
+    os::close_inherited_descriptors()?;
     let limits = libc::rlimit {
         rlim_cur: 256,
         rlim_max: 256,

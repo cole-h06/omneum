@@ -10,6 +10,90 @@ import pytest
 from omneum.storage import SQLiteStorage
 
 
+def test_private_path_rejects_traversal(tmp_path):
+    with pytest.raises(ValueError, match='traversal'):
+        SQLiteStorage(tmp_path / 'nested' / '..' / 'context.db')
+
+
+def test_unsafe_ancestor_is_rejected_before_creating_descendants(tmp_path):
+    ancestor = tmp_path / 'shared'
+    ancestor.mkdir()
+    ancestor.chmod(0o777)
+    try:
+        with pytest.raises(ValueError, match='ancestor'):
+            with SQLiteStorage(ancestor / 'new' / 'graph' / 'context.db').transaction():
+                pass
+        assert not (ancestor / 'new').exists()
+    finally:
+        ancestor.chmod(0o700)
+
+
+def test_dynamic_sql_identifiers_are_allowlisted(tmp_path):
+    with SQLiteStorage(tmp_path / 'context.db').transaction() as connection:
+        for table, columns in [('sources; DROP TABLE claims;--', ('source_kind', 'identifier')),
+                               ('sources', ('identifier); DROP TABLE claims;--',))]:
+            with pytest.raises(ValueError, match='unsupported SQLite identity'):
+                SQLiteStorage._identity(connection, table, 'workspace', None, columns, ())
+        assert connection.execute('SELECT count(*) FROM claims').fetchone() == (0,)
+
+
+@pytest.mark.parametrize('suffix', ['', '-wal', '-shm', '-journal'])
+def test_unexpected_file_owner_rejected_before_mutation(tmp_path, monkeypatch, suffix):
+    path = tmp_path / ('context.db'+suffix)
+    path.touch(mode=0o600)
+    inode = path.stat().st_ino
+    fstat = os.fstat
+    def foreign_owner(fd):
+        info = fstat(fd)
+        if info.st_ino == inode:
+            fields = list(info)
+            fields[4] = os.getuid()+1
+            return os.stat_result(fields)
+        return info
+    monkeypatch.setattr(os, 'fstat', foreign_owner)
+    with pytest.raises(ValueError, match='user-owned'):
+        SQLiteStorage._prepare_file(path, create=suffix == '')
+    assert path.stat().st_size == 0 and path.stat().st_mode & 0o777 == 0o600
+
+
+@pytest.mark.parametrize('attack', ["'; DROP TABLE sources; --", '"; ATTACH DATABASE \'/tmp/stolen\' AS evil; --',
+                                   "'); SELECT load_extension('/tmp/evil'); --", 'UNION SELECT sqlite_version()'])
+def test_observation_strings_are_bound_values(tmp_path, example_daemon, attack):
+    from datetime import datetime, timezone
+    from uuid import uuid4
+    from omneum import Claim, Observation, Source, Retrieval, SourceReference
+    from omneum.client import OmneumClient
+    from test_client import make_config, LocalEvaluator
+    import asyncio
+    from omneum.oprf import VOPRFServer
+    # Linkage is real; every persisted string-bearing observation field carries
+    # SQL metacharacters. The SQLite adapter round-trips them as data.
+    server = VOPRFServer(example_daemon.context)
+    client = OmneumClient(make_config(server), LocalEvaluator(server), local_persistence=None)
+    from urllib.parse import quote
+    source = Source('web_document', 'https://example.test/' + quote(attack, safe="';()-"), attack)
+    claim = Claim(attack, attack, attack, {attack: [attack]})
+    now = datetime.now(timezone.utc)
+    observation = Observation(attack, source, claim, now, upstream_sources=(SourceReference(source.kind, source.identifier),),
+        cited_sources=(SourceReference(source.kind, source.identifier),), parent_observation_ids=(attack,),
+        retrievals=(Retrieval(attack, attack, attack, now, {attack: attack}),),
+        metadata={attack: attack}, dependency_signals={attack: attack})
+    async def tokens():
+        return await client.link_source(source.kind, source.identifier), await client.link_claim(
+            claim.entity_namespace, claim.entity, claim.attribute, claim.value)
+    source_token, claim_token = asyncio.run(tokens())
+    storage, workspace = SQLiteStorage(tmp_path / 'context.db'), uuid4()
+    storage.persist_observation(workspace_id=workspace, observation=observation,
+                               source_token=source_token, claim_token=claim_token)
+    restored = storage.load_assertions(workspace_id=workspace)[0]
+    from omneum.canonicalization import canonicalize_entity
+    expected_claim = Claim(claim.entity_namespace, canonicalize_entity(claim.entity_namespace, claim.entity),
+                           claim.attribute, claim.value)
+    assert restored.observation_id == attack and restored.source == source and restored.claim == expected_claim
+    assert restored.metadata == {attack: attack} and restored.retrievals[0].fields == {attack: attack}
+    assert restored.dependency_signals == {attack: attack}
+
+
 @pytest.mark.parametrize('tamper', [
     "CREATE TRIGGER injected AFTER INSERT ON evaluation_runs BEGIN DELETE FROM sources; END",
     "CREATE TRIGGER sqliteXhidden AFTER INSERT ON evaluation_runs BEGIN DELETE FROM sources; END",

@@ -499,33 +499,15 @@ def test_unowned_versioned_database_rejected(tmp_path):
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='POSIX symlinks and permissions')
-def test_canonical_directory_is_not_resolved_again_after_validation(tmp_path, monkeypatch):
+def test_ancestor_symlink_rejected_before_resolution(tmp_path):
     safe = tmp_path / 'safe'
-    unsafe = tmp_path / 'unsafe'
-    safe.mkdir(mode=0o700)
-    unsafe.mkdir(mode=0o777)
-    unsafe.chmod(0o777)
-    for parent in (safe, unsafe):
-        (parent / 'graph').mkdir(mode=0o700)
+    (safe / 'graph').mkdir(mode=0o700, parents=True)
     alias = tmp_path / 'alias'
     alias.symlink_to(safe, target_is_directory=True)
-    supplied = alias / 'graph'
-    resolve = Path.resolve
-    calls = []
-    def swapped(self, *args, **kwargs):
-        resolved = resolve(self, *args, **kwargs)
-        if self == supplied:
-            calls.append(resolved)
-            if len(calls) == 1:
-                alias.unlink()
-                alias.symlink_to(unsafe, target_is_directory=True)
-        return resolved
-    monkeypatch.setattr(Path, 'resolve', swapped)
-    with SQLiteStorage(supplied / 'context.db').transaction():
-        pass
-    assert calls == [safe / 'graph']
-    assert (safe / 'graph' / 'context.db').is_file()
-    assert not (unsafe / 'graph' / 'context.db').exists()
+    with pytest.raises(ValueError, match='symlink'):
+        with SQLiteStorage(alias / 'graph' / 'context.db').transaction():
+            pass
+    assert not (safe / 'graph' / 'context.db').exists()
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='POSIX unlink semantics')

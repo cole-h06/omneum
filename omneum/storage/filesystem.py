@@ -3,6 +3,69 @@ import os
 from pathlib import Path
 import re
 import sys
+import stat
+from contextlib import contextmanager
+
+
+@contextmanager
+def private_directory(path, *, create=False):
+    """Walk and validate before mutation; never follow caller-owned symlinks.
+
+    Keep the directory descriptor alive during file validation/opening. Other UIDs
+    cannot replace validated non-writable ancestors. This is not a sandbox
+    against another process with the same UID (including SQLite's path VFS).
+    """
+    path = Path(path).absolute()
+    if '..' in path.parts:
+        raise ValueError('private directory path must not contain traversal')
+    if path == Path(path.anchor):
+        raise ValueError('private directory cannot be a filesystem root')
+    # Only these root-owned Darwin platform aliases may be resolved.
+    if sys.platform == 'darwin' and path.parts[1:2] in (('tmp',), ('var',), ('etc',)):
+        path = Path('/' + path.parts[1]).resolve(strict=True).joinpath(*path.parts[2:])
+    if os.name != 'posix':
+        if create:
+            path.mkdir(mode=0o700, parents=True, exist_ok=True)
+        if path.is_symlink() or not path.is_dir():
+            raise ValueError('private directory must not be a symlink')
+        yield path, None
+        return
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    fd = os.open('/', flags)
+    try:
+        root = os.fstat(fd)
+        if root.st_uid != 0 or root.st_mode & 0o022:
+            raise ValueError('SQLite directory has an unsafe root ancestor')
+        require_safe_acl(fd, ancestor=True)
+        for index, name in enumerate(path.parts[1:]):
+            try:
+                child = os.open(name, flags, dir_fd=fd)
+            except FileNotFoundError:
+                if not create:
+                    raise
+                try:
+                    os.mkdir(name, mode=0o700, dir_fd=fd)
+                except FileExistsError:
+                    pass  # Concurrent creator is validated below.
+                child = os.open(name, flags, dir_fd=fd)
+            except OSError:
+                raise ValueError('private directory must not contain symlinks') from None
+            os.close(fd)
+            fd = child
+            info = os.fstat(fd)
+            final = index == len(path.parts) - 2
+            if final:
+                if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o700:
+                    raise ValueError('SQLite directory must be owner-only (0700)')
+                require_safe_acl(fd)
+            else:
+                if (info.st_uid not in (0, os.getuid())
+                        or info.st_mode & 0o022 and not info.st_mode & stat.S_ISVTX):
+                    raise ValueError('SQLite directory has an unsafe ancestor')
+                require_safe_acl(fd, ancestor=True)
+        yield path, fd
+    finally:
+        os.close(fd)
 
 
 def require_safe_acl(fd, *, ancestor=False):

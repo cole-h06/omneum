@@ -10,6 +10,7 @@ import socket
 import struct
 import sys
 import time
+import math
 
 from .oprf import (
     ELEMENT_LENGTH, PROOF_LENGTH, InvalidBlindedElementError,
@@ -77,9 +78,11 @@ class DaemonServerContext:
     def _validate_endpoint(socket_path, expected_uid, timeout):
         if not isinstance(socket_path, (str, Path)) or not Path(socket_path).is_absolute():
             raise ValueError("Daemon socket must be an absolute path.")
+        if '..' in Path(socket_path).parts or '\x00' in str(socket_path):
+            raise ValueError("Daemon socket path must not contain traversal or NUL.")
         if type(expected_uid) is not int or not 0 <= expected_uid < 2**32 - 1:
             raise ValueError("Daemon UID is invalid.")
-        if not 0 < timeout <= 60:
+        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 60:
             raise ValueError("Daemon deadline is invalid.")
 
     @classmethod

@@ -23,7 +23,7 @@ from ..dependency import DependencyEstimatorConfig
 from ..information import Claim, Observation, Source
 from ..linkage import LinkagePurpose
 from .base import PersistedObservation
-from .filesystem import require_local_filesystem, require_safe_acl, require_safe_directory_acl
+from .filesystem import require_local_filesystem, require_safe_acl, private_directory
 from .schema import APPLICATION_ID, MIGRATIONS
 
 
@@ -93,7 +93,10 @@ class SQLiteStorage:
         if (type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds)
                 or timeout_seconds <= 0):
             raise ValueError("invalid SQLite busy timeout")
-        self.path = (paths.get_context_db_path() if path is None else Path(path).expanduser()).absolute()
+        selected = paths.get_context_db_path() if path is None else Path(path).expanduser()
+        if '..' in selected.parts:
+            raise ValueError('SQLite path must not contain traversal')
+        self.path = selected.absolute()
         if os.name == 'nt' and str(self.path).startswith('\\\\'):
             raise ValueError('SQLite requires a local filesystem path')
         self.timeout_seconds = float(timeout_seconds)
@@ -115,38 +118,19 @@ class SQLiteStorage:
             return
 
         with type(self)._init_lock:
-            self.path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-            if not stat.S_ISDIR(self.path.parent.lstat().st_mode):
-                raise ValueError('SQLite directory must not be a symlink')
-            # Validate and open the same canonical target. Resolving again after
-            # validation could follow a replaced symlink in the supplied path.
-            directory_path = self.path.parent.resolve(strict=True)
-            directory = directory_path.lstat()
-            if not stat.S_ISDIR(directory.st_mode):
-                raise ValueError('SQLite directory must be a directory')
-            if os.name == 'posix':
-                if directory.st_uid != os.getuid() or stat.S_IMODE(directory.st_mode) & 0o077:
-                    raise ValueError('SQLite directory must be owner-only')
-                require_safe_directory_acl(directory_path)
-                # Resolve trusted platform aliases (such as macOS /tmp) once.
-                # Writable non-sticky ancestors permit replacement by other users.
-                for parent in directory_path.parents:
-                    info = parent.stat()
-                    mode = info.st_mode
-                    if (info.st_uid not in (0, os.getuid())
-                            or mode & 0o022 and not mode & stat.S_ISVTX):
-                        raise ValueError('SQLite directory has an unsafe ancestor')
-                    require_safe_directory_acl(parent, ancestor=True)
-            require_local_filesystem(directory_path)
-            path = directory_path / self.path.name
-            self._prepare_file(path, create=True)
-            for suffix in ('-wal', '-shm', '-journal'):
-                self._prepare_file(Path(str(path) + suffix))
-            connection = sqlite3.connect(
-                path,
-                timeout=self.timeout_seconds,
-                isolation_level=None,
-            )
+            # Validate ancestors before creating anything. Descriptor walking
+            # rejects caller aliases instead of silently resolving them.
+            with private_directory(self.path.parent, create=True) as (directory_path, directory_fd):
+                require_local_filesystem(directory_path)
+                path = directory_path / self.path.name
+                self._prepare_file(path, create=True)
+                for suffix in ('-wal', '-shm', '-journal'):
+                    self._prepare_file(Path(str(path) + suffix))
+                connection = sqlite3.connect(
+                    path,
+                    timeout=self.timeout_seconds,
+                    isolation_level=None,
+                )
 
         try:
             connection.execute('PRAGMA trusted_schema=OFF')
@@ -370,7 +354,11 @@ class SQLiteStorage:
 
     @staticmethod
     def _identity(connection, table, workspace, token, columns, semantics):
-        # All SQL identifiers here are adapter-owned constants.
+        # Identifiers cannot be bound as values: enforce the complete allowlist.
+        allowed = {'sources': ('source_kind', 'identifier'),
+                   'claims': ('entity_namespace', 'entity', 'attribute', 'value')}
+        if table not in allowed or columns != allowed[table]:
+            raise ValueError('unsupported SQLite identity columns')
         column_names = ', '.join(columns)
         row = connection.execute(f'''SELECT id, {column_names} FROM {table}
             WHERE workspace_id=? AND deployment_id=? AND key_version=? AND {table[:-1]}_token=?''',
@@ -417,6 +405,8 @@ class SQLiteStorage:
         ws, run = str(workspace_id), str(uuid4())
         with self.transaction() as connection:
             def lookup(table, token):
+                if table not in ('sources', 'claims'):
+                    raise ValueError('unsupported SQLite identity table')
                 row = connection.execute(f'''SELECT id FROM {table}
                     WHERE workspace_id=? AND deployment_id=? AND key_version=? AND {table[:-1]}_token=?''',
                     (ws, *_context(token), token.value)).fetchone()

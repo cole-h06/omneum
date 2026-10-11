@@ -15,6 +15,46 @@ pub fn uid() -> u32 {
     unsafe { libc::geteuid() }
 }
 
+pub fn close_inherited_descriptors() -> io::Result<()> {
+    // _SC_OPEN_MAX is the current limit, not the highest inherited descriptor:
+    // a launcher can lower RLIMIT_NOFILE after opening a higher-numbered fd.
+    // No threads or key files exist yet. Preserve only stdin/stdout/stderr.
+    #[cfg(target_os = "linux")]
+    {
+        if unsafe { libc::syscall(libc::SYS_close_range, 3u32, u32::MAX, 0u32) } == 0 {
+            return Ok(());
+        }
+        let error = io::Error::last_os_error();
+        if !matches!(error.raw_os_error(), Some(libc::ENOSYS) | Some(libc::EPERM)) {
+            return Err(error);
+        }
+    }
+    #[cfg(target_os = "linux")]
+    let directory = "/proc/self/fd";
+    #[cfg(target_os = "macos")]
+    let directory = "/dev/fd";
+    // Collect first, dropping the directory iterator before closing its fd.
+    // If the OS descriptor directory is unavailable, fail before key access.
+    let descriptors = std::fs::read_dir(directory)?
+        .map(|entry| {
+            let entry = entry?;
+            entry
+                .file_name()
+                .to_str()
+                .ok_or_else(denied)?
+                .parse::<i32>()
+                .map_err(|_| denied())
+        })
+        .collect::<io::Result<Vec<_>>>()?;
+    for fd in descriptors.into_iter().filter(|fd| *fd >= 3) {
+        // These are inherited descriptors or the already closed iterator fd.
+        unsafe {
+            libc::close(fd);
+        }
+    }
+    Ok(())
+}
+
 #[derive(Debug)]
 pub struct Peer {
     pub uid: u32,
