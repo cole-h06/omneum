@@ -21,6 +21,10 @@ Local installations use SQLite. The database is created automatically on first u
 | macOS | `~/Library/Application Support/Omneum/context.db` |
 | Linux | `~/.local/share/omneum/context.db` |
 
+For a new default graph with unsafe data-directory ancestors, Omneum uses
+`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+silently relocated; shared directory permissions are preserved.
+
 On Linux, an absolute `XDG_DATA_HOME` overrides the default data directory:
 
 ```text

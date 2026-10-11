@@ -157,7 +157,7 @@ Claims with the same entity and attribute can have different values. These are r
 
 ### Observation
 
-`Observation` connects a source to a claim and records the available provenance.
+An `Observation` is a persistent record of information encountered by an agent. Assertion observations associate a source with a claim and preserve the available provenance.
 
 ```python
 from datetime import datetime, timezone
