@@ -188,7 +188,7 @@ mapper = ContextMapper(
 )
 ```
 
-Source identifiers and claim values must be canonicalized upstream. See [Canonicalization](docs/canonicalization.md).
+The SDK handles canonicalization. See [Canonicalization](docs/canonicalization.md).
 
 ### 2. Evaluate context
 
