@@ -164,9 +164,47 @@ def test_two_graph_locations_require_explicit_selection(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
     monkeypatch.delenv('XDG_DATA_HOME', raising=False)
     (tmp_path / '.local' / 'share' / 'omneum').mkdir(parents=True)
-    (tmp_path / '.omneum').mkdir()
+    (tmp_path / '.omneum' / 'data').mkdir(parents=True)
     with pytest.raises(ValueError, match='explicit selection'):
         get_context_db_path()
+
+
+def test_unrelated_dot_directory_does_not_hide_existing_graph(tmp_path, monkeypatch):
+    import omneum.paths as module
+    monkeypatch.setattr(module.sys, 'platform', 'linux')
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    monkeypatch.delenv('XDG_DATA_HOME', raising=False)
+    native = tmp_path / '.local' / 'share' / 'omneum'
+    native.mkdir(parents=True)
+    (tmp_path / '.omneum').mkdir()
+    assert get_context_db_path() == native / 'context.db'
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='POSIX directory permissions')
+def test_new_configuration_parents_are_private_under_shared_umask(tmp_path, monkeypatch):
+    from omneum import paths
+    directory = tmp_path / 'new' / 'config' / 'Omneum'
+    monkeypatch.setenv('OMNEUM_CONFIG_DIR', str(directory))
+    mask = os.umask(0o002)
+    try:
+        assert paths.get_config_dir() == directory
+    finally:
+        os.umask(mask)
+    for path in (directory, directory.parent, directory.parent.parent):
+        assert stat.S_IMODE(path.stat().st_mode) == 0o700
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='POSIX directory permissions')
+def test_configuration_never_repairs_shared_ancestors(tmp_path, monkeypatch):
+    from omneum import paths
+    shared = tmp_path / 'shared'
+    shared.mkdir()
+    shared.chmod(0o775)
+    monkeypatch.setenv('OMNEUM_CONFIG_DIR', str(shared / 'Omneum'))
+    with pytest.raises(ValueError, match='unsafe ancestor'):
+        paths.get_config_dir()
+    assert stat.S_IMODE(shared.stat().st_mode) == 0o775
+    assert not (shared / 'Omneum').exists()
 
 
 def test_custom_path_and_restart(runtime, tmp_path):
@@ -627,6 +665,7 @@ def test_new_macos_config_directory_is_compatible_with_default_graph(tmp_path, m
     from omneum.storage import filesystem
     if os.uname().sysname != 'Darwin':
         monkeypatch.setattr(filesystem, 'require_safe_acl', lambda *args, **kwargs: None)
+        monkeypatch.setattr('omneum.storage.sqlite.require_safe_acl', lambda *args, **kwargs: None)
     monkeypatch.setattr(filesystem, '_darwin_is_local', lambda path: True)
     monkeypatch.setattr(paths.sys, 'platform', 'darwin')
     monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
