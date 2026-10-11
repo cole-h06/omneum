@@ -120,7 +120,7 @@ Restart your MCP client to expose Omneum's tools to your agent.
 
 Ask your agent to call Omneum's `ping` tool. A successful response returns `"status": "ok"`, confirming that your agent can reach the Omneum MCP server.
 
-## Use Omneum with your agent
+## Use Omneum with Your Agent
 
 Evaluate retrieved context using Omneum's Python SDK and local MCP server.
 
@@ -242,7 +242,7 @@ Fy2025 gross revenue
     3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
 ```
 
-Full reference: [Python SDK](docs/sdk.md) · [ContextMapper](docs/context_mapper.md) · [Evaluation schema](docs/architecture.md#contextevaluation)
+Full reference: [Python SDK](docs/sdk.md) · [ContextMapper](docs/context_mapper.md) · [Evaluation schema](docs/architecture.md#evaluation-results)
 
 ## Integrations
 
@@ -342,7 +342,7 @@ evaluation = await client.evaluate_mapped(
 print(evaluation.explanation)
 ```
 
-[ContextEvaluation docs →](docs/architecture.md##evaluation-results)
+[ContextEvaluation docs →](docs/architecture.md#evaluation-results)
 
 ## Performance & Accuracy
 
@@ -350,7 +350,7 @@ Evaluated on **24 held-out cases across six domains**: coding agents, enterprise
 
 ### Semantic Rerankers
 
-Measures how effectively Omneum improves evidence selection when combined with semantic rerankers, across diverse agent workflows.
+Measures how Omneum improves evidence selection when combined with semantic rerankers across diverse agent workflows.
 
 ![Semantic Reranker Selection Precision](assets/benchmarks/semantic-reranker-selection-precision.png)
 
@@ -361,13 +361,13 @@ Measures how effectively Omneum improves evidence selection when combined with s
 | Cohere Rerank v4.0 Pro | 77.78% | 53.99% | 87.50% | 151 ms | 2.634s | 11,577 | $0.071242 |
 | Cohere + Omneum | **82.64%** | **55.72%** | 79.17% | 624 ms | 3.176s | 11,535 | **$0.070654** |
 
-*Costs reflect estimated downstream generator API usage only; reranker API charges and local compute are excluded. Omneum improves selection precision and recall in both comparisons, with increased selection latency and lower downstream answer accuracy in these runs.*
+*Costs reflect estimated downstream generator API usage only; reranker API charges and local compute are excluded. Omneum improves selection precision and recall in both comparisons.*
 
 ### Frontier LLM Judges
 
-![Frontier LLM Judge Selection Latency](assets/benchmarks/llm-judge-selection-latency.png)
-
 Each LLM judge is evaluated alongside Omneum under the same model-specific benchmark configuration.
+
+![Frontier LLM Judge Selection Latency](assets/benchmarks/llm-judge-selection-latency.png)
 
 | Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
 |---|---:|---:|---:|---:|---:|---:|---:|
