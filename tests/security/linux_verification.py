@@ -34,7 +34,7 @@ sys.addaudithook(audit)
     assert not hook.exists()
     try:
         with hook.open('x') as output:
-            output.write('import builtins; exec(' + repr(code) + ')\n')
+            output.write('import builtins; exec(' + repr(code) + ', {})\n')
         hook.chmod(0o644)
         result = scope['unprivileged_python']('-c', '''
 import os,sys,json,builtins,omneum,omneum_oprf
