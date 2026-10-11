@@ -15,6 +15,8 @@ import sys
 import tarfile
 import urllib.request
 
+from release_wheels import sanitize
+
 
 SOURCES = {
     'cryptography-50.0.2': (
@@ -34,35 +36,39 @@ def build(work, output):
         raise ValueError('build interpreter must be Intel (Rosetta is supported)')
     if output.exists():
         raise ValueError('output must be new')
-    work.mkdir(parents=True, exist_ok=True)
+    if work.exists():
+        raise ValueError('work directory must be new; never reuse modified sources')
+    work.mkdir(parents=True)
     for name, (url, digest) in SOURCES.items():
         archive = work / (name + '.tar.gz')
-        if not archive.exists():
-            with urllib.request.urlopen(url, timeout=60) as response:
-                archive.write_bytes(response.read())
+        with urllib.request.urlopen(url, timeout=60) as response:
+            archive.write_bytes(response.read())
         if hashlib.sha256(archive.read_bytes()).hexdigest() != digest:
             raise ValueError('source checksum mismatch: ' + name)
-        if not (work / name).exists():
-            with tarfile.open(archive) as source:
-                source.extractall(work, filter='data')
+        with tarfile.open(archive) as source:
+            source.extractall(work, filter='data')
     environment = os.environ.copy()
     environment.update(CC='clang -arch x86_64', MACOSX_DEPLOYMENT_TARGET='10.13',
                        CARGO_BUILD_TARGET='x86_64-apple-darwin',
-                       OPENSSL_STATIC='1', OPENSSL_DIR=str(work / 'openssl-static'),
+                       OPENSSL_STATIC='1',
+                       OPENSSL_DIR=str(work / 'openssl-staging/opt/omneum-dependency/openssl'),
                        RUSTFLAGS=f'--remap-path-prefix={work}=/build/intel-dependency '
                                  f'--remap-path-prefix={Path.home()}=/build/user')
     def run(*args, cwd=work):
         subprocess.run(args, cwd=cwd, env=environment, check=True)
     run('perl', 'Configure', 'darwin64-x86_64-cc', 'no-shared', 'no-tests',
-        '--prefix=' + environment['OPENSSL_DIR'], cwd=work / 'openssl-3.5.9')
+        '--prefix=/opt/omneum-dependency/openssl', '--openssldir=/etc/ssl',
+        cwd=work / 'openssl-3.5.9')
     run('make', '-j2', cwd=work / 'openssl-3.5.9')
-    run('make', 'install_sw', cwd=work / 'openssl-3.5.9')
+    run('make', 'install_sw', 'DESTDIR=' + str(work / 'openssl-staging'),
+        cwd=work / 'openssl-3.5.9')
     output.mkdir(parents=True)
-    run(sys.executable, '-m', 'pip', 'wheel', '--no-deps', '--no-build-isolation',
+    run(sys.executable, '-m', 'pip', 'wheel', '--no-cache-dir', '--no-deps', '--no-build-isolation',
         '--wheel-dir', str(output), str(work / 'cryptography-50.0.2'))
     wheels = list(output.glob('cryptography-50.0.2-*-abi3-macosx_*_x86_64.whl'))
     if len(wheels) != 1:
         raise ValueError('expected one Intel abi3 dependency wheel')
+    sanitize(output)
     wheel = wheels[0]
     digest = hashlib.sha256(wheel.read_bytes()).hexdigest()
     (output / 'SHA256SUMS').write_text(f'{digest}  {wheel.name}\n')

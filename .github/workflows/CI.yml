@@ -71,7 +71,9 @@ jobs:
       - name: Enforce independent algorithm conformance
         run: uv run --locked python -m omneum.conformance --spec-checkout "$ALGORITHM_SPEC_CHECKOUT"
       - name: Test Python and native extension
-        run: uv run --locked pytest
+        # These example tests import LangGraph during collection. Keep that
+        # framework and the development-only PostgreSQL driver out of public deps.
+        run: uv run --locked --group langgraph pytest
       - name: Test Rust
         run: |
           cargo test --locked
