@@ -7,7 +7,7 @@ from examples.langgraph.routing.selection import select_context
 from examples.langgraph.routing.selection_graph import build_selection_graph
 
 
-def test_context_selection():
+def test_context_selection(example_daemon):
     async def run():
         result = await build_selection_graph().ainvoke({
             "question": "Evaluate the EU Customer Support Copilot deployment.",

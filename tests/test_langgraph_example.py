@@ -9,7 +9,7 @@ from examples.langgraph.graph import build_graph
 from examples.langgraph.nodes import _AGENT_ORDER
 
 
-def test_langgraph_workflow():
+def test_langgraph_workflow(example_daemon):
     graph = build_graph()
 
     state = asyncio.run(

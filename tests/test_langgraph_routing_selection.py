@@ -13,7 +13,7 @@ from examples.langgraph.routing.scenarios import initial_observations
     "scenario",
     ("retrieve_support", "resolve_conflicts", "diversify_sources"),
 )
-def test_routing_and_selection(scenario):
+def test_routing_and_selection(scenario, example_daemon):
     async def run():
         initial = initial_observations(scenario)
 

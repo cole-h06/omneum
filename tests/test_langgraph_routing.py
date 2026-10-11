@@ -5,7 +5,7 @@ from examples.langgraph.routing.graph import build_routing_graph
 from examples.langgraph.routing.policy import assess_context
 
 
-def test_langgraph_routing():
+def test_langgraph_routing(example_daemon):
     async def run():
         graph = build_routing_graph()
 
