@@ -200,6 +200,27 @@ source_scores
 claim_scores
 ```
 
+## Hosted production storage
+
+`omneum_prod` stores the shared production Context Graph in authoritative
+`network.*` relational tables. `control.*` holds enrollment and ingestion
+infrastructure, `public.*` requires separate semantic publication authorization,
+and `private` is reserved and empty. Authorized contributions arrive through the
+Network HTTPS API; private local graphs remain user-controlled.
+
+The hosted migration runner uses the relational `production_*` sequence through
+007 and excludes `production_002_context_graph.sql`. DigitalOcean Managed
+PostgreSQL does not support AGE in its published extension lists. Production AGE
+projection, synchronization and backfill/rebuild are not implemented; the existing
+production AGE migration creates labels only. See the [deployment guide](guides/deployment.md#production-database-architecture)
+for provider sources and the verification date.
+
+The `PostgresStorage` adapter and unprefixed migrations described above and below
+are for user-managed local graphs. They target an incompatible `public.*` schema
+and must not be applied to `omneum_prod`. The current adapter calls AGE during
+persistence, so it requires AGE even though the hosted relational Network path does
+not.
+
 ## Apache AGE
 
 Apache AGE is optional. It runs as a PostgreSQL extension and provides a property-graph projection of the context graph.

@@ -3,6 +3,7 @@ import asyncio
 from contextlib import asynccontextmanager, closing
 import json
 from pathlib import Path
+import re
 import sys
 from types import SimpleNamespace
 
@@ -20,7 +21,7 @@ def configuration():
         yield dict(domain='network.fixture-audit.net', deployment_id='urn:uuid:8d96fc18-f40f-4ec7-8ae8-f3711d88b741',
             network_key_version=1, network_public_key=encode_unpadded(b.public_key, expected_length=32),
             local_public_key=encode_unpadded(a.public_key, expected_length=32), database_host='db.fixture-audit.net',
-            database_port=25060, database_name='omneum_network', database_ca='/etc/omneum-network/secrets/database-ca.pem',
+            database_port=25060, database_name='omneum_prod', database_ca='/etc/omneum-network/secrets/database-ca.pem',
             ingestion_dsn_file='/etc/omneum-network/secrets/ingestion.dsn', enrollment_dsn_file='/etc/omneum-network/secrets/enrollment.dsn',
             tls_certificate='/etc/omneum-network/secrets/tls.crt', tls_private_key='/etc/omneum-network/secrets/tls.key',
             oidc_issuer='https://identity.fixture-audit.net/', oidc_audience='omneum-enrollment',
@@ -33,8 +34,45 @@ def configuration():
 def test_template_never_validates():
     template = json.loads((Path(__file__).parents[1] / 'deploy/network/vm/production.json').read_text())
     assert set(template) == deploy.FIELDS
+    assert template['database_name'] == 'omneum_prod'
     with pytest.raises(ValueError):
         deploy.validate_config(template)
+
+
+def test_hosted_migrations_are_relational_and_match_docker():
+    root = Path(__file__).parents[1]
+    # Both deployment paths must work without installing AGE or the local schema.
+    assert 'production_002_context_graph.sql' not in deploy.MIGRATIONS
+    statements = '\n'.join((root / 'migrations' / name).read_text()
+                           for name in deploy.MIGRATIONS)
+    extensions = re.findall(r'CREATE EXTENSION(?: IF NOT EXISTS)?\s+(\w+)', statements, re.I)
+    assert set(extensions) == {'pgcrypto'}
+    assert not re.search(r"LOAD\s+'age'|ag_catalog\.", statements, re.I)
+    docker = (root / 'deploy/network/init-postgres.sh').read_text()
+    assert tuple(re.findall(r'production_\w+\.sql', docker)) == deploy.MIGRATIONS
+
+
+def test_generated_runtime_dsns_share_production_database(configuration, tmp_path, monkeypatch):
+    from psycopg.conninfo import conninfo_to_dict
+    c = {**configuration,
+         'ingestion_dsn_file': str(tmp_path / 'ingestion.dsn'),
+         'enrollment_dsn_file': str(tmp_path / 'enrollment.dsn')}
+    # File generation needs no administrator ownership checks or DB connection.
+    monkeypatch.setattr(deploy, 'safe_path', lambda *args, **kwargs: None)
+    deploy.generate_dsns(c)
+    passwords = set()
+    for field, role in (('ingestion_dsn_file', 'omneum_ingestion'),
+                        ('enrollment_dsn_file', 'omneum_enrollment')):
+        path = Path(c[field])
+        settings = conninfo_to_dict(path.read_text())
+        assert settings['dbname'] == 'omneum_prod'
+        assert settings['user'] == role
+        assert settings['sslmode'] == 'verify-full'
+        assert path.stat().st_mode & 0o777 == 0o600
+        passwords.add(settings['password'])
+        monkeypatch.setattr(deploy, 'private_read', lambda filename: Path(filename).read_bytes())
+        assert conninfo_to_dict(deploy.database_settings(c, str(path), role))['dbname'] == 'omneum_prod'
+    assert len(passwords) == 2
 
 
 @pytest.mark.parametrize('field,value', [('domain', 'example.com'), ('domain', 'network.localhost'),
@@ -98,7 +136,7 @@ def test_matching_and_mismatched_release(configuration, monkeypatch):
 
 
 @pytest.mark.parametrize('change', [{'sslmode': 'require'}, {'user': 'admin'}, {'host': 'attacker.net'},
-    {'service': 'redirect'}, {'sslrootcert': '/tmp/untrusted'}, {'options': '-c role=admin'}])
+    {'dbname': 'omneum_network'}, {'service': 'redirect'}, {'sslrootcert': '/tmp/untrusted'}, {'options': '-c role=admin'}])
 def test_database_dsn_cannot_override_trust(configuration, monkeypatch, change):
     from psycopg.conninfo import make_conninfo
     c = configuration

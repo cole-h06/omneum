@@ -6,7 +6,7 @@
   "local_public_key": "",
   "database_host": "",
   "database_port": 0,
-  "database_name": "",
+  "database_name": "omneum_prod",
   "database_ca": "",
   "ingestion_dsn_file": "",
   "enrollment_dsn_file": "",

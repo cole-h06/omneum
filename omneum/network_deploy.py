@@ -27,6 +27,9 @@ RUNTIME = Path('/opt/omneum-network')
 SOCKET = Path('/run/omneum-network/eval.sock')
 KEY_DIR = Path('/var/lib/omneum-network-crypto')
 ACCOUNTS = ('omneum-network-api', 'omneum-enrollment', 'omneum-network-crypto')
+# Hosted omneum_prod: network.* is the authoritative relational Context Graph.
+# DigitalOcean Managed PostgreSQL does not support AGE. Exclude the label-only
+# production_002_context_graph.sql; production projection/rebuild is unimplemented.
 MIGRATIONS = (
     'production_001.sql', 'production_002_ingestion.sql',
     'production_003_dependency_evidence.sql', 'production_003_observation_subtypes.sql',
