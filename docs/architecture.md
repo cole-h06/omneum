@@ -109,7 +109,7 @@ async with open_stdio_client(config, server) as client:
 
 `evaluate_context()` accepts a sequence of `Observation` objects. For existing retrieval records, `evaluate_mapped()` accepts a `ContextMapper` and maps the records before evaluation.
 
-See [Python SDK](sdk.md) and [ContextMapper](context_mapper.md).
+See [Python SDK](sdk.md) and [ContextMapper](context-mapper.md).
 
 ## Data Model
 
@@ -418,7 +418,7 @@ See [Research Telemetry](research/telemetry.md).
 
 - [Python SDK](sdk.md) — Client API and evaluation examples
 - [API Reference](api/) — Public interfaces and data types
-- [ContextMapper](context_mapper.md) — Mapping structured records
+- [ContextMapper](context-mapper.md) — Mapping structured records
 - [Canonicalization](canonicalization.md) — Source and claim identity rules
 - [Protocol](protocol.md) — MCP and VOPRF operations
 - [Storage](storage.md) — Local persistence and database configuration

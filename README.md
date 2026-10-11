@@ -242,7 +242,7 @@ Fy2025 gross revenue
     3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
 ```
 
-Full reference: [Python SDK](docs/sdk.md) · [ContextMapper](docs/context_mapper.md) · [Evaluation schema](docs/architecture.md#evaluation-results)
+Full reference: [Python SDK](docs/sdk.md) · [ContextMapper](docs/context-mapper.md) · [Evaluation schema](docs/architecture.md#evaluation-results)
 
 ## Integrations
 
@@ -327,7 +327,7 @@ Source dependencies reduce the weight of duplicated evidence when calculating ef
 
 `ContextMapper` maps structured data from agent and retrieval pipelines into Omneum's observation model. It defines how source identifiers, claim fields, timestamps, and provenance metadata are read from existing records.
 
-[ContextMapper docs →](docs/context_mapper.md)
+[ContextMapper docs →](docs/context-mapper.md)
 
 ### ContextEvaluation
 

@@ -93,7 +93,7 @@ evaluation = await client.evaluate_mapped(
 
 The mapper supplies source identity, claim fields, observation IDs, and available provenance. The SDK uses the same evaluation path as `evaluate_context()`.
 
-See [ContextMapper](../context_mapper.md).
+See [ContextMapper](../context-mapper.md).
 
 ## Source Equivalence
 

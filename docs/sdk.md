@@ -188,7 +188,7 @@ String selectors such as `"company"` and `"revenue"` reference input fields. Cal
 
 `ContextMapper` does not perform entity resolution or extract assertions from unstructured text.
 
-See [ContextMapper](context_mapper.md) for the mapping contract.
+See [ContextMapper](context-mapper.md) for the mapping contract.
 
 ### Configure Source Dependence
 
@@ -380,7 +380,7 @@ See [API Reference](api/) for validation rules and response schemas.
 ## Reference
 
 - [API Reference](api/)
-- [ContextMapper](context_mapper.md)
+- [ContextMapper](context-mapper.md)
 - [Architecture](architecture.md)
 - [Canonicalization](canonicalization.md)
 - [Protocol](protocol.md)
