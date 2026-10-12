@@ -44,6 +44,12 @@ def test_reviewed_contract_revisions_preserve_previous_contract_bytes(name, key)
     previous = deepcopy(contract)
     while previous.get('revision_history'):
         revision = previous['revision_history'].pop()
+        if 'previous_contract_snapshot' in revision:
+            snapshot = ROOT / revision['previous_contract_snapshot']
+            encoded = snapshot.read_bytes()
+            assert hashlib.sha256(encoded).hexdigest() == revision['previous_contract_sha256']
+            previous = json.loads(encoded)
+            continue
         for path, change in revision['changes'].items():
             assert previous[key][path] == change['sha256']
             assert change['reason']

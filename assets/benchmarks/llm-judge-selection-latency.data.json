@@ -1,0 +1,44 @@
+{
+  "chart": "assets/benchmarks/llm-judge-selection-latency.png",
+  "chart_sha256": "2a8050e2453cbe809110ae7e6e9f18c8d2df9e2efa7434ce0ecdf422df687c13",
+  "units": "seconds",
+  "statistic": "selection p50",
+  "series": [
+    {
+      "configuration_id": "bge-claude-vs-bge-omneum-20261008:bge_anthropic",
+      "source_run": "bge-claude-vs-bge-omneum-20261008",
+      "selection_p50_seconds": 1.83078133338131,
+      "display_seconds": 1.831
+    },
+    {
+      "configuration_id": "bge-claude-vs-bge-omneum-20261008:bge_omneum",
+      "source_run": "bge-claude-vs-bge-omneum-20261008",
+      "selection_p50_seconds": 0.6969067085301504,
+      "display_seconds": 0.697
+    },
+    {
+      "configuration_id": "bge-openai-vs-bge-omneum-20261008:bge_openai",
+      "source_run": "bge-openai-vs-bge-omneum-20261008",
+      "selection_p50_seconds": 3.4206158330198377,
+      "display_seconds": 3.421
+    },
+    {
+      "configuration_id": "bge-openai-vs-bge-omneum-20261008:bge_omneum",
+      "source_run": "bge-openai-vs-bge-omneum-20261008",
+      "selection_p50_seconds": 0.6408890000311658,
+      "display_seconds": 0.641
+    },
+    {
+      "configuration_id": "bge_google",
+      "source_run": "bge-google-low-vs-bge-omneum-20261008",
+      "selection_p50_seconds": 2.48713827051688,
+      "display_seconds": 2.487
+    },
+    {
+      "configuration_id": "bge_omneum",
+      "source_run": "bge-google-low-vs-bge-omneum-20261008",
+      "selection_p50_seconds": 0.6389743338804692,
+      "display_seconds": 0.639
+    }
+  ]
+}

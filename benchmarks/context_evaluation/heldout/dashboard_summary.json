@@ -2,7 +2,7 @@
   "$schema": "dashboard_summary.schema.json",
   "schema_version": "2.0.0",
   "benchmark_id": "heldout-completed-runs",
-  "measurement_date": "2026-10-08",
+  "measurement_date": "2026-10-09",
   "selector_version": "Preserved execution-time selectors per run; excludes experimental conflict-policy trials",
   "units": {
     "rates": "fraction",
@@ -46,7 +46,10 @@
     "shared_generator": "claude-sonnet-5-5"
   },
   "pricing": {
+    "anthropic_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "basis": "standard paid tier; Gemini introductory rates through 2026-12-31; normalized October 8 comparison rates for all measured runs; not historical invoices",
     "date_checked": "2026-10-08",
+    "google_source": "https://ai.google.dev/gemini-api/docs/pricing",
     "usd_per_million": {
       "gemini_input": 0.75,
       "gemini_visible_plus_thinking_output": 3.75,
@@ -55,19 +58,15 @@
       "astra_input": 10,
       "astra_output": 50
     },
-    "google_source": "https://ai.google.dev/gemini-api/docs/pricing",
-    "anthropic_source": "https://platform.claude.com/docs/en/about-claude/pricing",
-    "basis": "standard paid tier; Gemini introductory rates through 2026-12-31; normalized October 8 comparison rates for all measured runs; not historical invoices",
     "openai_source": "https://developers.openai.com/api/docs/models/gpt-6-astra"
   },
   "source_file_sha256": {
-    "benchmarks/context_evaluation/heldout/EVIDENCE.md": "67ca2187efa6a394f151c90e2be67d1eefd91300e0d8a5957023cfcd0733b39f",
+    "benchmarks/context_evaluation/heldout/EVIDENCE.md": "a9891ebc9c605fa79803749eabbaf5e1d1638b72414a2e6744d6a401e994b11d",
     "benchmarks/context_evaluation/heldout/LATENCY_ANALYSIS.md": "433a2beac00f78f1b34db3a6dfaa9734aceea5f1488fd63b4acb8444e95d19d2",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/analyze_saved.py": "455366ba2e7281f5f9ba8961baf03a8e74d39ee3111df376fc1183772f9be7e4",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/answer_audit.json": "1f603c110f4dec99e3e41026de7de0b02f084af6f7623a4bc644819ace86d279",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/comparison.json": "0adce5ba126bc30b16dadb96de33c89fcf6cc9d6950cd0b6b171032739e0b676",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/report.md": "be04baabfb0e7ee770592b1010a207633f7127604f251b9e811ed96a915b7f03",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/summary.json": "37e9c2d63c46a920d598142ee20c73a4b60a2e9d317274db28ee952662b10ee0",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/answer_audit.json": "ee68511d9748a32690ff16150fa88d0e7ebecdbed34629b48d917a4593346697",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/comparison.json": "3e329c7d6509a78997cb0a5de681ea6a589d85092d63813dbbf3fd66234cfe9b",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/report.md": "0b78a70ac82f4afffb8795f7f5170302c18fe2880dfbc9296b975974782bd5f5",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/reproducibility.md": "992dc68121a602e9be0ffd213f839f3bab01eb96ec2b7354d95338ca73913c58",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/answer_audit.json": "9b8eff56272384556f5ed7fefe9cdd23ab37caa580ea2a67087ffb693536e8e7",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/comparison.json": "4da961caa5eeb0f157a19a54289b22d34e7067f425556c51a40e946e353ee0d5",
@@ -131,9 +130,9 @@
     "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/report.md": "6735d2b3662eaec026d5c28cd9c221ec509c2654d3d6e503585c35890f0f3bb0",
     "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/results.jsonl": "8e039f88ce8c946b15263b7fda82f9df09cf1849478d98e8ec063d517932fbf5",
     "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/summary.json": "b7c67192a09c5f0d677e82acee889b64b12069b7e5991475f82fdf06c9c0d249",
-    "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/manifest.public-v1.json": "df908171a9e08be646e447682ea86726324fa8efdb32d47c366412857d7b25ea",
-    "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/results.jsonl": "40876dfc228a91acf8af7d6fee66d7c2f1930ed7a8cdbe7015b2a7ee4e3d3594",
-    "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/summary.json": "11f7a1d0e35e4d8a9f75d1c068c2fa48bc15f91e5669e980eefc30a7c3f81390",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.public-v1.json": "ab31e2874bcd1aac11f78b8616148239a64da4f1b7b5d3555aa79d3469da5ece",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/results.jsonl": "111b1abbcb7ef0f9cc6e567babe901bbe777e524fbdbfb93af4a2bb3c46130d0",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/summary.json": "d483ae816745f0674487f2c20f8bf5258bb534efc3660afd7e9ce5f665ed6b6b",
     "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/manifest.public-v1.json": "4b76aa050efedbc20e6346f4adc250a89446b445cbb76dddcb5f428d71c592b6",
     "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/results.jsonl": "4bba4175ba45bd75b86283c75ee59c837bc17439fdc8bf2b6bef6ddb10063b98",
     "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/summary.json": "72ccd16c76f95143930eacaac0b553ff976b974cb0db5b3592b735f64e6f8ac6",
@@ -153,9 +152,9 @@
   },
   "limitations": [
     "24 fixed synthetic cases with clustered repeats, not 240 independent tasks.",
-    "Selectors receive different information; timing was recorded in arm blocks, not interleaved.",
+    "Selectors receive different information; original selection and recovered generation measurements are from different dates, with reconstructed E2E stage sums.",
     "Independent incorrect estimates displaced census evidence in all ten false-consensus trials.",
-    "Adjudication retains recorded correct answers and is not a blinded comprehensive citation audit.",
+    "Every Gemini answer was reviewed against the frozen reference and selected evidence; baseline adjudications were preserved. Review was not blinded.",
     "Dirty execution checkout has no verified source snapshot; preserved metrics are reproducible offline."
   ],
   "unmeasured_configurations": [
@@ -1299,7 +1298,7 @@
     },
     {
       "id": "bge_google",
-      "run_id": "bge-google-vs-bge-omneum-20261008",
+      "run_id": "bge-google-low-vs-bge-omneum-20261008",
       "method_id": "bge_google",
       "label": "BGE + Gemini",
       "method_families": [
@@ -1333,16 +1332,16 @@
       "trials_per_case": 10,
       "outcomes": {
         "complete_answer_accuracy": {
-          "count": 229,
-          "rate": 0.9541666666666667
+          "count": 230,
+          "rate": 0.9583333333333334
         },
         "incorrect": {
           "count": 0,
           "rate": 0.0
         },
         "incomplete": {
-          "count": 1,
-          "rate": 0.004166666666666667
+          "count": 0,
+          "rate": 0.0
         },
         "generator_refusal": {
           "count": 10,
@@ -1364,28 +1363,28 @@
       "accuracy_basis": "preserved per-answer semantic adjudications",
       "recorded_answer_scores": {
         "counts": {
-          "correct": 215,
-          "unscored": 15,
+          "correct": 220,
+          "unscored": 10,
           "generation_failure": 10
         },
-        "accuracy": 0.8958333333333334,
+        "accuracy": 0.9166666666666666,
         "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
       },
       "selection": {
         "macro": {
-          "precision": 0.9423611111111111,
-          "recall": 0.6617559523809524,
-          "f1": 0.7644841269841269
+          "precision": 0.9444444444444444,
+          "recall": 0.662797619047619,
+          "f1": 0.7658730158730158
         },
         "micro": {
-          "precision": 0.9405797101449276,
-          "recall": 0.6240384615384615,
-          "f1": 0.7502890173410405
+          "precision": 0.9420289855072463,
+          "recall": 0.625,
+          "f1": 0.7514450867052023
         },
         "counts": {
-          "true_positive": 649,
-          "false_positive": 41,
-          "false_negative": 391
+          "true_positive": 650,
+          "false_positive": 40,
+          "false_negative": 390
         }
       },
       "measurement_coverage": {
@@ -1395,53 +1394,53 @@
       },
       "latency_seconds": {
         "selection": {
-          "p50": 6.826122894883156,
-          "p95": 18.757258466840714
+          "p50": 2.48713827051688,
+          "p95": 6.033517924090841
         },
         "end_to_end": {
-          "p50": 9.274172750650905,
-          "p95": 21.35900253519649
+          "p50": 4.9241187502630055,
+          "p95": 8.697292894637204
         }
       },
       "api_tokens": {
         "selection": {
           "input": 73170,
-          "output": 221086,
-          "total": 294256,
-          "reasoning": 216106
+          "output": null,
+          "total": null,
+          "reasoning": null
         },
         "generation": {
-          "input": 56776,
-          "output": 55573,
-          "total": 112349,
+          "input": 56948,
+          "output": 57302,
+          "total": 114250,
           "reasoning": null
         },
         "total": {
-          "input": 129946,
-          "output": 276659,
-          "total": 406605,
+          "input": 130118,
+          "output": null,
+          "total": null,
           "reasoning": null
         }
       },
       "cost_usd": {
-        "estimated_api_total": 1.553232,
-        "estimated_api_per_answer": 0.0064718,
-        "selection": 0.88395,
-        "generation": 0.669282,
+        "estimated_api_total": null,
+        "estimated_api_per_answer": null,
+        "selection": null,
+        "generation": 0.686916,
         "invoiced_api_total": null,
         "local_compute_total": null
       },
       "local_reranker_tokens": null,
-      "comparison_scope": "bge-google-vs-bge-omneum-20261008",
+      "comparison_scope": "bge-google-low-vs-bge-omneum-20261008",
       "lineage": {
         "reused_baseline_run": null,
-        "implementation": "117544a3a10a2bc4862f831767d379b423af7df2d639bd5f0c5e7711c7ce9765"
+        "implementation": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd"
       },
       "publication_status": "authoritative"
     },
     {
       "id": "bge_omneum",
-      "run_id": "bge-google-vs-bge-omneum-20261008",
+      "run_id": "bge-google-low-vs-bge-omneum-20261008",
       "method_id": "bge_omneum",
       "label": "BGE + Omneum",
       "method_families": [
@@ -1573,10 +1572,10 @@
         "local_compute_total": null
       },
       "local_reranker_tokens": null,
-      "comparison_scope": "bge-google-vs-bge-omneum-20261008",
+      "comparison_scope": "bge-google-low-vs-bge-omneum-20261008",
       "lineage": {
         "reused_baseline_run": null,
-        "implementation": "117544a3a10a2bc4862f831767d379b423af7df2d639bd5f0c5e7711c7ce9765"
+        "implementation": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd"
       },
       "publication_status": "authoritative"
     },
@@ -2372,7 +2371,7 @@
       }
     },
     {
-      "id": "bge-google-vs-bge-omneum-20261008",
+      "id": "bge-google-low-vs-bge-omneum-20261008",
       "status": "completed",
       "records": 480,
       "configuration_ids": [
@@ -2389,9 +2388,9 @@
         "saved_summary_common_fields_match": true
       },
       "dataset_sha256": "fe7a9cf228cd4d2a85fca9937ff8224ab72cf2ebdbaa52bbcba827a1e9822803",
-      "implementation": "117544a3a10a2bc4862f831767d379b423af7df2d639bd5f0c5e7711c7ce9765",
+      "implementation": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd",
       "trials_per_case": 10,
-      "timestamp_utc": "2026-10-08T18:52:06.287101+00:00",
+      "timestamp_utc": "2026-10-09T15:37:50.875707+00:00",
       "pairing": {
         "case_trial_pairs": 240,
         "shared_shortlist_verified": true,
@@ -2399,17 +2398,17 @@
         "generator_model_verified": true
       },
       "publication_status": "authoritative",
-      "publication_reason": "Complete dedicated shared-BGE Gemini replacement experiment; pinned original results, semantic adjudications, and report verify both original arms.",
+      "publication_reason": "Completed low-thinking Gemini replay with generator-only recovery; original selections, successful generations and historical Omneum baseline are preserved and all final answers adjudicated.",
       "source_paths": [
-        "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/manifest.public-v1.json",
-        "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/results.jsonl",
-        "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/summary.json"
+        "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.public-v1.json",
+        "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/results.jsonl",
+        "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/summary.json"
       ],
       "recorded_evaluation_metrics": {
         "bge_google": {
-          "accuracy": 0.8958333333333334,
+          "accuracy": 0.9166666666666666,
           "attempted": 240,
-          "correct": 215,
+          "correct": 220,
           "evaluable_accuracy": 1.0,
           "failures": 10,
           "generation_failure_types": {
@@ -2419,21 +2418,21 @@
           "generator_usage": {
             "input_tokens": {
               "n": 240,
-              "sum": 56776
+              "sum": 56948
             },
             "output_tokens": {
               "n": 240,
-              "sum": 55573
+              "sum": 57302
             },
             "token_efficiency": {
-              "correct_answers": 215,
-              "correct_per_1000_tokens": 1.9136796945233157,
+              "correct_answers": 220,
+              "correct_per_1000_tokens": 1.925601750547046,
               "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
               "usage_covered_records": 240
             },
             "total_tokens": {
               "n": 240,
-              "sum": 112349
+              "sum": 114250
             }
           },
           "incorrect": 0,
@@ -2445,8 +2444,8 @@
             "end_to_end_seconds": {
               "coverage": 1.0,
               "n": 240,
-              "p50": 9.274172750650905,
-              "p95": 21.35900253519649
+              "p50": 4.9241187502630055,
+              "p95": 8.697292894637204
             },
             "evaluator_input_tokens": {
               "n": 240,
@@ -2454,13 +2453,13 @@
             },
             "evaluator_output_tokens": {
               "n": 240,
-              "sum": 4980
+              "sum": 4652
             },
             "generation_seconds": {
               "coverage": 1.0,
               "n": 240,
-              "p50": 2.3719712500460446,
-              "p95": 3.890194205904845
+              "p50": 2.2223531249910593,
+              "p95": 4.082662039727436
             },
             "omneum_evaluator_seconds": {
               "coverage": 0.0,
@@ -2478,14 +2477,14 @@
             "selection_seconds": {
               "coverage": 1.0,
               "n": 240,
-              "p50": 6.826122894883156,
-              "p95": 18.757258466840714
+              "p50": 2.48713827051688,
+              "p95": 6.033517924090841
             }
           },
           "selection_failures": 0,
-          "selection_precision": 0.9423611111111111,
-          "selection_recall": 0.6617559523809523,
-          "unscored": 15
+          "selection_precision": 0.9444444444444444,
+          "selection_recall": 0.662797619047619,
+          "unscored": 10
         },
         "bge_omneum": {
           "accuracy": 0.875,
@@ -2596,7 +2595,7 @@
       ],
       "case_count": 24,
       "implementation_lineage": {
-        "manifest_fingerprint": "117544a3a10a2bc4862f831767d379b423af7df2d639bd5f0c5e7711c7ce9765",
+        "manifest_fingerprint": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd",
         "commit_snapshot": {
           "revision": "a8c6e3e4e7a1107da9b06ed0edf935c891125615",
           "timestamp_utc": "2026-10-08T18:40:18+00:00",
@@ -3393,14 +3392,13 @@
   ],
   "analyses": [
     {
-      "id": "bge-google-vs-bge-omneum-20261008",
-      "trial_run": "bge-google-vs-bge-omneum-20261008",
+      "id": "bge-google-low-vs-bge-omneum-20261008",
+      "trial_run": "bge-google-low-vs-bge-omneum-20261008",
       "files": [
-        "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/analyze_saved.py",
-        "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/answer_audit.json",
-        "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/comparison.json",
-        "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/report.md",
-        "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/summary.json"
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/answer_audit.json",
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/comparison.json",
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/report.md",
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/reproducibility.md"
       ],
       "status": "preserved trial analysis"
     },
@@ -3516,15 +3514,15 @@
         ]
       },
       {
-        "run_id": "bge-google-vs-bge-omneum-20261008",
+        "run_id": "bge-google-low-vs-bge-omneum-20261008",
         "configuration_ids": [
           "bge_google",
           "bge_omneum"
         ],
         "family": "frontier_llm_judges",
-        "reason": "Complete dedicated shared-BGE Gemini replacement experiment; pinned original results, semantic adjudications, and report verify both original arms.",
+        "reason": "Completed low-thinking Gemini replay with generator-only recovery; original selections, successful generations and historical Omneum baseline are preserved and all final answers adjudicated.",
         "evidence_paths": [
-          "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/report.md"
+          "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/report.md"
         ]
       },
       {
@@ -3692,25 +3690,25 @@
         {
           "configuration_id": "bge_google",
           "label": "BGE + Gemini",
-          "source_run": "bge-google-vs-bge-omneum-20261008",
+          "source_run": "bge-google-low-vs-bge-omneum-20261008",
           "attempts": 240,
-          "accuracy": 0.9541666666666667,
+          "accuracy": 0.9583333333333334,
           "accuracy_basis": "manual complete-answer adjudication",
-          "precision": 0.9423611111111111,
-          "recall": 0.6617559523809524,
+          "precision": 0.9444444444444444,
+          "recall": 0.662797619047619,
           "selection_scored_attempts": 240,
-          "selection_p50_seconds": 6.826122894883156,
-          "selection_p95_seconds": 18.757258466840714,
-          "end_to_end_p50_seconds": 9.274172750650905,
-          "end_to_end_p95_seconds": 21.35900253519649,
-          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
-          "api_tokens": 406605,
-          "estimated_api_cost_usd": 1.553232
+          "selection_p50_seconds": 2.48713827051688,
+          "selection_p95_seconds": 6.033517924090841,
+          "end_to_end_p50_seconds": 4.9241187502630055,
+          "end_to_end_p95_seconds": 8.697292894637204,
+          "latency_basis": "original selection plus recovered generation stage durations, including refusals; non-contemporaneous E2E sums",
+          "api_tokens": null,
+          "estimated_api_cost_usd": null
         },
         {
           "configuration_id": "bge_omneum",
           "label": "BGE + Omneum",
-          "source_run": "bge-google-vs-bge-omneum-20261008",
+          "source_run": "bge-google-low-vs-bge-omneum-20261008",
           "attempts": 240,
           "accuracy": 0.9166666666666666,
           "accuracy_basis": "manual complete-answer adjudication",
@@ -3721,7 +3719,7 @@
           "selection_p95_seconds": 0.8535917482106012,
           "end_to_end_p50_seconds": 3.1304506664164364,
           "end_to_end_p95_seconds": 4.832068977190647,
-          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "latency_basis": "original selection plus recovered generation stage durations, including refusals; non-contemporaneous E2E sums",
           "api_tokens": 115535,
           "estimated_api_cost_usd": 0.70247
         },
@@ -4005,7 +4003,7 @@
           "matching_selected_sets": 240,
           "attempts": 240
         },
-        "bge-google-vs-bge-omneum-20261008": {
+        "bge-google-low-vs-bge-omneum-20261008": {
           "matching_selected_sets": 240,
           "attempts": 240
         }
@@ -4017,7 +4015,7 @@
   "publication_contract": {
     "version": 1,
     "path": "benchmarks/context_evaluation/publication_manifest_v1.json",
-    "scope": "six authoritative matched runs, canonical 24 cases, adjudications and necessary evidence",
+    "scope": "six authoritative matched runs, with the completed low-thinking Gemini generation recovery replacing the original Gemini comparison; canonical 24 cases, adjudications and necessary evidence",
     "original_dashboard_sha256": "8168275a9bce02c9ad6421c4ca865476239c93ca68ce8e294ed0b00ed66115ba",
     "verification_limit": "Public manifest projections are verified against their own hashes. Original manifest bytes and absolute identifiers remain private; their recorded hashes and execution fingerprints are retained, not reconstructed from public projections. Git lineage snapshots are preserved reference metadata, not exact dirty execution source."
   }

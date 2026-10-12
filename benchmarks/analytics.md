@@ -42,7 +42,7 @@ Selection precision and recall are computed against frozen source-level relevanc
 
 **BGE + Omneum achieved 100% selection precision across all four Data Analytics cases, matched the evaluated frontier LLM judges' selection precision and recall, and produced correctly scored downstream answers in all 40 recorded trials.**
 
-Its median selection latency ranged from 0.649s to 0.708s, compared with 2.433–3.612s for GPT-6 Astra and 5.513–8.164s for Gemini.
+Its median selection latency ranged from 0.649s to 0.708s, compared with 2.433–3.612s for GPT-6 Astra and 2.076–3.643s for Gemini.
 
 ### BGE Reranker v2-m3
 
@@ -50,19 +50,19 @@ Its median selection latency ranged from 0.649s to 0.708s, compared with 2.433�
 |---|---|---:|---:|---:|---:|---:|
 | Derived metric cycle | Claude Judge | 100% | 100% | 1/1 | 2.008s | 3.624s |
 | | GPT-6 Judge | 100% | 100% | 10/10 | 3.165s | 4.979s |
-| | Gemini Judge | 100% | 100% | 10/10 | 5.513s | 7.665s |
+| | Gemini Judge | 100% | 100% | 10/10 | 2.859s | 5.005s |
 | | **Omneum** | **100%** | **100%** | **10/10** | **0.694s** | **2.567s** |
 | Incomplete lineage | Claude Judge | 100% | 75% | 1/1 | 1.987s | 4.240s |
 | | GPT-6 Judge | 100% | 75% | 10/10 | 2.657s | 4.745s |
-| | Gemini Judge | 100% | 75% | 10/10 | 8.164s | 10.562s |
+| | Gemini Judge | 100% | 75% | 10/10 | 2.076s | 4.240s |
 | | **Omneum** | **100%** | **75%** | **10/10** | **0.708s** | **2.855s** |
 | Metric definition conflict | Claude Judge | 100% | 100% | 1/1 | 1.651s | 3.776s |
 | | GPT-6 Judge | 100% | 100% | 10/10 | 2.433s | 4.772s |
-| | Gemini Judge | 100% | 100% | 10/10 | 5.668s | 8.113s |
+| | Gemini Judge | 100% | 100% | 10/10 | 2.582s | 5.117s |
 | | **Omneum** | **100%** | **100%** | **10/10** | **0.649s** | **2.919s** |
 | Stale dashboard | Claude Judge | 100% | 60% | 1/1 | 1.991s | 4.753s |
 | | GPT-6 Judge | 100% | 60% | 10/10 | 3.612s | 5.964s |
-| | Gemini Judge | 100% | 60% | 10/10 | 5.886s | 8.003s |
+| | Gemini Judge | 100% | 60% | 10/10 | 3.643s | 5.955s |
 | | **Omneum** | **100%** | **60%** | **10/10** | **0.662s** | **3.106s** |
 
 BGE + Omneum matched the LLM judges' source-level precision and recall in every case. All configurations generated correct answers, with Omneum recording the lowest median selection and end-to-end latency in each repeated GPT-6 Astra and Gemini comparison.
@@ -169,7 +169,7 @@ Every BGE configuration achieved 100% precision and recall, and all downstream a
 
 Both Cohere configurations included `metric_store`, which is outside the three labeled positive count sources. Their precision and recall were therefore 66.7%.
 
-**Result:** BGE + Omneum matched the frontier LLM judges' perfect selection precision, recall, and downstream answer correctness. Its 0.694-second selection p50 was approximately 4.6× lower than GPT-6 Astra and 7.9× lower than Gemini.
+**Result:** BGE + Omneum matched the frontier LLM judges' perfect selection precision, recall, and downstream answer correctness. Its 0.694-second selection p50 was approximately 4.6× lower than GPT-6 Astra and 4.3× lower than Gemini.
 
 ### 2. Incomplete Lineage
 
@@ -222,7 +222,7 @@ This is an illustrative query expressing the fixture's expected filtering behavi
 |---|---|---:|---:|
 | BGE + Claude Judge | `source_table`, `source_table_2`, `query_result` | 100% | 75% |
 | BGE + GPT-6 Judge | `source_table`, `source_table_2`, `query_result` | 100% | 75% |
-| BGE + Gemini Judge | `source_table`, `source_table_2`, `query_result` | 100% | 75% |
+| BGE + Gemini Judge | `source_table`, `source_table_2`, `query_result` (8/10); `source_table`, `source_table_2`, `metric_store` (2/10) | 100% | 75% |
 | **BGE + Omneum** | `source_table`, `source_table_2`, `metric_store` | **100%** | **75%** |
 | Cohere + Claude Judge | `source_table`, `query_result`, `source_table_2` | 100% | 75% |
 | Cohere + Omneum | `source_table`, `query_result`, `source_table_2` | 100% | 75% |
@@ -252,7 +252,7 @@ Recall:     75%
 
 Every downstream answer returned 487.
 
-**Result:** Omneum matched the frontier LLM judges' selection precision, recall, and downstream answer correctness. Its 0.708-second selection p50 was approximately 3.8× lower than GPT-6 Astra and 11.5× lower than Gemini.
+**Result:** Omneum matched the frontier LLM judges' selection precision, recall, and downstream answer correctness. Its 0.708-second selection p50 was approximately 3.8× lower than GPT-6 Astra and 3.1× lower than Gemini.
 
 The case demonstrates successful selection of current source evidence when transformation lineage is incomplete.
 
@@ -364,7 +364,7 @@ The `data_catalog` source is not one of the three labeled positive sources, redu
 
 Both Cohere configurations nevertheless generated the correct downstream answer.
 
-**Result:** BGE + Omneum achieved perfect selection precision and recall and generated 92% in all ten recorded trials. Its 0.649-second selection p50 was approximately 3.7× lower than GPT-6 Astra and 8.7× lower than Gemini.
+**Result:** BGE + Omneum achieved perfect selection precision and recall and generated 92% in all ten recorded trials. Its 0.649-second selection p50 was approximately 3.7× lower than GPT-6 Astra and 3.9× lower than Gemini.
 
 ### 4. Stale Dashboard
 
@@ -466,7 +466,9 @@ Recall:     60%
 
 Every downstream answer returned 1,284.
 
-**Result:** Omneum matched the frontier LLM judges' selection quality and downstream answer correctness. Its 0.662-second selection p50 was approximately 5.5× lower than GPT-6 Astra and 8.9× lower than Gemini.
+**Result:** Omneum matched the frontier LLM judges' selection quality and downstream answer correctness. Its 0.662-second selection p50 was approximately 5.5× lower than GPT-6 Astra and 5.9× lower than Gemini.
+
+Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
 
 ## Artifacts
 
@@ -497,7 +499,7 @@ Each case defines a fixed candidate pool and expected evaluation outcome.
 benchmarks/context_evaluation/heldout/results/
 ├── bge-claude-vs-bge-omneum-20261008/
 ├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-vs-bge-omneum-20261008/
+├── bge-google-low-vs-bge-omneum-20261008/
 └── cohere-claude-vs-cohere-omneum-20261008/
 ```
 
@@ -521,7 +523,7 @@ Inspect the corresponding Gemini paired run:
 
 ```bash
 rg -n 'analytics_' \
-  benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/results.jsonl
+  benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/results.jsonl
 ```
 
 Inspect the Cohere comparison:

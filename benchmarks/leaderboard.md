@@ -53,18 +53,20 @@ The evaluated judges are Claude Sonnet 5.5, GPT-6 Astra, and Gemini 3.8 Flash.
 | BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.697s** | **3.141s** | 11,811 | $0.072822 |
 | BGE + GPT-6 Astra Judge | **92.78%** | **65.45%** | **92.50%** | 3.421s | 5.849s | 111,247 | $0.658998 |
 | BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.641s** | **2.983s** | 115,119 | $0.698310 |
-| BGE + Gemini 3.8 Flash Judge | **94.24%** | **66.18%** | **95.42%** | 6.826s | 9.274s | 112,349 | $0.669282 |
+| BGE + Gemini 3.8 Flash Judge | **94.44%** | **66.28%** | **95.83%** | 2.487s | 4.924s | 114,250 | $0.686916 |
 | BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.639s** | **3.130s** | 115,535 | $0.702470 |
 
-Omneum achieved **2.63×–10.68× faster median context selection** than frontier LLM judges without requiring an additional judge inference call.
+Omneum achieved **2.63×–5.34× faster median context selection** than frontier LLM judges without requiring an additional judge inference call.
 
 | Comparison | Judge p50 | Omneum p50 | Speedup |
 |---|---:|---:|---:|
 | Claude Sonnet 5.5 | 1.831s | 0.697s | **2.63×** |
 | GPT-6 Astra | 3.421s | 0.641s | **5.34×** |
-| Gemini 3.8 Flash | 6.826s | 0.639s | **10.68×** |
+| Gemini 3.8 Flash | 2.487s | 0.639s | **3.89×** |
 
-Omneum also reduced end-to-end median latency in all three comparisons. Its adjudicated answer accuracy trailed the Claude judge by 4.17 percentage points, GPT-6 Astra by 0.83 points, and Gemini by 3.75 points.
+Omneum also reduced end-to-end median latency in all three comparisons. Its adjudicated answer accuracy trailed the Claude judge by 4.17 percentage points, GPT-6 Astra by 0.83 points, and Gemini by 4.17 points.
+
+Gemini uses the verified low-thinking rerun; 139 Claude generations were recovered while preserving all selections and the historical Omneum baseline. Its E2E median combines original selection and later generation durations; ten explicit refusals are included in answer accuracy.
 
 The LLM judges achieved higher selection precision and recall, reflecting a trade-off between selection quality and inference latency.
 
@@ -146,7 +148,7 @@ Historical runs retain input manifests, source fingerprints, checkpoint contract
 
 The benchmark measures context-selection quality, downstream answer outcomes, and execution latency.
 
-Omneum improved selection precision and recall over standalone semantic rerankers while reducing downstream generator token usage. Against frontier LLM judges, Omneum achieved **2.63×–10.68× faster median selection**, reduced end-to-end latency, and eliminated the need for an additional judge inference call.
+Omneum improved selection precision and recall over standalone semantic rerankers while reducing downstream generator token usage. Against frontier LLM judges, Omneum achieved **2.63×–5.34× faster median selection**, reduced end-to-end latency, and eliminated the need for an additional judge inference call.
 
 These results demonstrate Omneum's ability to perform context selection with substantially lower latency than frontier-model judging, while exposing measurable trade-offs in selection precision, recall, and downstream answer quality.
 

@@ -73,16 +73,16 @@ Median selection latency in seconds:
 
 | Case | GPT-6 Astra Judge | Gemini 3.8 Flash Judge | Omneum |
 |---|---:|---:|---:|
-| Clean consensus | 3.706s | 4.611s | **0.603s** |
-| Conflicting reports | 6.255s | 5.276s | **0.624s** |
-| Independent false consensus | 6.038s | 9.000s | **0.630s** |
-| Syndicated reporting | 3.453s | 5.803s | **0.620s** |
+| Clean consensus | 3.706s | 1.926s | **0.603s** |
+| Conflicting reports | 6.255s | 2.308s | **0.624s** |
+| Independent false consensus | 6.038s | 2.517s | **0.630s** |
+| Syndicated reporting | 3.453s | 2.269s | **0.620s** |
 
 Across all four cases, Omneum completed context selection in approximately 0.60–0.63 seconds.
 
-The GPT-6 Astra judge required 3.45–6.26 seconds, while Gemini required 4.61–9.00 seconds.
+The GPT-6 Astra judge required 3.45–6.26 seconds, while Gemini required 1.93–2.52 seconds.
 
-**Omneum recorded approximately 5.6–10.0× lower selection latency than GPT-6 Astra and 7.6–14.3× lower selection latency than Gemini**, comparing the reported per-case medians.
+**Omneum recorded approximately 5.6–10.0× lower selection latency than GPT-6 Astra and 3.2–4.2× lower selection latency than Gemini**, comparing the reported per-case medians.
 
 These are recorded benchmark timings, not universal performance guarantees.
 
@@ -153,7 +153,7 @@ All seven sources are labeled relevant. The relevance metric does not distinguis
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `primary_record`, `dataset`, `filing` | 100% | 42.9% | 1/1 correct | 1.527s |
 | BGE + GPT-6 Astra Judge | 10 | `primary_record`, `filing`, `dataset` | 100% | 42.9% | 10/10 correct | 3.706s |
-| BGE + Gemini Judge | 10 | Same | 100% | 42.9% | 10/10 correct | 4.611s |
+| BGE + Gemini Judge | 10 | Same | 100% | 42.9% | 10/10 correct | 1.926s |
 | **BGE + Omneum** | **10** | `primary_record`, `filing`, `publication` | **100%** | **42.9%** | **10/10 correct** | **0.603s** |
 | Cohere + Claude Judge | 1 | `primary_record`, `dataset`, `filing` | 100% | 42.9% | 1/1 correct | 2.269s |
 | Cohere + Omneum | 1 | `primary_record`, `publication`, `report` | 100% | 42.9% | 1/1 correct | 0.579s |
@@ -258,7 +258,7 @@ filing
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `primary_publication`, `dataset`, `report_2` | 100% | 60% | 1/1 correct | 2.420s |
 | BGE + GPT-6 Astra Judge | 10 | Same (6/10); `primary_publication`, `dataset`, `filing` (4/10) | 100% | 60% | 10/10 correct | 6.255s |
-| BGE + Gemini Judge | 10 | `primary_publication`, `dataset`, `report_2` | 100% | 60% | 10/10 correct | 5.276s |
+| BGE + Gemini Judge | 10 | `primary_publication`, `dataset`, `report_2` | 100% | 60% | 10/10 correct | 2.308s |
 | **BGE + Omneum** | **10** | `primary_publication`, `dataset`, `report_2` | **100%** | **60%** | **10/10 correct** | **0.624s** |
 | Cohere + Claude Judge | 1 | `primary_publication`, `dataset`, `filing` | 100% | 60% | 1/1 correct | 3.434s |
 | Cohere + Omneum | 1 | `primary_publication`, `report_2`, `dataset` | 100% | 60% | 1/1 correct | 2.175s |
@@ -284,10 +284,10 @@ The difference is execution cost.
 | Selector | Selection p50 |
 |---|---:|
 | GPT-6 Astra Judge | 6.255s |
-| Gemini Judge | 5.276s |
+| Gemini Judge | 2.308s |
 | **Omneum** | **0.624s** |
 
-**Result:** Omneum matched the frontier LLM judges' 100% precision, 60% recall, and correct recorded answers while completing selection approximately 10× faster than GPT-6 Astra and 8.5× faster than Gemini in this case.
+**Result:** Omneum matched the frontier LLM judges' 100% precision, 60% recall, and correct recorded answers while completing selection approximately 10× faster than GPT-6 Astra and 3.7× faster than Gemini in this case.
 
 This is a strong measured result for using Omneum as a lower-latency context-selection component.
 
@@ -363,7 +363,7 @@ web_page
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `dataset`, `web_page`, `report` | 66.7% | 66.7% | 1/1 correct | 1.497s |
 | BGE + GPT-6 Astra Judge | 10 | `dataset`, `web_page`, `publication` (7/10); `dataset`, `web_page`, `report` (3/10) | 66.7% | 66.7% | 10/10 correct | 6.038s |
-| BGE + Gemini Judge | 10 | `dataset`, `web_page`, `report` (8/10); `dataset`, `publication`, `web_page` (2/10) | 66.7% | 66.7% | 10/10 correct | 9.000s |
+| BGE + Gemini Judge | 10 | `analysis`, `dataset`, `web_page` | 66.7% | 66.7% | 10/10 correct | 2.517s |
 | **BGE + Omneum** | **10** | `analysis`, `report`, `publication` | **0%** | **0%** | 10/10 unscored | **0.630s** |
 | Cohere + Claude Judge | 1 | `primary_record`, `dataset`, `web_page` | 100% | 100% | 1/1 correct | 2.205s |
 | Cohere + Omneum | 1 | `analysis`, `report`, `publication` | 0% | 0% | 1/1 unscored | 0.649s |
@@ -395,7 +395,7 @@ GPT-6 Astra:
 Gemini:
   dataset       relevant
   web_page      relevant
-  report        irrelevant
+  analysis      irrelevant
 ```
 
 The Cohere + Claude judge selected all three relevant sources.
@@ -484,7 +484,7 @@ dataset
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `dataset`, `original_report`, `news_article` | 33.3% | 25% | 1/1 correct | 1.494s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 33.3% | 25% | 10/10 correct | 3.453s |
-| BGE + Gemini Judge | 10 | Same | 33.3% | 25% | 10/10 correct | 5.803s |
+| BGE + Gemini Judge | 10 | Same | 33.3% | 25% | 10/10 correct | 2.269s |
 | **BGE + Omneum** | **10** | `original_report`, `news_article`, `dataset` | **33.3%** | **25%** | **10/10 correct** | **0.620s** |
 | Cohere + Claude Judge | 1 | `primary_record`, `dataset`, `filing` | 100% | 75% | 1/1 correct | 4.970s |
 | Cohere + Omneum | 1 | `primary_record`, `original_report`, `dataset` | 66.7% | 50% | 1/1 correct | 3.990s |
@@ -542,6 +542,8 @@ With Cohere, the Claude judge selected a better evidence set.
 
 The case establishes that syndicated-reporting dependencies remain challenging for all evaluated BGE configurations. It does not demonstrate superior dependency handling by Omneum, and it should not be represented as a successful elimination of copied misinformation by the LLM judges either.
 
+Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
+
 ## Inspect Recorded Runs
 
 Authoritative run directories:
@@ -550,7 +552,7 @@ Authoritative run directories:
 benchmarks/context_evaluation/heldout/results/
 ├── bge-claude-vs-bge-omneum-20261008/
 ├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-vs-bge-omneum-20261008/
+├── bge-google-low-vs-bge-omneum-20261008/
 └── cohere-claude-vs-cohere-omneum-20261008/
 ```
 
@@ -589,7 +591,7 @@ The number of JSONL records depends on how attempts and method comparisons are s
 for run in \
   bge-claude-vs-bge-omneum-20261008 \
   bge-openai-vs-bge-omneum-20261008 \
-  bge-google-vs-bge-omneum-20261008 \
+  bge-google-low-vs-bge-omneum-20261008 \
   cohere-claude-vs-cohere-omneum-20261008
 do
   echo "===== $run ====="
@@ -669,7 +671,7 @@ It did so without using an LLM judge in the selection stage.
 
 **2. Omneum consistently reduces selection latency.**
 
-Across the four cases, Omneum recorded selection medians of 0.603–0.630 seconds, compared with 3.453–6.255 seconds for GPT-6 Astra and 4.611–9.000 seconds for Gemini.
+Across the four cases, Omneum recorded selection medians of 0.603–0.630 seconds, compared with 3.453–6.255 seconds for GPT-6 Astra and 1.926–2.517 seconds for Gemini.
 
 This is a measurable efficiency advantage for context-selection workflows.
 

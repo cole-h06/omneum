@@ -57,10 +57,10 @@ Median selection latency in seconds:
 
 | Case | GPT-6 Astra Judge | Gemini 3.8 Flash Judge | Omneum |
 |---|---:|---:|---:|
-| Clean resolution | 4.016s | 6.936s | **0.626s** |
-| Resolution conflict | 6.629s | 11.179s | **0.696s** |
-| Stale runbook | 3.800s | 6.522s | **0.729s** |
-| Ticket reference loop | 7.562s | 9.120s | **0.649s** |
+| Clean resolution | 4.016s | 2.329s | **0.626s** |
+| Resolution conflict | 6.629s | 2.324s | **0.696s** |
+| Stale runbook | 3.800s | 4.620s | **0.729s** |
+| Ticket reference loop | 7.562s | 2.050s | **0.649s** |
 
 Omneum recorded lower selection latency in every comparison.
 
@@ -109,7 +109,7 @@ After resuming the worker, verify that pending exports begin draining.
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `current_runbook`, `service_state`, `kb_article` | 100% | 42.9% | 1/1 correct | 2.238s |
 | BGE + GPT-6 Astra Judge | 10 | `current_runbook`, `monitoring_result`, `service_state` | 100% | 42.9% | 10/10 correct | 4.016s |
-| BGE + Gemini Judge | 10 | `current_runbook`, `kb_article`, `change_record` | 100% | 42.9% | 10/10 correct | 6.936s |
+| BGE + Gemini Judge | 10 | `current_runbook`, `kb_article`, `change_record` | 100% | 42.9% | 10/10 correct | 2.329s |
 | **BGE + Omneum** | **10** | `current_runbook`, `kb_article`, `monitoring_result` | **100%** | **42.9%** | **10/10 correct** | **0.626s** |
 | Cohere + Claude Judge | 1 | `current_runbook`, `service_state`, `change_record` | 100% | 42.9% | 1/1 correct | 2.008s |
 | Cohere + Omneum | 1 | `current_runbook`, `kb_article`, `service_state` | 100% | 42.9% | 1/1 correct | 0.544s |
@@ -132,7 +132,7 @@ GPT-6 Astra instead selected the current runbook, monitoring result, and service
 
 All three selections achieved identical relevance metrics.
 
-**Result:** Omneum matched the frontier LLM judges' 100% precision, 42.9% recall, and correct recorded answers. Its 0.626-second median selection latency was approximately 6.4× lower than GPT-6 Astra and 11.1× lower than Gemini.
+**Result:** Omneum matched the frontier LLM judges' 100% precision, 42.9% recall, and correct recorded answers. Its 0.626-second median selection latency was approximately 6.4× lower than GPT-6 Astra and 3.9× lower than Gemini.
 
 ## `support_resolution_conflict`
 
@@ -190,7 +190,7 @@ Disabling TLS verification is not an acceptable recovery action.
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `runbook`, `service_state` | 50% | 25% | 1/1 unscored | 1.787s |
 | BGE + GPT-6 Astra Judge | 10 | Variable; usually `service_state`, `runbook` | 60% | 30% | 2/10 correct | 6.629s |
-| BGE + Gemini Judge | 10 | Usually `deployment_config`, `runbook` | 95% | 47.5% | 9/10 correct | 11.179s |
+| BGE + Gemini Judge | 10 | Usually `deployment_config`, `runbook` | 100% | 50% | 10/10 correct | 2.324s |
 | **BGE + Omneum** | **10** | `service_state`, `deployment_config` | **50%** | **25%** | **9/10 correct** | **0.696s** |
 | Cohere + Claude Judge | 1 | `runbook`, `service_state` | 50% | 25% | 1/1 unscored | 1.756s |
 | Cohere + Omneum | 1 | `service_state`, `runbook` | 50% | 25% | 1/1 unscored | 0.582s |
@@ -218,7 +218,7 @@ However, the recorded downstream answer outcomes differ:
 |---|---:|---:|
 | BGE + Claude Judge | 0 | 1 |
 | BGE + GPT-6 Astra Judge | 2 | 8 |
-| BGE + Gemini Judge | 9 | 1 |
+| BGE + Gemini Judge | 10 | 0 |
 | **BGE + Omneum** | **9** | **1** |
 | Cohere + Claude Judge | 0 | 1 |
 | Cohere + Omneum | 0 | 1 |
@@ -229,7 +229,7 @@ The GPT-6-paired Omneum run recorded nine correct answers and one unscored respo
 
 Some unscored responses recommended rollback but did not explicitly identify `tb17`. An unscored result is not a confirmed incorrect remediation recommendation.
 
-**Result:** Omneum achieved nine correctly scored answers in ten trials, matching Gemini's recorded answer score and exceeding GPT-6 Astra's two correctly scored answers in the corresponding comparison. Omneum completed selection approximately 9.5× faster than GPT-6 Astra and 16.1× faster than Gemini.
+**Result:** Omneum achieved nine correctly scored answers in ten trials, one fewer than Gemini's ten correctly scored answers and exceeding GPT-6 Astra's two correctly scored answers in the corresponding comparison. Omneum completed selection approximately 9.5× faster than GPT-6 Astra and 3.7× faster than Gemini.
 
 The case distinguishes diagnostic relevance from action-specific relevance. Omneum selected useful configuration and service-state evidence, while Gemini more consistently selected sources matching the fixture's recovery-action labels.
 
@@ -292,7 +292,7 @@ change_record
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `current_runbook`, `deployment_config`, `incident_record` | 100% | 60% | 1/1 correct | 1.931s |
 | BGE + GPT-6 Astra Judge | 10 | `current_runbook`, `incident_record`, `deployment_config` | 100% | 60% | 10/10 generation failures | 3.800s |
-| BGE + Gemini Judge | 10 | `current_runbook`, `incident_record`, `deployment_config` | 100% | 60% | 10/10 generation failures | 6.522s |
+| BGE + Gemini Judge | 10 | `current_runbook`, `incident_record`, `deployment_config` | 100% | 60% | 10/10 generation failures | 4.620s |
 | **BGE + Omneum** | **10** | `current_runbook`, `incident_record`, `deployment_config` | **100%** | **60%** | 10/10 generation failures | **0.729s** |
 | Cohere + Claude Judge | 1 | `current_runbook`, `deployment_config`, `incident_record` | 100% | 60% | 1/1 correct | 2.177s |
 | Cohere + Omneum | 1 | `current_runbook`, `deployment_config`, `incident_record` | 100% | 60% | 1/1 correct | 0.666s |
@@ -403,7 +403,7 @@ change_record
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `runbook`, `service_state`, `deployment_config` | 100% | 60% | 1/1 correct | 1.868s |
 | BGE + GPT-6 Astra Judge | 10 | Usually `runbook`, `service_state`, `deployment_config` | 100% | 60% | 10/10 correct | 7.562s |
-| BGE + Gemini Judge | 10 | Usually `runbook`, `service_state`, `deployment_config` | 100% | 60% | 10/10 correct | 9.120s |
+| BGE + Gemini Judge | 10 | Usually `runbook`, `service_state`, `deployment_config` | 100% | 60% | 10/10 correct | 2.050s |
 | **BGE + Omneum** | **10** | `runbook`, `service_state`, `deployment_config` | **100%** | **60%** | **10/10 correct** | **0.649s** |
 | Cohere + Claude Judge | 1 | `runbook`, `service_state`, `deployment_config` | 100% | 60% | 1/1 correct | 10.178s |
 | Cohere + Omneum | 1 | `runbook`, `service_state`, `deployment_config` | 100% | 60% | 1/1 correct | 9.606s |
@@ -427,12 +427,14 @@ The principal measured difference was selection latency.
 | Selector | Selection p50 |
 |---|---:|
 | GPT-6 Astra Judge | 7.562s |
-| Gemini Judge | 9.120s |
+| Gemini Judge | 2.050s |
 | **Omneum** | **0.649s** |
 
-**Result:** Omneum matched the frontier LLM judges' selection quality and downstream answer correctness while recording approximately 11.7× lower selection latency than GPT-6 Astra and 14.1× lower latency than Gemini.
+**Result:** Omneum matched the frontier LLM judges' selection quality and downstream answer correctness while recording approximately 11.7× lower selection latency than GPT-6 Astra and 3.3× lower latency than Gemini.
 
 The fixture demonstrates successful selection of current operational evidence in the presence of circularly referenced recovery instructions.
+
+Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
 
 ## Inspect Recorded Runs
 
@@ -466,7 +468,7 @@ benchmarks/context_evaluation/heldout/cases/
 benchmarks/context_evaluation/heldout/results/
 ├── bge-claude-vs-bge-omneum-20261008/
 ├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-vs-bge-omneum-20261008/
+├── bge-google-low-vs-bge-omneum-20261008/
 └── cohere-claude-vs-cohere-omneum-20261008/
 ```
 
@@ -562,7 +564,7 @@ Across the four Support & Operations cases, **BGE + Omneum matched the evaluated
 The results include:
 
 - **Clean resolution:** 100% selection precision, ten correctly scored answers, and 0.626-second median selection latency.
-- **Resolution conflict:** Nine correctly scored answers in ten trials, matching Gemini's recorded answer score and exceeding GPT-6 Astra's two, despite lower source-level selection precision.
+- **Resolution conflict:** Nine correctly scored answers in ten trials, one fewer than Gemini's ten correctly scored answers and exceeding GPT-6 Astra's two, despite lower source-level selection precision.
 - **Stale runbook:** 100% selection precision with the same current evidence selected by every evaluated judge. Repeated downstream generation failures affected all BGE configurations.
 - **Ticket reference loop:** 100% selection precision, ten correctly scored answers, and 0.649-second median selection latency.
 

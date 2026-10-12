@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "scope": "six authoritative matched runs, canonical 24 cases, adjudications and necessary evidence",
+  "scope": "six authoritative matched runs, with the completed low-thinking Gemini generation recovery replacing the original Gemini comparison; canonical 24 cases, adjudications and necessary evidence",
   "original_dashboard_sha256": "8168275a9bce02c9ad6421c4ca865476239c93ca68ce8e294ed0b00ed66115ba",
-  "configuration_sha256": "898bd9b65431f363c2f98de0a6632b5bc86651a35d0b57b07f1186c7d181e836",
-  "publication_tables_sha256": "34cfcd1649c1e11c17b911cb6745116d370d9d9262aeead6b86ea3b3a535ea09",
+  "configuration_sha256": "2d73980aa1dbc5d2a68395cae0085e60d1fab31a8892840bcd65ae10cf45ac17",
+  "publication_tables_sha256": "a2c90a106ccbc0437d1e276629f82c1f828401f67a6e0997cc0984cad8c05ee5",
   "representations": {
     "benchmarks/context_evaluation/heldout/results/20261008T014713Z/manifest.json": {
       "path": "benchmarks/context_evaluation/heldout/results/20261008T014713Z/manifest.public-v1.json",
@@ -14,11 +14,6 @@
       "path": "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/manifest.public-v1.json",
       "original_sha256": "4dc04c60071091a4cc2b2fe8b032c39fe5ef7a2b3c0433b86844727c6ceec713",
       "sha256": "8014daafbf905a4dc51b23f1b612c4221664e92951fac558d7e4dc8302ab817c"
-    },
-    "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/manifest.json": {
-      "path": "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/manifest.public-v1.json",
-      "original_sha256": "4cc1e1fd0d38324bc42d537112d4f6034363e6e9a18e9e1b3d71c514fd962677",
-      "sha256": "df908171a9e08be646e447682ea86726324fa8efdb32d47c366412857d7b25ea"
     },
     "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/manifest.json": {
       "path": "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/manifest.public-v1.json",
@@ -39,6 +34,11 @@
       "path": "benchmarks/context_evaluation/heldout/results/diagnostic-tied-maxima-selection-only-20261007/selection_only_diagnostic.public-v1.json",
       "original_sha256": "545a3fc79f838074d13dc61f9f443e126fd6b35a428958285cf17a9a38e4df31",
       "sha256": "51279c9920252b1adbd697bebd949835b4963535373b4760bd073ca53ebd4855"
+    },
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.json": {
+      "path": "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.public-v1.json",
+      "original_sha256": "757b5f0582dab486edfaee15527d739e294dc853f580728be17d43918254c4fa",
+      "sha256": "ab31e2874bcd1aac11f78b8616148239a64da4f1b7b5d3555aa79d3469da5ece"
     }
   },
   "historical_sources": {
@@ -84,24 +84,19 @@
     "benchmarks/context_evaluation/generation.py": "1f494add00bf82eecf0081be944693bf000648f71385a2614fe3b639c0284c61",
     "benchmarks/context_evaluation/heldout/DASHBOARD_SUMMARY.md": "521f14c6d740fddd52b0cca08010f8fdd5712b356bc45f38a0add0b84892505c",
     "benchmarks/context_evaluation/heldout/DATASET.md": "7bd699e756e286194c1e4ef5e1afd94b9de10c6f59e1feee29362d5abe6b0294",
-    "benchmarks/context_evaluation/heldout/EVIDENCE.md": "67ca2187efa6a394f151c90e2be67d1eefd91300e0d8a5957023cfcd0733b39f",
+    "benchmarks/context_evaluation/heldout/EVIDENCE.md": "a9891ebc9c605fa79803749eabbaf5e1d1638b72414a2e6744d6a401e994b11d",
     "benchmarks/context_evaluation/heldout/LATENCY_ANALYSIS.md": "433a2beac00f78f1b34db3a6dfaa9734aceea5f1488fd63b4acb8444e95d19d2",
     "benchmarks/context_evaluation/heldout/__init__.py": "f68b87095f48e84ec5a8b309bd2deb833c673d9ced573f8d2a9d56603623c391",
     "benchmarks/context_evaluation/heldout/additive_methods.py": "5ed61c4d0c9fa62a8b4f1872b7ce6ed76f0fde5c9e8a58cd64d83774ee8f60ca",
     "benchmarks/context_evaluation/heldout/additive_runner.py": "cec0e2139c2f4d75802b941b4989d3ae918ff649421422a4969dc39e7318113b",
     "benchmarks/context_evaluation/heldout/aggregate.py": "5489b9a2b31b12e3a8f21683ada003fe93a5741f490c36c93d9f7d14f9de615a",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/analyze_saved.py": "455366ba2e7281f5f9ba8961baf03a8e74d39ee3111df376fc1183772f9be7e4",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/answer_audit.json": "1f603c110f4dec99e3e41026de7de0b02f084af6f7623a4bc644819ace86d279",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/comparison.json": "0adce5ba126bc30b16dadb96de33c89fcf6cc9d6950cd0b6b171032739e0b676",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/report.md": "be04baabfb0e7ee770592b1010a207633f7127604f251b9e811ed96a915b7f03",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/summary.json": "37e9c2d63c46a920d598142ee20c73a4b60a2e9d317274db28ee952662b10ee0",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/answer_audit.json": "9b8eff56272384556f5ed7fefe9cdd23ab37caa580ea2a67087ffb693536e8e7",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/comparison.json": "4da961caa5eeb0f157a19a54289b22d34e7067f425556c51a40e946e353ee0d5",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/report.md": "2773abef1c74a73d9021d60f1545cfdbfb5e27299afc7fc24e147c729a73efdc",
     "benchmarks/context_evaluation/heldout/artifacts.py": "990c5975e7922cb5f76dce36695bce0dd9fcb95f7a13d3c33599c52adb8aff85",
     "benchmarks/context_evaluation/heldout/baseline_reuse.py": "1e262e9ff314ad371fc937ee847fd55f994b7d55546946a2308e5e4e270b8d06",
-    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "6ea08b4ac32928f6dd56ac24688f52d864ba5705a32cdeef79e18ffbb9108b10",
+    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "2d5b684999f29dfb86a54c024b99001fd5aa01eb04cdf0abc2ebd6b869b60660",
     "benchmarks/context_evaluation/heldout/case_matrix.json": "7e8d63c985dd624c42fcc95dcb1ffdda1f4ccb6f9ba850b351fa1fde69ea5c15",
     "benchmarks/context_evaluation/heldout/cases/analytics_derived_metric_cycle/case.json": "5e54f50db313feab8b95fbdc54c1ffeaea537901c586a7546626c2a9d4f7e32f",
     "benchmarks/context_evaluation/heldout/cases/analytics_derived_metric_cycle/ground_truth.json": "edf2ced18b0c593549d158c47b06fcca7d4fcaf7693ab4ed7e6a7d33d8c78256",
@@ -183,9 +178,6 @@
     "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/report.md": "6735d2b3662eaec026d5c28cd9c221ec509c2654d3d6e503585c35890f0f3bb0",
     "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/results.jsonl": "8e039f88ce8c946b15263b7fda82f9df09cf1849478d98e8ec063d517932fbf5",
     "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/summary.json": "b7c67192a09c5f0d677e82acee889b64b12069b7e5991475f82fdf06c9c0d249",
-    "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/manifest.public-v1.json": "df908171a9e08be646e447682ea86726324fa8efdb32d47c366412857d7b25ea",
-    "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/results.jsonl": "40876dfc228a91acf8af7d6fee66d7c2f1930ed7a8cdbe7015b2a7ee4e3d3594",
-    "benchmarks/context_evaluation/heldout/results/bge-google-vs-bge-omneum-20261008/summary.json": "11f7a1d0e35e4d8a9f75d1c068c2fa48bc15f91e5669e980eefc30a7c3f81390",
     "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/manifest.public-v1.json": "4b76aa050efedbc20e6346f4adc250a89446b445cbb76dddcb5f428d71c592b6",
     "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/results.jsonl": "4bba4175ba45bd75b86283c75ee59c837bc17439fdc8bf2b6bef6ddb10063b98",
     "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/summary.json": "72ccd16c76f95143930eacaac0b553ff976b974cb0db5b3592b735f64e6f8ac6",
@@ -206,7 +198,7 @@
     "benchmarks/context_evaluation/heldout/source_manifest_v2.json": "6c52949756496402a858e123c4f8a8e9fa19d36dd10d1f5ccf03c0ba7708f08e",
     "benchmarks/context_evaluation/heldout/source_manifest_v3.json": "3e76d91bf71c70b79502dade8a999896f46d2999e8da43f5f41962526488f7cd",
     "benchmarks/context_evaluation/heldout/source_manifest_v4.json": "d54a6878daf4419e27de23d42793af72680af5f57ac047789e9da42badfc3923",
-    "benchmarks/context_evaluation/heldout/source_manifest_v5.json": "ac82d9b0e0557bd1b707a8c53069e71042fc00a8290763036108273be5d88b94",
+    "benchmarks/context_evaluation/heldout/source_manifest_v5.json": "c3b274c67c2463be08867617b651786f189795844e9ed9b4df310ef6b3ed0638",
     "benchmarks/context_evaluation/heldout/source_recovery_manifest_v1.json": "22fa3e3b897ad336c64eec592cf8106b8ed916f20653aeef0e537006720342b2",
     "benchmarks/context_evaluation/heldout/suite.py": "e50212a502c50b2b0039fc6e45aacd4ab3749daffb7ee4bb1a64274a7bee79e1",
     "benchmarks/context_evaluation/heldout/validate_dataset.py": "e0c20708bc539396861a310cb003d9bc8bfe68409d15f1e107c0a4ebbac43b96",
@@ -215,7 +207,7 @@
     "benchmarks/context_evaluation/observations.py": "0a9cb975124ff3c01e3815082bb80a516b0b4bd412e66d3b931b707f514f7c28",
     "benchmarks/context_evaluation/omneum_rag.py": "75254c691c3c1dd22f08b94276661337fe1a71fc839f10b101d510e1fc2eb202",
     "benchmarks/context_evaluation/paths.py": "d322877ff6e000142ea24865236c37c103bdf67668bcc4928f3312dd6764b2d0",
-    "benchmarks/context_evaluation/publication_manifest_v1.schema.json": "fbd8d9ee186f3e9c09f71580134b01238246ea50b259167f8544095bb4f2504e",
+    "benchmarks/context_evaluation/publication_manifest_v1.schema.json": "2761a655b97ad74a749b912d821ef0acdd18c631471f2973edd1eb9bcb8ed062",
     "benchmarks/context_evaluation/reproducibility.py": "b10ff3fbd3b6e2bb581910da1c283714d9040f9a4ad44728f401412ac3d4b19b",
     "benchmarks/context_evaluation/results/adversarial/circular_sourcing.json": "0160c1059f0bd0723d4f8010d9419161a8b2488e76de860e36a17c76f10ce104",
     "benchmarks/context_evaluation/results/adversarial/conflicting_information/application/20260905T212837Z.jsonl": "7d6be971263f730dc31a2416890d68db2715c252ea73368979148b8d664dd445",
@@ -228,7 +220,14 @@
     "benchmarks/context_evaluation/results/adversarial/prompt_injection/provenance_injection.summary.json": "434eae3a0f9f896d7f7abbe3deb168f894b5cb22a8eed7c32b25827b76123236",
     "benchmarks/context_evaluation/semantic_reranker.py": "50d05c71ce702a7c224a49584b6ab26d9fc7ef895ad552b9c12555ee7b7de602",
     "benchmarks/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "tools/run_context_evaluation_tests.py": "727938e36b6f97b0831d5d66354ccd534f230d00fedc4d0ed25e328abb7a94df"
+    "tools/run_context_evaluation_tests.py": "727938e36b6f97b0831d5d66354ccd534f230d00fedc4d0ed25e328abb7a94df",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/summary.json": "d483ae816745f0674487f2c20f8bf5258bb534efc3660afd7e9ce5f665ed6b6b",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/results.jsonl": "111b1abbcb7ef0f9cc6e567babe901bbe777e524fbdbfb93af4a2bb3c46130d0",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.public-v1.json": "ab31e2874bcd1aac11f78b8616148239a64da4f1b7b5d3555aa79d3469da5ece",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/report.md": "0b78a70ac82f4afffb8795f7f5170302c18fe2880dfbc9296b975974782bd5f5",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/comparison.json": "3e329c7d6509a78997cb0a5de681ea6a589d85092d63813dbbf3fd66234cfe9b",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/answer_audit.json": "ee68511d9748a32690ff16150fa88d0e7ebecdbed34629b48d917a4593346697",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/reproducibility.md": "992dc68121a602e9be0ffd213f839f3bab01eb96ec2b7354d95338ca73913c58"
   },
   "lineage_audit": {
     "git_snapshots": [
@@ -468,7 +467,7 @@
           "matching_selected_sets": 240,
           "attempts": 240
         },
-        "bge-google-vs-bge-omneum-20261008": {
+        "bge-google-low-vs-bge-omneum-20261008": {
           "matching_selected_sets": 240,
           "attempts": 240
         }
@@ -562,6 +561,17 @@
           "reason": "Update context evaluation README navigation and verification instructions."
         }
       }
+    },
+    {
+      "previous_contract_sha256": "40bfc897e8b8b8633c7190624ae9d1775741cbd5b739bd9dd7443e8cfcfd9c02",
+      "changes": {
+        "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.public-v1.json": {
+          "previous_sha256": "df908171a9e08be646e447682ea86726324fa8efdb32d47c366412857d7b25ea",
+          "sha256": "ab31e2874bcd1aac11f78b8616148239a64da4f1b7b5d3555aa79d3469da5ece",
+          "reason": "Preserve all original selections, successful generations and Omneum records; replace only failed generator calls and adjudicate final answers. Old artifacts retained in the private archive."
+        }
+      },
+      "previous_contract_snapshot": "benchmarks/context_evaluation/heldout/contracts/gemini-recovery/publication_manifest_v1.json.txt"
     }
   ]
 }
