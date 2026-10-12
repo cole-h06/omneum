@@ -32,7 +32,8 @@ def generated():
     parts = ['Omneum native dependency license notices\n',
              'Locked normal/build dependency union for SDK and daemon targets.\n'
              'Conditional/build dependencies may not be linked on every platform.\n'
-             'Project and bundled MCP licenses are also distributed separately.\n']
+             'Project and bundled MCP licenses are also distributed separately.\n'
+             'License text line endings are normalized to LF for all build platforms.\n']
     for package in sorted(metadata['packages'], key=lambda p: (p['name'], p['version'])):
         if package['id'] not in selected or package['source'] is None:
             continue
@@ -52,7 +53,7 @@ def generated():
                 relative = member.name.removeprefix(prefix)
                 if (member.isfile() and member.name.startswith(prefix) and '/' not in relative
                         and relative.upper().startswith(PREFIXES)):
-                    files[relative] = tar.extractfile(member).read().decode('utf-8')
+                    files[relative] = tar.extractfile(member).read().decode('utf-8').replace('\r\n', '\n').replace('\r', '\n')
         if not files:
             raise ValueError('native dependency lacks license text: ' + package['name'])
         parts.append(f"\n{'=' * 72}\n{package['name']} {package['version']}\n"

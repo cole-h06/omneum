@@ -2,6 +2,7 @@ Omneum native dependency license notices
 Locked normal/build dependency union for SDK and daemon targets.
 Conditional/build dependencies may not be linked on every platform.
 Project and bundled MCP licenses are also distributed separately.
+License text line endings are normalized to LF for all build platforms.
 
 ========================================================================
 base16ct 0.2.0
