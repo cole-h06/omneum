@@ -388,7 +388,7 @@ def test_default_storage_with_explicit_contribution(runtime, network):
 
 
 def test_default_stdio_sqlite(runtime, computed, tmp_path):
-    from mcp import StdioServerParameters
+    from omneum.mcp import StdioServerParameters
     from test_client import DEPLOYMENT_ID, PRIVATE_KEY
     from stdio_state import isolated_deployment_environment
     from omneum import OmneumClientConfig, open_stdio_client, paths
@@ -684,3 +684,46 @@ def test_new_macos_config_directory_is_compatible_with_default_graph(tmp_path, m
     assert stat.S_IMODE(expected.stat().st_mode) == 0o700
     assert stat.S_IMODE((expected / 'context.db').stat().st_mode) == 0o600
     assert stat.S_IMODE(tmp_path.stat().st_mode) == before
+
+
+@pytest.mark.parametrize('version', [(3, 50, 4), (3, 51, 0), (3, 51, 2), (3, 44, 5)])
+def test_unpatched_sqlite_rejected_before_graph_creation(tmp_path, monkeypatch, version):
+    from omneum.storage.sqlite import SQLiteRuntimeError
+    monkeypatch.setattr(sqlite3, 'sqlite_version_info', version)
+    path = tmp_path / 'new-graph' / 'context.db'
+    with pytest.raises(SQLiteRuntimeError, match='WAL-reset fix'):
+        with SQLiteStorage(path).transaction():
+            pass
+    assert not path.parent.exists()
+
+
+@pytest.mark.parametrize('version', [(3, 51, 3), (3, 53, 1), (3, 50, 7), (3, 44, 6)])
+def test_patched_sqlite_maintenance_branches_accepted(monkeypatch, version):
+    from omneum.storage.sqlite import require_safe_sqlite
+    monkeypatch.setattr(sqlite3, 'sqlite_version_info', version)
+    require_safe_sqlite()
+
+
+def test_validation_descriptors_do_not_drop_another_thread_sqlite_locks(tmp_path, monkeypatch):
+    from concurrent.futures import TimeoutError
+    from threading import Event
+    active, started = Event(), Event()
+    prepare = SQLiteStorage._prepare_file
+    def checked(path, **options):
+        assert not active.is_set(), 'validation may release a live SQLite POSIX lock'
+        return prepare(path, **options)
+    monkeypatch.setattr(SQLiteStorage, '_prepare_file', staticmethod(checked))
+    storage = SQLiteStorage(tmp_path / 'context.db')
+    def open_other():
+        started.set()
+        with SQLiteStorage(storage.path).transaction() as db:
+            assert db.execute('PRAGMA integrity_check').fetchone() == ('ok',)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        with storage.transaction():
+            active.set()
+            future = pool.submit(open_other)
+            assert started.wait(timeout=5)
+            with pytest.raises(TimeoutError):
+                future.result(timeout=0.1)
+            active.clear()
+        future.result(timeout=5)

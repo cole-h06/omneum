@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -125,7 +126,7 @@ def bundle_layout(target: str) -> dict[str, int]:
     if target not in PLATFORMS:
         raise InstallError("Unsupported daemon platform.")
     if target == "linux-x86_64":
-        return {"omneumd": 0o755, "install.sh": 0o755, "install-foreground.sh": 0o755,
+        return {"LICENSE": 0o644, "NATIVE-LICENSES.txt": 0o644, "omneumd": 0o755, "install.sh": 0o755, "install-foreground.sh": 0o755,
                 "systemd": 0o755, "systemd/omneumd.service": 0o644,
                 "sysusers.d": 0o755, "sysusers.d/omneum.conf": 0o644,
                 "omneum-server": 0o755,
@@ -138,7 +139,7 @@ def bundle_layout(target: str) -> dict[str, int]:
                 "systemd/omneum-server@.service": 0o644,
                 "sysusers.d/omneum-server.conf": 0o644,
                 }
-    return {"omneumd": 0o755, "install-macos.sh": 0o755,
+    return {"LICENSE": 0o644, "NATIVE-LICENSES.txt": 0o644, "omneumd": 0o755, "install-macos.sh": 0o755,
             "launchd": 0o755, "launchd/ai.omneum.omneumd.plist": 0o644}
 
 
@@ -223,10 +224,21 @@ def deploy_bundle(bundle: Path, target: str) -> None:
 
 
 def verify_connection() -> None:
-    from .config import load_deployment_state
+    from .config import ConfigurationError, load_deployment_state
+    from .daemon import DaemonTransportError
     from .oprf import VOPRFClient
 
-    state = load_deployment_state()  # Validates the existing pin and OS peer identity.
+    # launchd can leave the previous socket visible while restarting the service.
+    # Retry only transport readiness, before submitting any evaluation. Every
+    # attempt still validates the existing pin and OS peer identity.
+    for attempt in range(21):
+        try:
+            state = load_deployment_state()
+            break
+        except ConfigurationError as error:
+            if not isinstance(error.__cause__, DaemonTransportError) or attempt == 20:
+                raise
+            time.sleep(0.25)
     client = VOPRFClient(state.voprf_server.public_key)
     probe = b"Omneum installation verification"
     blinded = client.blind(probe)
@@ -263,9 +275,13 @@ def finish_install(initialize, verify, progress) -> None:
     progress("Verifying connection...")
     try:
         verify()
-    except Exception:
+    except Exception as error:
+        kind = type(error).__name__
+        if error.__cause__ is not None:
+            kind += f" ({type(error.__cause__).__name__})"
         raise InstallError("Daemon deployed, but connection verification failed. "
-                           "Check service status and the existing daemon key pin before retrying.") from None
+                           "Check service status and the existing daemon key pin before retrying. "
+                           f"Failure: {kind}.") from None
     progress("Omneum is ready.")
 
 
@@ -285,6 +301,17 @@ def run_install(progress) -> None:
         raise InstallError("Unset OMNEUM_DAEMON_UID and OMNEUM_DAEMON_SOCKET before installing. "
                            "Installation verifies the protected system daemon.")
     install_release(target, progress)
+    # Initialize the login user's private graph; protected services own no user data.
+    from .storage import SQLiteStorage
+    from .storage.sqlite import SQLiteRuntimeError
+    try:
+        with SQLiteStorage().transaction():
+            pass
+    except SQLiteRuntimeError as error:
+        raise InstallError(str(error)) from None
+    except Exception:
+        raise InstallError("Daemon deployed, but local Context Graph initialization failed. "
+                           "Check the user data directory permissions and existing schema before retrying.") from None
     if target == "linux-x86_64":
         # The Linux installer already ran init as omneum-mcp.
         progress("Verifying connection...")
@@ -301,7 +328,7 @@ def run_install(progress) -> None:
 def verify_managed_connection() -> None:
     """Exercise the same public proxy and proof-verifying SDK that applications use."""
     import asyncio
-    from mcp import StdioServerParameters
+    from omneum.mcp import StdioServerParameters
     from .client import OmneumClientConfig, open_stdio_client
     from .proxy import linux_command
 

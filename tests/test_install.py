@@ -188,6 +188,68 @@ def test_probe_uses_existing_pin_and_real_voprf(example_daemon):
     install.verify_connection()
 
 
+def test_probe_waits_for_restart_without_changing_pin(example_daemon, monkeypatch):
+    from omneum.paths import get_config_dir
+
+    config_path = get_config_dir() / 'config.toml'
+    original = config_path.read_bytes()
+    example_daemon.process.terminate()
+    example_daemon.process.wait(timeout=3)
+    restarted = []
+
+    def start(_delay):
+        if not restarted:
+            restarted.append(subprocess.Popen(example_daemon.command))
+        # Use the actual sleep captured before patching the shared time module.
+        sleep(0.1)
+
+    sleep = install.time.sleep
+    monkeypatch.setattr(install.time, 'sleep', start)
+    try:
+        install.verify_connection()
+        assert restarted
+        assert config_path.read_bytes() == original
+    finally:
+        for process in restarted:
+            process.terminate()
+            process.wait(timeout=3)
+
+
+@pytest.mark.parametrize('failure', ['identity', 'pin', 'protocol', 'timeout'])
+def test_probe_does_not_retry_security_failures(monkeypatch, failure):
+    from omneum import config
+    from omneum.daemon import DaemonUnavailableError
+    from omneum.oprf import OPRFProtocolError
+
+    error = config.ConfigurationError('invalid daemon')
+    error.__cause__ = {'identity': DaemonUnavailableError('identity failure'),
+                      'pin': None, 'protocol': OPRFProtocolError('invalid frame'),
+                      'timeout': TimeoutError()}[failure]
+    load = Mock(side_effect=error)
+    wait = Mock()
+    monkeypatch.setattr(config, 'load_deployment_state', load)
+    monkeypatch.setattr(install.time, 'sleep', wait)
+    with pytest.raises(config.ConfigurationError):
+        install.verify_connection()
+    load.assert_called_once_with()
+    wait.assert_not_called()
+
+
+def test_probe_readiness_is_bounded(monkeypatch):
+    from omneum import config
+    from omneum.daemon import DaemonTransportError
+
+    error = config.ConfigurationError('unavailable daemon')
+    error.__cause__ = DaemonTransportError('unavailable transport')
+    load, wait = Mock(side_effect=error), Mock()
+    monkeypatch.setattr(config, 'load_deployment_state', load)
+    monkeypatch.setattr(install.time, 'sleep', wait)
+    with pytest.raises(config.ConfigurationError):
+        install.verify_connection()
+    assert load.call_count == 21
+    assert wait.call_count == 20
+
+
 def test_release_flow_and_cleanup(monkeypatch):
     data = archive()
     seen = []
@@ -255,8 +317,10 @@ def test_finish_success():
 def mac_install(monkeypatch):
     from omneum import initialization
     monkeypatch.setattr(install, 'detect_platform', lambda: 'macos-aarch64')
-    monkeypatch.setattr(install.os, 'geteuid', lambda: 501)
-    monkeypatch.setattr(install.os, 'getuid', lambda: 501)
+    # Keep the real fixture owner for the newly initialized private SQLite graph.
+    # A fabricated UID makes Linux CI reject its own test directory.
+    fixture_uid = install.os.getuid()
+    monkeypatch.setattr(install.os, 'geteuid', lambda: fixture_uid)
     monkeypatch.delenv('OMNEUM_DAEMON_UID', raising=False)
     monkeypatch.delenv('OMNEUM_DAEMON_SOCKET', raising=False)
     monkeypatch.setattr(install, 'package_version', lambda name: '1.0.3')
@@ -397,3 +461,28 @@ def test_sudo_command_authorization_and_prompt(monkeypatch, tmp_path, interactiv
         args, kwargs = run.call_args_list[1]
         assert args[0] == ['/usr/bin/sudo', '-v']
         assert not kwargs.get('capture_output')
+
+
+@pytest.mark.parametrize('target', ['linux-x86_64', 'macos-aarch64', 'macos-x86_64'])
+def test_install_automatically_creates_private_user_graph(monkeypatch, target):
+    from omneum.paths import get_context_db_path
+    import sqlite3
+    monkeypatch.setattr(install, 'detect_platform', lambda: target)
+    monkeypatch.setattr(install.os, 'geteuid', lambda: 501)
+    monkeypatch.setattr(install, 'install_release', Mock())
+    monkeypatch.setattr(install, 'installer_command', Mock())
+    monkeypatch.setattr(install, 'verify_managed_connection', Mock())
+    monkeypatch.setattr(install, 'finish_install', Mock())
+    for name in ('OMNEUM_DAEMON_SOCKET', 'OMNEUM_DAEMON_UID'):
+        monkeypatch.delenv(name, raising=False)
+    path = get_context_db_path()
+    assert not path.exists()
+    install.run_install(Mock())
+    assert path.is_file() and path.stat().st_mode & 0o777 == 0o600
+    assert path.parent.stat().st_mode & 0o777 == 0o700
+    with sqlite3.connect(path) as db:
+        assert db.execute('SELECT version FROM schema_migrations ORDER BY version').fetchall() == [(1,), (2,), (3,)]
+        assert db.execute('SELECT count(*) FROM evaluation_runs').fetchone() == (0,)
+    install.run_install(Mock())
+    with sqlite3.connect(path) as db:
+        assert db.execute('SELECT count(*) FROM evaluation_runs').fetchone() == (0,)

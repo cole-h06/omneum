@@ -434,8 +434,6 @@ The principal measured difference was selection latency.
 
 The fixture demonstrates successful selection of current operational evidence in the presence of circularly referenced recovery instructions.
 
-Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
-
 ## Inspect Recorded Runs
 
 The case fixtures and preserved execution artifacts are maintained separately.

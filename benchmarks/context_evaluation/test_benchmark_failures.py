@@ -226,3 +226,16 @@ def test_provider_diagnostics_are_explicit_and_redacted(status, category):
     assert result["response_diagnostics"] == {
         "http_status": status, "error_type": "ProviderError", "error_category": category,
     }
+
+
+def test_prompt_injection_runner_uses_shared_cases():
+    from .adversarial.prompt_injection import cases, run_benchmark
+
+    assert run_benchmark.QUERY == cases.QUERY
+    assert run_benchmark.clean_results is cases.clean_results
+    assert run_benchmark.provenance_injection is cases.provenance_injection
+    clean = cases.clean_results()
+    injected = cases.provenance_injection()
+    assert clean[:-1] == injected[:-1]
+    assert "Source provenance:" in injected[-1]["text"]
+    assert clean[-1]["text"] == "The payments-api retention period is 30 days."

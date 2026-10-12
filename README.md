@@ -4,7 +4,22 @@
   <img src="assets/omneum-logotype.svg" alt="Omneum" width="240">
 </p>
 
-Omneum: an open-source context evaluator for AI agents.
+<p align="center">
+  An open-source context evaluator for AI agents.
+</p>
+
+<p align="center">
+  <a href="https://github.com/cole-h06/omneum/actions/workflows/CI.yml">
+    <img src="https://github.com/cole-h06/omneum/actions/workflows/CI.yml/badge.svg" alt="CI">
+  </a>
+  <a href="https://pypi.org/project/omneum/">
+    <img src="https://img.shields.io/pypi/v/omneum" alt="PyPI">
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.11%E2%80%933.14-blue" alt="Python 3.11–3.14">
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
+  </a>
+</p>
 
 Agents routinely assemble context from many different sources — a RAG pipeline, web search, APIs, databases, files, memory systems, other agents — but stuffing dozens of raw chunks into a single context window can leave the model working through a mess of information that was never organized for it.
 
@@ -134,7 +149,7 @@ Use `ContextMapper` to map retrieved records into Omneum observations. The examp
 import asyncio
 from datetime import datetime, timezone
 
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 from omneum import (
     ContextMapper,
     DependencyEstimatorConfig,
@@ -266,13 +281,15 @@ Framework examples:
 For a complete framework-independent workflow, see the
 [enterprise policy example](examples/enterprise/).
 
-### Optional: Contribute to the Omneum Network
+### Optional: Contribute to the Omneum Network (Closed Beta)
 
 Omneum runs locally by default. You can opt in to contribute observations to the shared Omneum Context Graph without uploading raw context.
 
 Network contributions help build a shared evidence base across agent deployments, extending the Context Graph beyond any single installation.
 
 Contributions use privacy-preserving cryptographic linkage via an RFC 9497 VOPRF. Network contribution is disabled by default. Local evaluation works without it.
+
+Hosted Network enrollment is currently limited to approved beta participants.
 
 See [Enable Network contribution (MCP)](docs/guides/configuration.md#mcp-configuration) to get started, or [How Network contribution works](docs/context-graph.md#omneum-network) for technical details.
 

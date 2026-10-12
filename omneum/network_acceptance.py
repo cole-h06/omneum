@@ -121,7 +121,7 @@ async def local_outage():
     from .dependency import DependencyEstimatorConfig
     from .onboarding import stored_credential
     from .local_persistence import LocalPersistenceConfig
-    from mcp import StdioServerParameters
+    from omneum.mcp import StdioServerParameters
     import tempfile
     # Deliberate caller-side transport failure, not a production service outage.
     # Exercise the real installed MCP and SDK recovery path with private test SQLite.

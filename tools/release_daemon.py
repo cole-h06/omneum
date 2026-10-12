@@ -23,6 +23,8 @@ def layout(platform):
         raise ValueError(f"unsupported platform: {platform}")
     if platform.startswith("linux-"):
         return {
+            "LICENSE": 0o644,
+            "NATIVE-LICENSES.txt": 0o644,
             "omneumd": 0o755,
             "omneum-server": 0o755,
             "install-server.sh": 0o755,
@@ -41,6 +43,8 @@ def layout(platform):
             "sysusers.d/omneum.conf": 0o644,
         }
     return {
+        "LICENSE": 0o644,
+        "NATIVE-LICENSES.txt": 0o644,
         "omneumd": 0o755,
         "install-macos.sh": 0o755,
         "launchd": 0o755,
@@ -96,6 +100,11 @@ def verify(directory, version):
             members = archive.getmembers()
             if [m.name for m in members] != sorted(expected_layout):
                 raise ValueError(f"invalid archive layout: {platform}")
+            root = Path(__file__).resolve().parents[1]
+            for name, source in [('LICENSE', root / 'LICENSE'),
+                                 ('NATIVE-LICENSES.txt', root / 'omneum/NATIVE-LICENSES.txt')]:
+                if archive.extractfile(name).read() != source.read_bytes():
+                    raise ValueError('release license bytes differ from verified source: ' + name)
             daemon_member = archive.getmember("omneumd")
             if not daemon_member.isfile() or not 0 < daemon_member.size <= 128 * 1024 * 1024:
                 raise ValueError("invalid daemon archive member")

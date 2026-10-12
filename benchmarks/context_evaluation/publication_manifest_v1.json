@@ -75,14 +75,14 @@
     "benchmarks/context_evaluation/adversarial/prompt_injection/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "benchmarks/context_evaluation/adversarial/prompt_injection/application.py": "bee97e8c1c597cd42f9a6f7cac05d234517beae1c19e0f614d7bd3bce3b34afb",
     "benchmarks/context_evaluation/adversarial/prompt_injection/cases.py": "c5ad7f74ba157f1ede706b3c9f681e98bea91582216088d64627a47258d03ce4",
-    "benchmarks/context_evaluation/adversarial/prompt_injection/run_benchmark.py": "3dbfa13243ae24a4559d238d07e27213c7a83567b48de5f9bb75f179f829c842",
+    "benchmarks/context_evaluation/adversarial/prompt_injection/run_benchmark.py": "186468a572d1c6e81264de707fa6aeb43d5e132616fcb7a8f73a7d23f29344ce",
     "benchmarks/context_evaluation/answer_scoring.py": "fa071b3760e8fc3ce502a0c4d901aab3f720476f809498015064435459f179ee",
     "benchmarks/context_evaluation/application_comparison.py": "b870c15f57e9cd8e2545c26b2b51f32aa411d3246de39c0fb65b611f06d9fa39",
     "benchmarks/context_evaluation/clients.py": "5465663484c0976f160becb407c4149df89a61a8010534a802bcd5959f97fff3",
     "benchmarks/context_evaluation/config.py": "728e0a650530ca30ef80e7e5b8b33e6dbb00fb6d2ebbb547697b40872f193fd0",
     "benchmarks/context_evaluation/deployment.py": "7c913ea1aba176d1730369d06b8c430892fce04f68d9a55c6aff8e611e12333a",
     "benchmarks/context_evaluation/generation.py": "1f494add00bf82eecf0081be944693bf000648f71385a2614fe3b639c0284c61",
-    "benchmarks/context_evaluation/heldout/DASHBOARD_SUMMARY.md": "521f14c6d740fddd52b0cca08010f8fdd5712b356bc45f38a0add0b84892505c",
+    "benchmarks/context_evaluation/heldout/DASHBOARD_SUMMARY.md": "6488074b1ef0a12e951ad3c4ac582d7eaa45896e89e266bea5fced4574758ba9",
     "benchmarks/context_evaluation/heldout/DATASET.md": "7bd699e756e286194c1e4ef5e1afd94b9de10c6f59e1feee29362d5abe6b0294",
     "benchmarks/context_evaluation/heldout/EVIDENCE.md": "a9891ebc9c605fa79803749eabbaf5e1d1638b72414a2e6744d6a401e994b11d",
     "benchmarks/context_evaluation/heldout/LATENCY_ANALYSIS.md": "433a2beac00f78f1b34db3a6dfaa9734aceea5f1488fd63b4acb8444e95d19d2",
@@ -90,13 +90,13 @@
     "benchmarks/context_evaluation/heldout/additive_methods.py": "5ed61c4d0c9fa62a8b4f1872b7ce6ed76f0fde5c9e8a58cd64d83774ee8f60ca",
     "benchmarks/context_evaluation/heldout/additive_runner.py": "cec0e2139c2f4d75802b941b4989d3ae918ff649421422a4969dc39e7318113b",
     "benchmarks/context_evaluation/heldout/aggregate.py": "5489b9a2b31b12e3a8f21683ada003fe93a5741f490c36c93d9f7d14f9de615a",
-    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
+    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "03f82212da02a21dc0b46b400734fdf3cf33eb9db77546cfebd272646ec0b445",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/answer_audit.json": "9b8eff56272384556f5ed7fefe9cdd23ab37caa580ea2a67087ffb693536e8e7",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/comparison.json": "4da961caa5eeb0f157a19a54289b22d34e7067f425556c51a40e946e353ee0d5",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/report.md": "2773abef1c74a73d9021d60f1545cfdbfb5e27299afc7fc24e147c729a73efdc",
     "benchmarks/context_evaluation/heldout/artifacts.py": "990c5975e7922cb5f76dce36695bce0dd9fcb95f7a13d3c33599c52adb8aff85",
     "benchmarks/context_evaluation/heldout/baseline_reuse.py": "1e262e9ff314ad371fc937ee847fd55f994b7d55546946a2308e5e4e270b8d06",
-    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "2d5b684999f29dfb86a54c024b99001fd5aa01eb04cdf0abc2ebd6b869b60660",
+    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "a36ad7225a1683ea5fedbf18d2d69e69636eb0c3d532e3010844c5e71a518e69",
     "benchmarks/context_evaluation/heldout/case_matrix.json": "7e8d63c985dd624c42fcc95dcb1ffdda1f4ccb6f9ba850b351fa1fde69ea5c15",
     "benchmarks/context_evaluation/heldout/cases/analytics_derived_metric_cycle/case.json": "5e54f50db313feab8b95fbdc54c1ffeaea537901c586a7546626c2a9d4f7e32f",
     "benchmarks/context_evaluation/heldout/cases/analytics_derived_metric_cycle/ground_truth.json": "edf2ced18b0c593549d158c47b06fcca7d4fcaf7693ab4ed7e6a7d33d8c78256",
@@ -198,7 +198,7 @@
     "benchmarks/context_evaluation/heldout/source_manifest_v2.json": "6c52949756496402a858e123c4f8a8e9fa19d36dd10d1f5ccf03c0ba7708f08e",
     "benchmarks/context_evaluation/heldout/source_manifest_v3.json": "3e76d91bf71c70b79502dade8a999896f46d2999e8da43f5f41962526488f7cd",
     "benchmarks/context_evaluation/heldout/source_manifest_v4.json": "d54a6878daf4419e27de23d42793af72680af5f57ac047789e9da42badfc3923",
-    "benchmarks/context_evaluation/heldout/source_manifest_v5.json": "c3b274c67c2463be08867617b651786f189795844e9ed9b4df310ef6b3ed0638",
+    "benchmarks/context_evaluation/heldout/source_manifest_v5.json": "27ed8edbd2634ac02212f7643b5a304b4294d71f7e25c8e5592c1afd1a56d20b",
     "benchmarks/context_evaluation/heldout/source_recovery_manifest_v1.json": "22fa3e3b897ad336c64eec592cf8106b8ed916f20653aeef0e537006720342b2",
     "benchmarks/context_evaluation/heldout/suite.py": "e50212a502c50b2b0039fc6e45aacd4ab3749daffb7ee4bb1a64274a7bee79e1",
     "benchmarks/context_evaluation/heldout/validate_dataset.py": "e0c20708bc539396861a310cb003d9bc8bfe68409d15f1e107c0a4ebbac43b96",
@@ -572,6 +572,36 @@
         }
       },
       "previous_contract_snapshot": "benchmarks/context_evaluation/heldout/contracts/gemini-recovery/publication_manifest_v1.json.txt"
+    },
+    {
+      "previous_contract_sha256": "25be4af4838b541a2dc1fea3d6e919be94d5aa09544087a8647f457fbaff9413",
+      "changes": {
+        "benchmarks/context_evaluation/adversarial/prompt_injection/run_benchmark.py": {
+          "previous_sha256": "3dbfa13243ae24a4559d238d07e27213c7a83567b48de5f9bb75f179f829c842",
+          "sha256": "186468a572d1c6e81264de707fa6aeb43d5e132616fcb7a8f73a7d23f29344ce",
+          "reason": "Import identical shared case fixtures directly; remove runtime dependency on a test module without changing prompts."
+        },
+        "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": {
+          "previous_sha256": "2d5b684999f29dfb86a54c024b99001fd5aa01eb04cdf0abc2ebd6b869b60660",
+          "sha256": "a36ad7225a1683ea5fedbf18d2d69e69636eb0c3d532e3010844c5e71a518e69",
+          "reason": "Remove unreferenced legacy token_usage helper and unused path resolver import; active usage calculations and benchmark metrics unchanged."
+        },
+        "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": {
+          "previous_sha256": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
+          "sha256": "03f82212da02a21dc0b46b400734fdf3cf33eb9db77546cfebd272646ec0b445",
+          "reason": "Defer analysis generation to explicit main execution; importing the module no longer writes artifacts."
+        },
+        "benchmarks/context_evaluation/heldout/DASHBOARD_SUMMARY.md": {
+          "previous_sha256": "521f14c6d740fddd52b0cca08010f8fdd5712b356bc45f38a0add0b84892505c",
+          "sha256": "6488074b1ef0a12e951ad3c4ac582d7eaa45896e89e266bea5fced4574758ba9",
+          "reason": "Accept only the final newline added in committed Gemini finalization 70c8670: document bytes exactly equal the previously pinned bytes plus one newline; previous artifact identity retained."
+        },
+        "benchmarks/context_evaluation/heldout/source_manifest_v5.json": {
+          "previous_sha256": "c3b274c67c2463be08867617b651786f189795844e9ed9b4df310ef6b3ed0638",
+          "sha256": "27ed8edbd2634ac02212f7643b5a304b4294d71f7e25c8e5592c1afd1a56d20b",
+          "reason": "Record reviewed current Python-source revisions while retaining every original source contract and executed-result fingerprint."
+        }
+      }
     }
   ]
 }

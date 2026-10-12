@@ -542,8 +542,6 @@ With Cohere, the Claude judge selected a better evidence set.
 
 The case establishes that syndicated-reporting dependencies remain challenging for all evaluated BGE configurations. It does not demonstrate superior dependency handling by Omneum, and it should not be represented as a successful elimination of copied misinformation by the LLM judges either.
 
-Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
-
 ## Inspect Recorded Runs
 
 Authoritative run directories:

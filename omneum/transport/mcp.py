@@ -6,10 +6,10 @@ Configures the FastMCP server and registers the Omneum protocol tools.
 
 from contextlib import asynccontextmanager
 
-from mcp.server.fastmcp import FastMCP
-from mcp.server.fastmcp.exceptions import ToolError
-from mcp.server.stdio import stdio_server
-from mcp.types import CallToolResult
+from omneum.mcp.server.fastmcp import FastMCP
+from omneum.mcp.server.fastmcp.exceptions import ToolError
+from omneum.mcp.server.stdio import stdio_server
+from omneum.mcp.types import CallToolResult
 from pydantic import ValidationError
 
 from omneum.config import DeploymentState

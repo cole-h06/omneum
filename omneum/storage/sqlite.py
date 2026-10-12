@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 import sqlite3
 import stat
-from threading import Lock, local
+from threading import RLock, local
 from time import monotonic, sleep
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
@@ -25,6 +25,21 @@ from ..linkage import LinkagePurpose
 from .base import PersistedObservation
 from .filesystem import require_local_filesystem, require_safe_acl, private_directory
 from .schema import APPLICATION_ID, MIGRATIONS
+
+
+class SQLiteRuntimeError(RuntimeError):
+    """The local runtime lacks a known SQLite data-integrity fix."""
+
+
+def require_safe_sqlite():
+    # https://sqlite.org/wal.html#walresetbug: patched maintenance branches and mainline.
+    version = sqlite3.sqlite_version_info
+    if not (version >= (3, 51, 3) or (3, 50, 7) <= version < (3, 51, 0)
+            or (3, 44, 6) <= version < (3, 45, 0)):
+        raise SQLiteRuntimeError("Local Context Graph requires SQLite with the WAL-reset fix "
+                                 "(3.51.3+ or patched 3.50.7/3.44.6 branches). "
+                                 "Use a current Python runtime with patched SQLite; "
+                                 "no existing graph files were changed.")
 
 
 _MIGRATION_TABLE = '''CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -80,7 +95,7 @@ def _check_token(token, purpose):
 
 
 class SQLiteStorage:
-    _init_lock = Lock()
+    _init_lock = RLock()
     """Lazy filesystem adapter, safe for threads and independent local processes.
 
     Every outer transaction opens/closes its own connection. BEGIN IMMEDIATE
@@ -104,6 +119,16 @@ class SQLiteStorage:
 
     @contextmanager
     def transaction(self):
+        # Closing our validation descriptors must not release another thread's
+        # SQLite POSIX locks. Keep validation and connection lifetime together.
+        # Processes still coordinate through SQLite's normal WAL/busy handling.
+        with type(self)._init_lock:
+            with self._transaction() as connection:
+                yield connection
+
+    @contextmanager
+    def _transaction(self):
+        require_safe_sqlite()
         existing = getattr(self._state, 'connection', None)
         if existing is not None:
             name = 's' + uuid4().hex

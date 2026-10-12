@@ -11,7 +11,7 @@ from benchmarks.context_evaluation.llm_judge import (
     judge_dependencies_from_results,
 )
 from benchmarks.context_evaluation.reproducibility import manifest, write_manifest
-from benchmarks.context_evaluation.adversarial.prompt_injection.test_prompt_injection import (
+from benchmarks.context_evaluation.adversarial.prompt_injection.cases import (
     QUERY,
     clean_results,
     provenance_injection,

@@ -41,6 +41,8 @@ class OIDCAuthenticator:
     each request so provider key rotation does not require a restart.
     """
     def __init__(self, *, issuer, audience, jwks_path, scope='omneum:enroll'):
+        from ._crypto import require_crypto
+        require_crypto()
         from .contribution.config import HTTPSContributionTransport
         HTTPSContributionTransport(issuer, 'validation')
         if not audience or not scope:

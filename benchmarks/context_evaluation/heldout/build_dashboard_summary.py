@@ -14,7 +14,7 @@ from datetime import datetime
 
 from .aggregate import _percentile, summarize
 from .scoring import normalize
-from ..paths import resolve_artifact, verify_recorded_artifact, public_manifest, publication_contract
+from ..paths import verify_recorded_artifact, public_manifest, publication_contract
 
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parents[2]
@@ -63,20 +63,6 @@ def selection_metrics(rows):
                   "f1": 2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else 0.0},
         "counts": {"true_positive": tp, "false_positive": fp, "false_negative": fn},
     }
-
-
-def token_usage(rows, selection=False):
-    stage = "selection" if selection else "generation"
-    prefix = "evaluator_" if selection else ""
-    ins = sum(r[stage][prefix+"input_tokens"] for r in rows)
-    outs = sum(r[stage][prefix+"output_tokens"] for r in rows)
-    if selection:
-        # Omneum has no selector API calls: zero API usage is known, not missing.
-        thinking = sum(r[stage]["response_diagnostics"]["usage_metadata"]["thoughts_token_count"] for r in rows) if rows[0]["method"] == "bge_google" else 0
-        return {"input": ins, "output": outs+thinking, "total": ins+outs+thinking, "reasoning": thinking}
-    reasoning = [r[stage]["response_diagnostics"]["usage_metadata"].get("reasoning_tokens") for r in rows]
-    return {"input": ins, "output": outs, "total": ins+outs,
-            "reasoning": sum(reasoning) if all(v is not None for v in reasoning) else None}
 
 
 def build_verified_gemini_summary():

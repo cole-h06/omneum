@@ -1,7 +1,7 @@
 
 # Omneum Network Contribution
 
-Omneum Network accepts pseudonymous Context Graph contributions from explicitly enrolled installations. Local persistence remains independent of Network submission. Contributions pass through the HTTPS ingestion API; local MCP installations never connect directly to `omneum_prod`.
+Omneum Network accepts pseudonymous Context Graph contributions from explicitly enrolled installations. Hosted enrollment is currently restricted to approved closed-beta participants. Local persistence remains independent of Network submission. Contributions pass through the HTTPS ingestion API; local MCP installations never connect directly to `omneum_prod`.
 
 ## Client Configuration
 
@@ -41,7 +41,7 @@ Custom deployments can construct `NetworkContributionConfig` using `NetworkLinka
 
 ### MCP
 
-Install Omneum and enroll the local installation:
+Approved beta participants can install Omneum and enroll their local installation:
 
 ```bash
 omneum network enroll

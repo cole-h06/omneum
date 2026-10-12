@@ -6,7 +6,7 @@ import asyncio
 from pathlib import Path
 
 import pytest
-from mcp.types import CallToolResult
+from omneum.mcp.types import CallToolResult
 
 import omneum
 import omneum.client as client_module

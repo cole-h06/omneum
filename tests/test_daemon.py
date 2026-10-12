@@ -16,6 +16,7 @@ from omneum.daemon import (
     DaemonBusyError,
     DaemonKeyMismatchError,
     DaemonServerContext,
+    DaemonTransportError,
     DaemonUnavailableError,
 )
 from omneum.oprf import OPRFProtocolError, VOPRFClient
@@ -92,12 +93,13 @@ def test_truncated_frame(daemon):
 
 
 def test_wrong_uid(daemon):
-    with pytest.raises(DaemonUnavailableError):
+    with pytest.raises(DaemonUnavailableError) as rejected:
         DaemonServerContext(
             daemon.socket,
             os.getuid() + 1,
             daemon.public_key,
         )
+    assert not isinstance(rejected.value, DaemonTransportError)
 
 
 @pytest.mark.parametrize('path,timeout', [('/private/tmp/../eval.sock', 1), ('/private/tmp/eval.sock', True),

@@ -5,8 +5,8 @@ import os
 from pathlib import Path
 import sys
 
-from mcp import StdioServerParameters
-from mcp.server.fastmcp.exceptions import ToolError
+from omneum.mcp import StdioServerParameters
+from omneum.mcp.server.fastmcp.exceptions import ToolError
 from pydantic import BaseModel, ConfigDict, Field
 
 from .client import NetworkContributionError, OmneumClientConfig, open_stdio_client

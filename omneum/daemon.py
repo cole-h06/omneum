@@ -28,6 +28,10 @@ class DaemonUnavailableError(OPRFProtocolError):
     """The authenticated daemon connection could not be established."""
 
 
+class DaemonTransportError(DaemonUnavailableError):
+    """The local transport is not ready; no authentication failure is implied."""
+
+
 class DaemonBusyError(OPRFProtocolError):
     """Daemon rate or capacity limit reached."""
 
@@ -133,7 +137,7 @@ class DaemonServerContext:
         except OPRFProtocolError:
             raise
         except (OSError, AttributeError, struct.error):
-            raise DaemonUnavailableError("VOPRF daemon unavailable.") from None
+            raise DaemonTransportError("VOPRF daemon unavailable.") from None
 
     @staticmethod
     def _remaining(deadline: float) -> float:

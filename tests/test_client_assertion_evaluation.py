@@ -6,7 +6,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 
 import pytest
-from mcp.types import CallToolResult
+from omneum.mcp.types import CallToolResult
 from omneum import ExactEquivalence
 
 import omneum.client as client_module

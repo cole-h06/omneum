@@ -217,7 +217,7 @@ sys.exit(pytest.main(["-q", "tests/test_client_contribution.py::test_pseudonymou
 
 def test_real_stdio_contribution(tmp_path, computed, network):
     import sys
-    from mcp import StdioServerParameters
+    from omneum.mcp import StdioServerParameters
     from test_client import DEPLOYMENT_ID, PRIVATE_KEY
     from stdio_state import isolated_deployment_environment
     from omneum import OmneumClientConfig, open_stdio_client

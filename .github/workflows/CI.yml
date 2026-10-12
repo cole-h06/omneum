@@ -25,6 +25,22 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       ALGORITHM_SPEC_CHECKOUT: ${{ github.workspace }}/.algorithm-spec
+      OMNEUM_INGESTION_TEST_ADMIN_DSN: host=127.0.0.1 port=5432 dbname=omneum_ci_test user=postgres
+    services:
+      postgres:
+        image: postgres@sha256:f3bd19c606e442c3d7bdfa8002e03fe260a1023351e0ea4598032022b68dd6e3 # 17.6-bookworm
+        env:
+          POSTGRES_USER: postgres
+          # Isolated fixture roles authenticate locally; never a deployment config.
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: omneum_ci_test
+        ports:
+          - 127.0.0.1:5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -40,8 +56,12 @@ jobs:
           checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
           python-version: ${{ matrix.python }}
           enable-cache: false
-      - name: Check wheel and daemon release contracts
-        run: python -m unittest discover -s tools -p 'test_release_*.py' -v
+      - name: Verify reproducible upstream MCP fork
+        run: |
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+            https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz \
+            --output "$RUNNER_TEMP/mcp-1.28.1.tar.gz"
+          python tools/vendor_mcp.py "$RUNNER_TEMP/mcp-1.28.1.tar.gz" --check
       - name: Validate release tag against Python package version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         env:
@@ -50,7 +70,9 @@ jobs:
       - name: Check lockfile and install development environment
         run: |
           uv lock --check
-          uv sync --locked
+          uv sync --locked --managed-python --python ${{ matrix.python }} --group auth-test
+      - name: Check wheel and daemon release contracts
+        run: uv run --locked --group auth-test python -m unittest discover -s tools -p 'test_release_*.py' -v
       - name: Read exact algorithm compatibility pin
         id: algorithm
         run: |
@@ -79,10 +101,11 @@ jobs:
       - name: Test Python and native extension
         # These example tests import LangGraph during collection. Keep that
         # framework and the development-only PostgreSQL driver out of public deps.
-        run: uv run --locked --group langgraph pytest
+        run: uv run --locked --group langgraph --group auth-test pytest
       - name: Test Rust
         run: |
           cargo test --locked
+          uv run --locked --group auth-test python tools/native_licenses.py --check
           cargo test --locked --no-default-features --features daemon
           cargo build --locked --no-default-features --features daemon --bin omneumd
           sudo python3 tests/security/linux_isolation.py target/debug/omneumd
@@ -133,7 +156,7 @@ jobs:
           enable-cache: false
 
       - name: Install development environment
-        run: uv sync --locked
+        run: uv sync --locked --managed-python --python 3.14
 
       - name: Build native extension
         run: uv run maturin develop --locked
@@ -151,6 +174,7 @@ jobs:
     runs-on: ${{ matrix.platform.runner }}
 
     strategy:
+      fail-fast: false
       matrix:
         python: ["3.11", "3.12", "3.13", "3.14"]
         platform:
@@ -181,12 +205,20 @@ jobs:
           args: --locked --release --out dist --interpreter python${{ matrix.python }}
           manylinux: auto
 
-      - name: Normalize SBOM paths and smoke-test built wheel outside checkout
+      - name: Normalize SBOM paths
+        id: normalize
         run: |
           python tools/release_wheels.py sanitize --wheels dist
-          python tools/release_wheels.py smoke --wheels dist
+          python tools/check_mcp_bundle.py dist/*.whl
+          python tools/native_licenses.py --artifacts dist/*.whl
 
-      - name: Upload wheel
+      - name: Smoke-test built wheel outside checkout
+        run: python tools/release_wheels.py smoke --wheels dist
+
+      - name: Upload wheel for independent installation acceptance
+        # Retain normalized bytes even if this platform's public dependencies fail.
+        # prepare-daemon-release still requires the entire build job to succeed.
+        if: ${{ !cancelled() && steps.normalize.conclusion == 'success' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python }}
@@ -209,9 +241,16 @@ jobs:
       - name: Build with the selected Windows interpreter
         run: |
           python -m pip install maturin==1.15.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m maturin build --locked --release --out dist --interpreter python
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/release_wheels.py sanitize --wheels dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/check_mcp_bundle.py dist/*.whl
+          python tools/native_licenses.py --artifacts dist/*.whl
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/release_wheels.py smoke --wheels dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wheel-windows-x64-py${{ matrix.python }}
@@ -231,6 +270,8 @@ jobs:
       - name: Build source distribution
         run: |
           maturin sdist --out source-dist
+          python tools/check_mcp_bundle.py source-dist/*.tar.gz
+          python tools/native_licenses.py --artifacts source-dist/*.tar.gz
           version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
           python tools/release_sdist.py --sdist "source-dist/omneum-$version.tar.gz" --version "$version"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -260,7 +301,7 @@ jobs:
       - name: Install development environment
         run: |
           uv lock --check
-          uv sync --locked
+          uv sync --locked --managed-python --python 3.14
 
       - name: Build daemon
         run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
@@ -374,6 +415,10 @@ jobs:
           sudo /usr/bin/python3 -I -B daemon-artifact/install-linux.py "$GITHUB_WORKSPACE/daemon-artifact" "$(id -u)" "$version"
           /opt/omneum/.venv/bin/python -I -B tests/security/linux_public_install.py
 
+      - name: Stage required project and native dependency licenses
+        run: |
+          cp LICENSE daemon-artifact/LICENSE
+          cp omneum/NATIVE-LICENSES.txt daemon-artifact/NATIVE-LICENSES.txt
       - name: Upload daemon artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -421,6 +466,8 @@ jobs:
         run: |
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
             --pattern 'wheel-*' --dir wheel-artifacts
+          python tools/check_mcp_bundle.py wheel-artifacts/*/*.whl
+          python tools/native_licenses.py --artifacts wheel-artifacts/*/*.whl
           python tools/release_wheels.py prepare --tag "$RELEASE_TAG" \
             --wheels wheel-artifacts --daemon-assets release-assets --output pypi-dist
       - name: Add verified source distribution
@@ -480,6 +527,7 @@ jobs:
       contents: read
       actions: read
     strategy:
+      fail-fast: false
       matrix:
         include:
           - runner: ubuntu-22.04
@@ -492,19 +540,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      # This tests a candidate-only prerequisite; the public release gate below
-      # still requires the unmodified plain PyPI dependency resolution.
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        if: matrix.runner == 'macos-15-intel'
-        with:
-          python-version: "3.11"
-      - name: Build secure unpublished Intel dependency for diagnostics
-        if: matrix.runner == 'macos-15-intel'
-        run: |
-          python -m venv "$RUNNER_TEMP/intel-build"
-          "$RUNNER_TEMP/intel-build/bin/python" -m pip install --only-binary=:all: maturin==1.15.0 cffi==2.0.0 setuptools==82.0.1
-          "$RUNNER_TEMP/intel-build/bin/python" tools/build_intel_cryptography.py --work "$RUNNER_TEMP/intel-sources" --output "$RUNNER_TEMP/intel-dependency"
-          echo "PIP_FIND_LINKS=$RUNNER_TEMP/intel-dependency" >> "$GITHUB_ENV"
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
@@ -518,6 +553,8 @@ jobs:
           python -m pip install maturin==1.15.0
           python -m maturin build --locked --release --out candidate-wheels --interpreter python
           python tools/release_wheels.py sanitize --wheels candidate-wheels
+          python tools/check_mcp_bundle.py candidate-wheels/*.whl
+          python tools/native_licenses.py --artifacts candidate-wheels/*.whl
       - name: Secure writable hosted Linux runner installation parents
         if: runner.os == 'Linux'
         run: |
@@ -530,15 +567,19 @@ jobs:
         run: |
           mkdir -p "$HOME/.local/share"
           chmod 775 "$HOME/.local" "$HOME/.local/share"
+      - name: Install pinned public Python environment tooling
+        run: |
+          python -m pip install --only-binary=:all: uv==0.12.10
       - name: Install wheel in fresh environment and exercise real installer
         env:
           WHEEL_PATTERN: ${{ matrix.wheel }}
         run: |
-          python -m venv "$RUNNER_TEMP/fresh-omneum"
+          uv venv --managed-python --python 3.14 --seed "$RUNNER_TEMP/fresh-omneum"
           wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
           test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tools/check_release_dependencies.py
           "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
 
       - name: Retain tested candidate wheel
@@ -547,43 +588,50 @@ jobs:
           name: accepted-candidate-${{ matrix.runner }}
           path: candidate-wheels/*.whl
           if-no-files-found: error
-      - name: Retain tested Intel dependency and provenance
-        if: matrix.runner == 'macos-15-intel'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: accepted-intel-dependency
-          path: ${{ runner.temp }}/intel-dependency/
-          if-no-files-found: error
 
   public-install-acceptance:
-    name: Fresh public installation ${{ matrix.runner }}
-    needs: prepare-daemon-release
-    runs-on: ${{ matrix.runner }}
+    name: Fresh public installation ${{ matrix.platform.runner }} Python ${{ matrix.python.version }}
+    needs: [build, prepare-install-assets]
+    # A dependency failure on Intel must not hide Ubuntu/ARM acceptance results.
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.prepare-install-assets.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'failure') }}
+    runs-on: ${{ matrix.platform.runner }}
     permissions:
       contents: read
       actions: read
     strategy:
+      fail-fast: false
       matrix:
-        include:
+        python:
+          - { version: "3.11", tag: cp311 }
+          - { version: "3.12", tag: cp312 }
+          - { version: "3.13", tag: cp313 }
+          - { version: "3.14", tag: cp314 }
+        platform:
           - runner: ubuntu-22.04
-            wheel: '*cp314*manylinux*x86_64.whl'
+            os: linux
+            target: x86_64
+            wheel: '*manylinux*x86_64'
           - runner: macos-15
-            wheel: '*cp314*arm64.whl'
+            os: macos
+            target: aarch64
+            wheel: '*arm64'
           - runner: macos-15-intel
-            wheel: '*cp314*x86_64.whl'
+            os: macos
+            target: x86_64
+            wheel: '*x86_64'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: "3.14"
+          python-version: ${{ matrix.python.version }}
       - name: Download unpublished candidate distributions and assets
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-release-assets --dir candidate-assets
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name python-release-wheels --dir candidate-wheels
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-install-assets --dir candidate-assets
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python.version }}" --dir candidate-wheels
       - name: Secure writable hosted Linux runner installation parents
         if: runner.os == 'Linux'
         run: |
@@ -591,16 +639,33 @@ jobs:
           test ! -L /usr/local/bin
           sudo chown root:root /opt /usr/local/bin
           sudo chmod 755 /opt /usr/local/bin
+      - name: Install pinned public Python environment tooling
+        run: |
+          python -m pip install --only-binary=:all: uv==0.12.10
       - name: Install wheel in fresh environment and exercise real installer
         env:
-          WHEEL_PATTERN: ${{ matrix.wheel }}
+          OMNEUM_ACCEPTANCE_REPORT: ${{ runner.temp }}/context-graph-acceptance.json
+          WHEEL_PATTERN: 'omneum-*-${{ matrix.python.tag }}-${{ matrix.python.tag }}-${{ matrix.platform.wheel }}.whl'
         run: |
-          python -m venv "$RUNNER_TEMP/fresh-omneum"
+          # Acceptance must use public PyPI, even if a runner has private pip settings.
+          unset PIP_FIND_LINKS PIP_EXTRA_INDEX_URL PIP_NO_INDEX
+          export PIP_CONFIG_FILE=/dev/null
+          export PIP_INDEX_URL=https://pypi.org/simple
+          uv venv --managed-python --python ${{ matrix.python.version }} --seed "$RUNNER_TEMP/fresh-omneum"
           wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
           test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tools/check_release_dependencies.py
           "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
+
+      - name: Retain mandatory Context Graph acceptance result
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: context-graph-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python.version }}
+          path: ${{ runner.temp }}/context-graph-acceptance.json
+          if-no-files-found: warn
 
   publish-daemon-release:
     name: Publish daemon GitHub Release

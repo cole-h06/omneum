@@ -32,7 +32,9 @@ def verify(path, version):
         if (metadata.get_all('Name') != ['omneum'] or metadata.get_all('Version') != [version]
                 or project['project']['version'] != version or cargo['package']['version'] != version):
             raise ValueError('source distribution metadata version mismatch')
-        for required in ('Cargo.lock', 'src/lib.rs', 'omneum/cli.py', 'omneum/installation.py',
+        for required in ('omneum/NATIVE-LICENSES.txt', 'omneum/RUST-STDLIB-LICENSES.txt', 'omneum/mcp/LICENSE', 'omneum/mcp/UPSTREAM.json', 'omneum/mcp/types.py',
+                         'omneum/mcp/server/stdio.py', 'omneum/mcp/client/stdio/__init__.py',
+                         'Cargo.lock', 'src/lib.rs', 'omneum/cli.py', 'omneum/installation.py',
                          'omneum/algorithm_compatibility.json', 'omneum/schemas/research-event-v1.schema.json', 'LICENSE'):
             if not read(required):
                 raise ValueError('empty required source distribution member')

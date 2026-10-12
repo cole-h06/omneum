@@ -468,8 +468,6 @@ Every downstream answer returned 1,284.
 
 **Result:** Omneum matched the frontier LLM judges' selection quality and downstream answer correctness. Its 0.662-second selection p50 was approximately 5.5× lower than GPT-6 Astra and 5.9× lower than Gemini.
 
-Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
-
 ## Artifacts
 
 ### Case Fixtures

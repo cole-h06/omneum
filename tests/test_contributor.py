@@ -146,6 +146,46 @@ def test_device_polling_honors_repeated_slow_down(monkeypatch):
     assert sleeps == [30, 35, 40]
 
 
+@pytest.mark.parametrize('status,code', [(400, 'authorization_pending'),
+    (400, 'slow_down'), (403, 'authorization_pending'), (403, 'access_denied'),
+    (403, 'expired_token'), (429, 'slow_down')])
+def test_device_http_errors_support_auth0_without_exposing_descriptions(monkeypatch, status, code):
+    import io
+    import json
+    from urllib.error import HTTPError
+    from omneum import onboarding
+    class Opener:
+        def open(self, *args, **kwargs):
+            raise HTTPError('https://account.example.test/token', status, 'error', {},
+                io.BytesIO(json.dumps({'error': code, 'error_description': 'private-marker'}).encode()))
+    monkeypatch.setattr(onboarding, 'build_opener', lambda *args: Opener())
+    assert onboarding.post('https://account.example.test/token', {}, form=True) == {'error': code}
+
+
+@pytest.mark.parametrize('status,body,form', [
+    (403, {'access_token': 'private-token'}, True),
+    (403, {'error': 'authorization_pending', 'access_token': 'private-token'}, True),
+    (429, {'error': 'authorization_pending'}, True),
+    (403, {'error': 'slow_down'}, True),
+    (400, {'error': []}, True),
+    (400, {'error': 'unknown'}, True),
+    (500, {'error': 'authorization_pending'}, True),
+    (403, {'error': 'authorization_pending'}, False)])
+def test_device_http_errors_never_accept_tokens_or_unexpected_status(monkeypatch, status, body, form):
+    import io
+    import json
+    from urllib.error import HTTPError
+    from omneum import onboarding
+    class Opener:
+        def open(self, *args, **kwargs):
+            raise HTTPError('https://account.example.test/token', status, 'error', {},
+                io.BytesIO(json.dumps(body).encode()))
+    monkeypatch.setattr(onboarding, 'build_opener', lambda *args: Opener())
+    with pytest.raises((ValueError, RuntimeError)) as raised:
+        onboarding.post('https://account.example.test/token', {}, form=form)
+    assert 'private-token' not in str(raised.value)
+
+
 @pytest.mark.parametrize('environ', [{}, {'OMNEUM_API_KEY': 'unused'},
     {'OMNEUM_NETWORK_CONTRIBUTION': 'false', 'OMNEUM_API_KEY': 'unused'}])
 def test_opt_out_never_constructs_network(environ, monkeypatch):
@@ -230,7 +270,7 @@ def test_adapter_input_rejects_export_and_unallowlisted_fields():
 def test_real_mcp_adapter_keeps_local_results(tmp_path, computed, enabled):
     import os
     import sys
-    from mcp import ClientSession, StdioServerParameters, stdio_client
+    from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
     from stdio_state import isolated_deployment_environment
     from test_client import DEPLOYMENT_ID, PRIVATE_KEY
     import json
@@ -243,7 +283,7 @@ def test_real_mcp_adapter_keeps_local_results(tmp_path, computed, enabled):
     # SQLite persistence run for real. No paid calls or production pins.
     script = '''
 import sys
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 from omneum.contributor import create_server, local_environment
 from omneum.contribution.network import OmneumNetwork
 from omneum.contribution.config import NetworkContributionConfig, HTTPSContributionTransport
@@ -402,7 +442,7 @@ def test_documented_mcp_json_runs_entrypoint(tmp_path, computed, mode):
     import sys
     import tomllib
     from dataclasses import asdict
-    from mcp import ClientSession, StdioServerParameters, stdio_client
+    from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
     from stdio_state import isolated_deployment_environment
     from test_client import DEPLOYMENT_ID, PRIVATE_KEY
 
@@ -419,7 +459,7 @@ def test_documented_mcp_json_runs_entrypoint(tmp_path, computed, mode):
     # exercised by fresh-host acceptance, never installed by this unit test.
     command.write_text(f'''#!{sys.executable}
 import sys
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 import {module} as entrypoint
 factory = entrypoint.create_server
 entrypoint.create_server = lambda: factory(parameters=StdioServerParameters(

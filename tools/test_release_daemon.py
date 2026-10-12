@@ -54,6 +54,8 @@ class ReleaseContractTests(unittest.TestCase):
                 if platform.startswith("linux-")
                 else ["install-macos.sh", "launchd/ai.omneum.omneumd.plist"]
             )
+            shutil.copyfile(ROOT / "LICENSE", source / "LICENSE")
+            shutil.copyfile(ROOT / "omneum/NATIVE-LICENSES.txt", source / "NATIVE-LICENSES.txt")
             (source / "omneumd").write_bytes(f"protected-voprf-v1 daemon for {platform}".encode())
             if platform.startswith("linux-"):
                 (source / "omneum-server").write_bytes(b"proxy")
@@ -71,6 +73,11 @@ class ReleaseContractTests(unittest.TestCase):
         self.project.with_name('Cargo.toml').write_text('[package]\nversion="0.1.0"\n')
         with self.assertRaisesRegex(ValueError, 'Rust package version'):
             release.version_for_tag(self.project, 'v1.0.3')
+
+    def test_native_license_tampering_is_rejected(self):
+        (self.staging / 'daemon-macos-aarch64/NATIVE-LICENSES.txt').write_text('tampered')
+        with self.assertRaisesRegex(ValueError, 'license bytes differ'):
+            self.prepare()
 
     def test_fixture_evaluator_cannot_be_released(self):
         (self.staging / "daemon-macos-aarch64/omneumd").write_bytes(b"fixture-voprf-v1")

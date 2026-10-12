@@ -14,7 +14,7 @@ Published comparisons:
 - [Frontier LLM Judges](leaderboard.md#frontier-llm-judges)
 - [Domain Evaluations](leaderboard.md#domain-evaluations)
 
-The leaderboard reports selection precision, recall, answer accuracy, latency, and downstream generator usage. In the recorded comparisons, Omneum improved selection precision and recall over standalone BGE and Cohere rerankers. Against frontier LLM judges, it achieved **2.63×–10.68× faster median selection**, without an additional frontier-model judge call. See the [leaderboard](leaderboard.md) for matched configurations and trade-offs.
+The leaderboard reports selection precision, recall, answer accuracy, latency, and downstream generator usage. In the recorded comparisons, Omneum improved selection precision and recall over standalone BGE and Cohere rerankers. Against frontier LLM judges, it achieved **2.63×–5.34× faster median selection**, without an additional frontier-model judge call. See the [leaderboard](leaderboard.md) for matched configurations and trade-offs.
 
 ## Quick Start
 
@@ -180,6 +180,8 @@ The held-out runner, canonical fixtures, recorded outputs, and publication dashb
 | Pair identity | Run, case, and trial |
 | Output | JSONL results, run summaries, public manifests |
 
+Gemini 3.8 Flash used explicit low thinking; Claude Sonnet 5.5 and GPT-6 Astra used provider defaults without explicit reasoning-effort overrides.
+
 The preserved experimental plan permits selection budgets of 2–4; the released case fixtures use 2–3.
 
 Experiments were executed in separate arm blocks rather than interleaved. Published comparisons use matched configurations, but the experiments are not pooled into a single trial population.
@@ -306,7 +308,7 @@ benchmarks/context_evaluation/heldout/results/
 │   ├── manifest.public-v1.json
 │   ├── results.jsonl
 │   └── summary.json
-├── bge-google-vs-bge-omneum-20261008/
+├── bge-google-low-vs-bge-omneum-20261008/
 │   ├── manifest.public-v1.json
 │   ├── results.jsonl
 │   └── summary.json

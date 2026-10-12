@@ -118,3 +118,31 @@ def test_publication_contract_schema_and_current_source_contract():
     manifest = json.loads((dashboard.BASE / "source_manifest_v5.json").read_text())
     for name, digest in manifest["sha256"].items():
         assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == digest
+
+
+def test_analysis_import_does_not_write_artifacts(monkeypatch):
+    import importlib.util
+
+    def unexpected_write(*args, **kwargs):
+        raise AssertionError("Importing analysis must not write benchmark artifacts")
+
+    monkeypatch.setattr(Path, "mkdir", unexpected_write)
+    monkeypatch.setattr(Path, "write_text", unexpected_write)
+    monkeypatch.setattr(Path, "write_bytes", unexpected_write)
+    path = dashboard.BASE / "analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py"
+    spec = importlib.util.spec_from_file_location("saved_openai_analysis", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert callable(module.main)
+
+
+def test_dashboard_newline_revision_preserves_previous_bytes():
+    name = "benchmarks/context_evaluation/heldout/DASHBOARD_SUMMARY.md"
+    contract = publication_contract()
+    change = next(r["changes"][name] for r in reversed(contract["revision_history"])
+                  if name in r["changes"])
+    current = (ROOT / name).read_bytes()
+    assert current.endswith(b"\n")
+    assert hashlib.sha256(current[:-1]).hexdigest() == change["previous_sha256"]
+    assert hashlib.sha256(current).hexdigest() == change["sha256"]
+    assert "newline" in change["reason"]

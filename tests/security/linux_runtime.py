@@ -15,6 +15,7 @@ import select
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 
 ROOT = Path('/opt/omneum')
@@ -30,7 +31,7 @@ def run(*args, **kwargs):
 
 
 async def workload():
-    from mcp import ClientSession, StdioServerParameters, stdio_client
+    from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
     from omneum.client import OmneumClientConfig, open_stdio_client
     from omneum.information import Claim, Observation, Source
     from omneum.dependency import DependencyEstimatorConfig
@@ -41,6 +42,8 @@ async def workload():
             await session.initialize()
             ping = await session.call_tool('ping', {})
             assert not ping.isError and ping.content
+    # The workload entrypoint supplies a private XDG_DATA_HOME for this
+    # synthetic account, so exercise default SQLite persistence as well as IPC.
     async with open_stdio_client(config, StdioServerParameters(command=PROXY)) as client:
         first = await client.link_claim('service', ' Example ', ' Display Name ', ' Alice ')
         second = await client.link_claim('service', 'example', 'display_name', 'Alice')
@@ -121,7 +124,9 @@ def main():
     clients = [subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) for _ in range(2)]
     for child in clients:
         assert select.select([child.stdout], [], [], 30)[0], 'session startup timed out'
-        assert child.stdout.readline().strip() == 'session ready', child.stderr.read() if child.poll() is not None else 'session failed'
+        if child.stdout.readline().strip() != 'session ready':
+            stdout, stderr = child.communicate(timeout=10)
+            raise AssertionError(('test session failed', stdout, stderr))
     units = instances()
     assert len(units) == 2, units
     pids = [run('systemctl', 'show', '--value', '-p', 'MainPID', unit).stdout.strip() for unit in units]
@@ -191,5 +196,13 @@ for p in ['/etc/omneum/config.toml','/opt/omneum/.venv/pyvenv.cfg']:
 
 
 if __name__ == '__main__':
-    if sys.argv[-1] == 'workload': asyncio.run(workload())
+    if sys.argv[-1] == 'workload':
+        # The synthetic frontend account has /nonexistent as its home. Give
+        # each client private storage while exercising default persistence.
+        with tempfile.TemporaryDirectory(prefix='omneum-client-') as data:
+            os.environ['XDG_DATA_HOME'] = data
+            asyncio.run(workload())
+            database = Path(data)/'omneum/context.db'
+            assert database.stat().st_uid == os.geteuid()
+            assert database.stat().st_mode & 0o7777 == 0o600
     else: main()

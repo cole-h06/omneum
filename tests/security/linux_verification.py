@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import pwd
 import runpy
+import subprocess
 import sys
 
 
@@ -34,9 +35,12 @@ sys.addaudithook(audit)
     assert not hook.exists()
     try:
         with hook.open('x') as output:
-            output.write('import builtins; exec(' + repr(code) + ')\n')
+            # site executes .pth lines inside addpackage(); an explicit namespace
+            # keeps callback globals and their helper definitions together.
+            output.write('import builtins; exec(' + repr(code) + ', {})\n')
         hook.chmod(0o644)
-        result = scope['unprivileged_python']('-c', '''
+        try:
+            result = scope['unprivileged_python']('-c', '''
 import os,sys,json,builtins,omneum,omneum_oprf
 builtins._omneum_verification_events.append(['after',list(os.getresuid()),list(os.getresgid()),os.getgroups()])
 native = [module.__file__ for name,module in sys.modules.items()
@@ -44,6 +48,8 @@ native = [module.__file__ for name,module in sys.modules.items()
 print(json.dumps({'events':builtins._omneum_verification_events,'status':open('/proc/self/status').read(),
                   'native':native}))
 ''')
+        except subprocess.CalledProcessError as error:
+            raise AssertionError((error.cmd, error.stdout, error.stderr)) from error
         data = json.loads(result.stdout)
         assert {'startup', 'omneum', 'omneum_oprf', 'after'} <= {row[0] for row in data['events']}
         for name, uids, gids, groups in data['events']:

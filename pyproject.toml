@@ -11,6 +11,7 @@ description = "An open-source context evaluator for AI agents."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
+license-files = ["LICENSE", "omneum/mcp/LICENSE", "omneum/NATIVE-LICENSES.txt", "omneum/RUST-STDLIB-LICENSES.txt"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -21,8 +22,20 @@ classifiers = [
 ]
 
 dependencies = [
-    "mcp>=1.27,<2",
-    "pydantic>=2.11,<3",
+    # Upstream MCP 1.28.1 is bundled as omneum.mcp; see docs/mcp-sdk.md.
+    "anyio>=4.5",
+    "httpx>=0.27.1,<1",
+    "httpx-sse>=0.4",
+    "jsonschema>=4.20.0",
+    "python-multipart>=0.0.32",
+    "sse-starlette>=1.6.1",
+    "typing-extensions>=4.9.0",
+    "typing-inspection>=0.4.1",
+    "uvicorn>=0.31.1; sys_platform != 'emscripten'",
+    "pywin32>=311; sys_platform == 'win32'",
+    "packaging>=25",
+    "pydantic>=2.11,<3; python_version < '3.14'",
+    "pydantic>=2.12,<3; python_version >= '3.14'",
     "typer>=0.16",
     "pydantic-settings>=2.14,<2.15",
     "idna>=3.10",
@@ -32,8 +45,11 @@ dependencies = [
     "platformdirs>=4,<5",
     "PyJWT>=2.15.0,<3",
     "starlette>=1.6.0",
-    "cryptography>=50.0.1",
 ]
+
+[project.optional-dependencies]
+oauth = ["PyJWT[crypto]>=2.15.0,<3", "cryptography>=50.0.1"]
+mcp-ws = ["websockets>=15.0.1"]
 
 [project.scripts]
 omneum = "omneum.cli:app"
@@ -46,6 +62,7 @@ Issues = "https://github.com/cole-h06/omneum/issues"
 
 [dependency-groups]
 dev = ["pytest>=8", "hypothesis>=6.161,<7", "maturin>=1,<2", "psycopg[binary]==3.3.6"]
+auth-test = ["cryptography>=50.0.1"]
 benchmarks = [
     "sentence-transformers>=5,<6",
     "pillow>=12.3,<13",
@@ -83,8 +100,14 @@ testpaths = ["tests"]
 [tool.maturin]
 exclude = ["evaluate.py", "**/*.zip", "tools/provenance_explorer/**", "docs/reviews/**", "deploy/network/vm/production-audit.py", "src/__fuzz__/**", "**/*.pem", "**/*.key", ".env", ".env.*"]
 include = [
+    { path = "omneum/NATIVE-LICENSES.txt", format = ["sdist", "wheel"] },
+    { path = "omneum/RUST-STDLIB-LICENSES.txt", format = ["sdist", "wheel"] },
     { path = "omneum/algorithm_compatibility.json", format = ["sdist", "wheel"] },
     { path = "omneum/schemas/research-event-v1.schema.json", format = ["sdist", "wheel"] },
+    { path = "omneum/mcp/LICENSE", format = ["sdist", "wheel"] },
+    { path = "omneum/mcp/UPSTREAM.json", format = ["sdist", "wheel"] },
+    { path = "omneum/mcp/UPSTREAM-PYPROJECT.toml", format = ["sdist", "wheel"] },
+    { path = "omneum/mcp/py.typed", format = ["sdist", "wheel"] },
 ]
 module-name = "omneum_oprf"
 python-packages = ["omneum"]

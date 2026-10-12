@@ -20,7 +20,7 @@
     "benchmarks/context_evaluation/adversarial/prompt_injection/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "benchmarks/context_evaluation/adversarial/prompt_injection/application.py": "bee97e8c1c597cd42f9a6f7cac05d234517beae1c19e0f614d7bd3bce3b34afb",
     "benchmarks/context_evaluation/adversarial/prompt_injection/cases.py": "c5ad7f74ba157f1ede706b3c9f681e98bea91582216088d64627a47258d03ce4",
-    "benchmarks/context_evaluation/adversarial/prompt_injection/run_benchmark.py": "3dbfa13243ae24a4559d238d07e27213c7a83567b48de5f9bb75f179f829c842",
+    "benchmarks/context_evaluation/adversarial/prompt_injection/run_benchmark.py": "186468a572d1c6e81264de707fa6aeb43d5e132616fcb7a8f73a7d23f29344ce",
     "benchmarks/context_evaluation/answer_scoring.py": "fa071b3760e8fc3ce502a0c4d901aab3f720476f809498015064435459f179ee",
     "benchmarks/context_evaluation/application_comparison.py": "b870c15f57e9cd8e2545c26b2b51f32aa411d3246de39c0fb65b611f06d9fa39",
     "benchmarks/context_evaluation/clients.py": "5465663484c0976f160becb407c4149df89a61a8010534a802bcd5959f97fff3",
@@ -31,10 +31,10 @@
     "benchmarks/context_evaluation/heldout/additive_methods.py": "5ed61c4d0c9fa62a8b4f1872b7ce6ed76f0fde5c9e8a58cd64d83774ee8f60ca",
     "benchmarks/context_evaluation/heldout/additive_runner.py": "cec0e2139c2f4d75802b941b4989d3ae918ff649421422a4969dc39e7318113b",
     "benchmarks/context_evaluation/heldout/aggregate.py": "5489b9a2b31b12e3a8f21683ada003fe93a5741f490c36c93d9f7d14f9de615a",
-    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
+    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "03f82212da02a21dc0b46b400734fdf3cf33eb9db77546cfebd272646ec0b445",
     "benchmarks/context_evaluation/heldout/artifacts.py": "990c5975e7922cb5f76dce36695bce0dd9fcb95f7a13d3c33599c52adb8aff85",
     "benchmarks/context_evaluation/heldout/baseline_reuse.py": "1e262e9ff314ad371fc937ee847fd55f994b7d55546946a2308e5e4e270b8d06",
-    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "2d5b684999f29dfb86a54c024b99001fd5aa01eb04cdf0abc2ebd6b869b60660",
+    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "a36ad7225a1683ea5fedbf18d2d69e69636eb0c3d532e3010844c5e71a518e69",
     "benchmarks/context_evaluation/heldout/checkpoint.py": "30d3e60266b58ce0879c31f454964985006c46b87f88d0a9095594b23dfd73d5",
     "benchmarks/context_evaluation/heldout/cohere_cache.py": "558cd5024a777df582ed682cdcbece8512fe24694f10bf57995dd8793bb0a620",
     "benchmarks/context_evaluation/heldout/diagnostics.py": "e29296451930a9fefbaf261c9fa608416951718aa00522678cd4a494f42249f4",
@@ -110,6 +110,26 @@
         "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/analyze_saved.py": "455366ba2e7281f5f9ba8961baf03a8e74d39ee3111df376fc1183772f9be7e4"
       },
       "previous_contract_snapshot": "benchmarks/context_evaluation/heldout/contracts/gemini-recovery/source_manifest_v5.json.txt"
+    },
+    {
+      "previous_contract_sha256": "c3b274c67c2463be08867617b651786f189795844e9ed9b4df310ef6b3ed0638",
+      "changes": {
+        "benchmarks/context_evaluation/adversarial/prompt_injection/run_benchmark.py": {
+          "previous_sha256": "3dbfa13243ae24a4559d238d07e27213c7a83567b48de5f9bb75f179f829c842",
+          "sha256": "186468a572d1c6e81264de707fa6aeb43d5e132616fcb7a8f73a7d23f29344ce",
+          "reason": "Import identical shared case fixtures directly; remove runtime dependency on a test module without changing prompts."
+        },
+        "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": {
+          "previous_sha256": "2d5b684999f29dfb86a54c024b99001fd5aa01eb04cdf0abc2ebd6b869b60660",
+          "sha256": "a36ad7225a1683ea5fedbf18d2d69e69636eb0c3d532e3010844c5e71a518e69",
+          "reason": "Remove unreferenced legacy token_usage helper and unused path resolver import; active usage calculations and benchmark metrics unchanged."
+        },
+        "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": {
+          "previous_sha256": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
+          "sha256": "03f82212da02a21dc0b46b400734fdf3cf33eb9db77546cfebd272646ec0b445",
+          "reason": "Defer analysis generation to explicit main execution; importing the module no longer writes artifacts."
+        }
+      }
     }
   ]
 }
