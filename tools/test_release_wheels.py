@@ -48,7 +48,13 @@ class WheelReleaseTests(unittest.TestCase):
                     path.mkdir(parents=True, exist_ok=True)
                 else:
                     path.parent.mkdir(parents=True, exist_ok=True)
-                    path.write_bytes(runtime_fixture() if name == "runtime.tar.gz" else b"protected-voprf-v1 fixture")
+                    root = Path(__file__).resolve().parents[1]
+                    if name == 'LICENSE':
+                        path.write_bytes((root / 'LICENSE').read_bytes())
+                    elif name == 'NATIVE-LICENSES.txt':
+                        path.write_bytes((root / 'omneum/NATIVE-LICENSES.txt').read_bytes())
+                    else:
+                        path.write_bytes(runtime_fixture() if name == "runtime.tar.gz" else b"protected-voprf-v1 fixture")
         release_daemon.prepare(staging, self.assets, "1.0.3")
 
     def wheel(self, python="cp311", platform="linux-x86_64", version="1.0.3",
