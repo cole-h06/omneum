@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Omneum · Synthetic provenance explorer</title>
+  <script src="/vendor/cytoscape.min.js"></script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #182b40; background: #f4f7fb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; height: 100vh; display: flex; flex-direction: column; }
+    header { background: #fff; padding: 14px 22px 10px; border-bottom: 1px solid #dce4ef; }
+    h1 { font-size: 22px; margin: 0 0 5px; font-weight: 650; }
+    h1 span { margin-left: 10px; font-size: 11px; letter-spacing: .07em; background: #fff0d2; color: #845300; padding: 5px 9px; border-radius: 5px; vertical-align: middle; }
+    p { margin: 6px 0; font-size: 13px; line-height: 1.5; }
+    .muted { color: #526479; }
+    #toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 9px 20px; background: #fff; border-bottom: 1px solid #dce4ef; }
+    button, select { border: 1px solid #b8c8da; background: #fff; color: #182b40; border-radius: 6px; padding: 7px 10px; cursor: pointer; font-size: 12px; }
+    button:hover { background: #eef4fb; }
+    button:focus-visible, select:focus-visible { outline: 3px solid #91bafa; }
+    label { font-size: 12px; cursor: pointer; white-space: nowrap; }
+    #counts { margin-left: auto; font-size: 12px; color: #526479; }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) 370px; flex: 1; min-height: 0; }
+    #canvas { position: relative; min-width: 0; background: radial-gradient(#dce4ef .7px, transparent .7px); background-size: 16px 16px; }
+    #graph { width: 100%; height: 100%; position: absolute; }
+    #legend { display: flex; flex-wrap: wrap; gap: 15px; padding: 8px 20px; border-bottom: 1px solid #dce4ef; background: #fff; font-size: 11px; }
+    #legend div { display: flex; align-items: center; gap: 7px; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; background: #286aa5; }
+    .diamond { background: #b07512; border-radius: 0; transform: rotate(45deg); }
+    .line { width: 24px; height: 0; border-top: 2px solid #879bb2; }
+    .line.upstream { border-color: #198577; }
+    .line.citation { border-color: #9660bc; border-top-style: dashed; }
+    .line.dependent { border-color: #c47732; border-top-style: dotted; }
+    aside { background: #fff; border-left: 1px solid #dce4ef; padding: 18px; overflow: auto; }
+    aside h2 { font-size: 17px; margin: 0 0 10px; }
+    aside h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #526479; margin: 20px 0 8px; }
+    pre { background: #f2f5f9; border: 1px solid #dce4ef; border-radius: 6px; padding: 11px; font: 12px/1.55 ui-monospace, SFMono-Regular, monospace; white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0; }
+    details summary { cursor: pointer; font-size: 12px; color: #526479; margin-top: 13px; }
+    .direction { font-size: 13px; color: #175c65; background: #edf7f6; padding: 10px; border-radius: 6px; }
+    .warning { color: #8d4217; }
+    #status { font-size: 12px; }
+    footer { padding: 8px 24px; background: #fff; border-top: 1px solid #dce4ef; color: #526479; font-size: 11px; }
+    #demo { background: #e8f4f1; border-color: #8cbdb1; color: #145e53; font-weight: 600; }
+    @media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr) 340px; } aside { padding: 14px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Omneum source provenance <span>SYNTHETIC · DEVELOPMENT ONLY</span></h1>
+    <p class="muted">Context Graph · information lineage across 36 sources · live records from <strong>omneum_dev</strong></p>
+    <p>Derivation arrows point <strong>downstream → upstream</strong>. Citation arrows point <strong>citing → cited</strong>. Citations do not establish trust.</p>
+  </header>
+  <div id="toolbar">
+    <button id="fit">Fit graph</button><button id="zoom-in" aria-label="Zoom in">＋</button><button id="zoom-out" aria-label="Zoom out">−</button>
+    <select id="layout" aria-label="Graph layout"><option value="lineage">Lineage network</option><option value="preset">Organized grid</option><option value="cose">Connected layout</option><option value="circle">Circle layout</option></select>
+    <button id="demo">Research screenshot</button>
+    <button id="chain">Highlight example chain</button><button id="clear">Clear selection</button><button id="reload">Refresh database</button>
+    <label><input id="assertions" type="checkbox"> Complete Context Graph</label>
+    <label><input id="citations" type="checkbox" checked> Citations</label>
+    <label><input id="dependents" type="checkbox"> Estimated dependence</label>
+    <label><input id="labels" type="checkbox"> All edge labels</label>
+    <span id="counts">Loading…</span>
+  </div>
+  <div id="legend">
+        <div><span class="dot"></span> Source · shapes distinguish formats</div>
+        <div><span class="dot diamond"></span> Claim</div>
+        <div><span class="line"></span> Assertion → claim</div>
+        <div><span class="line upstream"></span> Derived from → upstream source</div>
+        <div><span class="line citation"></span> Cites → referenced source</div>
+        <div><span class="line dependent"></span> DEPENDENT · symmetric, no arrows</div>
+  </div>
+  <main>
+    <section id="canvas" aria-label="Interactive Context Graph">
+      <div id="graph"></div>
+    </section>
+    <aside id="inspector" aria-label="Metadata inspector"></aside>
+  </main>
+  <footer><span id="status">Read-only viewer</span> · PostgreSQL is authoritative. Provenance is projected from namespaced observation metadata; this is a research fixture, not complete production provenance persistence.</footer>
+  <script>
+    let cy, graphData, chainMode=false, labelFrame;
+    const $ = id => document.getElementById(id);
+    const style = [
+      {selector:'node', style:{'label':'data(label)', 'background-color':'#286aa5', 'color':'#182b40', 'font-size':17, 'font-weight':600,
+        'text-valign':'bottom', 'text-margin-y':8, 'text-wrap':'wrap', 'text-max-width':140, 'width':58, 'height':58,
+        'text-background-color':'#f4f7fb','text-background-opacity':.96,'text-background-padding':3,'border-width':2.5,'border-color':'#fff'}},
+      {selector:'node[format = "JSON"]', style:{'shape':'round-rectangle','width':72,'height':48}},
+      {selector:'node[format = "database record"]', style:{'shape':'barrel','width':62,'height':60}},
+      {selector:'node[format = "structured document"]', style:{'shape':'rectangle','width':50,'height':62}},
+      {selector:'node[category = "claim"]', style:{'shape':'diamond','background-color':'#b07512','width':54,'height':54}},
+      {selector:'edge', style:{'curve-style':'bezier','width':1.6,'line-color':'#879bb2','target-arrow-color':'#879bb2','target-arrow-shape':'triangle',
+        'arrow-scale':1.3,'opacity':.22,'label':'','font-size':13,'color':'#354d68','text-rotation':'none',
+        'text-background-color':'#fff','text-background-opacity':1,'text-background-padding':3,'text-margin-y':-7}},
+      {selector:'edge[type = "upstream"]', style:{'width':3.4,'line-color':'#118574','target-arrow-color':'#118574','opacity':.95}},
+      {selector:'edge[type = "citation"]', style:{'width':3,'line-style':'dashed','line-color':'#9858bf','target-arrow-color':'#9858bf','opacity':.9}},
+      {selector:'edge[type = "dependent"]', style:{'line-style':'dotted','line-color':'#c47732','target-arrow-shape':'none','opacity':.8}},
+      {selector:'node.dim', style:{'opacity':.9}},
+      {selector:'edge.dim', style:{'opacity':.6}},
+      {selector:'edge.emphasis', style:{'opacity':1,'width':4}},
+      {selector:'.readable-label', style:{'label':'data(label)'}},
+      {selector:'node:selected', style:{'border-color':'#182b40','border-width':4,'opacity':1}},
+      {selector:'edge:selected', style:{'opacity':1,'width':5,'label':'data(label)','font-size':17,'text-margin-y':-28}},
+      {selector:'edge[type="upstream"]:selected', style:{'line-color':'#065b4f','target-arrow-color':'#065b4f','text-margin-y':18}},
+      {selector:'edge[type="citation"]:selected', style:{'line-color':'#784093','target-arrow-color':'#784093','text-margin-y':-20}},
+      {selector:'.hidden', style:{'display':'none'}},
+      {selector:'.edge-label', style:{'label':'data(label)'}}
+    ];
+    function text(tag, value, className) {
+      const element = document.createElement(tag); element.textContent = value;
+      if(className) element.className = className; return element;
+    }
+    function jsonBlock(parent, title, value, id) {
+      parent.append(text('h3', title)); const pre = text('pre', JSON.stringify(value, null, 2));
+      if(id) pre.id = id; parent.append(pre);
+    }
+    function welcome() {
+      const panel = $('inspector'); panel.replaceChildren();
+      panel.append(text('h2', 'Explore the provenance'), text('p','Click any source, claim, or edge. Drag nodes to adjust the layout; scroll to zoom and drag the background to pan.'));
+      panel.append(text('h3','Example chain'),text('p','JSON gateway → Database registry → Web field report → Web origin bulletin'));
+      panel.append(text('p','The first two edges represent derivation. The final edge is a citation, which does not establish derivation or endorsement.'));
+      panel.append(text('h3','Research question'),text('p','Could accumulated provenance inform non-uniform source reliability initialization? Evidence from a downstream source would depend on that source’s reliability, creating a recursive reliability problem and possible self-reinforcement.'));
+      panel.append(text('p','This explorer displays the structure motivating that question. It does not estimate trust or change BRAID.','muted'));
+    }
+    function resetFocus() { cy.elements().removeClass('dim emphasis'); cy.edges().removeStyle('text-margin-x text-margin-y'); }
+    function placeSelectedCaption(edge) {
+      const p=edge.renderedMidpoint(),zoom=cy.zoom();
+      const width=(edge.data('label').length*9+14)*zoom, height=24*zoom;
+      const nodes=cy.nodes(':visible').map(n=>n.renderedBoundingBox());
+      for(const [x,y] of [[0,-35],[0,35],[0,-65],[0,65],[-55,-35],[55,-35],[-55,35],[55,35]]) {
+        const box={x1:p.x+x*zoom-width/2,x2:p.x+x*zoom+width/2,y1:p.y+y*zoom-height/2,y2:p.y+y*zoom+height/2};
+        if(box.x1<8 || box.x2>cy.width()-8 || box.y1<8 || box.y2>cy.height()-8) continue;
+        if(nodes.some(b=>box.x1<b.x2 && box.x2>b.x1 && box.y1<b.y2 && box.y2>b.y1)) continue;
+        edge.style({'text-margin-x':x,'text-margin-y':y}); return;
+      }
+    }
+    function inspect(element) {
+      const d=element.data(), panel=$('inspector'); panel.replaceChildren();
+      panel.append(text('h2',element.isNode() ? d.label : d.type==='upstream' ? 'Upstream derivation' : d.type==='citation' ? 'Citation' : d.type==='dependent' ? 'Symmetric estimated dependence' : 'Assertion'));
+      resetFocus();
+      let neighborhood=element.isNode() ? element.closedNeighborhood() : element.connectedNodes().union(element);
+      if(chainMode && element.isEdge()) {
+        const keys=new Set(['gateway','registry','report','bulletin']);
+        const chainNodes=cy.nodes().filter(n=>keys.has(n.data('display_metadata').key));
+        neighborhood=chainNodes.union(cy.edges().filter(e=>['upstream','citation'].includes(e.data('type')) && chainNodes.contains(e.source()) && chainNodes.contains(e.target())));
+      }
+      cy.elements().not(neighborhood).addClass('dim');
+      neighborhood.edges().addClass('emphasis');
+      if(element.isEdge()) {
+        placeSelectedCaption(element);
+        const source=element.source().data('label'), target=element.target().data('label');
+        panel.append(text('p',d.type==='dependent' ? `${source} ↔ ${target}` : `${source} → ${target}`,'direction'));
+        panel.append(text('p',d.derived.direction,'muted'));
+        if(d.type==='citation') panel.append(text('p','A recorded reference. Derivation, endorsement, and trust are not implied.','warning'));
+        if(d.type==='dependent') panel.append(text('p','The database’s UUID ordering is not a lineage direction.','warning'));
+        if(d.stored_relationship) {
+          jsonBlock(panel,'Actual stored relationship JSON',d.stored_relationship,'relationship-json');
+          const details=document.createElement('details'); details.append(text('summary','Complete stored observation metadata'));
+          details.append(text('pre',JSON.stringify(d.stored_observation_metadata,null,2))); panel.append(details);
+        } else {
+          jsonBlock(panel,'Actual stored record',d.stored,'stored-json');
+          if(d.assertion_subtype) jsonBlock(panel,'Stored assertion subtype',d.assertion_subtype);
+        }
+        jsonBlock(panel,'Derived projection attributes', {source:d.source,target:d.target,...d.derived},'derived-json');
+      } else {
+        panel.append(text('p',d.category==='claim' ? 'Claim · synthetic assertion value' : `Source · ${d.display_metadata.kind} · ${d.format}`,'muted'));
+        jsonBlock(panel,'Actual stored node attributes',d.stored,'stored-json');
+        jsonBlock(panel,'Display fields from stored observation metadata',d.display_metadata);
+        jsonBlock(panel,'Derived display attributes',d.derived);
+        const details=document.createElement('details'); details.append(text('summary',`Stored observations (${d.observations.length})`));
+        details.append(text('pre',JSON.stringify(d.observations,null,2))); panel.append(details);
+      }
+      scheduleLabels();
+    }
+    function controls() {
+      cy.nodes('[category = "claim"]').toggleClass('hidden',!$('assertions').checked);
+      cy.edges('[type = "assertion"]').toggleClass('hidden',!$('assertions').checked);
+      cy.edges('[type = "citation"]').toggleClass('hidden',!$('citations').checked);
+      cy.edges('[type = "dependent"]').toggleClass('hidden',!$('dependents').checked);
+      cy.edges().toggleClass('edge-label',$('labels').checked);
+      const c=graphData.counts;
+      $('counts').textContent=$('assertions').checked
+        ? `${c.sources} sources · ${c.claims} claims · ${c.upstream+c.citation} provenance · ${c.assertion} assertions`
+        : `${c.sources} sources · ${c.upstream} derivations · ${c.citation} citations`;
+      scheduleLabels();
+    }
+    // Place labels only in available space. Selection always exposes relationship type.
+    function scheduleLabels() {
+      cancelAnimationFrame(labelFrame);
+      labelFrame=requestAnimationFrame(()=>requestAnimationFrame(readableLabels));
+    }
+    function readableLabels() {
+      if(!cy || cy.destroyed()) return;
+      cy.edges().removeClass('readable-label');
+      if($('labels').checked) return;
+      const occupied=cy.nodes(':visible').map(n=>n.renderedBoundingBox());
+      const intersects=(a,b)=>a.x1<b.x2 && a.x2>b.x1 && a.y1<b.y2 && a.y2>b.y1;
+      cy.edges(':selected').forEach(edge=>{
+        const p=edge.renderedMidpoint(), zoom=cy.zoom(), y=p.y+parseFloat(edge.style('text-margin-y'))*zoom;
+        const w=(edge.data('label').length*9+14)*zoom/2;
+        occupied.push({x1:p.x-w,x2:p.x+w,y1:y-11*zoom,y2:y+11*zoom});
+      });
+      const edges=cy.edges(':visible').filter(e=>['upstream','citation'].includes(e.data('type')));
+      for(const edge of edges) {
+        if(edge.selected()) continue;
+        const p=edge.renderedMidpoint(), s=edge.source().renderedPosition(), t=edge.target().renderedPosition();
+        if(Math.hypot(s.x-t.x,s.y-t.y)<110) continue;
+        const halfWidth=(edge.data('label').length*7+12)*cy.zoom()/2;
+        const box={x1:p.x-halfWidth,y1:p.y-18*cy.zoom(),x2:p.x+halfWidth,y2:p.y+2};
+        if(occupied.some(b=>intersects(box,b))) continue;
+        edge.addClass('readable-label'); occupied.push(box);
+      }
+    }
+    function lineageLayout() {
+      const nodes=cy.nodes('[category="source"]');
+      // A fixed starting state keeps the screenshot layout repeatable across refreshes.
+      for(const n of graphData.nodes) if(n.data.category==='source') cy.getElementById(n.data.id).position(n.position);
+      const edges=cy.edges().filter(e=>['upstream','citation'].includes(e.data('type')));
+      const connected=nodes.filter(n=>edges.some(e=>e.source().id()===n.id() || e.target().id()===n.id()));
+      const independent=nodes.not(connected);
+      connected.union(edges).layout({name:'cose', fit:false, animate:false, randomize:false,
+        nodeDimensionsIncludeLabels:true, nodeRepulsion:700000, idealEdgeLength:140,
+        edgeElasticity:100, nestingFactor:1.2, gravity:60, numIter:1500,
+        boundingBox:{x1:0,y1:0,w:cy.width()-130,h:cy.height()-190}}).run();
+      // CoSE rescales its result into the box; clear label collisions afterward.
+      // Only display positions change. Topology and stored attributes remain untouched.
+      for(let iteration=0;iteration<180;iteration++) {
+        let overlaps=0;
+        for(let i=0;i<connected.length;i++) for(let j=i+1;j<connected.length;j++) {
+          const a=connected[i],b=connected[j],ra=a.boundingBox(),rb=b.boundingBox();
+          const overlapX=Math.min(ra.x2,rb.x2)-Math.max(ra.x1,rb.x1)+14;
+          const overlapY=Math.min(ra.y2,rb.y2)-Math.max(ra.y1,rb.y1)+14;
+          if(overlapX<=0 || overlapY<=0) continue;
+          overlaps++;
+          const axis=overlapX<overlapY?'x':'y', amount=(axis==='x'?overlapX:overlapY)/2+1;
+          const sign=a.position(axis)<=b.position(axis)?-1:1;
+          a.position(axis,a.position(axis)+sign*amount); b.position(axis,b.position(axis)-sign*amount);
+        }
+        if(!overlaps) break;
+      }
+      const box=connected.boundingBox();
+      independent.forEach((n,i)=>n.position({x:box.x1+90+i*(box.w-180)/3,y:box.y2+105}));
+      if($('assertions').checked) {
+        const right=box.x2+160;
+        cy.nodes('[category="claim"]').forEach((n,i)=>n.position({x:right+(i%2)*175,y:60+Math.floor(i/2)*140}));
+      }
+      cy.fit(cy.elements(':visible'),35);
+    }
+    function arrange() {
+      chainMode=false; resetFocus();
+      const name=$('layout').value;
+      if(name==='lineage') { lineageLayout(); scheduleLabels(); return; }
+      if(name==='preset') for(const n of graphData.nodes) cy.getElementById(n.data.id).position(n.position);
+      cy.elements(':visible').layout({name, fit:true, padding:35, animate:name!=='preset', animationDuration:500,
+        nodeRepulsion:900000, idealEdgeLength:160, nodeOverlap:30, componentSpacing:150,
+        randomize:false, numIter:800}).run();
+    }
+    async function load() {
+      $('status').textContent='Reading omneum_dev…';
+      try {
+        const response=await fetch('/api/graph'); if(!response.ok) throw Error('Database query failed');
+        graphData=await response.json();
+        if(cy) cy.destroy();
+        cy=cytoscape({container:$('graph'), elements:[...graphData.nodes,...graphData.edges], style,
+          layout:{name:'preset',padding:55}, minZoom:.15, maxZoom:4, wheelSensitivity:.2, boxSelectionEnabled:false});
+        cy.on('tap','node, edge',event=>inspect(event.target));
+        cy.on('tap',event=>{if(event.target===cy){resetFocus();welcome();}});
+        cy.on('zoom pan dragfree layoutstop',scheduleLabels);
+        controls(); arrange(); welcome();
+        const c=graphData.counts;
+        $('status').textContent=`Live omneum_dev · AGE assertions verified (${c.age_assertions}) · refreshed ${new Date().toLocaleTimeString()}`;
+      } catch(error) { $('status').textContent=error.message; $('counts').textContent='Unavailable'; }
+    }
+    $('fit').onclick=()=>cy.fit(cy.elements(':visible'),35);
+    $('zoom-in').onclick=()=>cy.zoom({level:cy.zoom()*1.25,renderedPosition:{x:cy.width()/2,y:cy.height()/2}});
+    $('zoom-out').onclick=()=>cy.zoom({level:cy.zoom()/1.25,renderedPosition:{x:cy.width()/2,y:cy.height()/2}});
+    $('layout').onchange=arrange;
+    $('reload').onclick=load;
+    $('clear').onclick=()=>{chainMode=false;cy.elements().unselect();resetFocus();welcome();};
+    for(const id of ['assertions','citations','dependents','labels']) $(id).onchange=()=>{
+      controls();
+      if(id==='assertions') { cy.elements().unselect(); arrange(); welcome(); }
+    };
+    $('demo').onclick=()=>{
+      $('assertions').checked=false; $('citations').checked=true; $('dependents').checked=false;
+      $('layout').value='lineage'; controls(); arrange(); cy.elements().unselect();
+      chainMode=true;
+      const edge=cy.edges('[type="upstream"]').filter(e=>e.source().data('display_metadata').key==='gateway' && e.target().data('display_metadata').key==='registry').first();
+      edge.select(); inspect(edge); scheduleLabels();
+    };
+    $('chain').onclick=()=>{
+      chainMode=true;
+      $('citations').checked=true; controls(); resetFocus(); cy.elements().unselect();
+      const keys=new Set(['gateway','registry','report','bulletin']);
+      const chainNodes=cy.nodes().filter(n=>keys.has(n.data('display_metadata').key));
+      const chainEdges=cy.edges().filter(e=>['upstream','citation'].includes(e.data('type')) && chainNodes.contains(e.source()) && chainNodes.contains(e.target()));
+      const chain=chainNodes.union(chainEdges); cy.elements().not(chain).addClass('dim'); chainEdges.addClass('emphasis');
+      // Reposition only this example chain for a clear, readable demonstration.
+      ['gateway','registry','report','bulletin'].forEach((key,i)=>chainNodes.filter(n=>n.data('display_metadata').key===key).position({x:i*230,y:0}));
+      cy.fit(chain,110); welcome();
+    };
+    load();
+  </script>
+</body>
+</html>

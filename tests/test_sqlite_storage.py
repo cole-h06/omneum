@@ -1,4 +1,3 @@
-"""Default local SQLite, adapter invariants and network independence."""
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace

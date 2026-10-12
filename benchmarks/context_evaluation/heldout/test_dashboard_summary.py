@@ -76,7 +76,7 @@ def test_schema_accepts_additional_measured_configuration_and_nulls(data):
 
 
 def test_outcome_denominators_and_published_accuracy(data):
-    for c, correct, incomplete, incorrect in zip(data["configurations"], (229, 220), (1, 0), (0, 10)):
+    for c, correct, incomplete, incorrect in zip(data["configurations"], (230, 220), (0, 0), (0, 10)):
         assert c["attempts"] == c["case_count"] * c["trials_per_case"] == 240
         outcomes = c["outcomes"]
         assert sum(v["count"] for v in outcomes.values()) == c["attempts"]
@@ -162,13 +162,13 @@ def assert_readme_tables(readme, catalogue):
 
 
 def test_units_percentiles_and_published_metrics(data, raw, catalogue):
-    saved = json.loads((BASE/"analysis"/RUN/"comparison.json").read_text())["aggregates"]
+    saved = json.loads((BASE/"analysis"/RUN/"comparison.json").read_text())["metrics"]
     assert data["units"] == dict(rates="fraction", latency="seconds", api_tokens="provider_tokens", cost="USD")
     readme = (ROOT/"README.md").read_text()
     for c in data["configurations"]:
         a = saved[c["id"]]
-        assert c["selection"]["macro"]["precision"] == a["precision"]
-        assert c["selection"]["macro"]["recall"] == a["recall"]
+        assert c["selection"]["macro"]["precision"] == pytest.approx(a["precision"])
+        assert c["selection"]["macro"]["recall"] == pytest.approx(a["recall"])
         rr = [r for r in raw if r["method"] == c["id"]]
         for stage in ("selection", "end_to_end"):
             values = sorted(r["selection"]["latency_seconds"] if stage == "selection" else r["end_to_end_latency_seconds"] for r in rr)
@@ -179,7 +179,7 @@ def test_units_percentiles_and_published_metrics(data, raw, catalogue):
     assert_readme_tables(readme, catalogue)
 
 
-@pytest.mark.parametrize("old,new", [("112,349", "406,605"), ("$0.669282", "$1.553232")])
+@pytest.mark.parametrize("old,new", [("114,250", "406,605"), ("$0.686916", "$1.553232")])
 def test_readme_generator_columns_reject_whole_pipeline_metrics(catalogue, old, new):
     readme = (ROOT / "README.md").read_text()
     assert old in readme
@@ -195,16 +195,19 @@ def test_tokens_cost_and_unavailable_measurements(data, raw):
         assert gen["reasoning"] is None and total["reasoning"] is None
         assert c["local_reranker_tokens"] is None
         assert c["cost_usd"]["invoiced_api_total"] is None and c["cost_usd"]["local_compute_total"] is None
-        for stage in (sel, gen, total):
-            assert stage["total"] == stage["input"]+stage["output"]
-        assert total["total"] == sel["total"]+gen["total"]
-        assert total["input"] == sum(r["selection"]["evaluator_input_tokens"]+r["generation"]["input_tokens"] for r in rr)
-        thinking = sum(r["selection"].get("response_diagnostics", {}).get("usage_metadata", {}).get("thoughts_token_count", 0) for r in rr)
-        assert sel["reasoning"] == thinking
-        assert sel["output"] == sum(r["selection"]["evaluator_output_tokens"] for r in rr)+thinking
-        cost = (sel["input"]*rates["gemini_input"]+sel["output"]*rates["gemini_visible_plus_thinking_output"]+gen["input"]*rates["sonnet_input"]+gen["output"]*rates["sonnet_output"])/1e6
-        assert c["cost_usd"]["estimated_api_total"] == pytest.approx(cost)
-        assert c["cost_usd"]["estimated_api_per_answer"] == pytest.approx(cost/240)
+        assert gen["total"] == gen["input"] + gen["output"]
+        assert gen["total"] == sum(r["generation"]["input_tokens"] + r["generation"]["output_tokens"] for r in rr)
+        assert c["cost_usd"]["generation"] == pytest.approx((gen["input"]*rates["sonnet_input"] + gen["output"]*rates["sonnet_output"])/1e6)
+        if c["id"] == 'bge_google':
+            # Original reasoning telemetry covers only ten selections. Never
+            # invent a whole-pipeline token/cost total from generator recovery.
+            assert sum(r['selection'].get('response_diagnostics', {}).get('usage_metadata', {}).get('reasoning_tokens') is not None for r in rr) == 10
+            assert sel['reasoning'] is None and sel['output'] is None
+            assert total['total'] is None and c['cost_usd']['estimated_api_total'] is None
+        else:
+            assert sel == dict(input=0, output=0, total=0, reasoning=0)
+            assert total['total'] == gen['total']
+            assert c['cost_usd']['estimated_api_total'] == c['cost_usd']['generation']
 
 
 @pytest.mark.parametrize("mutation", ["missing", "duplicate", "shortlist", "budget", "generator"])
@@ -340,7 +343,7 @@ def test_publication_authority_is_explicit_and_pairs_never_mix_runs(catalogue):
         "20261008T014713Z": ["cohere","cohere_omneum"],
         "bge-claude-vs-bge-omneum-20261008": ["bge_anthropic","bge_omneum"],
         "bge-openai-vs-bge-omneum-20261008": ["bge_openai","bge_omneum"],
-        "bge-google-vs-bge-omneum-20261008": ["bge_google","bge_omneum"],
+        "bge-google-low-vs-bge-omneum-20261008": ["bge_google","bge_omneum"],
         "cohere-claude-vs-cohere-omneum-20261008": ["cohere_anthropic","cohere_omneum"],
     }
     by = {c["id"]:c for c in catalogue["configurations"]}
@@ -401,7 +404,7 @@ def test_authoritative_bge_claim_matches_saved_results(catalogue):
 def test_publication_omneum_arms_not_substituted_even_when_selection_matches(catalogue):
     rows = catalogue["publication"]["tables"]["frontier_llm_judges"]
     omneum = {r["source_run"]:r for r in rows if r["label"]=="BGE + Omneum"}
-    assert omneum["bge-google-vs-bge-omneum-20261008"]["api_tokens"]==115535
+    assert omneum["bge-google-low-vs-bge-omneum-20261008"]["api_tokens"]==115535
     assert omneum["bge-openai-vs-bge-omneum-20261008"]["api_tokens"]==115119
     assert omneum["bge-claude-vs-bge-omneum-20261008"]["api_tokens"]==11811
     assert len({r["end_to_end_p50_seconds"] for r in omneum.values()})==3

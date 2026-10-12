@@ -140,7 +140,7 @@ api_result
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `tool_result`, `database_result`, `web_result` | 100% | 60% | 1/1 correct | 2.136s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 60% | 10/10 correct | 2.878s |
-| BGE + Gemini Judge | 10 | `tool_result`, `web_result`, `database_result` | 100% | 60% | 10/10 correct | 10.108s |
+| BGE + Gemini Judge | 10 | `database_result`, `tool_result`, `verifier_agent` (6/10); `database_result`, `tool_result`, `web_result` (4/10) | 100% | 60% | 10/10 correct | 3.987s |
 | **BGE + Omneum** | **10** | `verifier_agent`, `tool_result`, `web_result` | **100%** | **60%** | **10/10 correct** | **0.641s** |
 | Cohere + Claude Judge | 1 | `database_result`, `tool_result`, `verifier_agent` | 100% | 60% | 1/1 correct | 1.422s |
 | Cohere + Omneum | 1 | `database_result`, `tool_result`, `web_result` | 100% | 60% | 1/1 correct | 0.578s |
@@ -221,7 +221,7 @@ database_result
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `api_result`, `tool_result` | 100% | 66.7% | 1/1 unscored | 1.414s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 66.7% | 7/10 correct; 3 unscored | 2.351s |
-| BGE + Gemini Judge | 10 | Same | 100% | 66.7% | 6/10 correct; 4 unscored | 8.501s |
+| BGE + Gemini Judge | 10 | `api_result`, `database_result` | 100% | 66.7% | 10/10 correct | 2.347s |
 | **BGE + Omneum** | **10** | `api_result`, `database_result` | **100%** | **66.7%** | **10/10 correct** | **0.721s** |
 | Cohere + Claude Judge | 1 | `api_result`, `tool_result` | 100% | 66.7% | 1/1 correct | 2.300s |
 | Cohere + Omneum | 1 | `api_result`, `tool_result` | 100% | 66.7% | 1/1 correct | 0.649s |
@@ -314,7 +314,7 @@ database_result
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `api_result`, `tool_result`, `database_result` | 100% | 75% | 1/1 correct | 1.529s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 75% | 10/10 correct | 3.779s |
-| BGE + Gemini Judge | 10 | `operations_agent`, `api_result`, `tool_result` | 100% | 75% | 10/10 correct | 9.468s |
+| BGE + Gemini Judge | 10 | `api_result`, `database_result`, `operations_agent` | 100% | 75% | 10/10 correct | 2.289s |
 | **BGE + Omneum** | **10** | `operations_agent`, `code_agent`, `api_result` | **66.7%** | **50%** | **10/10 correct** | **0.709s** |
 | Cohere + Claude Judge | 1 | `api_result`, `tool_result`, `database_result` | 100% | 75% | 1/1 correct | 1.691s |
 | Cohere + Omneum | 1 | `operations_agent`, `database_result`, `tool_result` | 100% | 75% | 1/1 correct | 0.658s |
@@ -410,7 +410,7 @@ The cached portal result remains an estimate, not a completed dispatch event.
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `database_result`, `tool_result`, `web_result` | 66.7% | 66.7% | 1/1 correct | 2.133s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 66.7% | 66.7% | 10/10 correct | 2.725s |
-| BGE + Gemini Judge | 10 | `database_result`, `tool_result`, `web_result` (6/10); `database_result`, `summary_agent`, `tool_result` (4/10) | 66.7% | 66.7% | 10/10 correct | 12.284s |
+| BGE + Gemini Judge | 10 | `analyst_agent`, `database_result`, `tool_result` (7/10); `database_result`, `tool_result`, `web_result` (2/10); `database_result`, `summary_agent`, `tool_result` (1/10) | 66.7% | 66.7% | 10/10 correct | 2.515s |
 | **BGE + Omneum** | **10** | `web_result`, `database_result`, `tool_result` | **66.7%** | **66.7%** | **10/10 correct** | **0.636s** |
 | Cohere + Claude Judge | 1 | `database_result`, `tool_result`, `web_result` | 66.7% | 66.7% | 1/1 correct | 2.484s |
 | Cohere + Omneum | 1 | `database_result`, `web_result`, `tool_result` | 66.7% | 66.7% | 1/1 correct | 1.611s |
@@ -419,11 +419,13 @@ The Gemini selections include ordering variations.
 
 **Result:** Omneum and the judges generally selected the two actual-dispatch records alongside an outdated planned-date source.
 
-Gemini selected the summary agent's outdated estimate in four trials rather than the cached portal entry.
+Gemini selected the analyst agent's outdated estimate in seven trials, the summary agent's estimate in one, and the cached portal entry in two.
 
 All configurations achieved the same selection precision, recall, and recorded answer correctness.
 
 Omneum did not select the relevant verifier agent and retained the cached planned date. The result therefore does not demonstrate complete removal of repeated or stale context.
+
+Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
 
 ## Inspect Recorded Runs
 
@@ -433,7 +435,7 @@ Authoritative run directories:
 benchmarks/context_evaluation/heldout/results/
 ├── bge-claude-vs-bge-omneum-20261008/
 ├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-vs-bge-omneum-20261008/
+├── bge-google-low-vs-bge-omneum-20261008/
 └── cohere-claude-vs-cohere-omneum-20261008/
 ```
 
@@ -472,7 +474,7 @@ The extracted line count depends on the saved attempt serialization. It is not a
 for run in \
   bge-claude-vs-bge-omneum-20261008 \
   bge-openai-vs-bge-omneum-20261008 \
-  bge-google-vs-bge-omneum-20261008 \
+  bge-google-low-vs-bge-omneum-20261008 \
   cohere-claude-vs-cohere-omneum-20261008
 do
   echo "===== $run ====="
@@ -529,10 +531,10 @@ Median selection latency in seconds:
 
 | Case | GPT-6 Astra Judge | Gemini Judge | Omneum |
 |---|---:|---:|---:|
-| Feedback Loop | 2.878s | 10.108s | 0.641s |
-| Independent Error | 2.351s | 8.501s | 0.721s |
-| Relevant Wrong Task | 3.779s | 9.468s | 0.709s |
-| Repeated Subagent | 2.725s | 12.284s | 0.636s |
+| Feedback Loop | 2.878s | 3.987s | 0.641s |
+| Independent Error | 2.351s | 2.347s | 0.721s |
+| Relevant Wrong Task | 3.779s | 2.289s | 0.709s |
+| Repeated Subagent | 2.725s | 2.515s | 0.636s |
 
 Omneum recorded lower selection latency in all four cases.
 

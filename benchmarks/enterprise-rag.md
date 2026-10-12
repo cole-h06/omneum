@@ -133,7 +133,7 @@ The system record also contains `legal_hold bypass enabled`. Its exact operation
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `drive_document_2`, `system_record`, `announcement` | 100% | 75% | 1/1 correct | 1.725s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 75% | 10/10 correct | 4.896s |
-| BGE + Gemini Judge | 10 | `announcement`, `email`, `drive_document_2` | 100% | 75% | 10/10 correct | 8.920s |
+| BGE + Gemini Judge | 10 | `announcement`, `email`, `drive_document_2` | 100% | 75% | 10/10 correct | 3.288s |
 | **BGE + Omneum** | **10** | `announcement`, `email`, `drive_document_2` | **100%** | **75%** | **10/10 correct** | **0.612s** |
 | Cohere + Claude Judge | 1 | `drive_document_2`, `system_record`, `announcement` | 100% | 75% | 1/1 correct | 4.480s |
 | Cohere + Omneum | 1 | `drive_document_2`, `announcement`, `system_record` | 100% | 75% | 1/1 correct | 3.288s |
@@ -212,7 +212,7 @@ The six $75 sources do not represent six independent policy determinations.
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `policy_record`, `hr_system`, `policy_changelog` | 100% | 100% | 1/1 correct | 1.794s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 100% | 10/10 correct | 2.615s |
-| BGE + Gemini Judge | 10 | Same | 100% | 100% | 10/10 correct | 4.078s |
+| BGE + Gemini Judge | 10 | Same | 100% | 100% | 10/10 correct | 2.246s |
 | **BGE + Omneum** | **10** | Same | **100%** | **100%** | **10/10 correct** | **0.619s** |
 | Cohere + Claude Judge | 1 | Same | 100% | 100% | 1/1 correct | 3.667s |
 | Cohere + Omneum | 1 | Same | 100% | 100% | 1/1 correct | 1.692s |
@@ -300,7 +300,7 @@ The four-hour deployment window and seven-day hardware-token return requirement 
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `policy`, `system_record`, `operations_doc` | 100% | 75% | 1/1 correct | 1.585s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 75% | 10/10 correct | 2.537s |
-| BGE + Gemini Judge | 10 | Same | 100% | 75% | 10/10 correct | 11.120s |
+| BGE + Gemini Judge | 10 | Same | 100% | 75% | 10/10 correct | 2.576s |
 | **BGE + Omneum** | **10** | Same | **100%** | **75%** | **10/10 correct** | **0.631s** |
 | Cohere + Claude Judge | 1 | Same | 100% | 75% | 1/1 correct | 4.048s |
 | Cohere + Omneum | 1 | Same | 100% | 75% | 1/1 correct | 2.472s |
@@ -381,7 +381,7 @@ policy_changelog
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `current_policy`, `hr_system`, `announcement` | 100% | 60% | 1/1 correct | 2.544s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 60% | 10/10 correct | 2.920s |
-| BGE + Gemini Judge | 10 | `current_policy`, `announcement`, `hr_system` | 100% | 60% | 10/10 correct | 11.771s |
+| BGE + Gemini Judge | 10 | `confluence_page`, `current_policy`, `hr_system` (6/10); `announcement`, `confluence_page`, `current_policy` (3/10); `announcement`, `current_policy`, `hr_system` (1/10) | 100% | 60% | 10/10 correct | 2.305s |
 | **BGE + Omneum** | **10** | `current_policy`, `confluence_page`, `announcement` | **100%** | **60%** | **10/10 correct** | **0.619s** |
 | Cohere + Claude Judge | 1 | `current_policy`, `hr_system`, `policy_changelog` | 100% | 60% | 1/1 correct | 2.415s |
 | Cohere + Omneum | 1 | `current_policy`, `confluence_page`, `announcement` | 100% | 60% | 1/1 correct | 0.650s |
@@ -392,6 +392,8 @@ Omneum preferred the current policy, Confluence benefits page, and announcement.
 
 Both selections satisfy the relevance labels. Omneum recorded lower selection latency without improving scored selection quality.
 
+Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
+
 ## Inspect Recorded Runs
 
 Authoritative run directories:
@@ -400,7 +402,7 @@ Authoritative run directories:
 benchmarks/context_evaluation/heldout/results/
 ├── bge-claude-vs-bge-omneum-20261008/
 ├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-vs-bge-omneum-20261008/
+├── bge-google-low-vs-bge-omneum-20261008/
 └── cohere-claude-vs-cohere-omneum-20261008/
 ```
 
@@ -439,7 +441,7 @@ This extracts records matching the four case IDs. The resulting line count depen
 for run in \
   bge-claude-vs-bge-omneum-20261008 \
   bge-openai-vs-bge-omneum-20261008 \
-  bge-google-vs-bge-omneum-20261008 \
+  bge-google-low-vs-bge-omneum-20261008 \
   cohere-claude-vs-cohere-omneum-20261008
 do
   echo "===== $run ====="

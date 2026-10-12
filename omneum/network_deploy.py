@@ -26,6 +26,8 @@ ROOT = Path('/etc/omneum-network')
 RUNTIME = Path('/opt/omneum-network')
 SOCKET = Path('/run/omneum-network/eval.sock')
 KEY_DIR = Path('/var/lib/omneum-network-crypto')
+NGINX_ROOT = Path('/etc/nginx')
+CERTBOT_OPTIONS = Path('/etc/letsencrypt/options-ssl-nginx.conf')
 ACCOUNTS = ('omneum-network-api', 'omneum-enrollment', 'omneum-network-crypto')
 # Hosted omneum_prod: network.* is the authoritative relational Context Graph.
 # DigitalOcean Managed PostgreSQL does not support AGE. Exclude the label-only
@@ -288,11 +290,77 @@ server {
     return result.replace('DOMAIN', domain).replace('CERT', c['tls_certificate']).replace('KEY', c['tls_private_key'])
 
 
-def render(c, output):
+def nginx_certbot_site(c):
+    """Integrate the existing Ubuntu/Certbot maintenance site without new servers.
+
+    Keep Certbot's lineage, SSL options, dual-stack listeners and HTTP redirect.
+    The application settings come from the same generator as fresh deployments.
+    """
+    generated = nginx_config(c)
+    application = generated.split('    ssl_session_tickets off;\n', 1)[1]
+    application = '    ssl_session_tickets off;\n' + application.rsplit('\n}', 1)[0]
+    domain = c['domain']
+    return ('server {\n    server_name ' + domain + ';\n\n' + application + '\n\n'
+        '    listen [::]:443 ssl ipv6only=on; # managed by Certbot\n'
+        '    listen 443 ssl; # managed by Certbot\n'
+        '    ssl_certificate /etc/letsencrypt/live/' + domain + '/fullchain.pem; # managed by Certbot\n'
+        '    ssl_certificate_key /etc/letsencrypt/live/' + domain + '/privkey.pem; # managed by Certbot\n'
+        '    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot\n'
+        '    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot\n\n'
+        '}\nserver {\n    if ($host = ' + domain + ') {\n'
+        '        return 301 https://$host$request_uri;\n    } # managed by Certbot\n\n\n'
+        '    listen 80;\n    listen [::]:80;\n    server_name ' + domain + ';\n'
+        '    return 404; # managed by Certbot\n\n\n}')
+
+
+def nginx_limits(c):
+    return nginx_config(c).split('server {', 1)[0]
+
+
+def check_nginx(c):
+    """Accept either generated layout, never an unchecked alternate ingress."""
+    ingress = NGINX_ROOT / 'conf.d/omneum-network.conf'
+    if ingress.exists() or ingress.is_symlink():
+        safe_path(ingress, mode=0o600)
+        require(ingress.read_text() == nginx_config(c), 'installed ingress differs from configuration')
+        return
+    site = NGINX_ROOT / 'sites-available/omneum-network'
+    limits = NGINX_ROOT / 'conf.d/omneum-network-limits.conf'
+    safe_path(site, mode=0o644)
+    safe_path(limits, mode=0o600)
+    require(site.read_text() == nginx_certbot_site(c), 'installed Certbot site differs from generated configuration')
+    require(limits.read_text() == nginx_limits(c), 'installed ingress limits differ from configuration')
+    enabled = NGINX_ROOT / 'sites-enabled/omneum-network'
+    safe_path(enabled.parent, directory=True)
+    require(enabled.is_symlink() and enabled.lstat().st_uid == 0 and enabled.resolve(strict=True) == site,
+            'Certbot site must be enabled by a root-owned symlink')
+    # nginx -T is captured, never printed: other sites may contain credentials.
+    result = subprocess.run(['nginx', '-T'], capture_output=True, text=True, check=True)
+    effective = result.stdout
+    require('# configuration file ' + str(enabled) + ':' in effective and
+            '# configuration file ' + str(limits) + ':' in effective,
+            'generated Certbot site and limits must be in the active Nginx configuration')
+    declarations = re.findall(r'^\s*server_name\s+([^;]+);', effective, re.M)
+    require(sum(c['domain'] in declaration.split() for declaration in declarations) == 2,
+            'overlapping API server blocks in active Nginx configuration')
+    # The included Certbot TLS policy must retain the production protocol floor.
+    options = CERTBOT_OPTIONS
+    safe_path(options)
+    protocols = re.findall(r'^\s*ssl_protocols\s+([^;]+);', options.read_text(), re.M)
+    require(len(protocols) == 1 and set(protocols[0].split()) == {'TLSv1.2', 'TLSv1.3'},
+            'Certbot SSL options must restrict protocols to TLSv1.2 and TLSv1.3')
+
+
+def render(c, output, *, nginx_layout='standalone'):
     users = identities()
     output = Path(output)
     safe_path(output, mode=0o700, directory=True)
-    files = {'public.env': public_environment(c, users[2].pw_uid), 'nginx.conf': nginx_config(c)}
+    require(nginx_layout in ('standalone', 'certbot'), 'unsupported Nginx layout')
+    files = {'public.env': public_environment(c, users[2].pw_uid)}
+    if nginx_layout == 'certbot':
+        files.update({'nginx-site.conf': nginx_certbot_site(c), 'nginx-limits.conf': nginx_limits(c)})
+    else:
+        files['nginx.conf'] = nginx_config(c)
     for kind in ('ingestion', 'enrollment', 'evaluator'):
         files['omneum-network-' + kind + '.service'] = service_unit(c, kind, users[0].pw_uid)
     for name, contents in files.items():
@@ -558,9 +626,7 @@ def service_checks(c):
     safe_path(ROOT, mode=0o700, directory=True)
     safe_path(ROOT / 'public.env', mode=0o600)
     require((ROOT / 'public.env').read_text() == public_environment(c, users[2].pw_uid), 'installed public environment differs from configuration; render again')
-    ingress = Path('/etc/nginx/conf.d/omneum-network.conf')
-    safe_path(ingress, mode=0o600)
-    require(ingress.read_text() == nginx_config(c), 'installed ingress differs from configuration')
+    check_nginx(c)
     validate_runtime_tree()
     require(subprocess.run([str(RUNTIME / 'libexec/omneumd'), 'capabilities'], check=True,
         capture_output=True, text=True).stdout.strip() == 'protected-voprf-v1', 'fixture daemon cannot serve production')
@@ -641,6 +707,7 @@ def main():
     parser.add_argument('command', choices=('render', 'migrate', 'preflight', 'generate-dsns', 'refresh-jwks', 'install-certificates', 'provider-token', 'evaluator-check'))
     parser.add_argument('--config', default=str(ROOT / 'production.json'))
     parser.add_argument('--output')
+    parser.add_argument('--nginx-layout', choices=('standalone', 'certbot'), default='standalone')
     parser.add_argument('--admin-dsn-file')
     parser.add_argument('--migrations')
     parser.add_argument('--uid', type=int)
@@ -664,7 +731,7 @@ def main():
             c = load(args.config)
             if args.command == 'render':
                 require(args.output, 'render requires private --output directory')
-                render(c, args.output)
+                render(c, args.output, nginx_layout=args.nginx_layout)
             elif args.command == 'migrate':
                 require(args.admin_dsn_file and args.migrations, 'migrate requires --admin-dsn-file and --migrations')
                 migrate(c, args.admin_dsn_file, args.migrations)

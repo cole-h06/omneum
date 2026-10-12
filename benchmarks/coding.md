@@ -106,7 +106,7 @@ Exports.create(self, *, account_id, format)
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `current_api_docs`, `repository_code`, `changelog` | 100% | 60% | 1/1 correct | 2.450s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 60% | 10/10 correct | 3.005s |
-| BGE + Gemini Judge | 10 | Same | 100% | 60% | 10/10 correct | 4.993s |
+| BGE + Gemini Judge | 10 | Same | 100% | 60% | 10/10 correct | 2.623s |
 | **BGE + Omneum** | **10** | Same | **100%** | **60%** | **10/10 correct** | **0.757s** |
 | Cohere + Claude Judge | 1 | `current_api_docs`, `repository_code`, `package_metadata` | 67% | 40% | 1/1 correct | 1.703s |
 | Cohere + Omneum | 1 | `package_metadata`, `current_api_docs`, `repository_code` | 67% | 40% | 1/1 correct | 0.637s |
@@ -161,7 +161,7 @@ A unique constraint on `processed_events.event_id` prevents a committed event fr
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `current_docs`, `repository_code`, `example` | 100% | 50% | 1/1 correct | 1.501s |
 | BGE + GPT-6 Astra Judge | 10 | `current_docs`, `repository_code`, `integration_test` | 100% | 50% | 10/10 correct | 3.063s |
-| BGE + Gemini Judge | 10 | `current_docs`, `repository_code`, `example` | 100% | 50% | 10/10 correct | 5.776s |
+| BGE + Gemini Judge | 10 | `current_docs`, `repository_code`, `example` | 100% | 50% | 10/10 correct | 2.183s |
 | **BGE + Omneum** | **10** | `integration_test`, `repository_code`, `release_notes` | **100%** | **50%** | **10/10 correct** | **0.611s** |
 | Cohere + Claude Judge | 1 | `current_docs`, `repository_code`, `example` | 100% | 50% | 1/1 correct | 4.487s |
 | Cohere + Omneum | 1 | `current_docs`, `release_notes`, `repository_code` | 100% | 50% | 1/1 correct | 2.974s |
@@ -221,7 +221,7 @@ The production manifest overrides the default. Expected answer: **9092**.
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `deployment_config`, `test_output` | 100% | 100% | 1/1 correct | 1.979s |
 | BGE + GPT-6 Astra Judge | 10 | Same | 100% | 100% | 10/10 correct | 2.097s |
-| BGE + Gemini Judge | 10 | Same | 100% | 100% | 10/10 correct | 3.568s |
+| BGE + Gemini Judge | 10 | Same | 100% | 100% | 10/10 correct | 1.956s |
 | **BGE + Omneum** | **10** | `readme`, `deployment_config` | 50% | 50% | 10/10 correct | **0.623s** |
 | Cohere + Claude Judge | 1 | `deployment_config`, `readme` | 50% | 50% | 1/1 correct | 36.949s |
 | Cohere + Omneum | 1 | `example_config`, `ci_config` | 0% | 0% | 1/1 unscored | 35.866s |
@@ -276,7 +276,7 @@ Three candidate sources repeat the same outdated recommendation. Their apparent 
 |---|---:|---|---:|---:|---|---:|
 | BGE + Claude Judge | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | 1.632s |
 | BGE + GPT-6 Astra Judge | 10 | `release_notes`, `package_docs`, `pull_request` | 100% | 60% | 10/10 unscored | 2.944s |
-| BGE + Gemini Judge | 10 | Same | 100% | 60% | 10/10 unscored | 4.887s |
+| BGE + Gemini Judge | 10 | Same | 100% | 60% | 10/10 unscored | 2.726s |
 | **BGE + Omneum** | **10** | Same | **100%** | **60%** | 10/10 unscored | **0.593s** |
 | Cohere + Claude Judge | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | 2.209s |
 | Cohere + Omneum | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | — |
@@ -284,6 +284,8 @@ Three candidate sources repeat the same outdated recommendation. Their apparent 
 **Result:** All recorded configurations selected current-fix evidence rather than the repeated obsolete workaround. Omneum matched the BGE + judge selection quality with lower selection latency.
 
 The Cohere + Omneum latency and complete answer-status row must be read from its saved result; the supplied report excerpt ends before those fields.
+
+Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
 
 ## Inspect Recorded Runs
 
@@ -293,7 +295,7 @@ Authoritative run directories:
 benchmarks/context_evaluation/heldout/results/
 ├── bge-claude-vs-bge-omneum-20261008/
 ├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-vs-bge-omneum-20261008/
+├── bge-google-low-vs-bge-omneum-20261008/
 └── cohere-claude-vs-cohere-omneum-20261008/
 ```
 

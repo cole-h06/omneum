@@ -116,9 +116,7 @@ Add Omneum to your MCP client configuration:
 
 Restart your MCP client to expose Omneum's tools to your agent.
 
-If the MCP client does not inherit your virtual environment's PATH, use the
-absolute executable path printed by `command -v omneum-server` as its `command`.
-The same executable can be run directly from the activated terminal.
+If your MCP client cannot find `omneum-server`, set `command` to the absolute path returned by `command -v omneum-server`.
 
 ### 4. Verify the connection
 
@@ -246,7 +244,7 @@ Fy2025 gross revenue
     3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
 ```
 
-The evaluation identifies dependency between sources that support the same claim. Although three sources report the same value, two reference a shared upstream document, reducing the estimated independent support to 2.00.
+Three sources report the same value, but two reference a shared upstream document. Omneum identifies this dependency and estimates 2.00 independent supporting sources instead of treating all three as independent evidence.
 
 An agent can use this result to trigger additional retrieval or route execution back to a verification step before generating a response.
 
@@ -272,7 +270,7 @@ For a complete framework-independent workflow, see the
 
 Omneum runs locally by default. You can opt in to contribute observations to the shared Omneum Context Graph without uploading raw context.
 
-Network contributions help build a shared evidence base for evaluating AI context across real-world agent workloads, beyond what any single deployment can observe.
+Network contributions help build a shared evidence base across agent deployments, extending the Context Graph beyond any single installation.
 
 Contributions use privacy-preserving cryptographic linkage via an RFC 9497 VOPRF. Network contribution is disabled by default. Local evaluation works without it.
 
@@ -329,7 +327,7 @@ Claim(
 
 Multiple sources can report the same claim without providing independent support. Omneum estimates source dependence from upstream lineage, citations, assertion lineage, shared ownership, timestamps, and graph structure.
 
-Source dependencies reduce the weight of duplicated evidence when calculating effective independent support for each claim.
+Estimated source dependencies adjust the contribution of related sources when calculating independent support for each claim.
 
 [Source dependence docs →](docs/architecture.md#dependency-estimation)
 
@@ -341,7 +339,7 @@ Source dependencies reduce the weight of duplicated evidence when calculating ef
 
 ### ContextEvaluation
 
-`ContextEvaluation` returns source reliability and claim support scores, adjusted for source dependence. It also exposes conflicts and provenance signals used in the evaluation.
+`ContextEvaluation` returns source reliability and claim support scores adjusted for source dependence, alongside conflict and provenance information.
 
 ```python
 evaluation = await client.evaluate_mapped(
@@ -381,14 +379,14 @@ Each LLM judge is evaluated alongside Omneum under the same model-specific bench
 
 | Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| BGE + Claude Sonnet 5.5 Judge | **92.36%** | **65.24%** | **95.83%** | 1.831s | 4.165 s | **11,356** | **$0.068208** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.697 s** | **3.141 s** | 11,811 | $0.072822 |
-| BGE + GPT-6 Astra Judge | **92.78%** | **65.45%** | **92.50%** | 3.421s | 5.849 s | **111,247** | **$0.658998** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.641 s** | **2.983s** | 115,119 | $0.698310 |
-| BGE + Gemini 3.8 Flash Judge | **94.24%** | **66.18%** | **95.42%** | 6.826s | 9.274 s | **112,349** | **$0.669282** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.639 s** | **3.130 s** | 115,535 | $0.702470 |
+| BGE + Claude Sonnet 5.5 Judge | **92.36%** | **65.24%** | **95.83%** | 1.831s | 4.165s | **11,356** | **$0.068208** |
+| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.697s** | **3.141s** | 11,811 | $0.072822 |
+| BGE + GPT-6 Astra Judge | **92.78%** | **65.45%** | **92.50%** | 3.421s | 5.849s | **111,247** | **$0.658998** |
+| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.641s** | **2.983s** | 115,119 | $0.698310 |
+| BGE + Gemini 3.8 Flash Judge | **94.44%** | **66.28%** | **95.83%** | 2.487s | 4.924s | **114,250** | **$0.686916** |
+| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.639s** | **3.130s** | 115,535 | $0.702470 |
 
-*Costs reflect estimated downstream generator API usage only; LLM judge inference costs and local compute are excluded. Omneum achieves competitive selection quality and downstream answer accuracy against frontier LLM judges, with 2.6–10.7× lower selection latency and no additional LLM inference step.*
+*Costs reflect estimated downstream generator API usage only; LLM judge inference costs and local compute are excluded. Omneum achieves competitive selection quality and downstream answer accuracy against frontier LLM judges, with 2.6–5.3× lower selection latency and no additional LLM inference step.*
 
 **Detailed evaluations:** [Methodology](benchmarks/README.md) · [Coding Agents](benchmarks/coding.md) · [Enterprise RAG](benchmarks/enterprise-rag.md) · [Research Agents](benchmarks/research.md) · [Multi-Agent Systems](benchmarks/multi-agent.md) · [Data Analytics](benchmarks/analytics.md) · [Support Operations](benchmarks/support.md)
 

@@ -119,6 +119,67 @@ def test_release_pins_fail_closed(configuration):
         deploy.pins_match(configuration)
 
 
+def test_certbot_layout_preserves_tls_and_application_boundaries(configuration):
+    site = deploy.nginx_certbot_site(configuration)
+    assert site.count('server {') == 2
+    assert 'return 503' not in site
+    assert 'listen [::]:443 ssl ipv6only=on; # managed by Certbot' in site
+    assert '/etc/letsencrypt/live/' + configuration['domain'] + '/fullchain.pem' in site
+    assert 'include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot' in site
+    assert 'return 301 https://$host$request_uri;' in site
+    assert '/.well-known/acme-challenge/' not in site
+    assert 'proxy_ssl_verify on;' in site
+    assert 'proxy_set_header X-Forwarded-For "";' in site
+    assert 'location = /v1/enrollment {' in site
+    assert 'proxy_pass https://127.0.0.1:8444;' in site
+    assert 'client_max_body_size 1m;' in site
+    assert 'limit_req_zone' not in site
+    assert deploy.nginx_limits(configuration).count('limit_req_zone') == 2
+
+
+@pytest.mark.parametrize('tamper', (None, 'backend', 'inactive', 'duplicate', 'tls'))
+def test_certbot_preflight_rejects_drift(configuration, tmp_path, monkeypatch, tamper):
+    for directory in ('conf.d', 'sites-available', 'sites-enabled'):
+        (tmp_path / directory).mkdir()
+    site = tmp_path / 'sites-available/omneum-network'
+    limits = tmp_path / 'conf.d/omneum-network-limits.conf'
+    enabled = tmp_path / 'sites-enabled/omneum-network'
+    options = tmp_path / 'options-ssl-nginx.conf'
+    site.write_text(deploy.nginx_certbot_site(configuration))
+    limits.write_text(deploy.nginx_limits(configuration))
+    enabled.symlink_to(site)
+    options.write_text('ssl_protocols TLSv1.2 TLSv1.3;\n')
+    effective = '# configuration file ' + str(enabled) + ':\n' + site.read_text()
+    effective += '\n# configuration file ' + str(limits) + ':\n' + limits.read_text()
+    if tamper == 'backend':
+        site.write_text(site.read_text().replace('proxy_ssl_verify on;', 'proxy_ssl_verify off;'))
+    if tamper == 'inactive':
+        effective = ''
+    if tamper == 'duplicate':
+        effective += '\nserver_name ' + configuration['domain'] + ';\n'
+    if tamper == 'tls':
+        options.write_text('ssl_protocols TLSv1 TLSv1.2 TLSv1.3;\n')
+    monkeypatch.setattr(deploy, 'NGINX_ROOT', tmp_path)
+    monkeypatch.setattr(deploy, 'CERTBOT_OPTIONS', options)
+    monkeypatch.setattr(deploy, 'safe_path', lambda *args, **kwargs: None)
+    monkeypatch.setattr(deploy.os, 'getuid', lambda: 0)
+    # Only the ownership result is synthetic; real temporary files exercise drift.
+    original_lstat = Path.lstat
+    def lstat(path):
+        if path == enabled:
+            info = list(original_lstat(path))
+            info[4] = 0
+            return deploy.os.stat_result(info)
+        return original_lstat(path)
+    monkeypatch.setattr(Path, 'lstat', lstat)
+    monkeypatch.setattr(deploy.subprocess, 'run', lambda *args, **kwargs: SimpleNamespace(stdout=effective))
+    if tamper is None:
+        deploy.check_nginx(configuration)
+    else:
+        with pytest.raises(ValueError):
+            deploy.check_nginx(configuration)
+
+
 def test_matching_and_mismatched_release(configuration, monkeypatch):
     from omneum.contribution import network
     from omneum import onboarding

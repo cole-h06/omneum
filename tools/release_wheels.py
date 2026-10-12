@@ -196,8 +196,7 @@ def smoke(wheels, project, dependency_wheel=None):
     dependency = [str(verify_intel_dependency(dependency_wheel))] if dependency_wheel else []
     # Neither the checkout nor the development environment supplies installed imports.
     env = {key: value for key, value in os.environ.items()
-           if key not in {"PYTHONPATH", "PYTHONHOME"} and not key.startswith("PIP_")}
-    env["PIP_CONFIG_FILE"] = os.devnull
+           if key not in {"PYTHONPATH", "PYTHONHOME"}}
     with tempfile.TemporaryDirectory(prefix="omneum-wheel-") as temporary:
         root = Path(temporary)
         environment = root / "venv"

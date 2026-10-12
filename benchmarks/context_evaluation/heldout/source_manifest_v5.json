@@ -31,11 +31,10 @@
     "benchmarks/context_evaluation/heldout/additive_methods.py": "5ed61c4d0c9fa62a8b4f1872b7ce6ed76f0fde5c9e8a58cd64d83774ee8f60ca",
     "benchmarks/context_evaluation/heldout/additive_runner.py": "cec0e2139c2f4d75802b941b4989d3ae918ff649421422a4969dc39e7318113b",
     "benchmarks/context_evaluation/heldout/aggregate.py": "5489b9a2b31b12e3a8f21683ada003fe93a5741f490c36c93d9f7d14f9de615a",
-    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/analyze_saved.py": "455366ba2e7281f5f9ba8961baf03a8e74d39ee3111df376fc1183772f9be7e4",
     "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
     "benchmarks/context_evaluation/heldout/artifacts.py": "990c5975e7922cb5f76dce36695bce0dd9fcb95f7a13d3c33599c52adb8aff85",
     "benchmarks/context_evaluation/heldout/baseline_reuse.py": "1e262e9ff314ad371fc937ee847fd55f994b7d55546946a2308e5e4e270b8d06",
-    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "6ea08b4ac32928f6dd56ac24688f52d864ba5705a32cdeef79e18ffbb9108b10",
+    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "2d5b684999f29dfb86a54c024b99001fd5aa01eb04cdf0abc2ebd6b869b60660",
     "benchmarks/context_evaluation/heldout/checkpoint.py": "30d3e60266b58ce0879c31f454964985006c46b87f88d0a9095594b23dfd73d5",
     "benchmarks/context_evaluation/heldout/cohere_cache.py": "558cd5024a777df582ed682cdcbece8512fe24694f10bf57995dd8793bb0a620",
     "benchmarks/context_evaluation/heldout/diagnostics.py": "e29296451930a9fefbaf261c9fa608416951718aa00522678cd4a494f42249f4",
@@ -58,7 +57,9 @@
     "benchmarks/context_evaluation/reproducibility.py": "b10ff3fbd3b6e2bb581910da1c283714d9040f9a4ad44728f401412ac3d4b19b",
     "benchmarks/context_evaluation/semantic_reranker.py": "50d05c71ce702a7c224a49584b6ab26d9fc7ef895ad552b9c12555ee7b7de602",
     "benchmarks/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "tools/run_context_evaluation_tests.py": "727938e36b6f97b0831d5d66354ccd534f230d00fedc4d0ed25e328abb7a94df"
+    "tools/run_context_evaluation_tests.py": "727938e36b6f97b0831d5d66354ccd534f230d00fedc4d0ed25e328abb7a94df",
+    "benchmarks/context_evaluation/heldout/verify_gemini_recovery.py": "6f0254f98f618b2f265ac19d3243c95fe4fa025b95bce20d8d15262b43e9cac8",
+    "benchmarks/context_evaluation/heldout/recover_gemini_generations.py": "574ac51d396c484652b6d765ab963f23b8abe3b4f2b057c6206bbde4acb29167"
   },
   "revision_history": [
     {
@@ -95,6 +96,20 @@
           "reason": "Empty package initializer; retired package alias remains removed; no active implementation is restored."
         }
       }
+    },
+    {
+      "previous_contract_sha256": "ac82d9b0e0557bd1b707a8c53069e71042fc00a8290763036108273be5d88b94",
+      "changes": {
+        "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": {
+          "previous_sha256": "6ea08b4ac32928f6dd56ac24688f52d864ba5705a32cdeef79e18ffbb9108b10",
+          "sha256": "2d5b684999f29dfb86a54c024b99001fd5aa01eb04cdf0abc2ebd6b869b60660",
+          "reason": "Use the verified recovered Gemini comparison; retired original analysis is retained in the private archive."
+        }
+      },
+      "retired_historical_sources": {
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/analyze_saved.py": "455366ba2e7281f5f9ba8961baf03a8e74d39ee3111df376fc1183772f9be7e4"
+      },
+      "previous_contract_snapshot": "benchmarks/context_evaluation/heldout/contracts/gemini-recovery/source_manifest_v5.json.txt"
     }
   ]
 }

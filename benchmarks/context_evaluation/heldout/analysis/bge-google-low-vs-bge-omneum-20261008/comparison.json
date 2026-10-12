@@ -1,0 +1,76 @@
+{
+  "adjudication_sha256": "ee68511d9748a32690ff16150fa88d0e7ebecdbed34629b48d917a4593346697",
+  "counts": {
+    "bge_google": {
+      "correct": 230,
+      "generator_refusal": 10
+    },
+    "bge_omneum": {
+      "correct": 220,
+      "generator_refusal": 10,
+      "substantively_incorrect": 10
+    }
+  },
+  "implementation": {
+    "recovery_contract_sha256": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd",
+    "recovery_implementation_sha256": {
+      "aggregate.py": "5489b9a2b31b12e3a8f21683ada003fe93a5741f490c36c93d9f7d14f9de615a",
+      "recover_gemini_generations.py": "2ebc066326e8e9c0decf8a657a38690e2372ef5ba6ef3b2f88ae9eb8eecef275",
+      "scoring.py": "14318e74d44de591865de02ead3984da859527a2a3fd4aeb17f68442ee50c030"
+    },
+    "selection_execution": "568a8355e39b44701f692df4cf776720e97e9f45e2adaef2789549da70d0df5c"
+  },
+  "metrics": {
+    "bge_google": {
+      "accuracy": 0.9583333333333334,
+      "end_to_end_p50_seconds": 4.9241187502630055,
+      "generation_failures": 10,
+      "generator_cost_usd": 0.686916,
+      "generator_tokens": 114250,
+      "input_tokens": 56948,
+      "output_tokens": 57302,
+      "precision": 0.9444444444444444,
+      "recall": 0.662797619047619,
+      "selection_p50_seconds": 2.48713827051688
+    },
+    "bge_omneum": {
+      "accuracy": 0.9166666666666666,
+      "end_to_end_p50_seconds": 3.1304506664164364,
+      "generation_failures": 10,
+      "generator_cost_usd": 0.70247,
+      "generator_tokens": 115535,
+      "input_tokens": 56610,
+      "output_tokens": 58925,
+      "precision": 0.861111111111111,
+      "recall": 0.5933531746031746,
+      "selection_p50_seconds": 0.6389743338804692
+    }
+  },
+  "pricing": {
+    "anthropic_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "basis": "standard paid tier; Gemini introductory rates through 2026-12-31",
+    "date_checked": "2026-10-08",
+    "google_source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "usd_per_million": {
+      "gemini_input": 0.75,
+      "gemini_visible_plus_thinking_output": 3.75,
+      "sonnet_input": 2,
+      "sonnet_output": 10
+    }
+  },
+  "recovery": {
+    "answers": 129,
+    "completed_calls": 139,
+    "cost_basis": "recorded usage at frozen benchmark rates; not an invoice",
+    "cost_usd": 0.383526,
+    "input_tokens": 32458,
+    "invoiced_cost_usd": null,
+    "output_tokens": 31861,
+    "refusals": 10
+  },
+  "results_sha256": "111b1abbcb7ef0f9cc6e567babe901bbe777e524fbdbfb93af4a2bb3c46130d0",
+  "run_id": "bge-google-low-vs-bge-omneum-20261008",
+  "selection_speedup": 3.892391507202761,
+  "staging_adjudication_sha256": "d36e8962286de79dc1dc53722fec04130f92fba7406ba72f13700d7fa3561bb8",
+  "timing_limitations": "Recovered E2E is original saved selection duration plus later measured generation duration; not contemporaneous wall-clock latency."
+}
