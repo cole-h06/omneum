@@ -125,7 +125,7 @@ def bundle_layout(target: str) -> dict[str, int]:
     if target not in PLATFORMS:
         raise InstallError("Unsupported daemon platform.")
     if target == "linux-x86_64":
-        return {"omneumd": 0o755, "install.sh": 0o755, "install-foreground.sh": 0o755,
+        return {"LICENSE": 0o644, "NATIVE-LICENSES.txt": 0o644, "omneumd": 0o755, "install.sh": 0o755, "install-foreground.sh": 0o755,
                 "systemd": 0o755, "systemd/omneumd.service": 0o644,
                 "sysusers.d": 0o755, "sysusers.d/omneum.conf": 0o644,
                 "omneum-server": 0o755,
@@ -138,7 +138,7 @@ def bundle_layout(target: str) -> dict[str, int]:
                 "systemd/omneum-server@.service": 0o644,
                 "sysusers.d/omneum-server.conf": 0o644,
                 }
-    return {"omneumd": 0o755, "install-macos.sh": 0o755,
+    return {"LICENSE": 0o644, "NATIVE-LICENSES.txt": 0o644, "omneumd": 0o755, "install-macos.sh": 0o755,
             "launchd": 0o755, "launchd/ai.omneum.omneumd.plist": 0o644}
 
 

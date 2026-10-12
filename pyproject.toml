@@ -11,7 +11,7 @@ description = "An open-source context evaluator for AI agents."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-license-files = ["LICENSE", "omneum/mcp/LICENSE"]
+license-files = ["LICENSE", "omneum/mcp/LICENSE", "omneum/NATIVE-LICENSES.txt", "omneum/RUST-STDLIB-LICENSES.txt"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -100,6 +100,8 @@ testpaths = ["tests"]
 [tool.maturin]
 exclude = ["evaluate.py", "**/*.zip", "tools/provenance_explorer/**", "docs/reviews/**", "deploy/network/vm/production-audit.py", "src/__fuzz__/**", "**/*.pem", "**/*.key", ".env", ".env.*"]
 include = [
+    { path = "omneum/NATIVE-LICENSES.txt", format = ["sdist", "wheel"] },
+    { path = "omneum/RUST-STDLIB-LICENSES.txt", format = ["sdist", "wheel"] },
     { path = "omneum/algorithm_compatibility.json", format = ["sdist", "wheel"] },
     { path = "omneum/schemas/research-event-v1.schema.json", format = ["sdist", "wheel"] },
     { path = "omneum/mcp/LICENSE", format = ["sdist", "wheel"] },

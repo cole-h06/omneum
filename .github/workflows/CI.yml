@@ -105,6 +105,7 @@ jobs:
       - name: Test Rust
         run: |
           cargo test --locked
+          uv run --locked --group auth-test python tools/native_licenses.py --check
           cargo test --locked --no-default-features --features daemon
           cargo build --locked --no-default-features --features daemon --bin omneumd
           sudo python3 tests/security/linux_isolation.py target/debug/omneumd
@@ -209,6 +210,7 @@ jobs:
         run: |
           python tools/release_wheels.py sanitize --wheels dist
           python tools/check_mcp_bundle.py dist/*.whl
+          python tools/native_licenses.py --artifacts dist/*.whl
 
       - name: Smoke-test built wheel outside checkout
         run: python tools/release_wheels.py smoke --wheels dist
@@ -245,6 +247,7 @@ jobs:
           python tools/release_wheels.py sanitize --wheels dist
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/check_mcp_bundle.py dist/*.whl
+          python tools/native_licenses.py --artifacts dist/*.whl
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/release_wheels.py smoke --wheels dist
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -268,6 +271,7 @@ jobs:
         run: |
           maturin sdist --out source-dist
           python tools/check_mcp_bundle.py source-dist/*.tar.gz
+          python tools/native_licenses.py --artifacts source-dist/*.tar.gz
           version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
           python tools/release_sdist.py --sdist "source-dist/omneum-$version.tar.gz" --version "$version"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -411,6 +415,10 @@ jobs:
           sudo /usr/bin/python3 -I -B daemon-artifact/install-linux.py "$GITHUB_WORKSPACE/daemon-artifact" "$(id -u)" "$version"
           /opt/omneum/.venv/bin/python -I -B tests/security/linux_public_install.py
 
+      - name: Stage required project and native dependency licenses
+        run: |
+          cp LICENSE daemon-artifact/LICENSE
+          cp omneum/NATIVE-LICENSES.txt daemon-artifact/NATIVE-LICENSES.txt
       - name: Upload daemon artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -459,6 +467,7 @@ jobs:
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
             --pattern 'wheel-*' --dir wheel-artifacts
           python tools/check_mcp_bundle.py wheel-artifacts/*/*.whl
+          python tools/native_licenses.py --artifacts wheel-artifacts/*/*.whl
           python tools/release_wheels.py prepare --tag "$RELEASE_TAG" \
             --wheels wheel-artifacts --daemon-assets release-assets --output pypi-dist
       - name: Add verified source distribution
@@ -545,6 +554,7 @@ jobs:
           python -m maturin build --locked --release --out candidate-wheels --interpreter python
           python tools/release_wheels.py sanitize --wheels candidate-wheels
           python tools/check_mcp_bundle.py candidate-wheels/*.whl
+          python tools/native_licenses.py --artifacts candidate-wheels/*.whl
       - name: Secure writable hosted Linux runner installation parents
         if: runner.os == 'Linux'
         run: |
