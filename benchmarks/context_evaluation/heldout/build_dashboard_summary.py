@@ -18,17 +18,10 @@ from ..paths import resolve_artifact, verify_recorded_artifact, public_manifest,
 
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parents[2]
-RUN = "bge-google-vs-bge-omneum-20261008"
+RUN = "bge-google-low-vs-bge-omneum-20261008"
 METHODS = ("bge_google", "bge_omneum")
 OUTPUT = BASE / "dashboard_summary.json"
 SCHEMA = BASE / "dashboard_summary.schema.json"
-# Pin the reviewed adjudications and comparison, not the current selector implementation.
-REVIEW_HASHES = {
-    "comparison.json": "0adce5ba126bc30b16dadb96de33c89fcf6cc9d6950cd0b6b171032739e0b676",
-    "answer_audit.json": "1f603c110f4dec99e3e41026de7de0b02f084af6f7623a4bc644819ace86d279",
-}
-
-
 def require(condition, message):
     if not condition:
         raise ValueError(message)
@@ -87,79 +80,34 @@ def token_usage(rows, selection=False):
 
 
 def build_verified_gemini_summary():
+    from .verify_gemini_recovery import verify
+    manifest, rows, audit, comparison = verify(BASE)
     analysis = BASE / "analysis" / RUN
     results = BASE / "results" / RUN
-    for name, digest in REVIEW_HASHES.items():
-        require(sha(analysis/name) == digest, f"Reviewed artifact changed: {name}")
-    comparison = json.loads((analysis/"comparison.json").read_text())
-    sources = {}
-    for name, digest in comparison["source_file_sha256"].items():
-        path = verify_recorded_artifact(name, digest)
-        sources[str(path.relative_to(ROOT))] = sha(path)
-    for name in (*REVIEW_HASHES, "report.md", "analyze_saved.py"):
-        p = analysis/name
-        sources[str(p.relative_to(ROOT))] = sha(p)
-    rows = [json.loads(line) for line in (results/"results.jsonl").read_text().splitlines()]
-    manifest = json.loads(public_manifest(results).read_text())
+    sources = {str(p.relative_to(ROOT)): sha(p) for directory in (analysis, results)
+               for p in directory.iterdir() if p.is_file()}
     contract = manifest["checkpoint_contract"]
-    for field in ("inputs", "models", "trials", "estimator", "packages", "python", "selection_pipeline"):
-        require(contract[field] == manifest[field], f"Checkpoint mismatch: {field}")
-    require([m["name"] for m in contract["methods"]] == list(METHODS), "Wrong preserved arms")
-    require(contract["models"] == {"bge_google": "gemini-3.8-flash", "bge_omneum": "Omneum", "generator": "claude-sonnet-5-5"}, "Unexpected models")
-    inputs = {}
-    truths = {}
-    for original, digest in manifest["inputs"].items():
-        p = resolve_artifact(original)
-        require(sha(p) == digest, f"Frozen fixture changed: {p.name}")
-        sources[str(p.relative_to(ROOT))] = digest
-        (truths if p.name == "ground_truth.json" else inputs)[p.parent.name] = json.loads(p.read_text())
-    cases = sorted(truths)
-    require(len(cases) == 24 and set(inputs) == set(cases) and manifest["trials"] == 10, "Wrong preserved dataset")
-    by = validate_pairing(rows, cases, manifest["trials"])
-    require(summarize(rows) == json.loads((results/"summary.json").read_text()), "Frozen aggregate mismatch")
-    audit = json.loads((analysis/"answer_audit.json").read_text())
+    cases = sorted({r["case_id"] for r in rows})
+    validate_pairing(rows, cases, 10)
     reviewed = {key(r): r for r in audit}
-    require(len(audit) == len(reviewed) == len(rows) and set(reviewed) == set(by), "Adjudication coverage mismatch")
-    for r in rows:
-        a = reviewed[key(r)]
-        require(a["answer"] == r["answer"] and a["selected"] == r["selected"] and a["recorded_score"] == r["answer_score"], "Adjudication/raw mismatch")
-        expected = set(truths[r["case_id"]]["supporting_sources"])
-        chosen = set(r["selected"])
-        require(len(chosen) == len(r["selected"]) and len(chosen) <= inputs[r["case_id"]]["context_budget"], "Invalid selection budget or duplicate")
-        require(chosen <= {d["source"] for d in r["selection"]["bge_relevance"]["selected"]}, "Selection outside shortlist")
-        s = r["selection_score"]
-        tp, fp, fn = len(chosen & expected), len(chosen-expected), len(expected-chosen)
-        require((tp, fp, fn) == (s["true_positive"], s["false_positive"], s["false_negative"]), "Source-label scores mismatch")
-        require(math.isclose(s["precision"], tp/len(chosen)) and math.isclose(s["recall"], tp/len(expected)), "Precision/recall definitions mismatch")
-        if r["method"] == "bge_google":
-            usage = r["selection"]["response_diagnostics"]["usage_metadata"]
-            require(usage["total_token_count"] == r["selection"]["evaluator_input_tokens"] + r["selection"]["evaluator_output_tokens"] + usage["thoughts_token_count"], "Gemini thinking double-counted or missing")
     configs = []
     rates = comparison["pricing"]["usd_per_million"]
     for method in METHODS:
         rr = [r for r in rows if r["method"] == method]
         n = len(rr)
         counts = Counter(reviewed[key(r)]["manual_status"] for r in rr)
-        require(set(counts) <= {"correct", "incomplete", "substantively_incorrect", "generator_refusal"}, "Unknown outcome")
         outcomes = {name: {"count": counts[status], "rate": counts[status]/n} for name, status in (
             ("complete_answer_accuracy", "correct"), ("incorrect", "substantively_incorrect"),
             ("incomplete", "incomplete"), ("generator_refusal", "generator_refusal"))}
         sel = selection_metrics(rr)
         latency = {stage: {"p50": _percentile([r["selection"]["latency_seconds"] if stage == "selection" else r["end_to_end_latency_seconds"] for r in rr], .5),
                            "p95": _percentile([r["selection"]["latency_seconds"] if stage == "selection" else r["end_to_end_latency_seconds"] for r in rr], .95)} for stage in ("selection", "end_to_end")}
-        st, gt = token_usage(rr, True), token_usage(rr)
-        total = {k: st[k]+gt[k] if st[k] is not None and gt[k] is not None else None for k in st}
-        selector_cost = (st["input"]*rates["gemini_input"] + st["output"]*rates["gemini_visible_plus_thinking_output"])/1e6
+        st, gt = usage_for_run(rr, method), usage_for_run(rr, method, True)
+        total = {k: nullable_sum([st[k], gt[k]]) for k in st}
+        selector_cost = ((st["input"]*rates["gemini_input"] + st["output"]*rates["gemini_visible_plus_thinking_output"])/1e6
+                         if st["input"] is not None and st["output"] is not None else None)
         generator_cost = (gt["input"]*rates["sonnet_input"] + gt["output"]*rates["sonnet_output"])/1e6
-        cost = selector_cost + generator_cost
-        saved = comparison["aggregates"][method]
-        verified = {"n": n, "precision": sel["macro"]["precision"], "recall": sel["macro"]["recall"],
-                    "micro_precision": sel["micro"]["precision"], "micro_recall": sel["micro"]["recall"],
-                    "selection_p50": latency["selection"]["p50"], "selection_p95": latency["selection"]["p95"],
-                    "e2e_p50": latency["end_to_end"]["p50"], "e2e_p95": latency["end_to_end"]["p95"],
-                    "total_api_tokens": total["total"], "total_usd": cost}
-        require(dict(counts) == saved["manual"], "Published outcomes mismatch")
-        require(all(math.isclose(value, saved[k], rel_tol=1e-12) for k, value in verified.items()), "Published measurement mismatch")
+        cost = nullable_sum([selector_cost, generator_cost])
         gemini = method == "bge_google"
         configs.append({"id": method, "label": "BGE + Gemini" if gemini else "BGE + Omneum",
             "method_families": ["semantic_reranker", "frontier_llm_judge"] if gemini else ["semantic_reranker"],
@@ -172,12 +120,12 @@ def build_verified_gemini_summary():
             "attempts": n, "case_count": len(cases), "trials_per_case": manifest["trials"],
             "outcomes": outcomes, "selection": sel, "latency_seconds": latency,
             "api_tokens": {"selection": st, "generation": gt, "total": total},
-            "cost_usd": {"estimated_api_total": cost, "estimated_api_per_answer": cost/n,
+            "cost_usd": {"estimated_api_total": cost, "estimated_api_per_answer": cost/n if cost is not None else None,
                          "selection": selector_cost, "generation": generator_cost,
                          "invoiced_api_total": None, "local_compute_total": None},
             "local_reranker_tokens": None})
     return {"$schema": "dashboard_summary.schema.json", "schema_version": "1.0.0", "benchmark_id": RUN,
-        "measurement_date": "2026-10-08", "selector_version": "original recorded selector; excludes experimental conflict policies",
+        "measurement_date": "2026-10-09", "selector_version": "original recorded selector; excludes experimental conflict policies",
         "units": {"rates": "fraction", "latency": "seconds", "api_tokens": "provider_tokens", "cost": "USD"},
         "supported_method_families": ["semantic_reranker", "frontier_llm_judge", "standalone_omneum"],
         "definitions": {
@@ -192,9 +140,9 @@ def build_verified_gemini_summary():
         "pricing": comparison["pricing"], "source_file_sha256": dict(sorted(sources.items())),
         "implementation": comparison["implementation"],
         "limitations": ["24 fixed synthetic cases with clustered repeats, not 240 independent tasks.",
-                        "Selectors receive different information; timing was recorded in arm blocks, not interleaved.",
+                        "Selectors receive different information; original selection and recovered generation measurements are from different dates, with reconstructed E2E stage sums.",
                         "Independent incorrect estimates displaced census evidence in all ten false-consensus trials.",
-                        "Adjudication retains recorded correct answers and is not a blinded comprehensive citation audit.",
+                        "Every Gemini answer was reviewed against the frozen reference and selected evidence; baseline adjudications were preserved. Review was not blinded.",
                         "Dirty execution checkout has no verified source snapshot; preserved metrics are reproducible offline."],
         "unmeasured_configurations": ["BGE alone", "Standalone Gemini", "Standalone Omneum", "Gemini + Omneum"],
         "configurations": configs}
@@ -519,7 +467,7 @@ def build_summary():
         require(all(c["outcomes"][k] == v for k,v in original_c["outcomes"].items()), "Original semantic metrics changed")
     sources.update(original["source_file_sha256"])
     analyses = []
-    for run_name in ("bge-google-vs-bge-omneum-20261008", "bge-openai-vs-bge-omneum-20261008"):
+    for run_name in ("bge-google-low-vs-bge-omneum-20261008", "bge-openai-vs-bge-omneum-20261008"):
         directory = BASE / "analysis" / run_name
         files = []
         for p in sorted(directory.rglob('*')):
@@ -571,10 +519,10 @@ PUBLICATION_RUNS = {
         "reason": "Complete dedicated shared-BGE Astra replacement experiment; per-answer semantic adjudications and immutable source hashes verify both original arms.",
         "evidence": ["analysis/bge-openai-vs-bge-omneum-20261008/report.md"],
     },
-    "bge-google-vs-bge-omneum-20261008": {
+    "bge-google-low-vs-bge-omneum-20261008": {
         "family": "frontier_llm_judges", "methods": ["bge_google", "bge_omneum"],
-        "reason": "Complete dedicated shared-BGE Gemini replacement experiment; pinned original results, semantic adjudications, and report verify both original arms.",
-        "evidence": ["analysis/bge-google-vs-bge-omneum-20261008/report.md"],
+        "reason": "Completed low-thinking Gemini replay with generator-only recovery; original selections, successful generations and historical Omneum baseline are preserved and all final answers adjudicated.",
+        "evidence": ["analysis/bge-google-low-vs-bge-omneum-20261008/report.md"],
     },
     "cohere-claude-vs-cohere-omneum-20261008": {
         "family": "frontier_llm_judges", "methods": ["cohere_anthropic", "cohere_omneum"],
@@ -664,7 +612,7 @@ def apply_publication_authority(data):
             c=by[cid]
             semantic=c["outcomes"]["complete_answer_accuracy"]["rate"]
             latency=c["latency_seconds"]
-            basis="recorded full selection; end-to-end is measured selection + generation, including refusals"
+            basis=("original selection plus recovered generation stage durations, including refusals; non-contemporaneous E2E sums" if run_id == RUN else "recorded full selection; end-to-end is measured selection + generation, including refusals")
             if corrected:
                 metrics=corrected["metrics"][c["method_id"]]
                 latency={"selection":{k:metrics["corrected_selection"][k] for k in ("p50","p95")},

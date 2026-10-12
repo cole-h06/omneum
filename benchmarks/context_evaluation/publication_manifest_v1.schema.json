@@ -136,6 +136,10 @@
                 }
               }
             }
+          },
+          "previous_contract_snapshot": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }

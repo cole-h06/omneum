@@ -1,0 +1,164 @@
+{
+  "bge_google": {
+    "accuracy": 0.9166666666666666,
+    "attempted": 240,
+    "correct": 220,
+    "evaluable_accuracy": 1.0,
+    "failures": 10,
+    "generation_failure_types": {
+      "refusal": 10
+    },
+    "generation_failures": 10,
+    "generator_usage": {
+      "input_tokens": {
+        "n": 240,
+        "sum": 56948
+      },
+      "output_tokens": {
+        "n": 240,
+        "sum": 57302
+      },
+      "token_efficiency": {
+        "correct_answers": 220,
+        "correct_per_1000_tokens": 1.925601750547046,
+        "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+        "usage_covered_records": 240
+      },
+      "total_tokens": {
+        "n": 240,
+        "sum": 114250
+      }
+    },
+    "incorrect": 0,
+    "inference_cost": {
+      "availability": "no_pricing_defined",
+      "usd": null
+    },
+    "latency": {
+      "end_to_end_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 4.9241187502630055,
+        "p95": 8.697292894637204
+      },
+      "evaluator_input_tokens": {
+        "n": 240,
+        "sum": 73170
+      },
+      "evaluator_output_tokens": {
+        "n": 240,
+        "sum": 4652
+      },
+      "generation_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 2.2223531249910593,
+        "p95": 4.082662039727436
+      },
+      "omneum_evaluator_seconds": {
+        "coverage": 0.0,
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "omneum_integration_overhead_seconds": {
+        "coverage": 0.0,
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+      "selection_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 2.48713827051688,
+        "p95": 6.033517924090841
+      }
+    },
+    "selection_failures": 0,
+    "selection_precision": 0.9444444444444444,
+    "selection_recall": 0.662797619047619,
+    "unscored": 10
+  },
+  "bge_omneum": {
+    "accuracy": 0.875,
+    "attempted": 240,
+    "correct": 210,
+    "evaluable_accuracy": 1.0,
+    "failures": 10,
+    "generation_failure_types": {
+      "refusal": 10
+    },
+    "generation_failures": 10,
+    "generator_usage": {
+      "input_tokens": {
+        "n": 240,
+        "sum": 56610
+      },
+      "output_tokens": {
+        "n": 240,
+        "sum": 58925
+      },
+      "token_efficiency": {
+        "correct_answers": 210,
+        "correct_per_1000_tokens": 1.8176310209027566,
+        "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+        "usage_covered_records": 240
+      },
+      "total_tokens": {
+        "n": 240,
+        "sum": 115535
+      }
+    },
+    "incorrect": 0,
+    "inference_cost": {
+      "availability": "no_pricing_defined",
+      "usd": null
+    },
+    "latency": {
+      "end_to_end_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 3.1304506664164364,
+        "p95": 4.832068977190647
+      },
+      "evaluator_input_tokens": {
+        "n": 240,
+        "sum": 0
+      },
+      "evaluator_output_tokens": {
+        "n": 240,
+        "sum": 0
+      },
+      "generation_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 2.4783986874390393,
+        "p95": 4.205028495716396
+      },
+      "omneum_evaluator_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 0.02918891655281186,
+        "p95": 0.0369009168120101
+      },
+      "omneum_integration_overhead_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 0.4109722083667293,
+        "p95": 0.5512210795539431
+      },
+      "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+      "selection_seconds": {
+        "coverage": 1.0,
+        "n": 240,
+        "p50": 0.6389743338804692,
+        "p95": 0.8535917482106012
+      }
+    },
+    "selection_failures": 0,
+    "selection_precision": 0.861111111111111,
+    "selection_recall": 0.5933531746031746,
+    "unscored": 20
+  }
+}

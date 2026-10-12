@@ -1,0 +1,100 @@
+{
+  "version": 5,
+  "scope": "public benchmark execution and verification Python; repository-relative paths",
+  "sha256": {
+    "benchmarks/context_evaluation/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/context_evaluation/adversarial/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/context_evaluation/adversarial/circular_sourcing/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/context_evaluation/adversarial/circular_sourcing/application.py": "dd96c6e123f23458aa17db6b474ee42ff92df943aeb6b34ca8191a5186f64168",
+    "benchmarks/context_evaluation/adversarial/circular_sourcing/cases.py": "424ef048148a2873b20abfd8e044c7af07c04ce2a1d1afdbfa1adb275d4a8270",
+    "benchmarks/context_evaluation/adversarial/circular_sourcing/run_benchmark.py": "d098a579bb7634a87c5a69ab02294c785625742859a77c78c1cb1b56abc49094",
+    "benchmarks/context_evaluation/adversarial/comparison.py": "056021b85bbbf1b6913d18c18c1a6e1333bd9036eb70c31dab8bd47b7fec5373",
+    "benchmarks/context_evaluation/adversarial/conflicting_information/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/context_evaluation/adversarial/conflicting_information/application.py": "e7499ed89daf2a7d4ce4c26776efcc9acadda43b361e1417df6e683c76739b34",
+    "benchmarks/context_evaluation/adversarial/conflicting_information/cases.py": "cd84ba1a14368c3dcecb03c2c01c44ba003af7dab93177158d583d64678ec182",
+    "benchmarks/context_evaluation/adversarial/conflicting_information/run_benchmark.py": "aa568e3d146d677d7ac231da1f7504848fec3c3d6a490d26538e9dc967297e74",
+    "benchmarks/context_evaluation/adversarial/data_staleness/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/context_evaluation/adversarial/data_staleness/application.py": "a527ac0357d2dadebfca1d3f64f743ac7ff38a43ae2b9edb47d747b315fd660e",
+    "benchmarks/context_evaluation/adversarial/data_staleness/cases.py": "34ca7c62cfd3299bc8c0bd8a8929e48713a950215d34b249abd2b0b62e015382",
+    "benchmarks/context_evaluation/adversarial/data_staleness/run_benchmark.py": "484c873fbdecb20ce849e444f035074baa59af23a89e96fd9be5bb881d7cfcb5",
+    "benchmarks/context_evaluation/adversarial/prompt_injection/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmarks/context_evaluation/adversarial/prompt_injection/application.py": "bee97e8c1c597cd42f9a6f7cac05d234517beae1c19e0f614d7bd3bce3b34afb",
+    "benchmarks/context_evaluation/adversarial/prompt_injection/cases.py": "c5ad7f74ba157f1ede706b3c9f681e98bea91582216088d64627a47258d03ce4",
+    "benchmarks/context_evaluation/adversarial/prompt_injection/run_benchmark.py": "3dbfa13243ae24a4559d238d07e27213c7a83567b48de5f9bb75f179f829c842",
+    "benchmarks/context_evaluation/answer_scoring.py": "fa071b3760e8fc3ce502a0c4d901aab3f720476f809498015064435459f179ee",
+    "benchmarks/context_evaluation/application_comparison.py": "b870c15f57e9cd8e2545c26b2b51f32aa411d3246de39c0fb65b611f06d9fa39",
+    "benchmarks/context_evaluation/clients.py": "5465663484c0976f160becb407c4149df89a61a8010534a802bcd5959f97fff3",
+    "benchmarks/context_evaluation/config.py": "728e0a650530ca30ef80e7e5b8b33e6dbb00fb6d2ebbb547697b40872f193fd0",
+    "benchmarks/context_evaluation/deployment.py": "7c913ea1aba176d1730369d06b8c430892fce04f68d9a55c6aff8e611e12333a",
+    "benchmarks/context_evaluation/generation.py": "1f494add00bf82eecf0081be944693bf000648f71385a2614fe3b639c0284c61",
+    "benchmarks/context_evaluation/heldout/__init__.py": "f68b87095f48e84ec5a8b309bd2deb833c673d9ced573f8d2a9d56603623c391",
+    "benchmarks/context_evaluation/heldout/additive_methods.py": "5ed61c4d0c9fa62a8b4f1872b7ce6ed76f0fde5c9e8a58cd64d83774ee8f60ca",
+    "benchmarks/context_evaluation/heldout/additive_runner.py": "cec0e2139c2f4d75802b941b4989d3ae918ff649421422a4969dc39e7318113b",
+    "benchmarks/context_evaluation/heldout/aggregate.py": "5489b9a2b31b12e3a8f21683ada003fe93a5741f490c36c93d9f7d14f9de615a",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-vs-bge-omneum-20261008/analyze_saved.py": "455366ba2e7281f5f9ba8961baf03a8e74d39ee3111df376fc1183772f9be7e4",
+    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "0400518637c9c5a49b55ec55d900d6ff23ed153645695aed166f51b11a816637",
+    "benchmarks/context_evaluation/heldout/artifacts.py": "990c5975e7922cb5f76dce36695bce0dd9fcb95f7a13d3c33599c52adb8aff85",
+    "benchmarks/context_evaluation/heldout/baseline_reuse.py": "1e262e9ff314ad371fc937ee847fd55f994b7d55546946a2308e5e4e270b8d06",
+    "benchmarks/context_evaluation/heldout/build_dashboard_summary.py": "6ea08b4ac32928f6dd56ac24688f52d864ba5705a32cdeef79e18ffbb9108b10",
+    "benchmarks/context_evaluation/heldout/checkpoint.py": "30d3e60266b58ce0879c31f454964985006c46b87f88d0a9095594b23dfd73d5",
+    "benchmarks/context_evaluation/heldout/cohere_cache.py": "558cd5024a777df582ed682cdcbece8512fe24694f10bf57995dd8793bb0a620",
+    "benchmarks/context_evaluation/heldout/diagnostics.py": "e29296451930a9fefbaf261c9fa608416951718aa00522678cd4a494f42249f4",
+    "benchmarks/context_evaluation/heldout/latency_analysis.py": "8f57984962a83fa58c99cbfd32aaf795d13bae79d3e0f17a6dd8bd4c0aa902ab",
+    "benchmarks/context_evaluation/heldout/loader.py": "8623f94102f4d1eb58bc95980905de1a942404751f95c960d744db1cc023efb4",
+    "benchmarks/context_evaluation/heldout/methods.py": "8d080ad2ec803e72cdcdad549f892adee9a0f2bcd0e93c3f7c9370d42d33a62e",
+    "benchmarks/context_evaluation/heldout/render_semantic_leaderboard.py": "9d0f04535c45e2d196376b4f06613f8f4ae8e38f563dbc1eaa85b5c7a686bc8c",
+    "benchmarks/context_evaluation/heldout/run_benchmark.py": "b838fb936d9334ae06b16e4e607087481270d815fc177263bfe342318a5a4441",
+    "benchmarks/context_evaluation/heldout/runner.py": "1948537aaf730e30f3da90e10da77ddab1f9e801e2a2707431b62730df2d5042",
+    "benchmarks/context_evaluation/heldout/schema.py": "a95fdabdbb225f7be1d77a566902d748dceb77aeefcd7d29dd92cefa0bb02b07",
+    "benchmarks/context_evaluation/heldout/scoring.py": "14318e74d44de591865de02ead3984da859527a2a3fd4aeb17f68442ee50c030",
+    "benchmarks/context_evaluation/heldout/sdk_adapter.py": "689e5dd591c1ea665d8bc2481dbd686a639e126b8154b144d8859df7d201ea3f",
+    "benchmarks/context_evaluation/heldout/suite.py": "e50212a502c50b2b0039fc6e45aacd4ab3749daffb7ee4bb1a64274a7bee79e1",
+    "benchmarks/context_evaluation/heldout/validate_dataset.py": "e0c20708bc539396861a310cb003d9bc8bfe68409d15f1e107c0a4ebbac43b96",
+    "benchmarks/context_evaluation/llm_judge.py": "1b0207cd6c4b7e151b0de4dc96667aa95fb8611947615584ebe02a50f8ac8d67",
+    "benchmarks/context_evaluation/naive_rag.py": "53dd53f87d4f5a23b1949cb1823033d56aa5145d4cb8bc185aa052106912129e",
+    "benchmarks/context_evaluation/observations.py": "0a9cb975124ff3c01e3815082bb80a516b0b4bd412e66d3b931b707f514f7c28",
+    "benchmarks/context_evaluation/omneum_rag.py": "75254c691c3c1dd22f08b94276661337fe1a71fc839f10b101d510e1fc2eb202",
+    "benchmarks/context_evaluation/paths.py": "d322877ff6e000142ea24865236c37c103bdf67668bcc4928f3312dd6764b2d0",
+    "benchmarks/context_evaluation/reproducibility.py": "b10ff3fbd3b6e2bb581910da1c283714d9040f9a4ad44728f401412ac3d4b19b",
+    "benchmarks/context_evaluation/semantic_reranker.py": "50d05c71ce702a7c224a49584b6ab26d9fc7ef895ad552b9c12555ee7b7de602",
+    "benchmarks/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tools/run_context_evaluation_tests.py": "727938e36b6f97b0831d5d66354ccd534f230d00fedc4d0ed25e328abb7a94df"
+  },
+  "revision_history": [
+    {
+      "previous_contract_sha256": "51fe68a07ad036dbd962a4fea8fadd4387de82cfd37ee07c2d613e2fc93f4b5a",
+      "changes": {
+        "benchmarks/context_evaluation/heldout/__init__.py": {
+          "previous_sha256": "07dcb7f522dd3ecb0eaf0b7a1793b42834c6010f13de53382e527164662d42db",
+          "sha256": "f68b87095f48e84ec5a8b309bd2deb833c673d9ced573f8d2a9d56603623c391",
+          "reason": "Module docstring shortened; SDK adapter installation unchanged."
+        },
+        "benchmarks/context_evaluation/heldout/additive_methods.py": {
+          "previous_sha256": "988a65e7e8ca0a8e84259b84ad07e5aa4fd96f52c51af22ad731ca8f0df058c1",
+          "sha256": "5ed61c4d0c9fa62a8b4f1872b7ce6ed76f0fde5c9e8a58cd64d83774ee8f60ca",
+          "reason": "Module docstring shortened; method definitions unchanged."
+        },
+        "benchmarks/context_evaluation/heldout/additive_runner.py": {
+          "previous_sha256": "ff6228b6a37b5bf8d59fed53d79a7af9937530501f6d65f2dd9967e81a97ceb5",
+          "sha256": "cec0e2139c2f4d75802b941b4989d3ae918ff649421422a4969dc39e7318113b",
+          "reason": "Module docstring shortened; selection, generation and scoring unchanged."
+        },
+        "benchmarks/context_evaluation/heldout/aggregate.py": {
+          "previous_sha256": "4a4300b01a82d1838a4a7e47cb95bc8792dea524c91f75c9794ffa0f3cb052e6",
+          "sha256": "5489b9a2b31b12e3a8f21683ada003fe93a5741f490c36c93d9f7d14f9de615a",
+          "reason": "Module docstring shortened; aggregation unchanged."
+        },
+        "benchmarks/context_evaluation/heldout/diagnostics.py": {
+          "previous_sha256": "b9d3ae91dba1e267bafe5d947c465f4d325783c080750d4a140cdbdc24da3367",
+          "sha256": "e29296451930a9fefbaf261c9fa608416951718aa00522678cd4a494f42249f4",
+          "reason": "Provider diagnostics retain typed error fields and omit arbitrary provider messages and duplicate raw-output fields; benchmark scoring unchanged."
+        },
+        "benchmarks/__init__.py": {
+          "previous_sha256": "a59897102e49617de90ddc917fe3f0f484ae3b82f421391d7e616d1afffade30",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "reason": "Empty package initializer; retired package alias remains removed; no active implementation is restored."
+        }
+      }
+    }
+  ]
+}
