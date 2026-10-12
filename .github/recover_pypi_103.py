@@ -114,7 +114,7 @@ def select_missing(records):
     return sorted(missing)
 
 
-def prepare():
+def prepare(filename=None):
     verify_origin()
     archive = Path('original-artifact.zip')
     with archive.open('xb') as file:
@@ -125,6 +125,9 @@ def prepare():
     records = public_files()
     verify_public_bytes(records)
     missing = select_missing(records)
+    if filename is not None:
+        require(filename in ALLOWED_MISSING, 'upload target is not approved')
+        missing = [filename] if filename in missing else []
     publish = Path('missing-distributions')
     publish.mkdir(mode=0o700)
     for name in missing:
@@ -136,9 +139,17 @@ def prepare():
         file.write('needed='+('true' if missing else 'false')+'\n')
 
 
-def pre_upload():
+def pre_upload(filename=None):
     records = public_files()
     missing = set(select_missing(records))
+    if filename is not None:
+        require(filename in ALLOWED_MISSING, 'upload target is not approved')
+        if filename not in missing:
+            require(not list(Path('missing-distributions').iterdir()), 'unexpected already-published staging')
+            with open(os.environ['GITHUB_OUTPUT'],'a') as file:
+                file.write('needed=false\n')
+            return
+        missing = {filename}
     staged = list(Path('missing-distributions').iterdir())
     require(all(p.is_file() and p.name in ALLOWED_MISSING and sha(p) == EXPECTED[p.name]
                 for p in staged), 'staged upload inventory/hash mismatch')
@@ -149,6 +160,9 @@ def pre_upload():
             'missing/publication staging changed unexpectedly')
     require(missing, 'nothing remains missing; stop before uploader')
     print('PASS final upload selection contains only missing original files:', sorted(missing))
+    if filename is not None:
+        with open(os.environ['GITHUB_OUTPUT'],'a') as file:
+            file.write('needed=true\n')
 
 
 def verify_final():
@@ -160,7 +174,21 @@ def verify_final():
     print('PASS all 17 original distributions are public and byte-identical; tag unchanged')
 
 
+def verify_file(filename):
+    require(filename in ALLOWED_MISSING, 'upload target is not approved')
+    records = public_files()
+    require(filename in records, 'selected file remains unpublished: '+filename)
+    verify_public_bytes(records)
+    verify_origin()
+    Path('after-publication.json').write_text(json.dumps(records,indent=2)+'\n')
+    print('PASS selected original file is public and byte-identical:', filename)
+
+
 if __name__ == '__main__':
-    commands = {'prepare': prepare, 'pre-upload': pre_upload, 'verify-final': verify_final}
-    require(len(sys.argv) == 2 and sys.argv[1] in commands, 'choose a fixed recovery phase')
-    commands[sys.argv[1]]()
+    commands = {'prepare': prepare, 'pre-upload': pre_upload, 'verify-final': verify_final, 'verify-file': verify_file}
+    require(len(sys.argv) in (2,3) and sys.argv[1] in commands, 'choose a fixed recovery phase')
+    if len(sys.argv) == 3:
+        require(sys.argv[1] in ('prepare','pre-upload','verify-file'), 'filename not accepted for this phase')
+        commands[sys.argv[1]](sys.argv[2])
+    else:
+        commands[sys.argv[1]]()
