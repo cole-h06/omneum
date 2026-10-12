@@ -558,7 +558,8 @@ jobs:
           mkdir -p "$HOME/.local/share"
           chmod 775 "$HOME/.local" "$HOME/.local/share"
       - name: Install pinned public Python environment tooling
-        run: python -m pip install --only-binary=:all: uv==0.12.10
+        run: |
+          python -m pip install --only-binary=:all: uv==0.12.10
       - name: Install wheel in fresh environment and exercise real installer
         env:
           WHEEL_PATTERN: ${{ matrix.wheel }}
@@ -629,7 +630,8 @@ jobs:
           sudo chown root:root /opt /usr/local/bin
           sudo chmod 755 /opt /usr/local/bin
       - name: Install pinned public Python environment tooling
-        run: python -m pip install --only-binary=:all: uv==0.12.10
+        run: |
+          python -m pip install --only-binary=:all: uv==0.12.10
       - name: Install wheel in fresh environment and exercise real installer
         env:
           OMNEUM_ACCEPTANCE_REPORT: ${{ runner.temp }}/context-graph-acceptance.json
