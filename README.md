@@ -1,3 +1,5 @@
+<!-- mcp-name: ai.omneum/omneum -->
+
 # What is Omneum
 
 <p align="center">

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "ai.omneum/omneum",
+  "description": "Local provenance-aware context evaluator for AI agents. Requires omneum install on macOS or Ubuntu.",
+  "repository": {
+    "url": "https://github.com/cole-h06/omneum",
+    "source": "github"
+  },
+  "version": "1.0.3",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "omneum",
+      "version": "1.0.3",
+      "transport": {
+        "type": "stdio"
+      },
+      "registryBaseUrl": "https://pypi.org",
+      "runtimeHint": "uvx",
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "--from",
+          "value": "omneum==1.0.3"
+        },
+        {
+          "type": "positional",
+          "value": "omneum-server"
+        }
+      ]
+    }
+  ],
+  "title": "Omneum",
+  "websiteUrl": "https://github.com/cole-h06/omneum/blob/main/docs/guides/installation.md"
+}

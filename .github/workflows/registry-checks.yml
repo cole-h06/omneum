@@ -1,0 +1,29 @@
+name: Registry metadata checks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - run: python tools/registry_readiness.py
+      - run: python -m unittest discover -s tools -p 'test_registry_*.py' -v
+      - name: Build discovery metadata from wheel and sdist
+        run: |
+          python -m pip install 'maturin==1.15.0'
+          python -m maturin build --locked --out dist --interpreter python
+          python -m maturin sdist --out dist
+          python tools/registry_readiness.py --artifacts dist
+      - run: bash tools/install_mcp_publisher.sh "$RUNNER_TEMP/mcp-publisher"
+      - run: '"$RUNNER_TEMP/mcp-publisher/mcp-publisher" validate server.json'
