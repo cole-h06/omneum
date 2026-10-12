@@ -123,14 +123,16 @@ def post(endpoint, body, *, token=None, form=False):
         headers['Authorization'] = 'Bearer ' + token
     data = urlencode(body).encode() if form else json.dumps(body).encode()
     request = Request(endpoint, data=data, headers=headers, method='POST')
+    error_status = None
     try:
         response = build_opener(ProxyHandler({}), _NoRedirect()).open(request, timeout=10)
     except HTTPError as error:
         # OAuth device polling returns specific non-success JSON errors.
-        if not form or error.code != 400:
+        if not form or error.code not in (400, 403, 429):
             error.close()
             raise RuntimeError('Network account request failed') from None
         response = error
+        error_status = error.code
     with response:
         raw = response.read(16385)
         if len(raw) > 16384:
@@ -138,6 +140,23 @@ def post(endpoint, body, *, token=None, form=False):
         result = json.loads(raw, object_pairs_hook=_object)
         if type(result) is not dict:
             raise ValueError('invalid account response')
+        if error_status is not None:
+            # Auth0 returns pending/denied as 403 and slow_down as 429;
+            # RFC 8628 providers normally use 400. Error HTTP responses must
+            # never be interpreted as successful token issuance.
+            allowed = {
+                400: {'authorization_pending', 'slow_down', 'access_denied',
+                      'expired_token', 'invalid_request', 'invalid_client',
+                      'invalid_grant', 'unauthorized_client',
+                      'unsupported_grant_type', 'invalid_scope'},
+                403: {'authorization_pending', 'access_denied', 'expired_token'},
+                429: {'slow_down'},
+            }
+            code = result.get('error')
+            if type(code) is not str or code not in allowed[error_status] or 'access_token' in result:
+                raise ValueError('invalid account error response')
+            # Provider descriptions/URLs are not needed by the polling state.
+            return {'error': code}
         return result
 
 

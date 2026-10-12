@@ -25,6 +25,21 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       ALGORITHM_SPEC_CHECKOUT: ${{ github.workspace }}/.algorithm-spec
+      OMNEUM_INGESTION_TEST_ADMIN_DSN: host=127.0.0.1 port=5432 dbname=omneum_ci_test user=postgres password=disposable-ci-test
+    services:
+      postgres:
+        image: postgres@sha256:f3bd19c606e442c3d7bdfa8002e03fe260a1023351e0ea4598032022b68dd6e3 # 17.6-bookworm
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable-ci-test
+          POSTGRES_DB: omneum_ci_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:

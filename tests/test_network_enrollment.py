@@ -582,12 +582,18 @@ def test_credential_revocation_while_ingestion_waits(enrolled):
 
 def test_atomic_admission_across_connections(enrolled):
     from concurrent.futures import ThreadPoolExecutor
-    _, connection, _, rows = enrolled
+    db, connection, _, rows = enrolled
     principal = UUID(rows[0][0]['principal_id'])
     quotas = [MinuteQuota(5, connection_factory=connection) for _ in range(12)]
     with ThreadPoolExecutor(max_workers=12) as pool:
         admitted = list(pool.map(lambda quota: quota(principal, '/v1/voprf'), quotas))
-    assert sum(admitted) == 5
+    # Requests can legitimately straddle a UTC minute boundary. Verify atomic
+    # admission against each persisted window rather than assuming one window.
+    budgets = db.execute('SELECT requests FROM control.network_admission_budgets WHERE principal_id=%s',
+                         (principal,)).fetchall()
+    assert budgets and all(1 <= row[0] <= 5 for row in budgets)
+    assert sum(admitted) == sum(row[0] for row in budgets)
+    assert sum(admitted) >= 5
 
 
 def test_operator_cli_issuance_revocation_and_cleanup(enrolled, tmp_path):

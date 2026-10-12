@@ -193,6 +193,7 @@ try:
             os.chown(target,user.pw_uid,user.pw_gid)
         variables = {**env,'OMNEUM_'+('NETWORK' if kind == 'ingestion' else 'ENROLLMENT')+'_DATABASE_DSN_FILE':str(directory/'database.dsn'), 'PGSSLROOTCERT':str(directory/'ca.pem'),'OMNEUM_NETWORK_TLS_CERT':str(directory/'tls.crt'),'OMNEUM_NETWORK_TLS_KEY':str(directory/'tls.key'),'OMNEUM_ACCOUNT_JWKS':str(directory/'jwks.json')}
         processes.append(subprocess.Popen(['runuser','-u',user.pw_name,'--',sys.executable,'-m','omneum.'+module],env=variables,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL))
+    device_polls = {'count': 0}
     async def provider(scope,receive,send):
         path=scope['path']
         if scope['type'] == 'lifespan':
@@ -208,6 +209,11 @@ try:
             assert form['client_id'] == [c['oidc_client_id']]
             value=dict(verification_uri=c['oidc_verification_uri'],user_code='AUDIT-ONLY',device_code='disposable-device-code',expires_in=300,interval=1)
         elif path == '/token':
+            device_polls['count'] += 1
+            if device_polls['count'] == 1:
+                return await NetworkHTTPApp._reply(send, 403, {'error': 'authorization_pending'})
+            if device_polls['count'] == 2:
+                return await NetworkHTTPApp._reply(send, 429, {'error': 'slow_down'})
             t=int(time.time())
             value=dict(token_type='Bearer',access_token=jwt.encode(dict(iss=c['oidc_issuer'],sub='disposable-account',aud=[c['oidc_audience'],'https://identity.fixture-audit.net/userinfo'],iat=t,exp=t+300,scope='omneum:enroll'),idp_key,algorithm='RS256',headers={'kid':'disposable-key'}))
         else: return await NetworkHTTPApp._reply(send,404,{'code':'not_found'})
@@ -249,6 +255,17 @@ try:
     run('nginx', '-s', 'reload')
     time.sleep(.2)
     print('PASS: Certbot-preserving site, active includes, TLS policy and actual Nginx reload')
+    import importlib.util
+    controller_path = Path('/repo/deploy/network/vm/activate.py')
+    spec = importlib.util.spec_from_file_location('activation_controller', controller_path)
+    controller = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(controller)
+    # This disposable image uses Python 3.13; production's approved layout is
+    # Python 3.12. Validate against the real interpreter layout in this fixture.
+    import sysconfig
+    controller.SITE = Path(sysconfig.get_path('purelib'))
+    controller.check(c, str(root/'admin.dsn'))
+    print('PASS: activation-controller read-only checks against real TLS PostgreSQL, roles, ledger, evaluator and Certbot ingress')
     original=acceptance.__dict__.get('preflight')
     # hosted imports preflight; retain every live check except systemd PID1
     # attestation, which is explicitly unavailable in this disposable container.
@@ -257,6 +274,8 @@ try:
     original_input=builtins.input
     builtins.input=lambda prompt: 'research_context_graph'
     acceptance.hosted(c,str(root/'admin.dsn'))
+    assert device_polls['count'] >= 3
+    print('PASS: real HTTPS device polling handles Auth0 403 pending and 429 slowdown before signed token issuance')
     builtins.input=original_input
     from urllib.request import Request,ProxyHandler,build_opener
     from urllib.error import HTTPError
