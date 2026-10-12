@@ -255,8 +255,10 @@ def test_finish_success():
 def mac_install(monkeypatch):
     from omneum import initialization
     monkeypatch.setattr(install, 'detect_platform', lambda: 'macos-aarch64')
-    monkeypatch.setattr(install.os, 'geteuid', lambda: 501)
-    monkeypatch.setattr(install.os, 'getuid', lambda: 501)
+    # Keep the real fixture owner for the newly initialized private SQLite graph.
+    # A fabricated UID makes Linux CI reject its own test directory.
+    fixture_uid = install.os.getuid()
+    monkeypatch.setattr(install.os, 'geteuid', lambda: fixture_uid)
     monkeypatch.delenv('OMNEUM_DAEMON_UID', raising=False)
     monkeypatch.delenv('OMNEUM_DAEMON_SOCKET', raising=False)
     monkeypatch.setattr(install, 'package_version', lambda name: '1.0.3')
