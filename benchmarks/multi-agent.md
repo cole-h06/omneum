@@ -24,12 +24,6 @@ Run from the Omneum repository root.
 
 No provider calls. These commands validate the frozen dataset, execute offline tests, and check published metrics against saved artifacts. They do not generate new model responses.
 
-Latest verified test result:
-
-```text
-572 passed, 15 skipped
-```
-
 ## Cases
 
 | Case | Candidates | Budget | Expected behavior |
@@ -424,8 +418,6 @@ Gemini selected the analyst agent's outdated estimate in seven trials, the summa
 All configurations achieved the same selection precision, recall, and recorded answer correctness.
 
 Omneum did not select the relevant verifier agent and retained the cached planned date. The result therefore does not demonstrate complete removal of repeated or stale context.
-
-Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
 
 ## Inspect Recorded Runs
 

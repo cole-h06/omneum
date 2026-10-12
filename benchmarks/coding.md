@@ -24,12 +24,6 @@ Run from the Omneum repository root.
 
 No provider calls. These commands verify the frozen dataset, benchmark tests, and saved dashboard; they do not generate new model responses.
 
-Latest verified test result:
-
-```text
-572 passed, 15 skipped
-```
-
 ## Cases
 
 | Case | Candidates | Budget | Expected behavior |
@@ -279,13 +273,9 @@ Three candidate sources repeat the same outdated recommendation. Their apparent 
 | BGE + Gemini Judge | 10 | Same | 100% | 60% | 10/10 unscored | 2.726s |
 | **BGE + Omneum** | **10** | Same | **100%** | **60%** | 10/10 unscored | **0.593s** |
 | Cohere + Claude Judge | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | 2.209s |
-| Cohere + Omneum | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | — |
+| Cohere + Omneum | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | 1.285s |
 
 **Result:** All recorded configurations selected current-fix evidence rather than the repeated obsolete workaround. Omneum matched the BGE + judge selection quality with lower selection latency.
-
-The Cohere + Omneum latency and complete answer-status row must be read from its saved result; the supplied report excerpt ends before those fields.
-
-Gemini figures use the completed low-thinking replay; Gemini speedups use its unchanged historical Omneum comparator. Other Omneum rows retain their original paired run. Gemini E2E sums combine original selection and later recovered generation timings.
 
 ## Inspect Recorded Runs
 
