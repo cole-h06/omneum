@@ -70,7 +70,7 @@ jobs:
       - name: Check lockfile and install development environment
         run: |
           uv lock --check
-          uv sync --locked --group auth-test
+          uv sync --locked --managed-python --python ${{ matrix.python }} --group auth-test
       - name: Check wheel and daemon release contracts
         run: uv run --locked --group auth-test python -m unittest discover -s tools -p 'test_release_*.py' -v
       - name: Read exact algorithm compatibility pin
@@ -155,7 +155,7 @@ jobs:
           enable-cache: false
 
       - name: Install development environment
-        run: uv sync --locked
+        run: uv sync --locked --managed-python --python 3.14
 
       - name: Build native extension
         run: uv run maturin develop --locked
@@ -297,7 +297,7 @@ jobs:
       - name: Install development environment
         run: |
           uv lock --check
-          uv sync --locked
+          uv sync --locked --managed-python --python 3.14
 
       - name: Build daemon
         run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
@@ -557,11 +557,13 @@ jobs:
         run: |
           mkdir -p "$HOME/.local/share"
           chmod 775 "$HOME/.local" "$HOME/.local/share"
+      - name: Install pinned public Python environment tooling
+        run: python -m pip install --only-binary=:all: uv==0.12.10
       - name: Install wheel in fresh environment and exercise real installer
         env:
           WHEEL_PATTERN: ${{ matrix.wheel }}
         run: |
-          python -m venv "$RUNNER_TEMP/fresh-omneum"
+          uv venv --managed-python --python 3.14 --seed "$RUNNER_TEMP/fresh-omneum"
           wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
           test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
@@ -626,6 +628,8 @@ jobs:
           test ! -L /usr/local/bin
           sudo chown root:root /opt /usr/local/bin
           sudo chmod 755 /opt /usr/local/bin
+      - name: Install pinned public Python environment tooling
+        run: python -m pip install --only-binary=:all: uv==0.12.10
       - name: Install wheel in fresh environment and exercise real installer
         env:
           OMNEUM_ACCEPTANCE_REPORT: ${{ runner.temp }}/context-graph-acceptance.json
@@ -635,7 +639,7 @@ jobs:
           unset PIP_FIND_LINKS PIP_EXTRA_INDEX_URL PIP_NO_INDEX
           export PIP_CONFIG_FILE=/dev/null
           export PIP_INDEX_URL=https://pypi.org/simple
-          python -m venv "$RUNNER_TEMP/fresh-omneum"
+          uv venv --managed-python --python ${{ matrix.python.version }} --seed "$RUNNER_TEMP/fresh-omneum"
           wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
           test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"

@@ -27,6 +27,21 @@ from .filesystem import require_local_filesystem, require_safe_acl, private_dire
 from .schema import APPLICATION_ID, MIGRATIONS
 
 
+class SQLiteRuntimeError(RuntimeError):
+    """The local runtime lacks a known SQLite data-integrity fix."""
+
+
+def require_safe_sqlite():
+    # https://sqlite.org/wal.html#walresetbug: patched maintenance branches and mainline.
+    version = sqlite3.sqlite_version_info
+    if not (version >= (3, 51, 3) or (3, 50, 7) <= version < (3, 51, 0)
+            or (3, 44, 6) <= version < (3, 45, 0)):
+        raise SQLiteRuntimeError("Local Context Graph requires SQLite with the WAL-reset fix "
+                                 "(3.51.3+ or patched 3.50.7/3.44.6 branches). "
+                                 "Use a current Python runtime with patched SQLite; "
+                                 "no existing graph files were changed.")
+
+
 _MIGRATION_TABLE = '''CREATE TABLE IF NOT EXISTS schema_migrations (
     version INTEGER PRIMARY KEY, checksum TEXT NOT NULL,
     applied_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
@@ -104,6 +119,7 @@ class SQLiteStorage:
 
     @contextmanager
     def transaction(self):
+        require_safe_sqlite()
         existing = getattr(self._state, 'connection', None)
         if existing is not None:
             name = 's' + uuid4().hex

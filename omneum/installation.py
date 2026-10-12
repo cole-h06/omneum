@@ -287,9 +287,12 @@ def run_install(progress) -> None:
     install_release(target, progress)
     # Initialize the login user's private graph; protected services own no user data.
     from .storage import SQLiteStorage
+    from .storage.sqlite import SQLiteRuntimeError
     try:
         with SQLiteStorage().transaction():
             pass
+    except SQLiteRuntimeError as error:
+        raise InstallError(str(error)) from None
     except Exception:
         raise InstallError("Daemon deployed, but local Context Graph initialization failed. "
                            "Check the user data directory permissions and existing schema before retrying.") from None

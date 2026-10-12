@@ -216,3 +216,18 @@ cryptography. Operator account enrollment and SDK asymmetric OAuth require
 those optional capabilities raise an explicit dependency error because patched
 public crypto wheels are unavailable. See [the SDK architecture and maintenance
 contract](../mcp-sdk.md).
+
+### SQLite runtime requirement
+
+The local Context Graph requires SQLite 3.51.3 or later, or a patched 3.50.7 /
+3.44.6 maintenance branch. Older runtimes have a documented
+[WAL-reset corruption race](https://sqlite.org/wal.html#walresetbug).
+Check the actual Python runtime with
+`python -c "import sqlite3; print(sqlite3.sqlite_version)"`.
+A current standalone Python installed with `uv python install` includes patched
+SQLite. Omneum refuses graph access on an unpatched runtime before changing any
+graph files. No Network configuration or credentials are required.
+
+`omneum install` initializes the normal login user's private Context Graph. Other
+SQLite paths initialize on first use. Existing records and migration checksums
+are verified when reopening; the installer does not reset an existing graph.

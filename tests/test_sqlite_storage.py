@@ -684,3 +684,21 @@ def test_new_macos_config_directory_is_compatible_with_default_graph(tmp_path, m
     assert stat.S_IMODE(expected.stat().st_mode) == 0o700
     assert stat.S_IMODE((expected / 'context.db').stat().st_mode) == 0o600
     assert stat.S_IMODE(tmp_path.stat().st_mode) == before
+
+
+@pytest.mark.parametrize('version', [(3, 50, 4), (3, 51, 0), (3, 51, 2), (3, 44, 5)])
+def test_unpatched_sqlite_rejected_before_graph_creation(tmp_path, monkeypatch, version):
+    from omneum.storage.sqlite import SQLiteRuntimeError
+    monkeypatch.setattr(sqlite3, 'sqlite_version_info', version)
+    path = tmp_path / 'new-graph' / 'context.db'
+    with pytest.raises(SQLiteRuntimeError, match='WAL-reset fix'):
+        with SQLiteStorage(path).transaction():
+            pass
+    assert not path.parent.exists()
+
+
+@pytest.mark.parametrize('version', [(3, 51, 3), (3, 53, 1), (3, 50, 7), (3, 44, 6)])
+def test_patched_sqlite_maintenance_branches_accepted(monkeypatch, version):
+    from omneum.storage.sqlite import require_safe_sqlite
+    monkeypatch.setattr(sqlite3, 'sqlite_version_info', version)
+    require_safe_sqlite()
