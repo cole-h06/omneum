@@ -46,7 +46,9 @@ upstream revision, source hash and reproducible fork checks remain intact.
 
 The nonpublishing workflow dispatch builds wheels and protected daemon assets and
 runs fresh public-PyPI dependency installation, runtime MCP discovery/evaluation,
-local persistence, installer integrity and security auditing on macOS Intel,
+automatic private Context Graph creation, complete source/claim/observation/evaluation
+persistence, daemon and process restart recovery, migration upgrade/checksum rejection,
+concurrent WAL readers/writers, installer integrity and security auditing on macOS Intel,
 macOS ARM and Ubuntu x86_64 for Python 3.11–3.14. This tests unpublished candidate
 wheels against public dependencies; anonymous downloads of published 1.0.3 assets
 can only be confirmed after separately authorized publication.

@@ -25,16 +25,17 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       ALGORITHM_SPEC_CHECKOUT: ${{ github.workspace }}/.algorithm-spec
-      OMNEUM_INGESTION_TEST_ADMIN_DSN: host=127.0.0.1 port=5432 dbname=omneum_ci_test user=postgres password=disposable-ci-test
+      OMNEUM_INGESTION_TEST_ADMIN_DSN: host=127.0.0.1 port=5432 dbname=omneum_ci_test user=postgres
     services:
       postgres:
         image: postgres@sha256:f3bd19c606e442c3d7bdfa8002e03fe260a1023351e0ea4598032022b68dd6e3 # 17.6-bookworm
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: disposable-ci-test
+          # Isolated fixture roles authenticate locally; never a deployment config.
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: omneum_ci_test
         ports:
-          - 5432:5432
+          - 127.0.0.1:5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -626,6 +627,7 @@ jobs:
           sudo chmod 755 /opt /usr/local/bin
       - name: Install wheel in fresh environment and exercise real installer
         env:
+          OMNEUM_ACCEPTANCE_REPORT: ${{ runner.temp }}/context-graph-acceptance.json
           WHEEL_PATTERN: 'omneum-*-${{ matrix.python.tag }}-${{ matrix.python.tag }}-${{ matrix.platform.wheel }}.whl'
         run: |
           # Acceptance must use public PyPI, even if a runner has private pip settings.
@@ -639,6 +641,14 @@ jobs:
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
           "$RUNNER_TEMP/fresh-omneum/bin/python" -I tools/check_release_dependencies.py
           "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
+
+      - name: Retain mandatory Context Graph acceptance result
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: context-graph-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python.version }}
+          path: ${{ runner.temp }}/context-graph-acceptance.json
+          if-no-files-found: warn
 
   publish-daemon-release:
     name: Publish daemon GitHub Release

@@ -397,3 +397,28 @@ def test_sudo_command_authorization_and_prompt(monkeypatch, tmp_path, interactiv
         args, kwargs = run.call_args_list[1]
         assert args[0] == ['/usr/bin/sudo', '-v']
         assert not kwargs.get('capture_output')
+
+
+@pytest.mark.parametrize('target', ['linux-x86_64', 'macos-aarch64', 'macos-x86_64'])
+def test_install_automatically_creates_private_user_graph(monkeypatch, target):
+    from omneum.paths import get_context_db_path
+    import sqlite3
+    monkeypatch.setattr(install, 'detect_platform', lambda: target)
+    monkeypatch.setattr(install.os, 'geteuid', lambda: 501)
+    monkeypatch.setattr(install, 'install_release', Mock())
+    monkeypatch.setattr(install, 'installer_command', Mock())
+    monkeypatch.setattr(install, 'verify_managed_connection', Mock())
+    monkeypatch.setattr(install, 'finish_install', Mock())
+    for name in ('OMNEUM_DAEMON_SOCKET', 'OMNEUM_DAEMON_UID'):
+        monkeypatch.delenv(name, raising=False)
+    path = get_context_db_path()
+    assert not path.exists()
+    install.run_install(Mock())
+    assert path.is_file() and path.stat().st_mode & 0o777 == 0o600
+    assert path.parent.stat().st_mode & 0o777 == 0o700
+    with sqlite3.connect(path) as db:
+        assert db.execute('SELECT version FROM schema_migrations ORDER BY version').fetchall() == [(1,), (2,), (3,)]
+        assert db.execute('SELECT count(*) FROM evaluation_runs').fetchone() == (0,)
+    install.run_install(Mock())
+    with sqlite3.connect(path) as db:
+        assert db.execute('SELECT count(*) FROM evaluation_runs').fetchone() == (0,)

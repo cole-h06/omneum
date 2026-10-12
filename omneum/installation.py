@@ -285,6 +285,14 @@ def run_install(progress) -> None:
         raise InstallError("Unset OMNEUM_DAEMON_UID and OMNEUM_DAEMON_SOCKET before installing. "
                            "Installation verifies the protected system daemon.")
     install_release(target, progress)
+    # Initialize the login user's private graph; protected services own no user data.
+    from .storage import SQLiteStorage
+    try:
+        with SQLiteStorage().transaction():
+            pass
+    except Exception:
+        raise InstallError("Daemon deployed, but local Context Graph initialization failed. "
+                           "Check the user data directory permissions and existing schema before retrying.") from None
     if target == "linux-x86_64":
         # The Linux installer already ran init as omneum-mcp.
         progress("Verifying connection...")
