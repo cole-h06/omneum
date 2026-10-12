@@ -1,2 +1,6 @@
 # The pinned SDK manifest covers exact source bytes on every build platform.
 omneum/mcp/** text eol=lf
+# Release license integrity must be identical across Windows/macOS/Linux checkouts.
+LICENSE text eol=lf
+omneum/NATIVE-LICENSES.txt text eol=lf
+omneum/RUST-STDLIB-LICENSES.txt text eol=lf
