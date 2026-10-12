@@ -4,7 +4,22 @@
   <img src="assets/omneum-logotype.svg" alt="Omneum" width="240">
 </p>
 
-Omneum: an open-source context evaluator for AI agents.
+<p align="center">
+  An open-source context evaluator for AI agents.
+</p>
+
+<p align="center">
+  <a href="https://github.com/cole-h06/omneum/actions/workflows/CI.yml">
+    <img src="https://github.com/cole-h06/omneum/actions/workflows/CI.yml/badge.svg" alt="CI">
+  </a>
+  <a href="https://pypi.org/project/omneum/">
+    <img src="https://img.shields.io/pypi/v/omneum" alt="PyPI">
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.11%E2%80%933.14-blue" alt="Python 3.11–3.14">
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
+  </a>
+</p>
 
 Agents routinely assemble context from many different sources — a RAG pipeline, web search, APIs, databases, files, memory systems, other agents — but stuffing dozens of raw chunks into a single context window can leave the model working through a mess of information that was never organized for it.
 
