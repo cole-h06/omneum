@@ -12,7 +12,7 @@ import os
 from pathlib import Path
 import sqlite3
 import stat
-from threading import Lock, local
+from threading import RLock, local
 from time import monotonic, sleep
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
@@ -95,7 +95,7 @@ def _check_token(token, purpose):
 
 
 class SQLiteStorage:
-    _init_lock = Lock()
+    _init_lock = RLock()
     """Lazy filesystem adapter, safe for threads and independent local processes.
 
     Every outer transaction opens/closes its own connection. BEGIN IMMEDIATE
@@ -119,6 +119,15 @@ class SQLiteStorage:
 
     @contextmanager
     def transaction(self):
+        # Closing our validation descriptors must not release another thread's
+        # SQLite POSIX locks. Keep validation and connection lifetime together.
+        # Processes still coordinate through SQLite's normal WAL/busy handling.
+        with type(self)._init_lock:
+            with self._transaction() as connection:
+                yield connection
+
+    @contextmanager
+    def _transaction(self):
         require_safe_sqlite()
         existing = getattr(self._state, 'connection', None)
         if existing is not None:

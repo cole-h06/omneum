@@ -702,3 +702,28 @@ def test_patched_sqlite_maintenance_branches_accepted(monkeypatch, version):
     from omneum.storage.sqlite import require_safe_sqlite
     monkeypatch.setattr(sqlite3, 'sqlite_version_info', version)
     require_safe_sqlite()
+
+
+def test_validation_descriptors_do_not_drop_another_thread_sqlite_locks(tmp_path, monkeypatch):
+    from concurrent.futures import TimeoutError
+    from threading import Event
+    active, started = Event(), Event()
+    prepare = SQLiteStorage._prepare_file
+    def checked(path, **options):
+        assert not active.is_set(), 'validation may release a live SQLite POSIX lock'
+        return prepare(path, **options)
+    monkeypatch.setattr(SQLiteStorage, '_prepare_file', staticmethod(checked))
+    storage = SQLiteStorage(tmp_path / 'context.db')
+    def open_other():
+        started.set()
+        with SQLiteStorage(storage.path).transaction() as db:
+            assert db.execute('PRAGMA integrity_check').fetchone() == ('ok',)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        with storage.transaction():
+            active.set()
+            future = pool.submit(open_other)
+            assert started.wait(timeout=5)
+            with pytest.raises(TimeoutError):
+                future.result(timeout=0.1)
+            active.clear()
+        future.result(timeout=5)
