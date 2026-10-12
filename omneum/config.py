@@ -173,10 +173,10 @@ def load_deployment_state() -> DeploymentState:
         ))
     except DaemonKeyMismatchError:
         raise ConfigurationError("Configured VOPRF keys do not match.") from None
-    except (OPRFError, TimeoutError):
+    except (OPRFError, TimeoutError) as error:
         raise ConfigurationError(
             "VOPRF daemon is unavailable or invalid."
-        ) from None
+        ) from error
 
     if not secrets.compare_digest(
         server.public_key,

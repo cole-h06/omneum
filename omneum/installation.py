@@ -18,6 +18,7 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -223,10 +224,21 @@ def deploy_bundle(bundle: Path, target: str) -> None:
 
 
 def verify_connection() -> None:
-    from .config import load_deployment_state
+    from .config import ConfigurationError, load_deployment_state
+    from .daemon import DaemonTransportError
     from .oprf import VOPRFClient
 
-    state = load_deployment_state()  # Validates the existing pin and OS peer identity.
+    # launchd can leave the previous socket visible while restarting the service.
+    # Retry only transport readiness, before submitting any evaluation. Every
+    # attempt still validates the existing pin and OS peer identity.
+    for attempt in range(21):
+        try:
+            state = load_deployment_state()
+            break
+        except ConfigurationError as error:
+            if not isinstance(error.__cause__, DaemonTransportError) or attempt == 20:
+                raise
+            time.sleep(0.25)
     client = VOPRFClient(state.voprf_server.public_key)
     probe = b"Omneum installation verification"
     blinded = client.blind(probe)
@@ -263,9 +275,13 @@ def finish_install(initialize, verify, progress) -> None:
     progress("Verifying connection...")
     try:
         verify()
-    except Exception:
+    except Exception as error:
+        kind = type(error).__name__
+        if error.__cause__ is not None:
+            kind += f" ({type(error.__cause__).__name__})"
         raise InstallError("Daemon deployed, but connection verification failed. "
-                           "Check service status and the existing daemon key pin before retrying.") from None
+                           "Check service status and the existing daemon key pin before retrying. "
+                           f"Failure: {kind}.") from None
     progress("Omneum is ready.")
 
 

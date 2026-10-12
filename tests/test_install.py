@@ -188,6 +188,68 @@ def test_probe_uses_existing_pin_and_real_voprf(example_daemon):
     install.verify_connection()
 
 
+def test_probe_waits_for_restart_without_changing_pin(example_daemon, monkeypatch):
+    from omneum.paths import get_config_dir
+
+    config_path = get_config_dir() / 'config.toml'
+    original = config_path.read_bytes()
+    example_daemon.process.terminate()
+    example_daemon.process.wait(timeout=3)
+    restarted = []
+
+    def start(_delay):
+        if not restarted:
+            restarted.append(subprocess.Popen(example_daemon.command))
+        # Use the actual sleep captured before patching the shared time module.
+        sleep(0.1)
+
+    sleep = install.time.sleep
+    monkeypatch.setattr(install.time, 'sleep', start)
+    try:
+        install.verify_connection()
+        assert restarted
+        assert config_path.read_bytes() == original
+    finally:
+        for process in restarted:
+            process.terminate()
+            process.wait(timeout=3)
+
+
+@pytest.mark.parametrize('failure', ['identity', 'pin', 'protocol', 'timeout'])
+def test_probe_does_not_retry_security_failures(monkeypatch, failure):
+    from omneum import config
+    from omneum.daemon import DaemonUnavailableError
+    from omneum.oprf import OPRFProtocolError
+
+    error = config.ConfigurationError('invalid daemon')
+    error.__cause__ = {'identity': DaemonUnavailableError('identity failure'),
+                      'pin': None, 'protocol': OPRFProtocolError('invalid frame'),
+                      'timeout': TimeoutError()}[failure]
+    load = Mock(side_effect=error)
+    wait = Mock()
+    monkeypatch.setattr(config, 'load_deployment_state', load)
+    monkeypatch.setattr(install.time, 'sleep', wait)
+    with pytest.raises(config.ConfigurationError):
+        install.verify_connection()
+    load.assert_called_once_with()
+    wait.assert_not_called()
+
+
+def test_probe_readiness_is_bounded(monkeypatch):
+    from omneum import config
+    from omneum.daemon import DaemonTransportError
+
+    error = config.ConfigurationError('unavailable daemon')
+    error.__cause__ = DaemonTransportError('unavailable transport')
+    load, wait = Mock(side_effect=error), Mock()
+    monkeypatch.setattr(config, 'load_deployment_state', load)
+    monkeypatch.setattr(install.time, 'sleep', wait)
+    with pytest.raises(config.ConfigurationError):
+        install.verify_connection()
+    assert load.call_count == 21
+    assert wait.call_count == 20
+
+
 def test_release_flow_and_cleanup(monkeypatch):
     data = archive()
     seen = []
