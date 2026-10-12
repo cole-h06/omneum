@@ -27,7 +27,7 @@ def main():
     from omneum.oprf import VOPRFClient, VOPRFEvaluation
     from omneum._crypto import CryptoDependencyError
     from omneum.mcp.client.auth.extensions.client_credentials import SignedJWTParameters
-    assert metadata.version("omneum") == "1.0.3"
+    assert metadata.version("omneum") == omneum.__version__
     for module in (omneum, omneum.mcp, omneum_oprf):
         assert Path(module.__file__).resolve().is_relative_to(Path(sys.prefix).resolve()), module.__file__
     if args.allow_crypto:

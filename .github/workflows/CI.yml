@@ -19,6 +19,22 @@ permissions:
   contents: read
 
 jobs:
+  publication-preflight:
+    name: Check never-used release version before publication preparation
+    if: ${{ github.event_name != 'pull_request' && !inputs.installers_only }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - name: Reject an existing PyPI version without any upload or deletion
+        run: |
+          version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
+          python tools/release_publication.py check-new --version "$version"
+
   test:
     if: ${{ !inputs.installers_only }}
     name: Test Python ${{ matrix.python }}
@@ -427,7 +443,7 @@ jobs:
 
   prepare-daemon-release:
     name: Validate wheels and prepare daemon release assets
-    needs: [test, build, windows-sdk, source-distribution, linux-foreground, macos-install, daemon-artifacts]
+    needs: [test, build, windows-sdk, source-distribution, linux-foreground, macos-install, daemon-artifacts, publication-preflight]
     if: github.event_name != 'pull_request' && github.repository == 'cole-h06/omneum'
     runs-on: ubuntu-22.04
     permissions:
@@ -477,6 +493,14 @@ jobs:
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name python-source-distribution --dir source-dist
           python tools/release_sdist.py --sdist "source-dist/omneum-${RELEASE_TAG#v}.tar.gz" --version "${RELEASE_TAG#v}"
           cp source-dist/*.tar.gz pypi-dist/
+      - name: Record complete approved publication manifest
+        run: |
+          python tools/release_publication.py manifest --version "${RELEASE_TAG#v}"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: release-manifest
+          path: release-manifest.json
+          if-no-files-found: error
       - name: Upload validated Python distributions without rebuilding
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -765,7 +789,15 @@ jobs:
             --wheels pypi-dist --daemon-assets public-release-assets
       - name: Verify source distribution before publication
         run: python tools/release_sdist.py --sdist "pypi-dist/omneum-${RELEASE_TAG#v}.tar.gz" --version "${RELEASE_TAG#v}"
+      - name: Recheck unused version and approved publication bytes
+        run: |
+          python tools/release_publication.py check-new --version "${RELEASE_TAG#v}"
+          python tools/release_publication.py manifest --version "${RELEASE_TAG#v}" --daemon-assets public-release-assets
       - name: Publish distributions using PyPI Trusted Publishing
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
         with:
           packages-dir: pypi-dist/
+          verbose: true
+          skip-existing: false
+      - name: Verify every public distribution and downloaded hash
+        run: python tools/release_publication.py verify-public --version "${RELEASE_TAG#v}"
