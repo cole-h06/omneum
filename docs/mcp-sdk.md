@@ -120,7 +120,8 @@ python3 tools/check_mcp_bundle.py 'source-dist/*.tar.gz'
 
 The generator verifies the source hash before reading it. Without `--check` it
 regenerates all source files and the per-file manifest deterministically. The
-checker verifies every SDK byte in the built wheel/sdist. CI checks the source
+Git attributes retain LF line endings for the pinned SDK on every platform.
+The checker verifies every SDK byte in the built wheel/sdist. CI checks the source
 against the pinned public archive and retains all twelve real installation
 acceptance cells. Native builds must also use the existing path-remapping
 settings and pinned Rust/maturin toolchains from the release workflow.

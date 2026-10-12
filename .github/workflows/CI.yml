@@ -223,10 +223,15 @@ jobs:
       - name: Build with the selected Windows interpreter
         run: |
           python -m pip install maturin==1.15.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m maturin build --locked --release --out dist --interpreter python
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/release_wheels.py sanitize --wheels dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/check_mcp_bundle.py dist/*.whl
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python tools/release_wheels.py smoke --wheels dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: wheel-windows-x64-py${{ matrix.python }}
@@ -437,6 +442,7 @@ jobs:
         run: |
           gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
             --pattern 'wheel-*' --dir wheel-artifacts
+          python tools/check_mcp_bundle.py wheel-artifacts/*/*.whl
           python tools/release_wheels.py prepare --tag "$RELEASE_TAG" \
             --wheels wheel-artifacts --daemon-assets release-assets --output pypi-dist
       - name: Add verified source distribution
