@@ -23,6 +23,7 @@ def test_bundle_provenance_and_dependency_boundary():
     assert manifest["revision"] == "777b8d06710c140e3606b0d4598e2aa48546c266"
     for name, digest in manifest["files"].items():
         assert hashlib.sha256((root / name).read_bytes()).hexdigest() == digest, name
+    assert "/home/runner/" not in (root / "UPSTREAM-PYPROJECT.toml").read_text()
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
     assert not any(req.lower().startswith(("mcp", "cryptography")) for req in project["dependencies"])
     assert "PyJWT[crypto]>=2.15.0,<3" in project["optional-dependencies"]["oauth"]

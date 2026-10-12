@@ -76,7 +76,8 @@ The WebSocket SDK extra, when needed, is `omneum[mcp-ws]`.
 - Public source archive: URL in `omneum/mcp/UPSTREAM.json`.
 - Source SHA256: `d51e36a5f5644faea4f85ea649bfffa6bc6c26770d42798ad6a3de3d2ba69683`.
 - Original MIT license: `omneum/mcp/LICENSE`, also included in distribution
-  license metadata. Original dependency metadata: `UPSTREAM-PYPROJECT.toml`.
+  license metadata. Original dependency metadata: `UPSTREAM-PYPROJECT.toml`,
+  with upstream hosted-runner coverage aliases normalized to `/build/upstream`.
 
 `tools/vendor_mcp.py:patch` contains the complete changes:
 
@@ -87,6 +88,8 @@ The WebSocket SDK extra, when needed, is `omneum[mcp-ws]`.
    there is no `mcp.dist-info` in a core install.
 3. Guard the two asymmetric signing paths with Omneum's secure backend check.
    PyJWT performs the same signing operation after that check.
+4. Normalize the upstream coverage configuration's two hosted-runner aliases
+   in the metadata snapshot. The artifact privacy guard remains unchanged.
 
 Dependency separation is expressed in Omneum metadata: upstream non-crypto
 requirements are declared directly, with the existing Omneum security floors

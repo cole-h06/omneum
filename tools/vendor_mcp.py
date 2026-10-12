@@ -71,14 +71,21 @@ def generated(sdist):
                     raise ValueError("unsafe or duplicate upstream member")
                 files[name] = patch(name, archive.extractfile(member).read())
         files["LICENSE"] = archive.extractfile(prefix + "LICENSE").read()
-        files["UPSTREAM-PYPROJECT.toml"] = archive.extractfile(prefix + "pyproject.toml").read()
+        project = archive.extractfile(prefix + "pyproject.toml").read().decode()
+        # Upstream coverage aliases name its hosted runners. They are public
+        # build configuration, not dependency metadata or end-user paths.
+        project = replace_once(project, "/home/runner/work/python-sdk/python-sdk/src/",
+                               "/build/upstream/python-sdk/src/")
+        project = replace_once(project, r"D:\a\python-sdk\python-sdk\src",
+                               "/build/upstream/python-sdk/src/")
+        files["UPSTREAM-PYPROJECT.toml"] = project.encode()
     manifest = {
         "upstream": "https://github.com/modelcontextprotocol/python-sdk",
         "version": VERSION, "revision": REVISION,
         "sdist": {"url": URL, "sha256": SHA256},
         "namespace": "omneum.mcp",
         "distribution": "bundled in the omneum PyPI wheel and sdist; no separate SDK distribution",
-        "patch": "tools/vendor_mcp.py:patch (namespace, version lookup, explicit crypto guard)",
+        "patch": "tools/vendor_mcp.py (namespace, version lookup, crypto guard, whitespace and coverage-path normalization)",
         "files": {name: hashlib.sha256(data).hexdigest() for name, data in sorted(files.items())},
     }
     files["UPSTREAM.json"] = (json.dumps(manifest, indent=2) + "\n").encode()

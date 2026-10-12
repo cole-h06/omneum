@@ -8,10 +8,10 @@
   },
   "namespace": "omneum.mcp",
   "distribution": "bundled in the omneum PyPI wheel and sdist; no separate SDK distribution",
-  "patch": "tools/vendor_mcp.py:patch (namespace, version lookup, explicit crypto guard)",
+  "patch": "tools/vendor_mcp.py (namespace, version lookup, crypto guard, whitespace and coverage-path normalization)",
   "files": {
     "LICENSE": "5e13dbbc1d120fc2a03cecde7c91424ae2d7de11b63d58ded2f4431e261ee50d",
-    "UPSTREAM-PYPROJECT.toml": "c284ced18c77283c3ecfa6ac007189d57159c4defce6f6f56489318d764dcf80",
+    "UPSTREAM-PYPROJECT.toml": "5a2ebd77dce3c37d3009a49a3d7cea7655485b61579388ac1bff199666d3be41",
     "__init__.py": "f66ae17959a1420edb67624dcd79da20860543e1d513b7d5c86ec0250cf8af72",
     "cli/__init__.py": "349ac92144268dce85b52c6f18db75cde5e748b8fcf8c962f3a95a3834ed4331",
     "cli/claude.py": "4ec4113805720c128d40cf4974301685b3d894670dda03e2f63edf6303ec42a6",
