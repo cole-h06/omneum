@@ -5,6 +5,7 @@ Everything after download (checksum, extraction, sudo, services, init, MCP) is r
 Never run on a developer machine or an existing deployment.
 """
 import asyncio
+from contextlib import closing
 import importlib.util
 from datetime import datetime, timezone
 import os
@@ -52,6 +53,7 @@ def main(assets):
         print(result.output, end='')
         assert result.exit_code == 0, result.exception
         assert 'Omneum is ready.' in result.output
+    assert not get_context_db_path().exists(), 'existing graph: use a fresh disposable host'
     install()
     path = get_context_db_path()
     assert path.is_file(), 'install must automatically create the user Context Graph'
@@ -65,7 +67,7 @@ def main(assets):
     config = OmneumClientConfig.from_local_deployment()
     path = get_context_db_path()
     def count():
-        with sqlite3.connect(path) as database:
+        with closing(sqlite3.connect(path)) as database:
             assert not database.execute('PRAGMA foreign_key_check').fetchall()
             return database.execute('SELECT count(*) FROM evaluation_runs').fetchone()[0]
     initial = count()
@@ -91,7 +93,7 @@ def main(assets):
     run_child('--evaluate')
     assert count() == initial + 1
     # A WAL reader retains its snapshot while four independent writers commit.
-    with sqlite3.connect(path) as reader:
+    with closing(sqlite3.connect(path)) as reader:
         reader.execute('BEGIN')
         before = reader.execute('SELECT count(*) FROM evaluation_runs').fetchone()[0]
         processes = [subprocess.Popen(child_command('--evaluate'), stdout=subprocess.PIPE,
@@ -107,7 +109,7 @@ def main(assets):
         assert set(rows) <= set(final[table]), (table, 'original records changed')
     assert final == json.loads(run_child('--snapshot'))
     report = dict(platform=platform.system(), architecture=platform.machine(),
-                  python=platform.python_version(), result='PASS', automatic_graph_creation=True,
+                  python=platform.python_version(), sqlite=sqlite3.sqlite_version, result='PASS', automatic_graph_creation=True,
                   source_claim_observation_evaluation=True, daemon_restart=True,
                   process_restart=True, records_intact=True, permissions=True,
                   migrations=True, concurrent_readers_writers=True, network_required=False)
@@ -175,7 +177,7 @@ def verify_migrations(path):
     # Upgrade an actual legacy schema containing a real source from this graph.
     with tempfile.TemporaryDirectory(dir=path.parent, prefix='migration-acceptance-') as temporary:
         legacy = Path(temporary) / 'context.db'
-        with sqlite3.connect(path) as source, sqlite3.connect(legacy) as database:
+        with closing(sqlite3.connect(path)) as source, closing(sqlite3.connect(legacy, isolation_level=None)) as database:
             database.execute(_MIGRATION_TABLE)
             database.executescript(MIGRATIONS[0][1])
             database.execute('INSERT INTO schema_migrations(version,checksum) VALUES (?,?)',
@@ -189,7 +191,7 @@ def verify_migrations(path):
                 assert tuple(database.execute('SELECT * FROM sources').fetchone()) == row
                 assert [r[0] for r in database.execute('SELECT version FROM schema_migrations ORDER BY version')] == [v for v, _ in MIGRATIONS]
                 assert not database.execute('PRAGMA foreign_key_check').fetchall()
-        with sqlite3.connect(legacy) as database:
+        with closing(sqlite3.connect(legacy, isolation_level=None)) as database:
             database.execute("UPDATE schema_migrations SET checksum='tampered' WHERE version=1")
         try:
             with SQLiteStorage(legacy).transaction():
@@ -198,7 +200,7 @@ def verify_migrations(path):
             pass
         else:
             raise AssertionError('modified migration history was accepted')
-        with sqlite3.connect(legacy) as database:
+        with closing(sqlite3.connect(legacy, isolation_level=None)) as database:
             assert database.execute('SELECT * FROM sources').fetchone() == row
             assert database.execute('SELECT checksum FROM schema_migrations WHERE version=1').fetchone() == ('tampered',)
 
@@ -241,7 +243,7 @@ if __name__ == '__main__':
             main(Path(sys.argv[1]).resolve())
         except BaseException as error:
             report = dict(platform=platform.system(), architecture=platform.machine(),
-                          python=platform.python_version(), result='FAIL',
+                          python=platform.python_version(), sqlite=sqlite3.sqlite_version, result='FAIL',
                           failure_type=type(error).__name__, network_required=False)
             if os.environ.get('OMNEUM_ACCEPTANCE_REPORT'):
                 Path(os.environ['OMNEUM_ACCEPTANCE_REPORT']).write_text(json.dumps(report, indent=2) + '\n')

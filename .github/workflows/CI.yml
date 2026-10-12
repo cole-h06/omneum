@@ -518,6 +518,7 @@ jobs:
       contents: read
       actions: read
     strategy:
+      fail-fast: false
       matrix:
         include:
           - runner: ubuntu-22.04
