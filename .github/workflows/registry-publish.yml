@@ -1,0 +1,95 @@
+name: Publish official MCP Registry (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact released PyPI version (must match main)
+        required: true
+        type: string
+      identity:
+        description: Type ai.omneum/omneum to confirm the official identity
+        required: true
+        type: string
+      publish:
+        description: Explicitly authorize registry submission after preflight
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read # inspect required environment reviewers; no write permission
+
+concurrency:
+  group: official-mcp-registry
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'cole-h06/omneum' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Require protected environment configuration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/check_registry_environment.py
+      - name: Verify exact public PyPI release and package metadata
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          CONFIRMED_IDENTITY: ${{ inputs.identity }}
+        run: |
+          test "$CONFIRMED_IDENTITY" = 'ai.omneum/omneum'
+          python -m unittest discover -s tools -p 'test_registry_*.py' -v
+          python tools/registry_readiness.py --version "$RELEASE_VERSION" --pypi
+      - name: Install checksum-pinned official publisher
+        run: bash tools/install_mcp_publisher.sh "$RUNNER_TEMP/mcp-publisher"
+      - name: Validate manifest without publication
+        run: '"$RUNNER_TEMP/mcp-publisher/mcp-publisher" validate server.json'
+
+  publish:
+    needs: preflight
+    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && inputs.identity == 'ai.omneum/omneum' && github.repository == 'cole-h06/omneum' && github.ref == 'refs/heads/main'
+    # Configure required reviewers, prevent self-review/admin bypass, main-only deployment.
+    # Keep MCP_REGISTRY_PRIVATE_KEY exclusively in this environment.
+    environment: mcp-registry
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Require protected environment configuration
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/check_registry_environment.py
+      - name: Recheck public release after approval
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: python tools/registry_readiness.py --version "$RELEASE_VERSION" --pypi
+      - name: Install checksum-pinned official publisher
+        run: bash tools/install_mcp_publisher.sh "$RUNNER_TEMP/mcp-publisher"
+      - name: Authenticate domain and submit manifest
+        env:
+          MCP_REGISTRY_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_PRIVATE_KEY }}
+        run: |
+          set +x # never trace a command containing the signing seed
+          set -euo pipefail
+          [[ "$MCP_REGISTRY_PRIVATE_KEY" =~ ^[0-9a-f]{64}$ ]] || { echo 'Missing/invalid protected environment Ed25519 seed'; exit 1; }
+          publisher="$RUNNER_TEMP/mcp-publisher/mcp-publisher"
+          trap '"$publisher" logout >/dev/null 2>&1 || true' EXIT
+          "$publisher" login dns --domain omneum.ai --private-key "$MCP_REGISTRY_PRIVATE_KEY" --registry https://registry.modelcontextprotocol.io
+          "$publisher" validate server.json
+          "$publisher" publish server.json
