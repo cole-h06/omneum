@@ -177,6 +177,12 @@ def verify_final():
 def verify_file(filename):
     require(filename in ALLOWED_MISSING, 'upload target is not approved')
     records = public_files()
+    # Public JSON/index caches can lag a successful upload briefly.
+    for attempt in range(12):
+        if filename in records:
+            break
+        time.sleep(5)
+        records = public_files()
     require(filename in records, 'selected file remains unpublished: '+filename)
     verify_public_bytes(records)
     verify_origin()

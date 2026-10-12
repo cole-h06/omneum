@@ -1,4 +1,4 @@
-name: Recover original Omneum v1.0.3 PyPI publication
+name: Verify recovered original Omneum v1.0.3 PyPI files
 
 on:
   workflow_dispatch:
@@ -7,8 +7,8 @@ permissions:
   contents: read
 
 jobs:
-  recover-pypi:
-    name: Recover ${{ matrix.filename }}
+  verify-recovered:
+    name: Verify ${{ matrix.filename }}
     if: github.repository == 'cole-h06/omneum' && github.ref == 'refs/heads/v1.0.3-pypi-recovery-20261012'
     strategy:
       fail-fast: false
@@ -16,18 +16,10 @@ jobs:
         filename:
           - omneum-1.0.3-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
           - omneum-1.0.3-cp314-cp314-win_amd64.whl
-          - omneum-1.0.3.tar.gz
     runs-on: ubuntu-22.04
-    environment:
-      name: pypi
-      url: https://pypi.org/project/omneum/1.0.3/
     permissions:
       contents: read
       actions: read
-      id-token: write
-    concurrency:
-      group: pypi-recovery-v1.0.3-${{ matrix.filename }}
-      cancel-in-progress: false
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -35,38 +27,15 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.13'
-      - name: Authenticate original run and select only missing verified artifacts
-        id: prepare
-        run: python .github/recover_pypi_103.py prepare "$RECOVERY_FILENAME"
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RECOVERY_FILENAME: ${{ matrix.filename }}
-      - name: Recheck that no staged file exists on PyPI
-        if: steps.prepare.outputs.needed == 'true'
-        env:
-          RECOVERY_FILENAME: ${{ matrix.filename }}
-        run: python .github/recover_pypi_103.py pre-upload "$RECOVERY_FILENAME"
-      - name: Publish only missing original files with verbose diagnostics
-        if: steps.prepare.outputs.needed == 'true'
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
-        with:
-          packages-dir: missing-distributions/
-          verify-metadata: true
-          skip-existing: false
-          verbose: true
-          print-hash: true
-          attestations: true
-      - name: Verify selected file, public distribution bytes and unchanged tag
+      - name: Verify all public file hashes, recovered target and original release tag
         env:
           GH_TOKEN: ${{ github.token }}
           RECOVERY_FILENAME: ${{ matrix.filename }}
         run: python .github/recover_pypi_103.py verify-file "$RECOVERY_FILENAME"
-      - name: Retain before and after publication evidence
+      - name: Retain public verification evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: original-v1.0.3-recovery-${{ matrix.filename }}
-          path: |
-            before-publication.json
-            after-publication.json
+          name: verified-original-v1.0.3-${{ matrix.filename }}
+          path: after-publication.json
           if-no-files-found: warn
