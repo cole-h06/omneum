@@ -13,7 +13,7 @@
     <img src="https://github.com/cole-h06/omneum/actions/workflows/CI.yml/badge.svg" alt="CI">
   </a>
   <a href="https://pypi.org/project/omneum/">
-    <img src="https://img.shields.io/pypi/v/omneum" alt="PyPI">
+    <img src="https://img.shields.io/pypi/v/omneum?refresh=20261012" alt="PyPI">
   </a>
   <img src="https://img.shields.io/badge/Python-3.11%E2%80%933.14-blue" alt="Python 3.11–3.14">
   <a href="LICENSE">
