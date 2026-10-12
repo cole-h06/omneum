@@ -179,7 +179,7 @@ def test_local_outage_acceptance_uses_real_mcp_sqlite(example_daemon, monkeypatc
     from omneum import onboarding
     from omneum.network_acceptance import local_outage
     from omneum.contribution import network
-    from mcp import StdioServerParameters
+    from omneum.mcp import StdioServerParameters
     original = omneum.open_stdio_client
     @asynccontextmanager
     async def direct(config, parameters, **kwargs):

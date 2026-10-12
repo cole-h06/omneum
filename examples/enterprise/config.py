@@ -3,7 +3,7 @@ import os
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 from omneum import OmneumClientConfig
 
 

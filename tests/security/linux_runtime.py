@@ -30,7 +30,7 @@ def run(*args, **kwargs):
 
 
 async def workload():
-    from mcp import ClientSession, StdioServerParameters, stdio_client
+    from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
     from omneum.client import OmneumClientConfig, open_stdio_client
     from omneum.information import Claim, Observation, Source
     from omneum.dependency import DependencyEstimatorConfig

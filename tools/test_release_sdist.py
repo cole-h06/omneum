@@ -16,7 +16,9 @@ class SourceReleaseTests(unittest.TestCase):
             'PKG-INFO': 'Name: omneum\nVersion: 1.0.3\n',
             'pyproject.toml': '[project]\nversion="1.0.3"\n',
             'Cargo.toml': f'[package]\nversion="{cargo_version}"\n',
-            **{name: 'fixture' for name in ('Cargo.lock', 'src/lib.rs', 'omneum/cli.py',
+            **{name: 'fixture' for name in ('omneum/mcp/LICENSE', 'omneum/mcp/UPSTREAM.json',
+                'omneum/mcp/types.py', 'omneum/mcp/server/stdio.py', 'omneum/mcp/client/stdio/__init__.py',
+                'Cargo.lock', 'src/lib.rs', 'omneum/cli.py',
                 'omneum/installation.py', 'omneum/algorithm_compatibility.json',
                 'omneum/schemas/research-event-v1.schema.json', 'LICENSE')},
         }

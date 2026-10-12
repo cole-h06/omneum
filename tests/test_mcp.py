@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from mcp import (
+from omneum.mcp import (
     ClientSession,
     StdioServerParameters,
     stdio_client,

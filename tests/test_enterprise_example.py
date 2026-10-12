@@ -2,7 +2,7 @@ import asyncio
 import json
 
 import pytest
-from mcp import ClientSession
+from omneum.mcp import ClientSession
 
 from examples.enterprise.agents.api import api_agent
 from examples.enterprise.agents.common import (

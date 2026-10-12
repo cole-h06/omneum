@@ -42,6 +42,12 @@ jobs:
           enable-cache: false
       - name: Check wheel and daemon release contracts
         run: python -m unittest discover -s tools -p 'test_release_*.py' -v
+      - name: Verify reproducible upstream MCP fork
+        run: |
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+            https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz \
+            --output "$RUNNER_TEMP/mcp-1.28.1.tar.gz"
+          python tools/vendor_mcp.py "$RUNNER_TEMP/mcp-1.28.1.tar.gz" --check
       - name: Validate release tag against Python package version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         env:
@@ -50,7 +56,7 @@ jobs:
       - name: Check lockfile and install development environment
         run: |
           uv lock --check
-          uv sync --locked
+          uv sync --locked --group auth-test
       - name: Read exact algorithm compatibility pin
         id: algorithm
         run: |
@@ -79,7 +85,7 @@ jobs:
       - name: Test Python and native extension
         # These example tests import LangGraph during collection. Keep that
         # framework and the development-only PostgreSQL driver out of public deps.
-        run: uv run --locked --group langgraph pytest
+        run: uv run --locked --group langgraph --group auth-test pytest
       - name: Test Rust
         run: |
           cargo test --locked
@@ -184,7 +190,9 @@ jobs:
 
       - name: Normalize SBOM paths
         id: normalize
-        run: python tools/release_wheels.py sanitize --wheels dist
+        run: |
+          python tools/release_wheels.py sanitize --wheels dist
+          python tools/check_mcp_bundle.py dist/*.whl
 
       - name: Smoke-test built wheel outside checkout
         run: python tools/release_wheels.py smoke --wheels dist
@@ -217,6 +225,7 @@ jobs:
           python -m pip install maturin==1.15.0
           python -m maturin build --locked --release --out dist --interpreter python
           python tools/release_wheels.py sanitize --wheels dist
+          python tools/check_mcp_bundle.py dist/*.whl
           python tools/release_wheels.py smoke --wheels dist
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -237,6 +246,7 @@ jobs:
       - name: Build source distribution
         run: |
           maturin sdist --out source-dist
+          python tools/check_mcp_bundle.py source-dist/*.tar.gz
           version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
           python tools/release_sdist.py --sdist "source-dist/omneum-$version.tar.gz" --version "$version"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -498,19 +508,6 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      # This tests a candidate-only prerequisite; the public release gate below
-      # still requires the unmodified plain PyPI dependency resolution.
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        if: matrix.runner == 'macos-15-intel'
-        with:
-          python-version: "3.11"
-      - name: Build secure unpublished Intel dependency for diagnostics
-        if: matrix.runner == 'macos-15-intel'
-        run: |
-          python -m venv "$RUNNER_TEMP/intel-build"
-          "$RUNNER_TEMP/intel-build/bin/python" -m pip install --only-binary=:all: maturin==1.15.0 cffi==2.0.0 setuptools==82.0.1
-          "$RUNNER_TEMP/intel-build/bin/python" tools/build_intel_cryptography.py --work "$RUNNER_TEMP/intel-sources" --output "$RUNNER_TEMP/intel-dependency"
-          echo "PIP_FIND_LINKS=$RUNNER_TEMP/intel-dependency" >> "$GITHUB_ENV"
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
@@ -524,6 +521,7 @@ jobs:
           python -m pip install maturin==1.15.0
           python -m maturin build --locked --release --out candidate-wheels --interpreter python
           python tools/release_wheels.py sanitize --wheels candidate-wheels
+          python tools/check_mcp_bundle.py candidate-wheels/*.whl
       - name: Secure writable hosted Linux runner installation parents
         if: runner.os == 'Linux'
         run: |
@@ -552,13 +550,6 @@ jobs:
         with:
           name: accepted-candidate-${{ matrix.runner }}
           path: candidate-wheels/*.whl
-          if-no-files-found: error
-      - name: Retain tested Intel dependency and provenance
-        if: matrix.runner == 'macos-15-intel'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: accepted-intel-dependency
-          path: ${{ runner.temp }}/intel-dependency/
           if-no-files-found: error
 
   public-install-acceptance:

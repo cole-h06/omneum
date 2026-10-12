@@ -405,6 +405,8 @@ def provider_settings(c):
 
 
 def validate_jwks(jwks):
+    from ._crypto import require_crypto
+    require_crypto()
     import jwt
     require(type(jwks) is dict and set(jwks) == {'keys'} and type(jwks['keys']) is list,
             'invalid public JWKS')

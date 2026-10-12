@@ -5,7 +5,7 @@ import json
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-from mcp.types import CallToolResult, TextContent
+from omneum.mcp.types import CallToolResult, TextContent
 
 from omneum.daemon import DaemonBusyError
 from omneum.base64url import decode_unpadded, encode_unpadded

@@ -31,7 +31,7 @@ ENTRY_POINTS = {
     "omneum-server": "omneum.proxy:main",
     "omneum-contributor": "omneum.contributor:main",
 }
-RESOURCES = ("algorithm_compatibility.json", "schemas/research-event-v1.schema.json")
+RESOURCES = ("mcp/LICENSE", "mcp/UPSTREAM.json", "mcp/UPSTREAM-PYPROJECT.toml", "algorithm_compatibility.json", "schemas/research-event-v1.schema.json")
 
 
 def sanitize(wheels, project=None):

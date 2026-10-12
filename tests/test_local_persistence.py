@@ -8,7 +8,7 @@ import sys
 from uuid import uuid4
 
 import pytest
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 
 from omneum import (
     ContextMapper, LocalPersistenceConfig, LocalPersistenceError,
