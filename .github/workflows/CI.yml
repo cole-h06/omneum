@@ -543,6 +543,7 @@ jobs:
           test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tools/check_release_dependencies.py
           "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
 
       - name: Retain tested candidate wheel
@@ -615,6 +616,7 @@ jobs:
           test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
           "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
+          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tools/check_release_dependencies.py
           "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
 
   publish-daemon-release:

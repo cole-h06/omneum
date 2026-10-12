@@ -81,7 +81,8 @@ The WebSocket SDK extra, when needed, is `omneum[mcp-ws]`.
 `tools/vendor_mcp.py:patch` contains the complete changes:
 
 1. Rewrite absolute SDK imports from `mcp` to `omneum.mcp`, retaining local
-   aliases. Protocol names, models and wire literals are unchanged.
+   aliases, and normalize trailing source whitespace. Protocol names, models
+   and wire literals are unchanged.
 2. Replace four distribution-version lookups with the pinned upstream version;
    there is no `mcp.dist-info` in a core install.
 3. Guard the two asymmetric signing paths with Omneum's secure backend check.

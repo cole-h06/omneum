@@ -53,7 +53,9 @@ def patch(name, data):
             "                require_crypto()\n"
             "            assertion = jwt.encode(\n",
         )
-    return text.encode()
+    # Normalize upstream trailing whitespace for a clean reviewable source diff.
+    # No protocol wire literals use trailing line whitespace.
+    return "\n".join(line.rstrip() for line in text.split("\n")).encode()
 
 
 def generated(sdist):

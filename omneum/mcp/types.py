@@ -557,7 +557,7 @@ class Task(BaseModel):
     """Current task state."""
 
     statusMessage: str | None = None
-    """  
+    """
     Optional human-readable message describing the current task state.
     This can provide context for any status, including:
     - Reasons for "cancelled" status

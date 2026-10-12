@@ -62,6 +62,8 @@ def main(assets):
         async with stdio_client(server) as (reader, writer):
             async with ClientSession(reader, writer) as session:
                 await session.initialize()
+                tools = await session.list_tools()
+                assert {tool.name for tool in tools.tools} == {'ping', 'evaluate_voprf', 'evaluate_context'}
                 result = await session.call_tool('ping')
                 assert not result.isError and result.structuredContent['status'] == 'ok'
         async with open_stdio_client(config, server=server) as client:

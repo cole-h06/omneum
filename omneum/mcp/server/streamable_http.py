@@ -1052,7 +1052,7 @@ class StreamableHTTPServerTransport:
                                 self._request_streams.pop(request_stream_id, None)
                         else:
                             logger.debug(
-                                f"""Request stream {request_stream_id} not found 
+                                f"""Request stream {request_stream_id} not found
                                 for message. Still processing message as the client
                                 might reconnect and replay."""
                             )
