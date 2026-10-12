@@ -1,803 +1,175 @@
-name: Build wheels
-
+name: Publish verified Omneum v1.0.4 artifacts
 on:
-  pull_request:
   workflow_dispatch:
-    inputs:
-      installers_only:
-        description: Run unpublished installer diagnostics only; never satisfies publication gates
-        type: boolean
-        default: false
-  push:
-    tags:
-      - "v*"
-
-env:
-  RUSTFLAGS: --remap-path-prefix=/home/runner=/build/runner --remap-path-prefix=/Users/runner=/build/runner --remap-path-prefix=/io=/build/omneum --remap-path-prefix=C:\Users=/build/user --remap-path-prefix=D:\a=/build/omneum
-
 permissions:
   contents: read
-
+env:
+  RELEASE_TAG: v1.0.4
+  CANDIDATE_SHA: 978bc5806a13bcdbcd40e0f5b6d0b284935c6517
+  ACCEPTED_RUN: '38317382168'
+concurrency:
+  group: publish-original-v1.0.4
+  cancel-in-progress: false
 jobs:
-  publication-preflight:
-    name: Check never-used release version before publication preparation
-    if: ${{ github.event_name != 'pull_request' && !inputs.installers_only }}
+  publish-github:
+    if: github.repository == 'cole-h06/omneum' && github.ref == 'refs/heads/v1.0.4-publication'
     runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.11"
-      - name: Reject an existing PyPI version without any upload or deletion
-        run: |
-          version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          python tools/release_publication.py check-new --version "$version"
-
-  test:
-    if: ${{ !inputs.installers_only }}
-    name: Test Python ${{ matrix.python }}
-    runs-on: ubuntu-22.04
-    env:
-      ALGORITHM_SPEC_CHECKOUT: ${{ github.workspace }}/.algorithm-spec
-      OMNEUM_INGESTION_TEST_ADMIN_DSN: host=127.0.0.1 port=5432 dbname=omneum_ci_test user=postgres
-    services:
-      postgres:
-        image: postgres@sha256:f3bd19c606e442c3d7bdfa8002e03fe260a1023351e0ea4598032022b68dd6e3 # 17.6-bookworm
-        env:
-          POSTGRES_USER: postgres
-          # Isolated fixture roles authenticate locally; never a deployment config.
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_DB: omneum_ci_test
-        ports:
-          - 127.0.0.1:5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.11", "3.12", "3.13", "3.14"]
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: ${{ matrix.python }}
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: "0.12.10"
-          checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
-          python-version: ${{ matrix.python }}
-          enable-cache: false
-      - name: Verify reproducible upstream MCP fork
-        run: |
-          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
-            https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz \
-            --output "$RUNNER_TEMP/mcp-1.28.1.tar.gz"
-          python tools/vendor_mcp.py "$RUNNER_TEMP/mcp-1.28.1.tar.gz" --check
-      - name: Validate release tag against Python package version
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: python tools/release_daemon.py validate --tag "$RELEASE_TAG"
-      - name: Check lockfile and install development environment
-        run: |
-          uv lock --check
-          uv sync --locked --managed-python --python ${{ matrix.python }} --group auth-test
-      - name: Check wheel and daemon release contracts
-        run: uv run --locked --group auth-test python -m unittest discover -s tools -p 'test_release_*.py' -v
-      - name: Read exact algorithm compatibility pin
-        id: algorithm
-        run: |
-          uv run --locked python - <<'PY'
-          import os
-          import re
-          from urllib.parse import urlparse
-          from omneum.compatibility import load_pin
-          pin = load_pin()
-          location = urlparse(pin["specification_repository"])
-          repository = location.path.removeprefix("/").removesuffix(".git")
-          if location.scheme != "https" or location.netloc != "github.com" or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
-              raise SystemExit("unsupported specification repository")
-          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-              output.write(f"repository={repository}\nrevision={pin['git_revision']}\n")
-          PY
-      - name: Checkout pinned specification commit
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          repository: ${{ steps.algorithm.outputs.repository }}
-          ref: ${{ steps.algorithm.outputs.revision }}
-          path: .algorithm-spec
-          persist-credentials: false
-      - name: Enforce independent algorithm conformance
-        run: uv run --locked python -m omneum.conformance --spec-checkout "$ALGORITHM_SPEC_CHECKOUT"
-      - name: Test Python and native extension
-        # These example tests import LangGraph during collection. Keep that
-        # framework and the development-only PostgreSQL driver out of public deps.
-        run: uv run --locked --group langgraph --group auth-test pytest
-      - name: Test Rust
-        run: |
-          cargo test --locked
-          uv run --locked --group auth-test python tools/native_licenses.py --check
-          cargo test --locked --no-default-features --features daemon
-          cargo build --locked --no-default-features --features daemon --bin omneumd
-          sudo python3 tests/security/linux_isolation.py target/debug/omneumd
-          uv pip check
-      - name: Verify Linux installation
-        run: sudo .venv/bin/python tests/security/linux_install.py target/debug/omneumd
-      - name: Check production environment
-        run: |
-          uv sync --locked --no-default-groups
-          uv run --locked --no-default-groups python -c "import omneum, omneum.server, omneum_oprf"
-
-      - name: Verify managed Linux runtime
-        run: |
-          cargo build --locked --release --no-default-features --features daemon --bins
-          sudo mkdir -p /opt/omneum/target/release
-          tar -cf - Cargo.toml Cargo.lock build.rs src tests omneum pyproject.toml uv.lock README.md deploy | sudo tar -C /opt/omneum -xf -
-          # The hosted image makes these directories writable for tool installation.
-          # Establish production installation parents only on this disposable runner.
-          test ! -L /opt
-          test ! -L /usr/local/bin
-          sudo chown root:root /opt /usr/local/bin
-          sudo chmod 755 /opt /usr/local/bin
-          sudo cp target/release/omneum-server /opt/omneum/target/release/
-          sudo env PATH="$PATH" RUSTFLAGS="$RUSTFLAGS" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project /opt/omneum --locked --no-default-groups --no-editable --managed-python --python ${{ matrix.python }}
-          sudo chown -R root:root /opt/omneum
-          sudo find /opt/omneum -type d -exec chmod a+rX,go-w {} +
-          sudo find /opt/omneum -type f -exec chmod a+rX,go-w {} +
-          # Root-run imports must not create writable bytecode caches after hardening.
-          sudo /opt/omneum/.venv/bin/python -B /opt/omneum/tests/security/linux_runtime.py
-          sudo /opt/omneum/.venv/bin/python -B /opt/omneum/tests/security/linux_adversarial.py
-
-  linux-foreground:
-    if: ${{ !inputs.installers_only }}
-    name: Verify Linux foreground installation
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.14"
-
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: "0.12.10"
-          checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
-          python-version: "3.14"
-          enable-cache: false
-
-      - name: Install development environment
-        run: uv sync --locked --managed-python --python 3.14
-
-      - name: Build native extension
-        run: uv run maturin develop --locked
-
-      - name: Build daemon
-        run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
-
-      - name: Verify foreground installation
-        run: sudo .venv/bin/python tests/security/linux_foreground.py target/release/omneumd
-
-  build:
-    needs: test
-    if: github.event_name != 'pull_request'
-    name: Build ${{ matrix.platform.os }} ${{ matrix.platform.target }} Python ${{ matrix.python }}
-    runs-on: ${{ matrix.platform.runner }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.11", "3.12", "3.13", "3.14"]
-        platform:
-          - os: macos
-            runner: macos-15
-            target: aarch64
-
-          - os: macos
-            runner: macos-15-intel
-            target: x86_64
-
-          - os: linux
-            runner: ubuntu-22.04
-            target: x86_64
-
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Build wheel
-        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
-        with:
-          maturin-version: "1.15.0"
-          target: ${{ matrix.platform.target }}
-          args: --locked --release --out dist --interpreter python${{ matrix.python }}
-          manylinux: auto
-
-      - name: Normalize SBOM paths
-        id: normalize
-        run: |
-          python tools/release_wheels.py sanitize --wheels dist
-          python tools/check_mcp_bundle.py dist/*.whl
-          python tools/native_licenses.py --artifacts dist/*.whl
-
-      - name: Smoke-test built wheel outside checkout
-        run: python tools/release_wheels.py smoke --wheels dist
-
-      - name: Upload wheel for independent installation acceptance
-        # Retain normalized bytes even if this platform's public dependencies fail.
-        # prepare-daemon-release still requires the entire build job to succeed.
-        if: ${{ !cancelled() && steps.normalize.conclusion == 'success' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python }}
-          path: dist/*.whl
-          if-no-files-found: error
-
-  windows-sdk:
-    name: Build windows x64 Python ${{ matrix.python }}
-    if: github.event_name != 'pull_request' && !inputs.installers_only
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.11", "3.12", "3.13", "3.14"]
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Build with the selected Windows interpreter
-        run: |
-          python -m pip install maturin==1.15.0
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m maturin build --locked --release --out dist --interpreter python
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python tools/release_wheels.py sanitize --wheels dist
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python tools/check_mcp_bundle.py dist/*.whl
-          python tools/native_licenses.py --artifacts dist/*.whl
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python tools/release_wheels.py smoke --wheels dist
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: wheel-windows-x64-py${{ matrix.python }}
-          path: dist/*.whl
-          if-no-files-found: error
-
-  source-distribution:
-    if: ${{ !inputs.installers_only }}
-    name: Build and verify source distribution
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.11"
-      - run: python -m pip install maturin==1.15.0
-      - name: Build source distribution
-        run: |
-          maturin sdist --out source-dist
-          python tools/check_mcp_bundle.py source-dist/*.tar.gz
-          python tools/native_licenses.py --artifacts source-dist/*.tar.gz
-          version=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          python tools/release_sdist.py --sdist "source-dist/omneum-$version.tar.gz" --version "$version"
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: python-source-distribution
-          path: source-dist/*.tar.gz
-          if-no-files-found: error
-
-  macos-install:
-    if: ${{ !inputs.installers_only }}
-    name: Verify macOS installation
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.14"
-
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: "0.12.10"
-          checksum: "51c6170e8e3a01cef9f33b94f582b7b81ac65046f55d40afb35f9cff5a68c179"
-          python-version: "3.14"
-          enable-cache: false
-
-      - name: Install development environment
-        run: |
-          uv lock --check
-          uv sync --locked --managed-python --python 3.14
-
-      - name: Build daemon
-        run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
-
-      - name: Test protected macOS installation parents
-        run: python -m unittest discover -s tools -p 'test_macos_install_boundary.py' -v
-
-      - name: Verify macOS installation
-        run: sudo .venv/bin/python tests/security/macos_install.py target/release/omneumd "$(id -u)"
-
-  daemon-artifacts:
-    # Build diagnostics independently; prepare-daemon-release still gates all
-    # publication on the complete test matrix and exact-artifact acceptance.
-    if: github.event_name != 'pull_request'
-    name: Build daemon ${{ matrix.platform.os }} ${{ matrix.platform.target }}
-    runs-on: ${{ matrix.platform.runner }}
-
-    strategy:
-      matrix:
-        platform:
-          - os: macos
-            runner: macos-15
-            target: aarch64
-            binary: target/release/omneumd
-
-          - os: macos
-            runner: macos-15-intel
-            target: x86_64
-            binary: target/release/omneumd
-
-          - os: linux
-            runner: ubuntu-22.04
-            target: x86_64
-            binary: target/release/omneumd
-
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.13"
-
-      - name: Build daemon
-        run: cargo build --locked --release --no-default-features --features daemon --bin omneumd
-
-      - name: Require protected evaluator build
-        shell: bash
-        run: test "$(target/release/omneumd capabilities)" = protected-voprf-v1
-
-      - name: Stage macOS artifact
-        if: matrix.platform.os == 'macos'
-        run: |
-          mkdir -p daemon-artifact/launchd
-          cp "${{ matrix.platform.binary }}" daemon-artifact/omneumd
-          cp deploy/install-macos.sh daemon-artifact/
-          cp deploy/launchd/ai.omneum.omneumd.plist daemon-artifact/launchd/
-
-      - name: Stage Linux artifact
-        if: matrix.platform.os == 'linux'
-        run: |
-          mkdir -p daemon-artifact/systemd daemon-artifact/sysusers.d
-          cp "${{ matrix.platform.binary }}" daemon-artifact/omneumd
-          cp deploy/install.sh daemon-artifact/
-          cp deploy/install-foreground.sh daemon-artifact/
-          cp deploy/systemd/omneumd.service daemon-artifact/systemd/
-          cp deploy/sysusers.d/omneum.conf daemon-artifact/sysusers.d/
-
-      - name: Set up runtime builder
-        if: matrix.platform.os == 'linux'
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: "0.12.10"
-          checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
-          enable-cache: false
-
-      - name: Stage Linux managed server and offline runtime
-        if: matrix.platform.os == 'linux'
-        run: |
-          cargo build --locked --release --no-default-features --features daemon --bin omneum-server
-          cp target/release/omneum-server daemon-artifact/
-          cp deploy/install-server.sh deploy/install_server.py deploy/install-linux.py daemon-artifact/
-          cp omneum/runtime_bundle.py daemon-artifact/
-          cp deploy/systemd/omneum-server.socket deploy/systemd/omneum-server@.service daemon-artifact/systemd/
-          cp deploy/sysusers.d/omneum-server.conf daemon-artifact/sysusers.d/
-          # Build at the same fixed prefix used by the existing service definition.
-          sudo mkdir /opt/omneum
-          sudo env PATH="$PATH" RUSTFLAGS="$RUSTFLAGS" RUSTUP_HOME="$HOME/.rustup" CARGO_HOME="$HOME/.cargo" UV_PROJECT_ENVIRONMENT=/opt/omneum/.venv UV_PYTHON_INSTALL_DIR=/opt/omneum/python "$(command -v uv)" sync --project "$GITHUB_WORKSPACE" --locked --no-default-groups --no-editable --managed-python --python 3.13.15
-          version=$(python -I -B -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          sudo /usr/bin/python3 -I -B tools/build_linux_runtime.py --version "$version" --output daemon-artifact/runtime.tar.gz
-          sudo chown -R "$(id -u):$(id -g)" daemon-artifact
-          # Test the shipped, link-free runtime at its final prefix, not the build venv.
-          sudo mv /opt/omneum /opt/omneum-build
-          sudo /usr/bin/python3 -I -B -c 'import runpy,sys; m=runpy.run_path("omneum/runtime_bundle.py"); m["unpack"](open("daemon-artifact/runtime.tar.gz", "rb"), "/opt/omneum", sys.argv[1])' "$version"
-          sudo chmod 755 /opt/omneum
-          test ! -L /opt
-          sudo chown root:root /opt
-          sudo chmod 755 /opt
-          # Application verification runs as omneum-mcp during installation,
-          # after the installer provisions that identity.
-          sudo /usr/bin/python3 -I -B -c 'import runpy; runpy.run_path("deploy/install_server.py")["inspect_runtime"]()'
-
-      - name: Verify fresh Linux public installation
-        if: matrix.platform.os == 'linux'
-        run: |
-          # Leave no pre-provisioned runtime for the public installation helper.
-          sudo mv /opt/omneum /opt/omneum-validated
-          test ! -L /usr/local/bin
-          sudo chown root:root /usr/local/bin
-          sudo chmod 755 /usr/local/bin
-          version=$(sudo /usr/bin/python3 -I -B -c 'import json; print(json.load(open("/opt/omneum-validated/runtime.json"))["version"])')
-          sudo /usr/bin/python3 -I -B daemon-artifact/install-linux.py "$GITHUB_WORKSPACE/daemon-artifact" "$(id -u)" "$version"
-          /opt/omneum/.venv/bin/python -I -B tests/security/linux_public_install.py
-
-      - name: Stage required project and native dependency licenses
-        run: |
-          cp LICENSE daemon-artifact/LICENSE
-          cp omneum/NATIVE-LICENSES.txt daemon-artifact/NATIVE-LICENSES.txt
-      - name: Upload daemon artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: daemon-${{ matrix.platform.os }}-${{ matrix.platform.target }}
-          path: daemon-artifact/
-
-  prepare-daemon-release:
-    name: Validate wheels and prepare daemon release assets
-    needs: [test, build, windows-sdk, source-distribution, linux-foreground, macos-install, daemon-artifacts, publication-preflight]
-    if: github.event_name != 'pull_request' && github.repository == 'cole-h06/omneum'
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      actions: read
-    env:
-      RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.11"
-      - name: Validate exact release version
-        run: |
-          # Manual branch runs validate without publishing or creating a tag.
-          if [ -z "$RELEASE_TAG" ]; then
-            RELEASE_TAG=$(python -c 'import tomllib; print("v" + tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          fi
-          python tools/release_daemon.py validate --tag "$RELEASE_TAG"
-          echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
-      - name: Download this run's staged daemon artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          for platform in linux-x86_64 macos-aarch64 macos-x86_64; do
-            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
-              --name "daemon-$platform" --dir "daemon-artifacts/daemon-$platform"
-          done
-      - name: Prepare and verify deterministic archives and checksums
-        run: python tools/release_daemon.py prepare --tag "$RELEASE_TAG"
-      - name: Download this run's wheels and validate the complete release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
-            --pattern 'wheel-*' --dir wheel-artifacts
-          python tools/check_mcp_bundle.py wheel-artifacts/*/*.whl
-          python tools/native_licenses.py --artifacts wheel-artifacts/*/*.whl
-          python tools/release_wheels.py prepare --tag "$RELEASE_TAG" \
-            --wheels wheel-artifacts --daemon-assets release-assets --output pypi-dist
-      - name: Add verified source distribution
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name python-source-distribution --dir source-dist
-          python tools/release_sdist.py --sdist "source-dist/omneum-${RELEASE_TAG#v}.tar.gz" --version "${RELEASE_TAG#v}"
-          cp source-dist/*.tar.gz pypi-dist/
-      - name: Record complete approved publication manifest
-        run: |
-          python tools/release_publication.py manifest --version "${RELEASE_TAG#v}"
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: release-manifest
-          path: release-manifest.json
-          if-no-files-found: error
-      - name: Upload validated Python distributions without rebuilding
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: python-release-wheels
-          path: pypi-dist/*
-          if-no-files-found: error
-      - name: Upload complete release asset set
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: daemon-release-assets
-          path: release-assets/
-          if-no-files-found: error
-
-  prepare-install-assets:
-    name: Prepare candidate installer assets independently of SDK matrix
-    needs: daemon-artifacts
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      actions: read
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.11"
-      - name: Prepare exact complete installer asset set
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          for platform in linux-x86_64 macos-aarch64 macos-x86_64; do
-            gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "daemon-$platform" --dir "daemon-artifacts/daemon-$platform"
-          done
-          tag=$(python -c 'import tomllib; print("v" + tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')
-          python tools/release_daemon.py prepare --tag "$tag"
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: daemon-install-assets
-          path: release-assets/
-          if-no-files-found: error
-
-  candidate-install-diagnostics:
-    name: Fresh candidate installation ${{ matrix.runner }}
-    needs: prepare-install-assets
-    runs-on: ${{ matrix.runner }}
-    permissions:
-      contents: read
-      actions: read
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: ubuntu-22.04
-            wheel: '*cp314*manylinux*x86_64.whl'
-          - runner: macos-15
-            wheel: '*cp314*arm64.whl'
-          - runner: macos-15-intel
-            wheel: '*cp314*x86_64.whl'
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: "3.14"
-      - name: Download unpublished candidate distributions and assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-install-assets --dir candidate-assets
-      - name: Build this platform's candidate wheel
-        run: |
-          python -m pip install maturin==1.15.0
-          python -m maturin build --locked --release --out candidate-wheels --interpreter python
-          python tools/release_wheels.py sanitize --wheels candidate-wheels
-          python tools/check_mcp_bundle.py candidate-wheels/*.whl
-          python tools/native_licenses.py --artifacts candidate-wheels/*.whl
-      - name: Secure writable hosted Linux runner installation parents
-        if: runner.os == 'Linux'
-        run: |
-          test ! -L /opt
-          test ! -L /usr/local/bin
-          sudo chown root:root /opt /usr/local/bin
-          sudo chmod 755 /opt /usr/local/bin
-      - name: Reproduce default Ubuntu prerequisite permissions
-        if: runner.os == 'Linux'
-        run: |
-          mkdir -p "$HOME/.local/share"
-          chmod 775 "$HOME/.local" "$HOME/.local/share"
-      - name: Install pinned public Python environment tooling
-        run: |
-          python -m pip install --only-binary=:all: uv==0.12.10
-      - name: Install wheel in fresh environment and exercise real installer
-        env:
-          WHEEL_PATTERN: ${{ matrix.wheel }}
-        run: |
-          uv venv --managed-python --python 3.14 --seed "$RUNNER_TEMP/fresh-omneum"
-          wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
-          test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tools/check_release_dependencies.py
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
-
-      - name: Retain tested candidate wheel
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: accepted-candidate-${{ matrix.runner }}
-          path: candidate-wheels/*.whl
-          if-no-files-found: error
-
-  public-install-acceptance:
-    name: Fresh public installation ${{ matrix.platform.runner }} Python ${{ matrix.python.version }}
-    needs: [build, prepare-install-assets]
-    # A dependency failure on Intel must not hide Ubuntu/ARM acceptance results.
-    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.prepare-install-assets.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'failure') }}
-    runs-on: ${{ matrix.platform.runner }}
-    permissions:
-      contents: read
-      actions: read
-    strategy:
-      fail-fast: false
-      matrix:
-        python:
-          - { version: "3.11", tag: cp311 }
-          - { version: "3.12", tag: cp312 }
-          - { version: "3.13", tag: cp313 }
-          - { version: "3.14", tag: cp314 }
-        platform:
-          - runner: ubuntu-22.04
-            os: linux
-            target: x86_64
-            wheel: '*manylinux*x86_64'
-          - runner: macos-15
-            os: macos
-            target: aarch64
-            wheel: '*arm64'
-          - runner: macos-15-intel
-            os: macos
-            target: x86_64
-            wheel: '*x86_64'
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: ${{ matrix.python.version }}
-      - name: Download unpublished candidate distributions and assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name daemon-install-assets --dir candidate-assets
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "wheel-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python.version }}" --dir candidate-wheels
-      - name: Secure writable hosted Linux runner installation parents
-        if: runner.os == 'Linux'
-        run: |
-          test ! -L /opt
-          test ! -L /usr/local/bin
-          sudo chown root:root /opt /usr/local/bin
-          sudo chmod 755 /opt /usr/local/bin
-      - name: Install pinned public Python environment tooling
-        run: |
-          python -m pip install --only-binary=:all: uv==0.12.10
-      - name: Install wheel in fresh environment and exercise real installer
-        env:
-          OMNEUM_ACCEPTANCE_REPORT: ${{ runner.temp }}/context-graph-acceptance.json
-          WHEEL_PATTERN: 'omneum-*-${{ matrix.python.tag }}-${{ matrix.python.tag }}-${{ matrix.platform.wheel }}.whl'
-        run: |
-          # Acceptance must use public PyPI, even if a runner has private pip settings.
-          unset PIP_FIND_LINKS PIP_EXTRA_INDEX_URL PIP_NO_INDEX
-          export PIP_CONFIG_FILE=/dev/null
-          export PIP_INDEX_URL=https://pypi.org/simple
-          uv venv --managed-python --python ${{ matrix.python.version }} --seed "$RUNNER_TEMP/fresh-omneum"
-          wheel=$(find candidate-wheels -name "$WHEEL_PATTERN")
-          test "$(printf '%s\n' "$wheel" | wc -l | tr -d ' ')" = 1
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip install --only-binary=:all: "$wheel"
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -m pip check
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tools/check_release_dependencies.py
-          "$RUNNER_TEMP/fresh-omneum/bin/python" -I tests/security/public_release_install.py candidate-assets
-
-      - name: Retain mandatory Context Graph acceptance result
-        if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: context-graph-${{ matrix.platform.os }}-${{ matrix.platform.target }}-py${{ matrix.python.version }}
-          path: ${{ runner.temp }}/context-graph-acceptance.json
-          if-no-files-found: warn
-
-  publish-daemon-release:
-    name: Publish daemon GitHub Release
     environment: github-release
-    needs: [prepare-daemon-release, public-install-acceptance]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'cole-h06/omneum'
-    runs-on: ubuntu-22.04
     permissions:
       contents: write
       actions: read
-      attestations: write
-      id-token: write
-    concurrency:
-      group: daemon-release-${{ github.ref }}
-      cancel-in-progress: false
-    env:
-      RELEASE_TAG: ${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
-          python-version: "3.11"
-      - name: Download and verify prepared release assets
+          ref: 978bc5806a13bcdbcd40e0f5b6d0b284935c6517
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.11'
+      - name: Download exact accepted distributions, assets and manifest
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
-            --name daemon-release-assets --dir release-assets
-          python tools/release_daemon.py verify --tag "$RELEASE_TAG"
-      - name: Attest verified daemon asset provenance
-        uses: actions/attest-build-provenance@9d57eef8c06cd9d6b433effeeb7a6a77b3ff94ad
-        with:
-          subject-path: release-assets/*
-      - name: Upload assets to a draft, verify uploaded bytes, then publish
+          gh run download "$ACCEPTED_RUN" --repo "$GITHUB_REPOSITORY" --name python-release-wheels --dir pypi-dist
+          gh run download "$ACCEPTED_RUN" --repo "$GITHUB_REPOSITORY" --name daemon-release-assets --dir release-assets
+          gh run download "$ACCEPTED_RUN" --repo "$GITHUB_REPOSITORY" --name release-manifest --dir approved-manifest
+          python tools/verify_promoted_release.py
+          python candidate/tools/release_wheels.py verify --tag "$RELEASE_TAG" --project candidate/pyproject.toml --wheels pypi-dist --daemon-assets release-assets
+          python candidate/tools/release_sdist.py --sdist pypi-dist/omneum-1.0.4.tar.gz --version 1.0.4
+          python candidate/tools/release_publication.py check-new --version 1.0.4
+      - name: Create exact annotated tag and publish verified daemon assets
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # The installer downloads anonymously from this repository.
+          # GITHUB_TOKEN avoids a recursive tag-build run; all 44 acceptance gates above already passed.
+          python - <<'PY'
+          import json, subprocess
+          def api(*args):
+              return json.loads(subprocess.check_output(['gh', 'api', *args]))
+          repo='repos/cole-h06/omneum'
+          tag=api('--method','POST',repo+'/git/tags','-f','tag=v1.0.4','-f','message=Omneum v1.0.4; verified original artifacts from run 38317382168','-f','object=978bc5806a13bcdbcd40e0f5b6d0b284935c6517','-f','type=commit')
+          api('--method','POST',repo+'/git/refs','-f','ref=refs/tags/v1.0.4','-f','sha='+tag['sha'])
+          PY
           test "$(gh api "repos/$GITHUB_REPOSITORY" --jq '.visibility')" = public
-          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
-            --verify-tag --draft --title "Omneum $RELEASE_TAG" \
-            --notes "Versioned native daemon bundles. See deploy/README.md for the artifact and checksum contract." \
-            release-assets/*
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --draft --title 'Omneum v1.0.4' --notes 'Complete distribution coverage patch. Original verified artifacts from candidate 978bc580 and CI run 38317382168; no rebuild.' release-assets/*
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir uploaded-assets
-          python tools/release_daemon.py verify --tag "$RELEASE_TAG" --output uploaded-assets
+          python tools/verify_promoted_release.py uploaded-assets
           diff -r release-assets uploaded-assets
           gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
-
+      - name: Verify anonymous downloads before any package publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir public-release-assets
+          for file in release-assets/*; do
+            name=$(basename "$file")
+            curl --fail --silent --show-error --location --retry 3 --connect-timeout 30 --max-time 600 --proto '=https' --proto-redir '=https' "https://github.com/cole-h06/omneum/releases/download/$RELEASE_TAG/$name" --output "public-release-assets/$name"
+          done
+          python tools/verify_promoted_release.py public-release-assets
+          diff -r release-assets public-release-assets
   publish-pypi:
-    name: Publish validated wheels to PyPI
-    needs: publish-daemon-release
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'cole-h06/omneum'
+    needs: publish-github
     runs-on: ubuntu-22.04
-    # Configure PyPI's Trusted Publisher for cole-h06/omneum, CI.yml, environment pypi.
-    environment:
-      name: pypi
-      url: https://pypi.org/project/omneum/
+    environment: pypi
     permissions:
       contents: read
       actions: read
       id-token: write
-    concurrency:
-      group: pypi-release-${{ github.ref }}
-      cancel-in-progress: false
-    env:
-      RELEASE_TAG: ${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
-          python-version: "3.11"
-      - name: Download this run's validated distribution artifacts
+          ref: 978bc5806a13bcdbcd40e0f5b6d0b284935c6517
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.11'
+      - name: Reverify original bytes and public daemon availability
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
-            --name python-release-wheels --dir pypi-dist
-          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" \
-            --name daemon-release-assets --dir release-assets
-          python tools/release_daemon.py verify --tag "$RELEASE_TAG"
-      - name: Require anonymous access to the exact published daemon bytes
-        run: |
-          mkdir public-release-assets
-          for asset in release-assets/*; do
-            name=$(basename "$asset")
-            curl --fail --silent --show-error --location --retry 3 \
-              --connect-timeout 30 --max-time 600 --proto '=https' --proto-redir '=https' \
-              "https://github.com/cole-h06/omneum/releases/download/$RELEASE_TAG/$name" \
-              --output "public-release-assets/$name"
-          done
-          diff -r release-assets public-release-assets
-          python tools/release_wheels.py verify --tag "$RELEASE_TAG" \
-            --wheels pypi-dist --daemon-assets public-release-assets
-      - name: Verify source distribution before publication
-        run: python tools/release_sdist.py --sdist "pypi-dist/omneum-${RELEASE_TAG#v}.tar.gz" --version "${RELEASE_TAG#v}"
-      - name: Recheck unused version and approved publication bytes
-        run: |
-          python tools/release_publication.py check-new --version "${RELEASE_TAG#v}"
-          python tools/release_publication.py manifest --version "${RELEASE_TAG#v}" --daemon-assets public-release-assets
-      - name: Publish distributions using PyPI Trusted Publishing
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+          gh run download "$ACCEPTED_RUN" --repo "$GITHUB_REPOSITORY" --name python-release-wheels --dir pypi-dist
+          gh run download "$ACCEPTED_RUN" --repo "$GITHUB_REPOSITORY" --name release-manifest --dir approved-manifest
+          mkdir release-assets
+          python - <<'PY'
+          import json, urllib.request
+          from pathlib import Path
+          m=json.load(open('approved-manifest/release-manifest.json'))
+          for name in m['daemon_assets']:
+              with urllib.request.urlopen('https://github.com/cole-h06/omneum/releases/download/v1.0.4/'+name,timeout=600) as r:
+                  Path('release-assets',name).write_bytes(r.read())
+          PY
+          python tools/verify_promoted_release.py
+          python candidate/tools/release_wheels.py verify --tag "$RELEASE_TAG" --project candidate/pyproject.toml --wheels pypi-dist --daemon-assets release-assets
+          python candidate/tools/release_sdist.py --sdist pypi-dist/omneum-1.0.4.tar.gz --version 1.0.4
+          python candidate/tools/release_publication.py check-new --version 1.0.4
+      - name: Upload all 17 original files using existing Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
         with:
           packages-dir: pypi-dist/
-          verbose: true
           skip-existing: false
-      - name: Verify every public distribution and downloaded hash
-        run: python tools/release_publication.py verify-public --version "${RELEASE_TAG#v}"
+          verbose: true
+      - name: Verify complete public index and all downloaded package hashes
+        run: python candidate/tools/release_publication.py verify-public --version 1.0.4 --manifest approved-manifest/release-manifest.json
+  fresh-public-arm314:
+    needs: publish-pypi
+    runs-on: macos-15
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 978bc5806a13bcdbcd40e0f5b6d0b284935c6517
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Fresh native Apple Silicon installation from public PyPI
+        env:
+          OMNEUM_ACCEPTANCE_REPORT: ${{ runner.temp }}/public-arm314-acceptance.json
+        run: |
+          unset PYTHONPATH PIP_FIND_LINKS PIP_EXTRA_INDEX_URL PIP_NO_INDEX
+          export PIP_CONFIG_FILE=/dev/null
+          export PIP_INDEX_URL=https://pypi.org/simple
+          python -m pip install --only-binary=:all: uv==0.12.10
+          uv venv --managed-python --python 3.14 --seed "$RUNNER_TEMP/fresh-public"
+          "$RUNNER_TEMP/fresh-public/bin/python" -c 'import platform; assert platform.machine() == "arm64"'
+          "$RUNNER_TEMP/fresh-public/bin/python" -m pip install --no-cache-dir --only-binary=:all: --report "$RUNNER_TEMP/pip-public-install.json" omneum==1.0.4
+          "$RUNNER_TEMP/fresh-public/bin/python" -m pip check
+          "$RUNNER_TEMP/fresh-public/bin/python" -I tools/check_release_dependencies.py
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          source=Path('tests/security/public_release_install.py').read_text()
+          old='\n'.join(["        with patch.object(installation, 'download', download):", "            result = CliRunner().invoke(get_command(app), ['install'])", "        print(result.output, end='')", "        assert result.exit_code == 0, result.exception", "        assert 'Omneum is ready.' in result.output"])
+          new='\n'.join(["        result = subprocess.run([str(Path(sys.executable).parent / 'omneum'), 'install'], check=True, text=True, capture_output=True)", "        print(result.stdout, end='')", "        assert 'Omneum is ready.' in result.stdout"])
+          assert source.count(old)==1
+          Path(os.environ['RUNNER_TEMP'],'public_install_probe.py').write_text(source.replace(old,new))
+          PY
+          "$RUNNER_TEMP/fresh-public/bin/python" -I "$RUNNER_TEMP/public_install_probe.py" public
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          x=json.load(open(Path(os.environ['RUNNER_TEMP'],'pip-public-install.json')))
+          omneum=next(i for i in x['install'] if i['metadata']['name']=='omneum')
+          assert omneum['metadata']['version']=='1.0.4' and not omneum['is_direct']
+          assert omneum['download_info']['url'].startswith('https://files.pythonhosted.org/')
+          assert omneum['download_info']['archive_info']['hashes']['sha256']=='5b11876d37c7148e77be75ea513d238fe7e7337dba1fb69df2d4183344ca2e4f'
+          print('PASS: public native ARM64 CPython 3.14 package hash equals approved manifest')
+          PY
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: always()
+        with:
+          name: public-arm314-install-evidence
+          path: |
+            ${{ runner.temp }}/public-arm314-acceptance.json
+            ${{ runner.temp }}/pip-public-install.json
+          if-no-files-found: warn
