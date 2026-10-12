@@ -36,6 +36,15 @@ class NativeLicenseTests(unittest.TestCase):
     def test_source_notices_match_verified_source(self):
         verify_artifacts([self.artifact(source=True)])
 
+    def test_literal_wildcard_from_powershell_is_verified(self):
+        artifact = self.artifact()
+        verify_artifacts([artifact.parent / '*.whl'])
+
+    def test_missing_wildcard_is_rejected(self):
+        artifact = self.artifact()
+        with self.assertRaisesRegex(ValueError, 'no matching license artifacts'):
+            verify_artifacts([artifact.parent / 'missing-*.whl'])
+
     def test_modified_native_notices_rejected(self):
         for source in (False, True):
             with self.subTest(source=source), self.assertRaisesRegex(ValueError, 'native license mismatch'):

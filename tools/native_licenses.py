@@ -1,6 +1,7 @@
 """Reproduce native dependency notices from checksum-pinned Cargo archives."""
 import argparse
 import hashlib
+import glob
 import io
 import json
 from pathlib import Path
@@ -67,7 +68,13 @@ def generated():
 
 def verify_artifacts(paths):
     resources = ('omneum/NATIVE-LICENSES.txt', 'omneum/RUST-STDLIB-LICENSES.txt')
-    for path in paths:
+    expanded = []
+    for pattern in paths:
+        matches = [Path(name) for name in sorted(glob.glob(str(pattern)))] if glob.has_magic(str(pattern)) else [pattern]
+        if not matches:
+            raise ValueError('no matching license artifacts: ' + str(pattern))
+        expanded.extend(matches)
+    for path in expanded:
         if path.suffix == '.whl':
             with zipfile.ZipFile(path) as archive:
                 for name in resources:
