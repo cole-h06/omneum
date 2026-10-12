@@ -324,7 +324,7 @@ PostgreSQL persistence is implemented by `PostgresStorage` in [`omneum/storage/p
 
 ## Omneum Network
 
-The **Omneum Network** accepts pseudonymous structural contributions from Omneum evaluations.
+The **Omneum Network** accepts pseudonymous structural contributions from Omneum evaluations. Hosted contribution is currently restricted to approved closed-beta participants.
 
 Network contribution is configured separately from local persistence:
 

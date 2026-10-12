@@ -281,13 +281,15 @@ Framework examples:
 For a complete framework-independent workflow, see the
 [enterprise policy example](examples/enterprise/).
 
-### Optional: Contribute to the Omneum Network
+### Optional: Contribute to the Omneum Network (Closed Beta)
 
 Omneum runs locally by default. You can opt in to contribute observations to the shared Omneum Context Graph without uploading raw context.
 
 Network contributions help build a shared evidence base across agent deployments, extending the Context Graph beyond any single installation.
 
 Contributions use privacy-preserving cryptographic linkage via an RFC 9497 VOPRF. Network contribution is disabled by default. Local evaluation works without it.
+
+Hosted Network enrollment is currently limited to approved beta participants.
 
 See [Enable Network contribution (MCP)](docs/guides/configuration.md#mcp-configuration) to get started, or [How Network contribution works](docs/context-graph.md#omneum-network) for technical details.
 

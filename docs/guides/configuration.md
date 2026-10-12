@@ -108,7 +108,7 @@ Disabling local persistence does not implicitly enable or disable Network contri
 
 ## Network Contribution
 
-Network contribution is disabled by default. The standard `omneum-server` remains local-only and does not upload Context Graph history.
+Network contribution is disabled by default. Hosted Network enrollment is currently limited to approved closed-beta participants. The standard `omneum-server` remains local-only and does not upload Context Graph history.
 
 The optional `omneum-contributor` MCP adapter exposes `evaluate_observations`. It accepts new assertion occurrences, performs local evaluation, and can submit an allowlisted structural contribution when explicitly enabled.
 
@@ -121,7 +121,7 @@ The contributor adapter does not forward the standard MCP server's tools. Existi
 
 ### MCP Configuration
 
-Install Omneum normally, then enroll the installation:
+For approved beta participants, install Omneum normally, then enroll the installation:
 
 ```bash
 omneum network enroll
@@ -166,7 +166,7 @@ Python clients configure Network contribution through the `network_contribution`
 |---|---|---|
 | `network_contribution` | `NetworkContributionConfig \| None` | `None` |
 
-For a provisioned production Network, the high-level factory constructs the release-pinned contribution configuration:
+For approved beta participants using a provisioned Network, the high-level factory constructs the release-pinned contribution configuration:
 
 ```python
 import os
