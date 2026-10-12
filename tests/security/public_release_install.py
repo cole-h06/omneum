@@ -5,6 +5,7 @@ Everything after download (checksum, extraction, sudo, services, init, MCP) is r
 Never run on a developer machine or an existing deployment.
 """
 import asyncio
+import importlib.util
 from datetime import datetime, timezone
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ import sys
 from unittest.mock import patch
 
 from click.testing import CliRunner
-from mcp import ClientSession, StdioServerParameters, stdio_client
+from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
 from typer.main import get_command
 from omneum import ContextMapper, DependencyEstimatorConfig, OmneumClientConfig, Source, open_stdio_client
 from omneum import installation
@@ -23,6 +24,8 @@ from omneum.paths import get_context_db_path
 
 
 def main(assets):
+    assert importlib.util.find_spec('mcp') is None, 'core install must use the bundled SDK'
+    assert importlib.util.find_spec('cryptography') is None, 'core install must not acquire a crypto backend'
     assert os.geteuid() != 0, 'run as original login user on a fresh disposable CI host'
     key = Path('/var/lib/omneumd/voprf.key' if sys.platform == 'linux' else
                '/Library/Application Support/OmneumCrypto/voprf.key')
@@ -59,6 +62,8 @@ def main(assets):
         async with stdio_client(server) as (reader, writer):
             async with ClientSession(reader, writer) as session:
                 await session.initialize()
+                tools = await session.list_tools()
+                assert {tool.name for tool in tools.tools} == {'ping', 'evaluate_voprf', 'evaluate_context'}
                 result = await session.call_tool('ping')
                 assert not result.isError and result.structuredContent['status'] == 'ok'
         async with open_stdio_client(config, server=server) as client:

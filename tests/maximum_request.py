@@ -9,7 +9,7 @@ import hashlib
 import json
 import sys
 
-from mcp import ClientSession, StdioServerParameters, stdio_client
+from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
 
 from omneum.client import (
     OmneumClient, OmneumClientConfig, LinkageToken, _MCPOmneumEvaluator,

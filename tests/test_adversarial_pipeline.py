@@ -3,7 +3,7 @@ from daemon_support import VOPRFServer
 import json
 
 import pytest
-from mcp.types import JSONRPCMessage
+from omneum.mcp.types import JSONRPCMessage
 from pydantic import ValidationError
 
 from omneum.base64url import encode_unpadded

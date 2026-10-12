@@ -1,0 +1,2 @@
+# The pinned SDK manifest covers exact source bytes on every build platform.
+omneum/mcp/** text eol=lf

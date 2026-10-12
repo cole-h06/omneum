@@ -11,8 +11,8 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field, replace
 from typing import Any, Literal, Protocol
 
-from mcp import ClientSession, StdioServerParameters, stdio_client
-from mcp.types import CallToolResult
+from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
+from omneum.mcp.types import CallToolResult
 from pydantic import ValidationError
 
 from .metrics import (
@@ -1772,10 +1772,9 @@ async def open_stdio_client(
     custom adapter. Network contribution requires its own explicit configuration.
     """
 
-    if (
-        isinstance(server, StdioServerParameters)
-        and server.env is None
-    ):
+    # Also accepts the official SDK's compatible StdioServerParameters model;
+    # importing that separate distribution is unnecessary for this bridge.
+    if getattr(server, "env", False) is None:
         config_dir = os.environ.get("OMNEUM_CONFIG_DIR")
         if config_dir is not None:
             server = server.model_copy(

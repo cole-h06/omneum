@@ -31,7 +31,7 @@ ENTRY_POINTS = {
     "omneum-server": "omneum.proxy:main",
     "omneum-contributor": "omneum.contributor:main",
 }
-RESOURCES = ("algorithm_compatibility.json", "schemas/research-event-v1.schema.json")
+RESOURCES = ("mcp/LICENSE", "mcp/UPSTREAM.json", "mcp/UPSTREAM-PYPROJECT.toml", "algorithm_compatibility.json", "schemas/research-event-v1.schema.json")
 
 
 def sanitize(wheels, project=None):
@@ -207,7 +207,8 @@ def smoke(wheels, project, dependency_wheel=None):
         def run(*args):
             subprocess.run([str(python), "-I", *args], cwd=root, env=env, check=True)
 
-        run("-m", "pip", "install", "--only-binary=:all:", "--disable-pip-version-check", str(wheel), *dependency)
+        run("-m", "pip", "--isolated", "install", "--index-url", "https://pypi.org/simple",
+            "--only-binary=:all:", "--disable-pip-version-check", str(wheel), *dependency)
         run("-m", "pip", "check")
         run("-c", """
 import importlib.metadata as metadata

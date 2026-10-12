@@ -5,7 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-from mcp import ClientSession, StdioServerParameters, stdio_client
+from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
 
 from omneum.base64url import encode_unpadded
 from stdio_state import isolated_deployment_environment

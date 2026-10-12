@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
-from mcp import ClientSession, StdioServerParameters
+from omneum.mcp import ClientSession, StdioServerParameters
 
 import omneum.client as client_module
 from omneum.client import OmneumClientConfig, open_stdio_client

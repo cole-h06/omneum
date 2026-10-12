@@ -4797,21 +4797,42 @@ name = "omneum"
 version = "1.0.3"
 source = { editable = "." }
 dependencies = [
-    { name = "cryptography" },
+    { name = "anyio" },
+    { name = "httpx" },
+    { name = "httpx-sse" },
     { name = "idna" },
-    { name = "mcp" },
+    { name = "jsonschema" },
     { name = "orjson" },
+    { name = "packaging" },
     { name = "platformdirs" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pyjwt" },
+    { name = "python-multipart" },
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'group-6-omneum-crewai' and extra == 'group-6-omneum-google-adk')" },
     { name = "rfc3986" },
     { name = "rfc8785" },
+    { name = "sse-starlette" },
     { name = "starlette" },
     { name = "typer" },
+    { name = "typing-extensions" },
+    { name = "typing-inspection" },
+    { name = "uvicorn", marker = "sys_platform != 'emscripten' or (extra == 'group-6-omneum-crewai' and extra == 'group-6-omneum-google-adk')" },
+]
+
+[package.optional-dependencies]
+mcp-ws = [
+    { name = "websockets" },
+]
+oauth = [
+    { name = "cryptography" },
+    { name = "pyjwt", extra = ["crypto"] },
 ]
 
 [package.dev-dependencies]
+auth-test = [
+    { name = "cryptography" },
+]
 benchmarks = [
     { name = "anthropic" },
     { name = "cohere" },
@@ -4851,21 +4872,36 @@ openai-agents = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cryptography", specifier = ">=50.0.1" },
+    { name = "anyio", specifier = ">=4.5" },
+    { name = "cryptography", marker = "extra == 'oauth'", specifier = ">=50.0.1" },
+    { name = "httpx", specifier = ">=0.27.1,<1" },
+    { name = "httpx-sse", specifier = ">=0.4" },
     { name = "idna", specifier = ">=3.10" },
-    { name = "mcp", specifier = ">=1.27,<2" },
+    { name = "jsonschema", specifier = ">=4.20.0" },
     { name = "orjson", specifier = ">=3.10" },
+    { name = "packaging", specifier = ">=25" },
     { name = "platformdirs", specifier = ">=4,<5" },
-    { name = "pydantic", specifier = ">=2.11,<3" },
+    { name = "pydantic", marker = "python_full_version < '3.14'", specifier = ">=2.11,<3" },
+    { name = "pydantic", marker = "python_full_version >= '3.14'", specifier = ">=2.12,<3" },
     { name = "pydantic-settings", specifier = ">=2.14,<2.15" },
     { name = "pyjwt", specifier = ">=2.15.0,<3" },
+    { name = "pyjwt", extras = ["crypto"], marker = "extra == 'oauth'", specifier = ">=2.15.0,<3" },
+    { name = "python-multipart", specifier = ">=0.0.32" },
+    { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=311" },
     { name = "rfc3986", specifier = ">=2.0.0" },
     { name = "rfc8785", specifier = "==0.1.4" },
+    { name = "sse-starlette", specifier = ">=1.6.1" },
     { name = "starlette", specifier = ">=1.6.0" },
     { name = "typer", specifier = ">=0.16" },
+    { name = "typing-extensions", specifier = ">=4.9.0" },
+    { name = "typing-inspection", specifier = ">=0.4.1" },
+    { name = "uvicorn", marker = "sys_platform != 'emscripten'", specifier = ">=0.31.1" },
+    { name = "websockets", marker = "extra == 'mcp-ws'", specifier = ">=15.0.1" },
 ]
+provides-extras = ["oauth", "mcp-ws"]
 
 [package.metadata.requires-dev]
+auth-test = [{ name = "cryptography", specifier = ">=50.0.1" }]
 benchmarks = [
     { name = "anthropic", specifier = ">=0.64,<1" },
     { name = "cohere" },

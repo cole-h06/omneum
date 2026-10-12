@@ -149,7 +149,7 @@ Use `ContextMapper` to map retrieved records into Omneum observations. The examp
 import asyncio
 from datetime import datetime, timezone
 
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 from omneum import (
     ContextMapper,
     DependencyEstimatorConfig,

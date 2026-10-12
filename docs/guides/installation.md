@@ -207,3 +207,12 @@ Check the daemon/service status and existing public-key pin before retrying.
 
 For service identities, systemd units, socket permissions, manual
 installation, and daemon administration, see [`deploy/README.md`](../../deploy/README.md).
+
+## Optional asymmetric authentication
+
+The local stdio installation includes its MCP SDK and does not need Python
+cryptography. Operator account enrollment and SDK asymmetric OAuth require
+`pip install 'omneum[oauth]'` on macOS arm64 or Linux x86_64. On macOS Intel,
+those optional capabilities raise an explicit dependency error because patched
+public crypto wheels are unavailable. See [the SDK architecture and maintenance
+contract](../mcp-sdk.md).

@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 import sys
 
-import mcp
+import omneum.mcp as mcp
 
 from omneum.config import load_deployment_state
 from omneum.transport.mcp import create_server
@@ -19,7 +19,7 @@ _MCP_PACKAGE_ROOT = Path(mcp.__file__).resolve().parent
 
 class _MCPLogFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        if record.name == "mcp" or record.name.startswith("mcp."):
+        if record.name in {"mcp", "omneum.mcp"} or record.name.startswith(("mcp.", "omneum.mcp.")):
             return False
         try:
             return not Path(record.pathname).resolve().is_relative_to(
@@ -37,12 +37,13 @@ def _suppress_mcp_logging() -> None:
     ):
         root_logger.addFilter(_MCPLogFilter())
 
-    mcp_logger = logging.getLogger("mcp")
-    mcp_logger.handlers.clear()
-    mcp_logger.propagate = False
+    for namespace in ("mcp", "omneum.mcp"):
+        mcp_logger = logging.getLogger(namespace)
+        mcp_logger.handlers.clear()
+        mcp_logger.propagate = False
     for name, item in logging.Logger.manager.loggerDict.items():
         if (
-            (name == "mcp" or name.startswith("mcp."))
+            (name in {"mcp", "omneum.mcp"} or name.startswith(("mcp.", "omneum.mcp.")))
             and isinstance(item, logging.Logger)
         ):
             item.handlers.clear()

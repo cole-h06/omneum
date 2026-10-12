@@ -301,7 +301,7 @@ def run_install(progress) -> None:
 def verify_managed_connection() -> None:
     """Exercise the same public proxy and proof-verifying SDK that applications use."""
     import asyncio
-    from mcp import StdioServerParameters
+    from omneum.mcp import StdioServerParameters
     from .client import OmneumClientConfig, open_stdio_client
     from .proxy import linux_command
 

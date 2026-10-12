@@ -388,7 +388,7 @@ def test_default_storage_with_explicit_contribution(runtime, network):
 
 
 def test_default_stdio_sqlite(runtime, computed, tmp_path):
-    from mcp import StdioServerParameters
+    from omneum.mcp import StdioServerParameters
     from test_client import DEPLOYMENT_ID, PRIVATE_KEY
     from stdio_state import isolated_deployment_environment
     from omneum import OmneumClientConfig, open_stdio_client, paths

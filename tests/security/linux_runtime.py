@@ -31,7 +31,7 @@ def run(*args, **kwargs):
 
 
 async def workload():
-    from mcp import ClientSession, StdioServerParameters, stdio_client
+    from omneum.mcp import ClientSession, StdioServerParameters, stdio_client
     from omneum.client import OmneumClientConfig, open_stdio_client
     from omneum.information import Claim, Observation, Source
     from omneum.dependency import DependencyEstimatorConfig
@@ -42,7 +42,9 @@ async def workload():
             await session.initialize()
             ping = await session.call_tool('ping', {})
             assert not ping.isError and ping.content
-    async with open_stdio_client(config, StdioServerParameters(command=PROXY)) as client:
+    # This service-isolation client has HOME=/nonexistent. Private SQLite
+    # persistence is exercised with a real user home by public installer acceptance.
+    async with open_stdio_client(config, StdioServerParameters(command=PROXY), local_persistence=None) as client:
         first = await client.link_claim('service', ' Example ', ' Display Name ', ' Alice ')
         second = await client.link_claim('service', 'example', 'display_name', 'Alice')
         assert first.value == second.value
@@ -122,7 +124,9 @@ def main():
     clients = [subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) for _ in range(2)]
     for child in clients:
         assert select.select([child.stdout], [], [], 30)[0], 'session startup timed out'
-        assert child.stdout.readline().strip() == 'session ready', child.stderr.read() if child.poll() is not None else 'session failed'
+        if child.stdout.readline().strip() != 'session ready':
+            stdout, stderr = child.communicate(timeout=10)
+            raise AssertionError(('test session failed', stdout, stderr))
     units = instances()
     assert len(units) == 2, units
     pids = [run('systemctl', 'show', '--value', '-p', 'MainPID', unit).stdout.strip() for unit in units]
