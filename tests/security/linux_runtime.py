@@ -15,6 +15,7 @@ import select
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 
 ROOT = Path('/opt/omneum')
@@ -191,5 +192,13 @@ for p in ['/etc/omneum/config.toml','/opt/omneum/.venv/pyvenv.cfg']:
 
 
 if __name__ == '__main__':
-    if sys.argv[-1] == 'workload': asyncio.run(workload())
+    if sys.argv[-1] == 'workload':
+        # The synthetic frontend account has /nonexistent as its home. Give
+        # each client private storage while exercising default persistence.
+        with tempfile.TemporaryDirectory(prefix='omneum-client-') as data:
+            os.environ['XDG_DATA_HOME'] = data
+            asyncio.run(workload())
+            database = Path(data)/'omneum/context.db'
+            assert database.stat().st_uid == os.geteuid()
+            assert database.stat().st_mode & 0o7777 == 0o600
     else: main()
