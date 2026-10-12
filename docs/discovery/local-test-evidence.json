@@ -1,0 +1,57 @@
+{
+  "checked_date": "2026-10-12",
+  "base_commit": "a40b5649d55446dff184db8fb75de4a6b1e0b999",
+  "pr2_head": "f114f851c0f6c48d94e868eaeadcaddb6ceb1d98",
+  "mcpb": {
+    "filename": "omneum-local-1.0.3.mcpb",
+    "sha256": "9a729c4b2b826e877aaa8f0cc206ae1e8bb5abef87420930ad91a7196c8da999",
+    "manifest_version": "0.3",
+    "official_validator": "@anthropic-ai/mcpb 2.1.2",
+    "signature": "unsigned"
+  },
+  "connector_protocol": {
+    "status": "passed",
+    "tools": [
+      "evaluate_context",
+      "evaluate_voprf",
+      "ping"
+    ],
+    "transport": "stdio",
+    "private_key_read": "denied",
+    "network_contribution": "disabled",
+    "mode": "protected foreground; no test-daemon feature",
+    "evaluation": "verified VOPRF and context",
+    "package_version": "1.0.3",
+    "configuration_source": "manifest substitutions",
+    "architecture": "aarch64"
+  },
+  "glama_local_stdio": {
+    "status": "passed",
+    "mode": "Docker entrypoint stdio",
+    "tools": [
+      "evaluate_context",
+      "evaluate_voprf",
+      "ping"
+    ],
+    "resources": 0,
+    "prompts": 0
+  },
+  "root_launcher": "rejected as expected",
+  "host_mounts": false,
+  "test_network": "none",
+  "supported_release_platform_tests": {
+    "macos-aarch64": "not executed",
+    "macos-x86_64": "not executed",
+    "linux-x86_64": "not executed; local Docker amd64 execution unavailable"
+  },
+  "provider_import_or_scan": {
+    "smithery": "not executed",
+    "glama": "not executed",
+    "claude": "not executed"
+  },
+  "tests": {
+    "discovery": 8,
+    "existing_release": 42,
+    "registry_in_temporary_pr2_composition": 17
+  }
+}

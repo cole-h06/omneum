@@ -1,0 +1,3 @@
+#!/bin/sh
+# Foreground service-principal entry point inside the disposable Glama sandbox.
+exec /usr/bin/setpriv --no-new-privs /usr/local/bin/python -I -B -m omneum.server
