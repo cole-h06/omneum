@@ -42,9 +42,9 @@ async def workload():
             await session.initialize()
             ping = await session.call_tool('ping', {})
             assert not ping.isError and ping.content
-    # This service-isolation client has HOME=/nonexistent. Private SQLite
-    # persistence is exercised with a real user home by public installer acceptance.
-    async with open_stdio_client(config, StdioServerParameters(command=PROXY), local_persistence=None) as client:
+    # The workload entrypoint supplies a private XDG_DATA_HOME for this
+    # synthetic account, so exercise default SQLite persistence as well as IPC.
+    async with open_stdio_client(config, StdioServerParameters(command=PROXY)) as client:
         first = await client.link_claim('service', ' Example ', ' Display Name ', ' Alice ')
         second = await client.link_claim('service', 'example', 'display_name', 'Alice')
         assert first.value == second.value
