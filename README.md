@@ -1,7 +1,7 @@
 # What is Omneum
 
 <p align="center">
-  <img src="assets/omneum-logotype.svg" alt="Omneum" width="240">
+  <img src="https://raw.githubusercontent.com/cole-h06/omneum/main/assets/omneum-logotype-white-bg.png" alt="Omneum" width="240">
 </p>
 
 <p align="center">
