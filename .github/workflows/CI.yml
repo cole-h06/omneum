@@ -19,7 +19,34 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Detect code changes
+    runs-on: ubuntu-22.04
+    outputs:
+      full_ci: ${{ steps.detect.outputs.full_ci }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - name: Classify pull request
+        id: detect
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
+            echo "full_ci=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --name-only "$BASE_SHA" HEAD > "$RUNNER_TEMP/changed-files"
+          if grep -Ev '^(README\.md|docs/|assets/|server\.json$|.*\.md$)' "$RUNNER_TEMP/changed-files" | grep -q .; then
+            echo "full_ci=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "full_ci=false" >> "$GITHUB_OUTPUT"
+          fi
+
   test:
+    needs: changes
     if: ${{ !inputs.installers_only }}
     name: Test Python ${{ matrix.python }}
     runs-on: ubuntu-22.04
@@ -46,34 +73,44 @@ jobs:
       matrix:
         python: ["3.11", "3.12", "3.13", "3.14"]
     steps:
+      - name: Documentation-only PR
+        if: needs.changes.outputs.full_ci == 'false'
+        run: echo 'Documentation-only change; full tests skipped.'
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        if: needs.changes.outputs.full_ci == 'true'
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        if: needs.changes.outputs.full_ci == 'true'
         with:
           python-version: ${{ matrix.python }}
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        if: needs.changes.outputs.full_ci == 'true'
         with:
           version: "0.12.10"
           checksum: "173d95a0c32d18c896c46ba6fafbf3cf9c14ab74b033f81b76c883ef492a976b"
           python-version: ${{ matrix.python }}
           enable-cache: false
       - name: Verify reproducible upstream MCP fork
+        if: needs.changes.outputs.full_ci == 'true'
         run: |
           curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
             https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz \
             --output "$RUNNER_TEMP/mcp-1.28.1.tar.gz"
           python tools/vendor_mcp.py "$RUNNER_TEMP/mcp-1.28.1.tar.gz" --check
       - name: Validate release tag against Python package version
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: needs.changes.outputs.full_ci == 'true' && (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: python tools/release_daemon.py validate --tag "$RELEASE_TAG"
       - name: Check lockfile and install development environment
+        if: needs.changes.outputs.full_ci == 'true'
         run: |
           uv lock --check
           uv sync --locked --managed-python --python ${{ matrix.python }} --group auth-test
       - name: Check wheel and daemon release contracts
+        if: needs.changes.outputs.full_ci == 'true'
         run: uv run --locked --group auth-test python -m unittest discover -s tools -p 'test_release_*.py' -v
       - name: Read exact algorithm compatibility pin
+        if: needs.changes.outputs.full_ci == 'true'
         id: algorithm
         run: |
           uv run --locked python - <<'PY'
@@ -90,6 +127,7 @@ jobs:
               output.write(f"repository={repository}\nrevision={pin['git_revision']}\n")
           PY
       - name: Checkout pinned specification commit
+        if: needs.changes.outputs.full_ci == 'true'
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           repository: ${{ steps.algorithm.outputs.repository }}
@@ -97,12 +135,15 @@ jobs:
           path: .algorithm-spec
           persist-credentials: false
       - name: Enforce independent algorithm conformance
+        if: needs.changes.outputs.full_ci == 'true'
         run: uv run --locked python -m omneum.conformance --spec-checkout "$ALGORITHM_SPEC_CHECKOUT"
       - name: Test Python and native extension
+        if: needs.changes.outputs.full_ci == 'true'
         # These example tests import LangGraph during collection. Keep that
         # framework and the development-only PostgreSQL driver out of public deps.
         run: uv run --locked --group langgraph --group auth-test pytest
       - name: Test Rust
+        if: needs.changes.outputs.full_ci == 'true'
         run: |
           cargo test --locked
           uv run --locked --group auth-test python tools/native_licenses.py --check
@@ -111,13 +152,16 @@ jobs:
           sudo python3 tests/security/linux_isolation.py target/debug/omneumd
           uv pip check
       - name: Verify Linux installation
+        if: needs.changes.outputs.full_ci == 'true'
         run: sudo .venv/bin/python tests/security/linux_install.py target/debug/omneumd
       - name: Check production environment
+        if: needs.changes.outputs.full_ci == 'true'
         run: |
           uv sync --locked --no-default-groups
           uv run --locked --no-default-groups python -c "import omneum, omneum.server, omneum_oprf"
 
       - name: Verify managed Linux runtime
+        if: needs.changes.outputs.full_ci == 'true'
         run: |
           cargo build --locked --release --no-default-features --features daemon --bins
           sudo mkdir -p /opt/omneum/target/release
@@ -138,7 +182,8 @@ jobs:
           sudo /opt/omneum/.venv/bin/python -B /opt/omneum/tests/security/linux_adversarial.py
 
   linux-foreground:
-    if: ${{ !inputs.installers_only }}
+    needs: changes
+    if: ${{ needs.changes.outputs.full_ci == 'true' && !inputs.installers_only }}
     name: Verify Linux foreground installation
     runs-on: ubuntu-22.04
     steps:
@@ -258,7 +303,8 @@ jobs:
           if-no-files-found: error
 
   source-distribution:
-    if: ${{ !inputs.installers_only }}
+    needs: changes
+    if: ${{ needs.changes.outputs.full_ci == 'true' && !inputs.installers_only }}
     name: Build and verify source distribution
     runs-on: ubuntu-22.04
     steps:
@@ -281,7 +327,8 @@ jobs:
           if-no-files-found: error
 
   macos-install:
-    if: ${{ !inputs.installers_only }}
+    needs: changes
+    if: ${{ needs.changes.outputs.full_ci == 'true' && !inputs.installers_only }}
     name: Verify macOS installation
     runs-on: macos-15
     steps:
