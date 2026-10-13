@@ -1,20 +1,47 @@
+
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "ai.omneum/omneum",
-  "description": "A provenance-aware data-blind context evaluator for AI agents.",
+  "name": "io.github.cole-h06/omneum",
+  "description": "Evaluate agent context for unreliable sources, dependent evidence, and conflicting claims.",
+  "title": "Omneum",
+  "websiteUrl": "https://github.com/cole-h06/omneum",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/cole-h06/omneum/main/assets/omneum-logomark-dark-bg.png",
+      "mimeType": "image/svg+xml"
+    }
+  ],
   "repository": {
     "url": "https://github.com/cole-h06/omneum",
     "source": "github"
   },
-  "version": "1.0.3",
+  "version": "1.0.7",
   "packages": [
     {
-      "registryType": "pypi",
-      "identifier": "omneum",
-      "version": "1.0.3",
+      "registryType": "mcpb",
+      "identifier": "https://github.com/cole-h06/omneum/releases/download/v1.0.4/omneum-local-1.0.4.mcpb",
+      "version": "1.0.4",
+      "fileSha256": "0fe8b402628ac034b197034bf4c12682fd1e8640554580e561b65561e2b22a2d",
       "transport": {
         "type": "stdio"
       }
     }
-  ]
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "installation": {
+        "instructions": "Install Omneum 1.0.4, then run omneum install. Import this connector and select the absolute path to omneum-server. Requires an existing installation.",
+        "pythonPackage": "omneum==1.0.4",
+        "requiresExistingInstallation": true,
+        "runtime": "Node.js >=18",
+        "setupCommand": "omneum install",
+        "stdioExecutable": "omneum-server",
+        "supportedPlatforms": [
+          "macOS arm64",
+          "macOS x86_64",
+          "Ubuntu 22.04+ x86_64"
+        ]
+      }
+    }
+  }
 }

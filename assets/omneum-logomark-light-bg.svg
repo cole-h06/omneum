@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">Omneum mark on light background</title>
+  <desc id="desc">Omneum standalone O symbol in deep blue and teal on white</desc>
+  <defs>
+    <linearGradient id="surface" x1="25" y1="24" x2="137" y2="158" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1779B7"/>
+      <stop offset="0.24" stop-color="#159FBE"/>
+      <stop offset="0.48" stop-color="#59E4DE"/>
+      <stop offset="0.68" stop-color="#22BEC7"/>
+      <stop offset="1" stop-color="#1A86BA"/>
+    </linearGradient>
+  </defs>
+  <rect x="-10" y="-10" width="200" height="200" rx="32" fill="#FFFFFF"/>
+  <g fill="none" stroke="url(#surface)" stroke-linecap="round">
+    <path stroke-width="12.5" d="M 118.5 16.9 A 77 77 0 1 0 166.2 63.7"/>
+    <path stroke-width="11.25" d="M 59.1 54.9 A 42 42 0 0 0 90.8 129.6"/>
+  </g>
+</svg>
