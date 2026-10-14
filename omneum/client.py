@@ -77,7 +77,7 @@ from .oprf import (
     VOPRFClient,
     VOPRFEvaluation,
 )
-from .serialization import serialize_claim, serialize_source
+from .serialization import serialize_attribute, serialize_claim, serialize_source
 from .local_persistence import LocalPersistenceConfig, _DefaultLocalPersistence
 from .contribution.config import NetworkContributionConfig
 from .contribution.models import EvaluationContribution
@@ -1859,6 +1859,76 @@ def _validate_deployment_id(
             "Deployment ID must be a "
             "canonical UUID URN."
         )
+
+
+def evaluate_context(
+    observations: Sequence[Observation],
+    *,
+    estimator: DependencyEstimatorConfig,
+) -> ContextEvaluation:
+    """Evaluate observations synchronously, entirely in memory.
+
+    Uses the same dependency estimator, graph builder, inference engine, and
+    result mapping as OmneumClient.evaluate_context. No client configuration,
+    VOPRF linkage, MCP connection, daemon, or persistence is involved. Graph
+    identifiers are request-scoped canonical serializations, not linkage tokens.
+    Estimator weights remain an explicit caller choice.
+    """
+    started = time.perf_counter()
+    values = tuple(observations)
+    if any(type(value) is not Observation or value.observation_type != "assertion"
+           for value in values):
+        raise TypeError("observations must contain Observation values")
+    values = _snapshot_observations(values)
+
+    sources = {}
+    for value in values:
+        key = _canonical_source_identity(value.source)
+        previous = sources.get(key)
+        if previous is not None and previous.owner_id != value.source.owner_id:
+            from .dependency import InformationGraphError
+
+            raise InformationGraphError("canonical source has conflicting owners")
+        sources.setdefault(key, value.source)
+
+    pairs, _ = estimate_dependencies(tuple(sources.values()), values, estimator)
+
+    # Canonical serializations preserve identity without keys or external state.
+    source_ids = {
+        key: serialize_source(*key).hex()
+        for key in sources
+    }
+    source_objects = {source_ids[key]: source for key, source in sources.items()}
+    claim_objects = {}
+    assertions = []
+    for value in values:
+        claim = value.claim
+        attribute = (claim.entity_namespace, claim.entity, claim.attribute)
+        claim_id = serialize_claim(*attribute, claim.value).hex()
+        claim_objects.setdefault(claim_id, claim)
+        assertions.append(AssertionTriple(
+            source_ids[_canonical_source_identity(value.source)],
+            serialize_attribute(*attribute).hex(),
+            claim_id,
+        ))
+
+    graph = build_graph(
+        assertions,
+        tuple(SourcePair(
+            source_ids[_canonical_source_identity(pair.source_a)],
+            source_ids[_canonical_source_identity(pair.source_b)],
+            pair.dependency,
+            pair.weighted_signal_coverage,
+        ) for pair in pairs),
+    )
+    evaluation = _map_assertion_evaluation(
+        infer(graph), source_objects, claim_objects, pairs,
+        estimator.dependency_cluster_threshold,
+    )
+    return replace(
+        evaluation,
+        evaluation_latency_ms=(time.perf_counter() - started) * 1000.0,
+    )
 
 
 def _snapshot_observations(values):

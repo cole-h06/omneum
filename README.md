@@ -25,6 +25,12 @@ Agents routinely assemble context from many different sources — a RAG pipeline
 
 Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is clean and reliable.
 
+**Fast context auditing for AI agents.**
+
+**10.6 ms Latency:** Source reliability and claim support scores without adding additional LLM inference layers or model judge steps.
+**Dependency-aware:** Detects when multiple retrieved context chunks repeat information from the same upstream source.
+**Local by default:** A content-blind graph network algorithm running entirely within your environment, with SQLite persistence and optional PostgreSQL deployment.
+
 ## Why Omneum and how it works
 
 Modern agent pipelines use several different techniques to decide what context should reach a model:
@@ -83,6 +89,59 @@ Install Omneum using pip:
 pip install omneum
 ```
 
+### Try Omneum in Python
+
+Evaluate observations entirely in-process, without MCP, a background daemon,
+service installation, or a persistent database. This example uses synthetic
+observations but executes the real dependency estimator and BRAID algorithm.
+Two sources share an upstream source; the third is independent. Here we use only
+upstream provenance to estimate dependency; estimator weights are explicit.
+
+```python
+from datetime import datetime, timezone
+
+from omneum import (
+    Claim, DependencyEstimatorConfig, Observation, Source,
+    evaluate_context, reference,
+)
+
+claim = Claim("company", "acme", "revenue_2025", 4_200_000_000)
+upstream = reference(kind="web_document", identifier="https://upstream.example/report")
+observations = [
+    Observation(
+        observation_id=name,
+        source=Source("web_document", f"https://{name}.example/report"),
+        claim=claim,
+        observed_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        upstream_sources=(upstream,) if name != "independent" else (),
+    )
+    for name in ("report-a", "report-b", "independent")
+]
+# Use upstream provenance as the dependency signal for this example.
+estimator = DependencyEstimatorConfig(
+    upstream_weight=1.0,
+    citation_weight=0.0,
+    assertion_lineage_weight=0.0,
+    ownership_weight=0.0,
+    temporal_weight=0.0,
+    graph_weight=0.0,
+    temporal_window_seconds=7200.0,
+)
+result = evaluate_context(observations, estimator=estimator)
+support = result.claim_support[0].estimated_independent_support_count
+print(f"Estimated independent support: {support:.2f}")
+```
+
+Expected output:
+
+```text
+Estimated independent support: 2.00
+```
+
+You can also run [`examples/python_quick_start.py`](examples/python_quick_start.py)
+with `python -m examples.python_quick_start` from the repository root.
+The service setup below is for MCP integrations.
+
 ### 2. Set up Omneum
 
 Run the installer to configure the local evaluator:
@@ -132,6 +191,20 @@ Add Omneum to your MCP client configuration:
 Restart your MCP client to expose Omneum's tools to your agent.
 
 If your MCP client cannot find `omneum-server`, set `command` to the absolute path returned by `command -v omneum-server`.
+
+#### Optional: Install the MCPB connector
+
+The [Omneum 1.0.4 connector](https://github.com/cole-h06/omneum/releases/download/v1.0.4/omneum-local-1.0.4.mcpb) requires an existing Omneum 1.0.4 installation and evaluator service on macOS arm64/x86_64 or Ubuntu 22.04+ x86_64. Use Python 3.11–3.14 and a compatible MCPB host that provides Node.js >=18 for the connector launcher. Direct `omneum-server` configuration above does not require Node.js.
+
+From your normal login account, run:
+
+```bash
+python -m pip install 'omneum==1.0.4'
+omneum install
+command -v omneum-server
+```
+
+Run the installer without `sudo` and approve administrator access when requested. Download and import the connector in your MCPB host, then select the absolute `omneum-server` path printed above from your 1.0.4 installation. Use the same login account that ran the installer. The connector does not install the Python package or daemon.
 
 ### 4. Verify the connection
 

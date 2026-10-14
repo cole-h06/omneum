@@ -72,6 +72,7 @@ def test_package_exports() -> None:
         "OmneumClientError",
         "explain_claim",
         "explain_dependency",
+        "evaluate_context",
         "observe",
         "open_stdio_client",
         "reference",

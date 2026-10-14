@@ -21,6 +21,7 @@ from .client import (
     OmneumClientConfig,
     OmneumClientConfigurationError,
     OmneumClientError,
+    evaluate_context,
     open_stdio_client,
 )
 from .dependency import (
@@ -83,6 +84,7 @@ __all__ = [
     "OmneumClientError",
     "explain_claim",
     "explain_dependency",
+    "evaluate_context",
     "observe",
     "open_stdio_client",
     "reference",
