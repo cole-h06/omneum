@@ -508,6 +508,16 @@ class ContextEvaluation:
     )
 
     @property
+    def estimated_independent_support(self) -> float:
+        """Independent support for a single claim; select claim_support otherwise."""
+        if len(self.claim_support) != 1:
+            raise ValueError(
+                "estimated_independent_support requires exactly one claim; "
+                "select a claim from claim_support for multiple claims or conflicting values"
+            )
+        return self.claim_support[0].estimated_independent_support_count
+
+    @property
     def explanation(self) -> str:
         from .explanations import explain_evaluation
         return explain_evaluation(self)

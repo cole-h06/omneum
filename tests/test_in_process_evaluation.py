@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import replace
+from datetime import datetime, timezone
 from pathlib import Path
 import runpy
 import subprocess
@@ -7,7 +8,7 @@ import sys
 
 import pytest
 
-from omneum import Claim, OmneumClient, evaluate_context
+from omneum import Claim, Observation, OmneumClient, Source, evaluate_context, evaluate
 from omneum.dependency import InformationGraphError
 import omneum.client as client_module
 
@@ -41,8 +42,8 @@ def test_dependency_aware_real_pipeline(monkeypatch, capsys):
     assert sorted(pair.dependency for pair in result.pairwise_dependencies) == [0.0, 0.0, 1.0]
     assert result.convergence.converged
 
-    independent = [replace(o, upstream_sources=()) for o in namespace["observations"]]
-    result = evaluate_context(independent, estimator=namespace["estimator"])
+    independent = [dict(record, upstream=[]) for record in namespace["records"]]
+    result = evaluate(independent)
     assert result.claim_support[0].estimated_independent_support_count == 3.0
 
 
@@ -72,13 +73,18 @@ def test_matches_existing_sdk_pipeline(tmp_path):
 
 
 def test_validates_observations():
-    namespace = example()
-    estimator = namespace["estimator"]
+    from test_client_assertion_evaluation import estimator as make_estimator
+
+    estimator = make_estimator()
     with pytest.raises(InformationGraphError, match="empty"):
         evaluate_context([], estimator=estimator)
     with pytest.raises(TypeError, match="Observation"):
         evaluate_context([object()], estimator=estimator)
-    observation = namespace["observations"][0]
+    observation = Observation(
+        observation_id="a", source=Source("web_document", "https://a.example"),
+        claim=Claim("records", "default", "value", 1),
+        observed_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+    )
     with pytest.raises(InformationGraphError, match="duplicate"):
         evaluate_context([observation, observation], estimator=estimator)
     conflicting_owner = replace(
@@ -91,11 +97,12 @@ def test_validates_observations():
 
 def test_readme_example_without_services_or_persistence(tmp_path):
     readme = (ROOT / "README.md").read_text()
-    section = readme.split("### Try Omneum in Python\n", 1)[1].split("### 2.", 1)[0]
+    section = readme.split("## Quick Start\n", 1)[1].split("## Why Omneum", 1)[0]
     snippet = section.split("```python\n", 1)[1].split("```", 1)[0]
     expected = section.split("```text\n", 1)[1].split("```", 1)[0]
     assert snippet.strip() == EXAMPLE.read_text().split("\n\n", 1)[1].strip()
-    assert readme.index("pip install omneum\n```") < readme.index("### Try Omneum in Python") < readme.index("omneum install\n```")
+    assert readme.index("## Quick Start") < readme.index("## Why Omneum")
+    assert readme.index("## Installation for MCP") < readme.index("omneum install\n```")
 
     # Reject network, subprocess, database, and filesystem writes.
     harness = '''

@@ -33,6 +33,47 @@ Most agents focus on retrieving more context. Omneum is focused on making sure t
 
 **Local by default:** A content-blind graph network algorithm running entirely within your environment, with SQLite persistence and optional PostgreSQL deployment.
 
+## Quick Start
+
+Python 3.11–3.14. No daemon, MCP connection, service installation, network access,
+or database is needed to evaluate records.
+
+```bash
+pip install omneum
+```
+
+```python
+import omneum
+
+records = [
+    {"url": "https://a.example", "value": 4200000000,
+     "upstream": ["https://sec.example"]},
+    {"url": "https://b.example", "value": 4200000000,
+     "upstream": ["https://sec.example"]},
+    {"url": "https://c.example", "value": 4200000000,
+     "upstream": []},
+]
+
+result = omneum.evaluate(records)
+print(f"Estimated independent support: {result.estimated_independent_support:.2f}")
+```
+
+Expected output:
+
+```text
+Estimated independent support: 2.00
+```
+
+These synthetic records run through the real dependency estimator and BRAID
+algorithm. The default estimator uses upstream provenance: two reports share
+one upstream source and the third is independent. Without explicit claim
+identities, records describe one attribute; different values are conflicting
+claims. For multiple attributes, provide a structured `claim` on every record.
+The result is a full `ContextEvaluation`; the shortcut above requires one claim.
+See the [input schema and defaults](docs/sdk.md#evaluate-records).
+
+Run the repository example with `python -m examples.python_quick_start`.
+
 ## Why Omneum and how it works
 
 Modern agent pipelines use several different techniques to decide what context should reach a model:
@@ -63,7 +104,7 @@ Omneum uses **BRAID**, its open-source algorithm, to compute these reliability a
 
 ## Where Omneum fits
 
-Omneum runs locally as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
+Omneum runs in-process in Python or locally as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
 
 **Retrieval / tools → Reranking (optional) → Omneum evaluation → agent control flow → LLM**
 
@@ -71,7 +112,7 @@ Omneum returns context-quality signals; your agent makes evidence-aware decision
 
 [Architecture and design →](docs/architecture.md)
 
-## Quick Start
+## Installation for MCP
 
 **Note:** This tutorial assumes Python 3.11–3.14. SDKs for other languages are not currently supported.
 
@@ -90,59 +131,6 @@ Install Omneum using pip:
 ```bash
 pip install omneum
 ```
-
-### Try Omneum in Python
-
-Evaluate observations entirely in-process, without MCP, a background daemon,
-service installation, or a persistent database. This example uses synthetic
-observations but executes the real dependency estimator and BRAID algorithm.
-Two sources share an upstream source; the third is independent. Here we use only
-upstream provenance to estimate dependency; estimator weights are explicit.
-
-```python
-from datetime import datetime, timezone
-
-from omneum import (
-    Claim, DependencyEstimatorConfig, Observation, Source,
-    evaluate_context, reference,
-)
-
-claim = Claim("company", "acme", "revenue_2025", 4_200_000_000)
-upstream = reference(kind="web_document", identifier="https://upstream.example/report")
-observations = [
-    Observation(
-        observation_id=name,
-        source=Source("web_document", f"https://{name}.example/report"),
-        claim=claim,
-        observed_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
-        upstream_sources=(upstream,) if name != "independent" else (),
-    )
-    for name in ("report-a", "report-b", "independent")
-]
-# Use upstream provenance as the dependency signal for this example.
-estimator = DependencyEstimatorConfig(
-    upstream_weight=1.0,
-    citation_weight=0.0,
-    assertion_lineage_weight=0.0,
-    ownership_weight=0.0,
-    temporal_weight=0.0,
-    graph_weight=0.0,
-    temporal_window_seconds=7200.0,
-)
-result = evaluate_context(observations, estimator=estimator)
-support = result.claim_support[0].estimated_independent_support_count
-print(f"Estimated independent support: {support:.2f}")
-```
-
-Expected output:
-
-```text
-Estimated independent support: 2.00
-```
-
-You can also run [`examples/python_quick_start.py`](examples/python_quick_start.py)
-with `python -m examples.python_quick_start` from the repository root.
-The service setup below is for MCP integrations.
 
 ### 2. Set up Omneum
 
@@ -212,11 +200,13 @@ Run the installer without `sudo` and approve administrator access when requested
 
 Ask your agent to call Omneum's `ping` tool. A successful response returns `"status": "ok"`, confirming that your agent can reach the Omneum MCP server.
 
-## Running an Evaluation
+## Advanced Usage
+
+### Running an Evaluation
 
 Evaluate retrieved context using Omneum's Python SDK and local MCP server.
 
-### 1. Map retrieved context
+#### 1. Map retrieved context
 
 Use `ContextMapper` to map retrieved records into Omneum observations. The example uses three sources, two of which reference the same upstream document.
 
@@ -276,7 +266,7 @@ mapper = ContextMapper(
 
 The SDK handles canonicalization. See [Canonicalization](docs/canonicalization.md).
 
-### 2. Evaluate context
+#### 2. Evaluate context
 
 Connect to `omneum-server` and call `evaluate_mapped()` with a dependency estimator:
 
@@ -314,7 +304,7 @@ Save both Python blocks in `evaluate.py`, then run:
 python evaluate.py
 ```
 
-### 3. Evaluation results
+#### 3. Evaluation results
 
 `evaluation.explanation` formats the evaluation result for inspection.
 

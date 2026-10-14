@@ -1,9 +1,11 @@
 
 # Python SDK
 
-Python client for the Omneum MCP server. Use it to submit structured observations, evaluate source reliability and claim support, and inspect source dependencies.
-
-The SDK connects to a local `omneum-server` process over MCP stdio. For MCP-only integrations without Python, see [Configuration](guides/configuration.md).
+Use `evaluate()` for dictionary inputs or `evaluate_context()` for structured
+observations. Both synchronous functions evaluate entirely in memory, without MCP,
+a daemon, service installation, network access, or a database. The existing
+`OmneumClient` connects through MCP for isolated VOPRF linkage and service evaluation.
+For MCP-only integrations without Python, see [Configuration](guides/configuration.md).
 
 ## Installation
 
@@ -11,12 +13,111 @@ Supports CPython 3.11–3.14.
 
 ```bash
 pip install omneum
-omneum install
 ```
 
-See [Installation](guides/installation.md) for supported platforms and local service setup.
+For MCP integrations, also run `omneum install`. See [Installation](guides/installation.md) for supported platforms and local service setup.
 
-## Quick Start
+## Evaluate Records
+
+```python
+import omneum
+
+records = [
+    {"url": "https://a.example", "value": 4200000000,
+     "upstream": ["https://sec.example"]},
+    {"url": "https://b.example", "value": 4200000000,
+     "upstream": ["https://sec.example"]},
+    {"url": "https://c.example", "value": 4200000000,
+     "upstream": []},
+]
+
+result = omneum.evaluate(records)
+print(f"Estimated independent support: {result.estimated_independent_support:.2f}")
+```
+
+```text
+Estimated independent support: 2.00
+```
+
+`evaluate(records, *, estimator=None) -> ContextEvaluation` accepts a
+sequence of dictionaries. It converts them to `Observation` objects and calls
+`evaluate_context()`, which uses the existing dependency estimator, BRAID graph
+builder, inference engine, and result mapping. Synthetic examples execute that
+same algorithm; there is no alternate scoring implementation.
+
+`evaluate_records()` remains a backward-compatible alias of `evaluate()`.
+
+| Field | Meaning and default |
+| --- | --- |
+| `url` | Required source URL. Uses the existing `web_document` canonicalization; paths and queries distinguish sources, fragments do not. Nothing is fetched. |
+| `value` | Required JSON-compatible asserted value, including `None`. Existing claim canonicalization applies. |
+| `upstream` | List of upstream source URLs. Omitted or `None` means unknown provenance; `[]` means no known upstream sources. Shared upstream URLs produce dependency evidence even if they have no record of their own. |
+| `claim` | Optional mapping containing exactly `entity_namespace`, `entity`, and `attribute`, each a nonempty string. Supply it on every record or on none. |
+| `observation_id` | Optional nonempty string unique within this call. Defaults to `record:<zero-based index>`. |
+| `observed_at` | Optional timezone-aware `datetime`. Defaults to a single UTC timestamp captured once per call. |
+| `source_modified_at` | Optional timezone-aware `datetime`; default `None` (unknown). Observation time alone does not enable temporal dependency. |
+| `owner_id` | Optional source owner string; default `None`. Canonically identical source URLs must have consistent ownership. |
+| `cited` | Optional list of cited source URLs; omitted or `None` is unknown, `[]` means no known citations. |
+| `parent_observation_ids` | Optional list of observation IDs within this call for lineage; omitted or `None` is unknown, `[]` means no known parents. |
+| `metadata` | Optional dictionary of JSON-compatible application metadata; defaults to `{}`. Does not change scores. |
+
+Unknown fields and partial claim identities are rejected. Inputs are not mutated.
+Without `claim`, **all records in the call assert the same attribute**, identified
+as `entity_namespace="records", entity="default", attribute="value"`. Equal
+canonical values support the same claim; different values compete within that
+attribute. This mode is only for records that actually address the same question.
+Omneum does not infer claim identity from text, URLs, or values.
+
+For multiple attributes or entities, give each record its full claim identity:
+
+```python
+records = [
+    {"url": "https://a.example", "value": 90,
+     "claim": {"entity_namespace": "service", "entity": "payments", "attribute": "retention_days"}},
+    {"url": "https://b.example", "value": 30,
+     "claim": {"entity_namespace": "service", "entity": "payments", "attribute": "retention_days"}},
+    {"url": "https://a.example", "value": "eu",
+     "claim": {"entity_namespace": "service", "entity": "payments", "attribute": "region"}},
+]
+result = omneum.evaluate(records)
+for item in result.claim_support:
+    print(item.claim.attribute, item.claim.value, item.estimated_independent_support_count)
+```
+
+The return value is the full **`ContextEvaluation`**, including `claim_support`,
+`source_reliability`, `pairwise_dependencies`, convergence, latency, and explanations.
+`result.estimated_independent_support` returns the single claim's
+`estimated_independent_support_count` as a float, without rounding or truncation.
+It raises `ValueError` for multiple claims, including conflicting values. Select
+an item from `result.claim_support` in that case; summing support across unrelated
+claims would not describe independent evidence for any one claim.
+
+The convenience API defaults to the upstream-only estimator used in the original
+in-process example: `upstream_weight=1.0`, all other signal weights `0.0`,
+`temporal_window_seconds=7200.0`, estimator version `dependency-estimator-v4`,
+no dependency cluster threshold. This is a new wrapper default, not a change to
+`evaluate_context()` or the scoring algorithm. Pass an existing
+`DependencyEstimatorConfig` via `estimator=` to use citation, ownership, lineage,
+temporal, or graph signals and optional clustering. Fractional estimates from
+that estimator are preserved. Missing provenance is not proof of independence;
+inspect `dependency_signal_coverage` alongside estimated support.
+
+Existing graph validation and limits apply: at most 64 sources, 2,048 attributes,
+4,096 observations/claims, and 16,384 conflicting-claim entries. Duplicate canonical
+source/claim observations, duplicate observation IDs, and multiple competing values
+from the same source for one attribute raise `InformationGraphError` (`ValueError`).
+One source can report several distinct attributes. Invalid field types raise
+`TypeError` or `ValueError`; invalid URLs and claim values use existing validation.
+
+This API is for URL sources and explicit structured assertions. For other source
+kinds, retrieval metadata, or caller-certified exact equivalence, use the structured
+SDK APIs. For direct synchronous evaluation, call
+`evaluate_context(observations, estimator=config)`; the estimator remains required.
+The in-process functions do not issue VOPRF linkage tokens, isolate keys, persist
+history, or contribute to the network. Use the MCP client below when those service
+features are needed.
+
+## MCP Quick Start
 
 ```python
 import asyncio
@@ -96,7 +197,7 @@ The client communicates with the local evaluator through the MCP server. It does
 
 ### Evaluate Context
 
-`evaluate_context()` accepts a sequence of `Observation` objects and returns a `ContextEvaluation`.
+`OmneumClient.evaluate_context()` accepts a sequence of `Observation` objects and returns a `ContextEvaluation`.
 
 ```python
 from datetime import datetime, timezone
@@ -363,7 +464,8 @@ See [API Reference](api/) for validation rules and response schemas.
 
 ## Current Limits
 
-- **Transport:** Local MCP over stdio. No remote SDK transport.
+- **In-process:** `evaluate()` and the synchronous `evaluate_context()` need no transport.
+- **Client transport:** Local MCP over stdio. No remote SDK transport.
 - **Python:** CPython 3.11–3.14.
 - **VOPRF:** One active key per deployment. Overlapping keys during rotation are not supported.
 - **Linkage tokens:** Persisted tokens require deployment and key-version metadata for valid comparisons.

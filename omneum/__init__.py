@@ -45,6 +45,7 @@ from .observations import (
     reference,
     retrieval,
 )
+from .records import evaluate, evaluate_records
 
 __version__ = "1.0.3"
 
@@ -84,7 +85,9 @@ __all__ = [
     "OmneumClientError",
     "explain_claim",
     "explain_dependency",
+    "evaluate",
     "evaluate_context",
+    "evaluate_records",
     "observe",
     "open_stdio_client",
     "reference",
