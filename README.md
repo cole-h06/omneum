@@ -25,10 +25,12 @@ Agents routinely assemble context from many different sources — a RAG pipeline
 
 Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is clean and reliable.
 
-**Fast context auditing for AI agents.**
+**⚡ Fast context auditing for AI agents.**
 
 **10.6 ms Latency:** Source reliability and claim support scores without adding additional LLM inference layers or model judge steps.
+
 **Dependency-aware:** Detects when multiple retrieved context chunks repeat information from the same upstream source.
+
 **Local by default:** A content-blind graph network algorithm running entirely within your environment, with SQLite persistence and optional PostgreSQL deployment.
 
 ## Why Omneum and how it works
