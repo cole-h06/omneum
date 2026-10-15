@@ -58,7 +58,7 @@ def test_families_are_pipeline_labels_not_standalone(data):
     assert all(c["components"][0]["model"] == "BAAI/bge-reranker-v2-m3" for c in (g, o))
 
 
-def test_schema_accepts_additional_measured_configuration_and_nulls(data):
+def test_additional_configurations(data):
     future = build_summary()
     c = deepcopy(future["configurations"][1])
     c.update(id="omneum_future_run", label="Standalone Omneum", method_families=["standalone_omneum"],
@@ -89,7 +89,7 @@ def test_outcome_denominators_and_published_accuracy(data):
             assert v["rate"] == v["count"]/240
 
 
-def test_selection_f1_is_mean_per_attempt_not_harmonic_macro_means():
+def test_mean_selection_f1():
     rows = [{"selection_score": dict(true_positive=1, false_positive=0, false_negative=3, precision=1, recall=.25)},
             {"selection_score": dict(true_positive=1, false_positive=1, false_negative=0, precision=.5, recall=1)}]
     s = selection_metrics(rows)
@@ -121,7 +121,6 @@ def test_selection_denominators_against_case_labels(data, raw):
 
 
 def assert_readme_tables(readme, catalogue):
-    """README columns declare generator-only usage, with row-specific pairing."""
     assert "Costs reflect estimated downstream generator API usage only" in readme
     configs = {c["id"]: c for c in catalogue["configurations"]}
     labels = {
@@ -180,7 +179,7 @@ def test_units_percentiles_and_published_metrics(data, raw, catalogue):
 
 
 @pytest.mark.parametrize("old,new", [("114,250", "406,605"), ("$0.686916", "$1.553232")])
-def test_readme_generator_columns_reject_whole_pipeline_metrics(catalogue, old, new):
+def test_generator_metric_scope(catalogue, old, new):
     readme = (ROOT / "README.md").read_text()
     assert old in readme
     with pytest.raises(AssertionError):
@@ -270,7 +269,7 @@ def test_all_publication_methods_present(catalogue):
     assert len(catalogue["configurations"]) == 12
 
 
-def test_both_leaderboard_families_preserve_hybrid_and_comparator_identity(catalogue):
+def test_leaderboard_arm_identity(catalogue):
     by = {c["id"]:c for c in catalogue["configurations"]}
     for name, family in (("semantic_rerankers","semantic_reranker"),("frontier_llm_judges","frontier_llm_judge")):
         board = catalogue["leaderboards"][name]
@@ -308,7 +307,7 @@ def test_saved_semantic_reviews_and_astra_reasoning(catalogue):
     assert cohere["outcomes"]["generator_refusal"]["count"]==0
 
 
-def test_cohere_missing_telemetry_and_illustrative_cost_are_not_filled(catalogue):
+def test_missing_cohere_telemetry(catalogue):
     for c in catalogue["configurations"]:
         if not c["method_id"].startswith("cohere"):continue
         assert c["api_tokens"]["selection"]["total"] is None
@@ -337,7 +336,7 @@ def test_preserved_directories_unchanged_by_catalogue_rebuild():
     assert before == {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 
 
-def test_publication_authority_is_explicit_and_pairs_never_mix_runs(catalogue):
+def test_publication_pairing(catalogue):
     expected = {
         "bge-omneum-tied-maxima-20261007": ["bge","bge_omneum"],
         "20261008T014713Z": ["cohere","cohere_omneum"],
@@ -365,7 +364,7 @@ def test_only_contracted_runs_are_inventoried(catalogue):
     assert catalogue["publication_contract"]["version"] == 1
 
 
-def test_chronology_distinguishes_committed_reference_from_dirty_execution(catalogue):
+def test_execution_chronology(catalogue):
     runs = {r["id"]:r for r in catalogue["runs"]}
     for r in runs.values():
         if r["git"] is None:continue
@@ -401,7 +400,7 @@ def test_authoritative_bge_claim_matches_saved_results(catalogue):
     assert augmented["end_to_end_p50_seconds"]==saved["bge_omneum"]["latency"]["end_to_end_seconds"]["p50"]
 
 
-def test_publication_omneum_arms_not_substituted_even_when_selection_matches(catalogue):
+def test_publication_arm_identity(catalogue):
     rows = catalogue["publication"]["tables"]["frontier_llm_judges"]
     omneum = {r["source_run"]:r for r in rows if r["label"]=="BGE + Omneum"}
     assert omneum["bge-google-low-vs-bge-omneum-20261008"]["api_tokens"]==115535
@@ -410,7 +409,7 @@ def test_publication_omneum_arms_not_substituted_even_when_selection_matches(cat
     assert len({r["end_to_end_p50_seconds"] for r in omneum.values()})==3
 
 
-def test_published_cohere_latency_uses_existing_within_run_correction(catalogue):
+def test_cohere_latency_correction(catalogue):
     from .latency_analysis import analyze, read_jsonl
     d = BASE/"results/20261008T014713Z"
     corrected = analyze(read_jsonl(d/"results.jsonl"), read_jsonl(d/"cohere_responses.jsonl"))
@@ -423,7 +422,7 @@ def test_published_cohere_latency_uses_existing_within_run_correction(catalogue)
         assert "within-run" in row["latency_basis"]
 
 
-def test_main_configuration_array_cannot_default_to_early_historical_run(catalogue):
+def test_configuration_run_authority(catalogue):
     assert len(catalogue["configurations"])==12
     assert all(c["publication_status"]=="authoritative" for c in catalogue["configurations"])
     assert catalogue["configurations"][0]["run_id"]=="bge-omneum-tied-maxima-20261007"

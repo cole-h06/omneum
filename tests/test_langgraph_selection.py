@@ -1,5 +1,3 @@
-"""Tests for Omneum-driven claim selection."""
-
 import asyncio
 
 from examples.langgraph.routing.scenarios import initial_observations

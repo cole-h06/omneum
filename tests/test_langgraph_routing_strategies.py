@@ -1,5 +1,3 @@
-"""Tests for routing strategies and escalation behavior."""
-
 from types import SimpleNamespace
 
 import pytest

@@ -88,7 +88,7 @@ def test_failure_types_and_unscored_are_not_incorrect():
     assert records[1]["failure_type"] == "provider_error"
 
 
-def test_usage_latency_efficiency_and_cost_aggregates_are_method_neutral():
+def test_method_aggregation():
     records = [
         {
             "method": "alpha", "answer_score": "correct",
@@ -148,7 +148,7 @@ def test_missing_generator_usage_is_unavailable_not_inferred():
     assert result["latency"]["end_to_end_seconds"]["n"] == 1
 
 
-def test_paired_route_latency_excludes_evaluator_from_omneum_overhead():
+def test_route_latency_components():
     result = summarize([{
         "method": "anthropic_omneum", "answer_score": "correct",
         "selection": {

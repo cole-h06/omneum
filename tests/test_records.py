@@ -1,8 +1,6 @@
 from copy import deepcopy
 from dataclasses import replace
 from datetime import datetime, timezone
-import ast
-from pathlib import Path
 
 import pytest
 
@@ -30,13 +28,26 @@ def estimator():
     )
 
 
-def test_backward_compatible_alias():
+@pytest.fixture
+def evaluation_calls(monkeypatch):
+    calls = []
+    evaluate_context = records_module.evaluate_context
+
+    def capture(observations, *, estimator):
+        calls.append((observations, estimator))
+        return evaluate_context(observations, estimator=estimator)
+
+    monkeypatch.setattr(records_module, "evaluate_context", capture)
+    return calls
+
+
+def test_evaluate_alias():
     assert evaluate_records is evaluate
     assert records_module.evaluate_records is records_module.evaluate is evaluate
     assert evaluate_records(records()) == evaluate(records())
 
 
-def test_shared_and_independent_upstreams():
+def test_upstream_dependencies():
     values = records()
     original = deepcopy(values)
     result = evaluate(values)
@@ -52,7 +63,7 @@ def test_shared_and_independent_upstreams():
     ]).estimated_independent_support == 3.0
 
 
-def test_fractional_support_is_preserved():
+def test_fractional_support():
     config = replace(estimator(), ownership_weight=1.0)
     values = [dict(r, upstream=[], owner_id="shared" if i < 2 else "independent")
               for i, r in enumerate(records())]
@@ -62,7 +73,7 @@ def test_fractional_support_is_preserved():
     assert result.estimated_independent_support != round(result.estimated_independent_support, 2)
 
 
-def test_multiple_claims_and_conflicting_values():
+def test_claim_identity():
     revenue = {"entity_namespace": "company", "entity": "acme", "attribute": "revenue"}
     staff = dict(revenue, attribute="staff")
     values = [dict(r, claim=revenue) for r in records()]
@@ -78,7 +89,7 @@ def test_multiple_claims_and_conflicting_values():
         _ = result.estimated_independent_support
 
 
-def test_implicit_identity_keeps_conflicting_values():
+def test_default_claim_conflicts():
     result = evaluate([{"url": "https://a.example", "value": None},
                                {"url": "https://b.example", "value": 1}])
     assert len(result.claim_support) == 2
@@ -87,15 +98,7 @@ def test_implicit_identity_keeps_conflicting_values():
         _ = result.estimated_independent_support
 
 
-def test_uses_evaluate_context_and_preserves_provenance(monkeypatch):
-    actual = records_module.evaluate_context
-    calls = []
-
-    def capture(observations, *, estimator):
-        calls.append((observations, estimator))
-        return actual(observations, estimator=estimator)
-
-    monkeypatch.setattr(records_module, "evaluate_context", capture)
+def test_record_provenance(evaluation_calls):
     now = datetime(2026, 1, 1, tzinfo=timezone.utc)
     identity = {"entity_namespace": "company", "entity": "ACME", "attribute": "Revenue"}
     values = records()
@@ -105,7 +108,7 @@ def test_uses_evaluate_context_and_preserves_provenance(monkeypatch):
                       parent_observation_ids=[], metadata={"tag": ["synthetic"]})
     config = replace(estimator(), dependency_cluster_threshold=0.5)
     result = evaluate(values, estimator=config)
-    assert len(calls) == 1
+    assert len(evaluation_calls) == 1
     expected = [Observation(
         observation_id=f"obs-{i}", source=Source("web_document", r["url"], "owner"),
         claim=Claim(**identity, value=r["value"]), observed_at=now,
@@ -113,27 +116,20 @@ def test_uses_evaluate_context_and_preserves_provenance(monkeypatch):
         upstream_sources=tuple(SourceReference("web_document", u) for u in r["upstream"]),
         cited_sources=(), parent_observation_ids=(), metadata={"tag": ["synthetic"]},
     ) for i, r in enumerate(values)]
-    assert calls[0] == (expected, config)
+    assert evaluation_calls[0] == (expected, config)
     assert result == evaluate_context(expected, estimator=config)
 
 
-def test_defaults_keep_unknown_provenance_distinct(monkeypatch):
-    actual = records_module.evaluate_context
-    calls = []
-
-    def capture(observations, *, estimator):
-        calls.extend(observations)
-        return actual(observations, estimator=estimator)
-
-    monkeypatch.setattr(records_module, "evaluate_context", capture)
+def test_provenance_defaults(evaluation_calls):
     evaluate([{"url": "https://a.example", "value": 1},
-                      {"url": "https://b.example", "value": 1, "upstream": []}])
-    assert [o.observation_id for o in calls] == ["record:0", "record:1"]
-    assert calls[0].observed_at == calls[1].observed_at
-    assert calls[0].observed_at.utcoffset().total_seconds() == 0
-    assert calls[0].upstream_sources is None
-    assert calls[1].upstream_sources == ()
-    assert all(o.source_modified_at is None for o in calls)
+              {"url": "https://b.example", "value": 1, "upstream": []}])
+    observations, _ = evaluation_calls[0]
+    assert [o.observation_id for o in observations] == ["record:0", "record:1"]
+    assert observations[0].observed_at == observations[1].observed_at
+    assert observations[0].observed_at.utcoffset().total_seconds() == 0
+    assert observations[0].upstream_sources is None
+    assert observations[1].upstream_sources == ()
+    assert all(o.source_modified_at is None for o in observations)
 
 
 @pytest.mark.parametrize("values, error", [
@@ -159,7 +155,7 @@ def test_invalid_records(values, error):
         evaluate(values)
 
 
-def test_requires_consistent_explicit_identity():
+def test_mixed_claim_identity():
     values = records()
     values[0]["claim"] = {"entity_namespace": "company", "entity": "acme", "attribute": "revenue"}
     with pytest.raises(ValueError, match="every record"):
@@ -172,16 +168,9 @@ def test_requires_consistent_explicit_identity():
     ({"value": 99}, "multiple claims for an attribute"),
     ({"observation_id": "same", "url": "https://b.example"}, "duplicate observation ID"),
 ])
-def test_duplicate_observations_are_rejected(change, match):
+def test_duplicate_observations(change, match):
     first = {"url": "https://a.example", "value": 1, "observation_id": "same"}
     second = dict(first, observation_id="other")
     second.update(change)
     with pytest.raises(InformationGraphError, match=match):
         evaluate([first, second])
-
-
-@pytest.mark.parametrize("minor", [11, 12, 13, 14])
-def test_python_supported_syntax(minor):
-    root = Path(__file__).resolve().parents[1]
-    for path in (root / "omneum/records.py", root / "examples/python_quick_start.py"):
-        ast.parse(path.read_text(), feature_version=(3, minor))

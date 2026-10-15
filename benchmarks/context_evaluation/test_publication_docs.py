@@ -12,7 +12,7 @@ PAGES = tuple(sorted(BENCHMARKS.glob('*.md'))) + (BASE / 'README.md',)
 
 
 @pytest.mark.parametrize('page', PAGES, ids=lambda p: p.name)
-def test_active_relative_links_use_existing_case_sensitive_paths(page):
+def test_documentation_links(page):
     for target in re.findall(r'!?\[[^\]]*\]\(([^\s)]+)\)', page.read_text()):
         if target.startswith(('https:', 'http:', 'mailto:', '#')):
             continue
@@ -25,7 +25,7 @@ def test_active_relative_links_use_existing_case_sensitive_paths(page):
 
 @pytest.mark.parametrize('heading,family', [('Semantic Rerankers', 'semantic_rerankers'),
                                            ('Frontier LLM Judges', 'frontier_llm_judges')])
-def test_leaderboard_numbers_use_declared_recorded_scores_and_matched_runs(heading, family):
+def test_leaderboard_metrics(heading, family):
     data = json.loads((BASE / 'heldout/dashboard_summary.json').read_text())
     configs = {c['id']: c for c in data['configurations']}
     section = (BENCHMARKS / 'leaderboard.md').read_text().split(f'## {heading}\n', 1)[1].split('\n## ', 1)[0]

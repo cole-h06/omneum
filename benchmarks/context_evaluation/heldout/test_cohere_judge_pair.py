@@ -63,7 +63,7 @@ def paired_stubs(monkeypatch):
 
 @pytest.mark.parametrize("order", [("cohere_anthropic", "cohere_omneum"),
                                    ("cohere_omneum", "cohere_anthropic")])
-def test_24_case_pair_shares_ranked_inputs_and_generation_settings(monkeypatch, tmp_path, paired_stubs, order):
+def test_paired_inputs(monkeypatch, tmp_path, paired_stubs, order):
     directory = asyncio.run(driver.run_benchmark(
         results_dir=tmp_path, identifier="paired", trials=1,
         methods=tuple(map(method_by_name, order)),
@@ -101,7 +101,7 @@ def test_24_case_pair_shares_ranked_inputs_and_generation_settings(monkeypatch, 
     assert manifest["selection_pipeline"]["generator_max_tokens"] == 1024
 
 
-def test_resume_uses_saved_shortlist_without_rerank_or_control_judge(monkeypatch, tmp_path, paired_stubs):
+def test_resume_shortlist(monkeypatch, tmp_path, paired_stubs):
     cases = driver.discover_cases(driver.CASES_DIR)[:1]
     monkeypatch.setattr(driver, "discover_cases", lambda _: cases)
     original = suite.run_method
@@ -123,7 +123,7 @@ def test_resume_uses_saved_shortlist_without_rerank_or_control_judge(monkeypatch
     assert len(paired_stubs["generation"]) == 2
 
 
-def test_experiment_rejects_unpaired_route_and_historical_baseline(tmp_path):
+def test_invalid_pairing(tmp_path):
     control = method_by_name("cohere_anthropic")
     with pytest.raises(ValueError, match="requires exactly"):
         asyncio.run(driver.run_benchmark(results_dir=tmp_path, methods=(control,)))
@@ -143,7 +143,7 @@ def test_each_trial_gets_one_fresh_rerank(monkeypatch, tmp_path, paired_stubs):
     assert len(paired_stubs["judge"]) == len(paired_stubs["omneum"]) == 2
 
 
-def test_shared_rerank_failure_prevents_both_judges_and_generation(monkeypatch, tmp_path, paired_stubs):
+def test_rerank_failure(monkeypatch, tmp_path, paired_stubs):
     cases = driver.discover_cases(driver.CASES_DIR)[:1]
     monkeypatch.setattr(driver, "discover_cases", lambda _: cases)
     calls = []
@@ -190,7 +190,7 @@ def test_rejects_wrong_generator_before_paid_calls(monkeypatch, tmp_path):
         ))
 
 
-def test_same_selected_context_produces_identical_generation_requests(monkeypatch, tmp_path, paired_stubs):
+def test_generation_request_parity(monkeypatch, tmp_path, paired_stubs):
     cases = driver.discover_cases(driver.CASES_DIR)[:1]
     monkeypatch.setattr(driver, "discover_cases", lambda _: cases)
 
@@ -208,7 +208,7 @@ def test_same_selected_context_produces_identical_generation_requests(monkeypatc
     assert rows[0]["generation"]["request_hash"] == rows[1]["generation"]["request_hash"]
 
 
-def test_reranker_retains_provider_billing_without_changing_ranked_candidates(monkeypatch):
+def test_reranker_billing(monkeypatch):
     from types import SimpleNamespace as NS
     from benchmarks.context_evaluation import semantic_reranker as reranker
 

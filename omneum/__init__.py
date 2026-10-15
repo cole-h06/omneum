@@ -48,7 +48,7 @@ from .observations import (
 )
 from .records import evaluate, evaluate_records
 
-__version__ = "1.0.3"
+__version__ = "1.1.0"
 
 __all__ = [
     "ContextMapper",

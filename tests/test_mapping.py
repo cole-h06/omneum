@@ -8,7 +8,7 @@ from omneum import ContextMapper, Source
 NOW = datetime(2026, 8, 22, 12, tzinfo=timezone.utc)
 
 
-def test_context_mapper_maps_structured_result():
+def test_map_record():
     result = {
         "source": "research-api",
         "entity": "payment_api",
@@ -40,7 +40,7 @@ def test_context_mapper_maps_structured_result():
     assert observation.observation_id == "result-1"
 
 
-def test_context_mapper_maps_many():
+def test_map_records():
     results = [
         {
             "source": "service-a",
@@ -78,7 +78,7 @@ def test_context_mapper_maps_many():
     assert observations[1].claim.value == "healthy"
 
 
-def test_context_mapper_preserves_arbitrary_metadata():
+def test_map_metadata():
     result = {
         "source": "example-source",
         "entity": "memory-1",
@@ -117,7 +117,7 @@ def test_context_mapper_preserves_arbitrary_metadata():
     assert observation.metadata["related_via"][0]["cosine"] == 0.91
 
 
-def test_context_mapper_maps_application_fields_to_canonical_signals():
+def test_map_dependency_signals():
     from omneum.dependency import DependencySignal
 
     result = {
@@ -161,7 +161,7 @@ def test_context_mapper_maps_application_fields_to_canonical_signals():
     )
 
 
-def test_context_mapper_rejects_noncanonical_dependency_signals():
+def test_invalid_dependency_signals():
     from omneum.dependency import DependencySignal
 
     with pytest.raises(

@@ -290,7 +290,7 @@ def test_release_configuration_fails_closed_until_verified_pins(monkeypatch):
         validate_release(require_provisioned=True)
 
 
-def test_operator_rejects_unverified_remote_database_before_connect(monkeypatch):
+def test_unverified_database(monkeypatch):
     import sys
     import psycopg
     from omneum.network_operator import main

@@ -15,7 +15,7 @@ def test_private_path_rejects_traversal(tmp_path):
         SQLiteStorage(tmp_path / 'nested' / '..' / 'context.db')
 
 
-def test_unsafe_ancestor_is_rejected_before_creating_descendants(tmp_path):
+def test_unsafe_parent_directory(tmp_path):
     ancestor = tmp_path / 'shared'
     ancestor.mkdir()
     ancestor.chmod(0o777)
@@ -102,7 +102,7 @@ def test_observation_strings_are_bound_values(tmp_path, example_daemon, attack):
     'ALTER TABLE sources ADD COLUMN injected TEXT',
     'CREATE TABLE unexpected(secret TEXT)',
 ])
-def test_schema_drift_rejected_with_unchanged_migration_checksums(tmp_path, tamper):
+def test_schema_drift(tmp_path, tamper):
     path = tmp_path / 'context.db'
     with SQLiteStorage(path).transaction():
         pass
@@ -120,7 +120,7 @@ def test_schema_drift_rejected_with_unchanged_migration_checksums(tmp_path, tamp
         assert connection.execute('SELECT version, checksum FROM schema_migrations').fetchall() == history
 
 
-def test_sqlite_connection_distrusts_schema_and_disables_extensions(tmp_path):
+def test_sqlite_hardening(tmp_path):
     with SQLiteStorage(tmp_path / 'context.db').transaction() as connection:
         assert connection.execute('PRAGMA trusted_schema').fetchone() == (0,)
         with pytest.raises(sqlite3.OperationalError, match='not authorized'):

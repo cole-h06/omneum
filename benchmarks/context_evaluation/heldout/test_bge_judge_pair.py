@@ -62,7 +62,7 @@ def paired_stubs(monkeypatch):
 
 @pytest.mark.parametrize("order", [("bge_anthropic", "bge_omneum"),
                                    ("bge_omneum", "bge_anthropic")])
-def test_24_case_pair_shares_ranked_inputs_and_generation_settings(monkeypatch, tmp_path, paired_stubs, order):
+def test_paired_inputs(monkeypatch, tmp_path, paired_stubs, order):
     directory = asyncio.run(driver.run_benchmark(
         results_dir=tmp_path, identifier="paired", trials=1,
         methods=tuple(map(method_by_name, order)),
@@ -96,7 +96,7 @@ def test_24_case_pair_shares_ranked_inputs_and_generation_settings(monkeypatch, 
     assert manifest["selection_pipeline"]["generator_max_tokens"] == 1024
 
 
-def test_resume_uses_saved_shortlist_without_rerank_or_control_judge(monkeypatch, tmp_path, paired_stubs):
+def test_resume_shortlist(monkeypatch, tmp_path, paired_stubs):
     cases = driver.discover_cases(driver.CASES_DIR)[:1]
     monkeypatch.setattr(driver, "discover_cases", lambda _: cases)
     original = suite.run_method
@@ -118,7 +118,7 @@ def test_resume_uses_saved_shortlist_without_rerank_or_control_judge(monkeypatch
     assert len(paired_stubs["generation"]) == 2
 
 
-def test_experiment_rejects_unpaired_route_and_historical_baseline(tmp_path):
+def test_invalid_pairing(tmp_path):
     control = method_by_name("bge_anthropic")
     with pytest.raises(ValueError, match="requires exactly"):
         asyncio.run(driver.run_benchmark(results_dir=tmp_path, methods=(control,)))

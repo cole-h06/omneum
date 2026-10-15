@@ -496,7 +496,7 @@ def test_authenticated_unissued_tokens_are_not_attested(bound):
                       (claim_token,)).fetchone()[0] == 1
 
 
-def test_client_scores_are_stored_without_attestation_or_recomputation(bound):
+def test_ingestion_preserves_scores(bound):
     db, handler, *_ = bound
     p = payload()
     p['source_scores'][0]['reliability'] = 0.12345

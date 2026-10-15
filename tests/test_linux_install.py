@@ -83,7 +83,7 @@ def test_privileged_stack_order_and_failures(monkeypatch, tmp_path, failure):
         assert calls == ['runtime', 'daemon', 'server', 'frontend']
 
 
-def test_authorized_init_uses_managed_runtime_and_existing_installer(monkeypatch, tmp_path):
+def test_managed_initialization(monkeypatch, tmp_path):
     run = Mock()
     monkeypatch.setattr(root_install, 'run', run)
     monkeypatch.setattr(root_install.Path, 'exists', lambda path: False)

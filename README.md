@@ -1,3 +1,4 @@
+<!-- mcp-name: ai.omneum/omneum -->
 # What is Omneum
 
 <p align="center">
@@ -41,15 +42,13 @@ Install the Python package:
 pip install omneum
 ```
 
-Run a local evaluation with independent sources, shared upstream dependencies, and conflicting values:
+Run the included demo:
 
 ```bash
 python -m omneum.demo
 ```
 
-Create `evaluate.py`:
-
-Evaluate three observations against a single claim. Two sources reference the same upstream document.
+Create `evaluate.py` to evaluate three observations against a single claim. Two sources reference the same upstream document.
 
 ```python
 import omneum
@@ -118,7 +117,7 @@ Fy2025 gross revenue
 
 `evaluate()` runs Omneum's graph-based evaluation algorithm in-process; it computes source reliability and claim support scores, adjusting for dependencies between sources.
 
-For raw retrieval text, use the optional `extract_observations()` API to extract structured assertions with an LLM before evaluation. See [Python SDK](docs/sdk.md#extract-assertions-from-text).
+For raw retrieval text, use the optional `extract_observations()` API to extract structured claims with an LLM before evaluation. See [Python SDK](docs/sdk.md#extract-assertions-from-text).
 
 
 ## Why Omneum and how it works

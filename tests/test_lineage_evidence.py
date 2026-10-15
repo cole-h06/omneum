@@ -1,5 +1,3 @@
-"""Evidence-scope diagnostics; no scoring policy or frozen vectors are changed."""
-
 import json
 from dataclasses import replace
 from datetime import datetime

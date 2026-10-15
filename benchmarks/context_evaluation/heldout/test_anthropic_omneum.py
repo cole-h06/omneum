@@ -79,7 +79,7 @@ def test_omneum_uses_full_pool_without_claude_selector(monkeypatch, count, budge
     assert result["inference_cost"] == {"usd": None, "availability": "no_pricing_defined"}
 
 
-def test_existing_baseline_is_compatible_and_rows_are_preserved(baseline_results):
+def test_baseline_compatibility(baseline_results):
     discovered = discover_cases(Path(__file__).with_name("cases"))
     reused, metadata = load_anthropic_baseline(
         baseline_results, discovered, generator_model="claude-sonnet-5-5",
@@ -104,7 +104,7 @@ def test_loader_retains_adversarial_category_metadata(tmp_path):
     assert case.adversarial_category == "stale_dependency"
 
 
-def test_omneum_underfill_is_a_selection_failure_without_generation(monkeypatch):
+def test_selection_underfill(monkeypatch):
     candidates = [{"source": f"s{i}", "text": str(i)} for i in range(4)]
     case = NS(question="question", context_budget=2)
     monkeypatch.setattr(runner, "application_candidates", lambda _: candidates)
@@ -124,7 +124,7 @@ def test_omneum_underfill_is_a_selection_failure_without_generation(monkeypatch)
     assert result["selection"]["request_hash"]
 
 
-def test_generation_failure_keeps_selection_score_and_request_identity(monkeypatch):
+def test_generation_failure_metadata(monkeypatch):
     candidates = [{"source": f"s{i}", "text": str(i)} for i in range(4)]
     case = NS(question="question", context_budget=2)
     monkeypatch.setattr(runner, "application_candidates", lambda _: candidates)
@@ -172,7 +172,7 @@ def test_baseline_mismatch_is_rejected(tmp_path, mismatch, baseline_results):
                                 generator_model="claude-sonnet-5-5")
 
 
-def test_baseline_import_and_paired_schedule_never_regenerate_claude_rows(monkeypatch, tmp_path, baseline_results):
+def test_baseline_reuse(monkeypatch, tmp_path, baseline_results):
     from benchmarks.context_evaluation.heldout import run_benchmark as driver
 
     discovered = driver.discover_cases(driver.CASES_DIR)

@@ -119,7 +119,7 @@ def test_release_pins_fail_closed(configuration):
         deploy.pins_match(configuration)
 
 
-def test_certbot_layout_preserves_tls_and_application_boundaries(configuration):
+def test_certbot_boundaries(configuration):
     site = deploy.nginx_certbot_site(configuration)
     assert site.count('server {') == 2
     assert 'return 503' not in site
@@ -220,7 +220,7 @@ def test_provider_discovery_must_match(configuration, monkeypatch):
         deploy.provider_settings(c)
 
 
-def test_acceptance_payload_uses_real_domain_separation_and_proofs(configuration, monkeypatch):
+def test_acceptance_proofs(configuration, monkeypatch):
     from omneum.network_acceptance import proof_payload
     from omneum.contribution.network import HTTPSNetworkEvaluator
     from omneum.contribution.validation import decode

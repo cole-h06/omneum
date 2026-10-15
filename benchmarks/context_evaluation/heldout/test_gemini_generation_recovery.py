@@ -58,7 +58,7 @@ def output(request, **overrides):
     return value
 
 
-def test_full_recovery_preserves_all_successes_and_baseline_and_resume(workspace):
+def test_recovery_resume(workspace):
     work, plan, source = workspace
     calls = []
     async def generate(request):
@@ -98,7 +98,7 @@ def test_full_recovery_preserves_all_successes_and_baseline_and_resume(workspace
         recovery.validate(work, work / 'answer_audit.json')
 
 
-def test_ambiguous_interruption_stops_resume_before_another_call(workspace):
+def test_ambiguous_recovery(workspace):
     work, plan, _ = workspace
     calls = []
     async def uncertain(request):
@@ -121,7 +121,7 @@ def test_ambiguous_interruption_stops_resume_before_another_call(workspace):
     assert len(calls) == 1
 
 
-def test_returned_response_survives_projection_write_interruption(workspace, monkeypatch):
+def test_projection_write_failure(workspace, monkeypatch):
     work, plan, _ = workspace
     original_materialize = recovery.materialize
     count = 0
@@ -220,7 +220,7 @@ def test_configuration_source_and_usage_drift_fail_closed(workspace, mutation):
         asyncio.run(recovery.execute(work, generate=generate))
 
 
-def test_provider_request_has_original_body_and_no_automatic_retries(monkeypatch):
+def test_recovery_request_replay(monkeypatch):
     import anthropic
     observed = []
     class Client:

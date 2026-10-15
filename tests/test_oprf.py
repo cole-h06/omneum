@@ -32,6 +32,7 @@ SCALAR_ORDER = bytes.fromhex(
     "00000000000000000000000000000010"
 )
 SCALAR_ORDER_VALUE = int.from_bytes(SCALAR_ORDER, "little")
+# Daemon-backed property tests disable deadlines to include process startup.
 INPUTS = st.binary(min_size=1, max_size=128)
 KEYS = st.integers(
     min_value=1,
@@ -676,7 +677,6 @@ def test_invalid_input(input_data: object) -> None:
         client.blind(input_data)
 
 
-# Process-backed fixtures include daemon startup; this is not a latency benchmark.
 @settings(max_examples=25, deadline=None)
 @given(input_data=INPUTS, server_key=KEYS)
 def test_round_trip_property(
@@ -709,7 +709,6 @@ def test_round_trip_property(
     assert first_output == second_output
 
 
-# Process-backed fixtures include daemon startup; this is not a latency benchmark.
 @settings(max_examples=25, deadline=None)
 @given(inputs=INPUT_PAIRS)
 def test_input_changes_output(
@@ -735,7 +734,6 @@ def test_input_changes_output(
     assert outputs[0] != outputs[1]
 
 
-# Process-backed fixtures include daemon startup; this is not a latency benchmark.
 @settings(max_examples=25, deadline=None)
 @given(server_keys=KEY_PAIRS)
 def test_key_changes_output(
@@ -761,7 +759,6 @@ def test_key_changes_output(
     assert outputs[0] != outputs[1]
 
 
-# Process-backed fixtures include daemon startup; this is not a latency benchmark.
 @settings(max_examples=25, deadline=None)
 @given(
     element=INVALID_ELEMENTS,
@@ -809,7 +806,6 @@ def test_invalid_lengths_property(
         )
 
 
-# Process-backed fixtures include daemon startup; this is not a latency benchmark.
 @settings(max_examples=25, deadline=None)
 @given(
     evaluated_element=st.binary(
@@ -842,7 +838,6 @@ def test_checked_values_property(
     assert len(output) == 64
 
 
-# Process-backed fixtures include daemon startup; this is not a latency benchmark.
 @settings(max_examples=25, deadline=None)
 @given(
     blinded_element=st.binary(

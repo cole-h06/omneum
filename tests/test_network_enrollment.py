@@ -246,7 +246,7 @@ def test_account_rejects_algorithm_and_key_confusion(oidc):
     {'crit': ['attacker-extension']},
     {'kid': 'unknown-key'},
 ])
-def test_signed_account_token_cannot_select_remote_keys_or_extensions(oidc, headers):
+def test_account_token_key_injection(oidc, headers):
     auth, token = oidc
     assert auth.authenticate(token()) is not None
     assert auth.authenticate(token(_headers=headers)) is None
@@ -458,7 +458,7 @@ def test_cross_principal_receipts_and_budgets(enrolled):
     assert service.handle(authorization='Bearer ' + rows[0][1], body=json.dumps(forbidden).encode()).status == 400
 
 
-def test_revocation_isolated_and_contributor_revocation_terminal(enrolled):
+def test_revocation_scope(enrolled):
     db, connection, operator, rows = enrolled
     auth = CredentialAuthenticator(connection)
     first, second = rows

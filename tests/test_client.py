@@ -36,7 +36,7 @@ def test_package_exports() -> None:
     ):
         assert not hasattr(omneum, removed)
     assert not hasattr(OmneumClient, "evaluate")
-    assert omneum.__all__ == [
+    assert set(omneum.__all__) == {
         "ContextMapper",
         "Claim",
         "ExactEquivalence",
@@ -72,6 +72,7 @@ def test_package_exports() -> None:
         "OmneumClientError",
         "explain_claim",
         "explain_dependency",
+        "extract_observations",
         "evaluate",
         "evaluate_context",
         "evaluate_records",
@@ -87,7 +88,9 @@ def test_package_exports() -> None:
         "SQLiteStorage",
         "HTTPSNetworkEvaluator",
         "OmneumNetwork",
-    ]
+    }
+    assert len(omneum.__all__) == len(set(omneum.__all__))
+    assert all(hasattr(omneum, name) for name in omneum.__all__)
 
 
 def make_server(tmp_path: Path) -> VOPRFServer:

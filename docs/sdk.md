@@ -23,15 +23,13 @@ For platform requirements and managed-service setup, see
 
 ## Quick Start
 
-Install the Python package:
+Install Omneum:
 
 ```bash
 pip install omneum
 ```
 
-Create `evaluate.py`:
-
-Evaluate three observations against a single claim. Two sources reference the same upstream document.
+Create `evaluate.py` to evaluate three observations against a single claim. Two sources reference the same upstream document.
 
 ```python
 import omneum
@@ -100,12 +98,14 @@ Fy2025 gross revenue
 
 `evaluate()` runs Omneum's graph-based evaluation algorithm in-process; it computes source reliability and claim support scores while accounting for dependencies between sources.
 
+For raw retrieval text, use the optional `extract_observations()` API to extract structured claims and create observations with an LLM before evaluation. See [Extract assertions from text](#extract-assertions-from-text).
+
 ## MCP Client Initialization
 
 For MCP evaluation, `open_stdio_client()` starts `omneum-server` over stdio and returns an asynchronous client.
 
 ```python
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 
 from omneum import OmneumClientConfig, open_stdio_client
 

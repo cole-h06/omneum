@@ -33,7 +33,7 @@ def test_verified_artifacts_and_missing_inputs(artifact_bundle):
         a.config(a.SOURCE_ROOT / 'deploy/network/vm/production.json')
 
 
-def test_literal_pins_match_release_and_preserve_client_sources(configuration, tmp_path, monkeypatch):
+def test_release_pins(configuration, tmp_path, monkeypatch):
     from omneum.contribution import network
     from omneum import onboarding
     from omneum.network_release import validate_release
@@ -69,7 +69,7 @@ def test_mutations_require_explicit_authorization(monkeypatch, command, artifact
         a.main()
 
 
-def test_rollback_restores_files_dependency_and_service_state(tmp_path, monkeypatch):
+def test_rollback_state(tmp_path, monkeypatch):
     state = tmp_path / 'state'
     state.mkdir()
     site = tmp_path / 'site-packages'
@@ -112,7 +112,7 @@ def test_rollback_restores_files_dependency_and_service_state(tmp_path, monkeypa
     assert len(calls) == before
 
 
-def test_apply_stops_before_writes_when_prerequisite_missing(configuration, tmp_path, monkeypatch):
+def test_apply_prerequisites(configuration, tmp_path, monkeypatch):
     monkeypatch.setattr(a, 'STATE', tmp_path / 'state')
     def missing(*args):
         raise ValueError('migration ledger missing')
@@ -141,7 +141,7 @@ def test_completed_apply_is_idempotent(configuration, tmp_path, monkeypatch):
     assert calls == [(a.PYTHON, '-I', '-B', '-m', 'omneum.network_deploy', 'preflight')]
 
 
-def test_pin_only_wheel_variant_preserves_installer_native_and_dependencies(configuration, tmp_path):
+def test_wheel_pin_isolation(configuration, tmp_path):
     # Diagnostic copy only. The public build must originate from reviewed source.
     import base64
     import csv
@@ -195,7 +195,7 @@ def test_pin_only_wheel_variant_preserves_installer_native_and_dependencies(conf
             assert checksum == 'sha256=' + base64.urlsafe_b64encode(hashlib.sha256(content).digest()).decode().rstrip('=')
 
 
-def test_prepare_rejects_symlinks_and_preserves_existing_outputs(configuration, tmp_path):
+def test_prepare_symlinks(configuration, tmp_path):
     output = tmp_path / 'pins'
     a.prepare(configuration, output)
     content = (output / 'onboarding.py').read_bytes()
@@ -213,7 +213,7 @@ def test_prepare_rejects_symlinks_and_preserves_existing_outputs(configuration, 
         a.prepare(configuration, a.SOURCE_ROOT / 'omneum')
 
 
-def test_config_rejects_duplicate_keys_and_mutable_paths_outside_secrets(configuration, tmp_path):
+def test_invalid_config_paths(configuration, tmp_path):
     path = tmp_path / 'configuration.json'
     path.write_text('{"domain":"first","domain":"second"}')
     with pytest.raises(ValueError): a.config(path)
@@ -281,7 +281,7 @@ def apply_environment(configuration, tmp_path, monkeypatch, artifact_bundle):
 
 @pytest.mark.parametrize('failure', ['pip', 'check', 'network_release', 'install-certificates',
                                     'refresh-jwks', 'daemon-reload', 'restart', '-t', 'reload', 'preflight'])
-def test_apply_failure_restores_every_changed_file_and_dependency(apply_environment, failure):
+def test_apply_rollback(apply_environment, failure):
     c, original, scalar, dsn, calls, state = apply_environment
     # network_release is passed as qualified module name.
     state['fail'] = 'omneum.network_release' if failure == 'network_release' else failure
@@ -298,7 +298,7 @@ def test_apply_failure_restores_every_changed_file_and_dependency(apply_environm
     assert not any('migrate' in call or 'generate-dsns' in call for call in calls)
 
 
-def test_successful_apply_and_repeat_do_not_rotate_credentials(apply_environment):
+def test_apply_preserves_credentials(apply_environment):
     c, original, scalar, dsn, calls, state = apply_environment
     a.apply(c, '/not-used')
     assert (a.STATE / 'complete').exists()
@@ -335,7 +335,7 @@ def test_mutation_lock_blocks_concurrent_controller(tmp_path, monkeypatch):
     with a.mutation_lock(): pass
 
 
-def test_render_failure_does_not_publish_incomplete_activation_state(apply_environment, monkeypatch):
+def test_render_failure(apply_environment, monkeypatch):
     c, original, scalar, dsn, calls, state = apply_environment
     def fail(*args, **kwargs): raise ValueError('rendering failed')
     monkeypatch.setattr(a.d, 'render', fail)
@@ -354,7 +354,7 @@ def test_incomplete_activation_cannot_be_applied_again(apply_environment):
     assert not calls
 
 
-def test_rollback_then_apply_can_retry_with_preserved_original_state(apply_environment):
+def test_apply_after_rollback(apply_environment):
     c, original, scalar, dsn, calls, state = apply_environment
     a.apply(c, '/not-used')
     a.rollback()
@@ -365,7 +365,7 @@ def test_rollback_then_apply_can_retry_with_preserved_original_state(apply_envir
     for path, value in original.items(): assert path.read_text() == value
 
 
-def test_rollback_closes_ingress_even_if_stopping_service_fails(apply_environment, monkeypatch):
+def test_rollback_stop_failure(apply_environment, monkeypatch):
     c, original, scalar, dsn, calls, state = apply_environment
     a.apply(c, '/not-used')
     calls.clear()
@@ -403,5 +403,5 @@ def test_rollback_rejects_added_dependency_backup_files(apply_environment):
     assert not calls
 
 
-def test_controller_deployment_digest_matches_integrated_security_guards():
+def test_deployment_digest():
     assert a.digest(a.SOURCE_ROOT / 'omneum/network_deploy.py') == a.MODULE_DIGEST

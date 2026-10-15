@@ -46,7 +46,7 @@ def test_trial_counts(monkeypatch):
         assert [record["trial"] for record in records if record["method"] == method.name] == [1, 2, 3]
 
 
-def test_deterministic_and_provider_methods_run_all_requested_trials(monkeypatch):
+def test_requested_trials(monkeypatch):
     async def fake_run_method(method, case, truth, **kwargs):
         return {"selected": ["source_a"], "answer_score": "correct"}
 

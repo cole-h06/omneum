@@ -158,7 +158,7 @@ def test_analytics_derived_metric_cycle_regression():
     (SourceSpec("unrecognized_role", "https://example.com/a"), "unknown source kind"),
     (SourceSpec("derived_table", "not-a-url"), "invalid web document identifier"),
 ])
-def test_adapter_does_not_accept_unknown_roles_or_invalid_identifiers(spec, error):
+def test_invalid_adapter_identity(spec, error):
     case = load_case(CASE_PATHS[0])
     case = replace(case, candidates=(replace(case.candidates[0], source=spec),))
     with pytest.raises(ValueError, match=error):
@@ -209,7 +209,7 @@ def test_analytics_namespace_regression():
     )
 
 
-def test_entity_and_claim_identity_partitions_are_preserved_across_dataset():
+def test_dataset_identity_partitions():
     from omneum.client import _snapshot_observations
 
     original_to_adapted = {}
@@ -230,7 +230,7 @@ def test_entity_and_claim_identity_partitions_are_preserved_across_dataset():
     assert len(original_to_adapted) == len(adapted_to_original) == 36
 
 
-def test_entity_encoding_prevents_namespace_and_canonicalization_collisions():
+def test_entity_encoding_collisions():
     from omneum.canonicalization import canonicalize_entity
     from .loader import _omneum_entity
 

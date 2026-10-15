@@ -323,7 +323,7 @@ def test_network_evaluator_endpoint_hardening(endpoint):
     assert 'private' not in str(error.value)
 
 
-def test_ingestion_cancellation_retains_capacity_until_worker_finishes(app, monkeypatch):
+def test_cancelled_ingestion_capacity(app, monkeypatch):
     import threading
     entered, release = threading.Event(), threading.Event()
     def handle(**kw):

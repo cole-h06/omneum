@@ -81,7 +81,7 @@ def test_native_paths(tmp_path, monkeypatch, platform, variables, parts):
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='POSIX permissions')
-def test_default_private_fallback_preserves_permissions_and_restart(tmp_path, monkeypatch):
+def test_fallback_database_restart(tmp_path, monkeypatch):
     import omneum.paths as module
     monkeypatch.setattr(module, 'get_context_db_path', get_context_db_path)
     monkeypatch.setattr(module.sys, 'platform', 'linux')
@@ -180,7 +180,7 @@ def test_unrelated_dot_directory_does_not_hide_existing_graph(tmp_path, monkeypa
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='POSIX directory permissions')
-def test_new_configuration_parents_are_private_under_shared_umask(tmp_path, monkeypatch):
+def test_config_parent_permissions(tmp_path, monkeypatch):
     from omneum import paths
     directory = tmp_path / 'new' / 'config' / 'Omneum'
     monkeypatch.setenv('OMNEUM_CONFIG_DIR', str(directory))
@@ -659,7 +659,7 @@ def test_disappearing_sidecar_does_not_reject_concurrent_open(tmp_path, monkeypa
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='POSIX directory permissions')
-def test_new_macos_config_directory_is_compatible_with_default_graph(tmp_path, monkeypatch):
+def test_macos_config_permissions(tmp_path, monkeypatch):
     from omneum import paths
     from omneum.storage import filesystem
     if os.uname().sysname != 'Darwin':
@@ -704,7 +704,7 @@ def test_patched_sqlite_maintenance_branches_accepted(monkeypatch, version):
     require_safe_sqlite()
 
 
-def test_validation_descriptors_do_not_drop_another_thread_sqlite_locks(tmp_path, monkeypatch):
+def test_cross_thread_sqlite_locks(tmp_path, monkeypatch):
     from concurrent.futures import TimeoutError
     from threading import Event
     active, started = Event(), Event()

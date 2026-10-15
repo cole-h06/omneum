@@ -134,7 +134,7 @@ def test_retrieval_targets_and_deduplicates(scenario, example_daemon, monkeypatc
         assert calls[0][0] == ("processing_region",)
 
 
-def test_selection_excludes_unresolved_conflicts_and_weak_support():
+def test_unsupported_claims():
     def claim(attribute, value, support, independent):
         return SimpleNamespace(
             claim=SimpleNamespace(attribute=attribute, value=value), support=support,

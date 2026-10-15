@@ -81,8 +81,7 @@ def reconstruct(case, shortlist, estimator):
     )
     return map_observations(shortlist, observations, source_ids), evaluation
 
-def test_census_fixture_with_real_dependency_and_inference():
-    # Reconstruct the real SDK graph without a daemon or provider call.
+def test_census_selection():
     case = load_case(BASE/'cases/research_independent_false_consensus/case.json')
     text = {c.source_id:c.text for c in case.candidates}
     # Recorded BGE shortlist, kept here so the test needs no historical run files.
@@ -95,7 +94,7 @@ def test_census_fixture_with_real_dependency_and_inference():
     assert choose(mapped,result,3) == ['analysis','report','dataset']
 
 
-def test_independent_agreement_cannot_exclude_relevant_dissent():
+def test_relevant_dissent():
     mapped,result=context([('estimate1',.9,.25),('estimate2',.8,.25),('estimate3',.7,.25),('measurement',.99,.05)],
         [('count',240,['estimate1','estimate2','estimate3']),('count',216,['measurement'])])
     assert choose(mapped,result,2)==['estimate1','measurement']
@@ -103,19 +102,19 @@ def test_independent_agreement_cannot_exclude_relevant_dissent():
 
 
 @pytest.mark.parametrize('budget,expected',[(0,[]),(1,['a']),(2,['a','b']),(3,['a','b','c'])])
-def test_insufficient_budget_uses_scores_and_deterministic_ties(budget,expected):
+def test_budget_tiebreaks(budget,expected):
     mapped,result=context([('a',.9,.5),('a_copy',.89,.5),('b',.8,.5),('c',.8,.5)],
         [('count',1,['a','a_copy']),('count',2,['b']),('count',3,['c'])])
     assert choose(mapped,result,budget)==expected
 
 
-def test_nonconflicting_behavior_including_dependent_sources_is_unchanged():
+def test_nonconflicting_selection():
     mapped,result=context([('a',.9,.1),('b',.8,.5),('c',.7,.5)],
         [('count',1,['a','b','c'])],[('b','c',1.)])
     assert choose(mapped,result,2)==['b','c']
 
 
-def test_dependent_copy_deferred_while_independent_corroboration_exists():
+def test_independent_corroboration():
     mapped,result=context([('a',.99,.5),('copy',.98,.5),('independent',.7,.5),('dissent',.9,.1)],
         [('count',1,['a','copy','independent']),('count',2,['dissent'])],[('a','copy',1.)])
     assert choose(mapped,result,3)==['a','independent','dissent']

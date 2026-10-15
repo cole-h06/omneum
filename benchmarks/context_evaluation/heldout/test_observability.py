@@ -115,7 +115,7 @@ def test_google_failure_diagnostics_to_disk(tmp_path, monkeypatch, status, metho
     assert "private-google-key" not in serialized
 
 
-def test_artifact_boundary_redacts_credentials_and_drops_headers(tmp_path, monkeypatch):
+def test_artifact_redaction(tmp_path, monkeypatch):
     monkeypatch.setenv("CUSTOM_API_KEY", "environment-credential")
     record = {
         "answer_score": "selection_failure", "failure_type": "parse_error",
@@ -153,7 +153,7 @@ def test_google_finish_reason_is_preserved(tmp_path, monkeypatch):
     assert record["selection"]["raw_output"] == "{"
 
 
-def test_provider_usage_metadata_is_saved_with_unavailable_fields_null(tmp_path):
+def test_provider_usage_metadata(tmp_path):
     usage = {
         "prompt_token_count": 17,
         "candidates_token_count": 6,
@@ -176,7 +176,7 @@ def test_provider_usage_metadata_is_saved_with_unavailable_fields_null(tmp_path)
     assert saved_missing["response_diagnostics"]["usage_metadata"]["reasoning_tokens"] is None
 
 
-def test_token_efficiency_summary_survives_checkpoint_sanitization(tmp_path):
+def test_checkpoint_token_efficiency(tmp_path):
     summary = {
         "fixture": {
             "generator_usage": {
@@ -197,7 +197,7 @@ def test_token_efficiency_summary_survives_checkpoint_sanitization(tmp_path):
     assert saved["fixture"]["generator_usage"]["token_efficiency"] == summary["fixture"]["generator_usage"]["token_efficiency"]
 
 
-def test_provider_error_body_keeps_typed_fields_and_omits_message(monkeypatch):
+def test_provider_error_redaction(monkeypatch):
     from .diagnostics import safe_artifact
 
     monkeypatch.setenv("ANTHROPIC_API_KEY", "fixture-secret-key")
@@ -230,7 +230,7 @@ def test_provider_error_body_keeps_typed_fields_and_omits_message(monkeypatch):
     assert "production" not in json.dumps(record)
 
 
-def test_safe_artifact_accepts_raw_runner_result_without_case_id(monkeypatch):
+def test_artifact_without_case_id(monkeypatch):
     from .diagnostics import safe_artifact
 
     monkeypatch.setenv("ANTHROPIC_API_KEY", "fixture-secret-key")

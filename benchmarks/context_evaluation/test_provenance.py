@@ -39,7 +39,7 @@ def test_publication_inventory_is_verified():
     ('publication_manifest_v1.json', 'artifacts'),
     ('heldout/source_manifest_v5.json', 'sha256'),
 ])
-def test_reviewed_contract_revisions_preserve_previous_contract_bytes(name, key):
+def test_contract_immutability(name, key):
     contract = json.loads((Path(__file__).parent / name).read_text())
     previous = deepcopy(contract)
     while previous.get('revision_history'):
@@ -109,7 +109,7 @@ assert len(build_summary()['configurations']) == 12
     subprocess.run([sys.executable, "-B", "-c", code], cwd=tmp_path, check=True)
 
 
-def test_publication_contract_schema_and_current_source_contract():
+def test_publication_contract():
     from jsonschema import Draft202012Validator
 
     schema = json.loads((Path(__file__).parent / "publication_manifest_v1.schema.json").read_text())

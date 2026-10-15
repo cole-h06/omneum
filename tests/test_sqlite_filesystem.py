@@ -42,7 +42,7 @@ def test_linux_nested_local_mount_and_mountpoint_escaping(monkeypatch):
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='POSIX mount paths')
-def test_unavailable_linux_mount_metadata_is_not_a_locality_claim(monkeypatch):
+def test_unknown_mount_locality(monkeypatch):
     read = Path.read_text
     def unavailable(self, *args, **kwargs):
         if self == Path('/proc/self/mountinfo'):

@@ -14,7 +14,7 @@ from .methods import METHODS
 from .test_runner import truth
 
 
-def test_public_manifest_supports_historical_cache_without_provider():
+def test_cached_manifest():
     from .build_dashboard_summary import BASE
     from .run_benchmark import discover_cases, CASES_DIR
     from .loader import application_candidates

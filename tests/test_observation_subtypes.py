@@ -140,7 +140,7 @@ def test_lossless_version_one_migration(tmp_path):
 
 
 @pytest.mark.parametrize('invalid', ['future', 'missing', 'duck'])
-def test_contribution_rejects_future_or_invalid_subtype_before_network(assertion, invalid):
+def test_invalid_contribution_subtypes(assertion, invalid):
     if invalid == 'duck':
         observation = SimpleNamespace(observation_type='assertion', claim=assertion.claim)
     else:

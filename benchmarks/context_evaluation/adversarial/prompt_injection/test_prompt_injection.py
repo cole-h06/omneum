@@ -312,7 +312,6 @@ async def test_omneum_text_invariance():
     clean = clean_results()
     attacked = provenance_injection()
 
-    # Verify that the experiment really changes retrieved content.
     assert clean[-1]["text"] != attacked[-1]["text"]
 
     clean_mapped = map_observations(

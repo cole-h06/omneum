@@ -87,7 +87,7 @@ def test_incompatible_pairs_rejected(change):
 
 
 @pytest.mark.parametrize("bad", [None, float("nan"), float("inf"), -1, True, .6])
-def test_missing_or_incompatible_evaluation_is_not_zero_or_clamped(bad):
+def test_missing_latency_components(bad):
     rows = pair()
     rows[1]["selection"]["evaluation_latency_seconds"] = bad
     report = analysis.analyze(rows, expected_cases=1)
@@ -97,7 +97,7 @@ def test_missing_or_incompatible_evaluation_is_not_zero_or_clamped(bad):
 
 
 @pytest.mark.parametrize("field", ["cohere_latency_seconds", "latency_seconds", "cold_integration_latency_seconds"])
-def test_inconsistent_components_are_flagged_and_not_reconstructed(field):
+def test_inconsistent_latency_components(field):
     rows = pair()
     rows[1]["selection"][field] = 9
     report = analysis.analyze(rows, expected_cases=1)

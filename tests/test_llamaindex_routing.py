@@ -143,7 +143,7 @@ def test_retrieval_targets_attributes_and_deduplicates(strategy, monkeypatch):
     assert calls == [(REQUIRED_ATTRIBUTES, strategy, 1)]
 
 
-def test_selection_excludes_unresolved_conflicts_and_weak_support():
+def test_unsupported_claims():
     def claim(attribute, value, support, independent):
         return SimpleNamespace(
             claim=SimpleNamespace(attribute=attribute, value=value), support=support,

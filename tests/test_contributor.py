@@ -149,7 +149,7 @@ def test_device_polling_honors_repeated_slow_down(monkeypatch):
 @pytest.mark.parametrize('status,code', [(400, 'authorization_pending'),
     (400, 'slow_down'), (403, 'authorization_pending'), (403, 'access_denied'),
     (403, 'expired_token'), (429, 'slow_down')])
-def test_device_http_errors_support_auth0_without_exposing_descriptions(monkeypatch, status, code):
+def test_auth0_error_redaction(monkeypatch, status, code):
     import io
     import json
     from urllib.error import HTTPError
@@ -171,7 +171,7 @@ def test_device_http_errors_support_auth0_without_exposing_descriptions(monkeypa
     (400, {'error': 'unknown'}, True),
     (500, {'error': 'authorization_pending'}, True),
     (403, {'error': 'authorization_pending'}, False)])
-def test_device_http_errors_never_accept_tokens_or_unexpected_status(monkeypatch, status, body, form):
+def test_invalid_device_responses(monkeypatch, status, body, form):
     import io
     import json
     from urllib.error import HTTPError
@@ -391,7 +391,7 @@ def test_tool_errors_do_not_echo_secrets(runtime, monkeypatch, caplog):
 
 
 @pytest.mark.parametrize('failure', ['authentication', 'proof'])
-def test_network_rejection_never_uploads_raw_data_or_breaks_local_result(runtime, network, failure, monkeypatch):
+def test_contribution_rejection(runtime, network, failure, monkeypatch):
     from omneum.oprf import VOPRFEvaluation
     original = network[0].evaluator.evaluate
     blinded = []

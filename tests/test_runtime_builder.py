@@ -70,7 +70,7 @@ def test_runtime_metadata_is_portable_and_record_matches(tmp_path):
     assert (info / 'direct_url.json').exists()  # Build inputs are preserved.
 
 
-def test_runtime_rejects_unremapped_native_paths_before_packaging(tmp_path):
+def test_unmapped_native_paths(tmp_path):
     root = tmp_path / 'root'; fixture(root)
     native = root / '.venv/lib/python3.13/site-packages/omneum_oprf/native.so'
     native.parent.mkdir(parents=True)

@@ -30,7 +30,7 @@ class MacOSParentBoundaryTests(unittest.TestCase):
         self.assertIn('/Library/Omneum/omneumd', plist)
         self.assertNotIn('/usr/local/libexec/omneumd', plist)
 
-    def test_actual_extended_acl_rejected_even_when_posix_checks_allow(self):
+    def test_extended_acl(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             # Model root ownership without changing a system path or using sudo;

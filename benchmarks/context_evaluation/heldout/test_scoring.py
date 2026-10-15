@@ -110,7 +110,7 @@ def test_selection_score_empty():
     assert result["recall"] == 0.0
 
 
-def test_wording_variants_are_not_silently_added_to_frozen_rubric():
+def test_frozen_rubric_variants():
     # These require lexical/semantic generalization, not formatting normalization.
     rubric = truth(["bound idle connections", "evict expired"])
     for answer in (

@@ -88,7 +88,7 @@ class WheelReleaseTests(unittest.TestCase):
         with project.open("rb") as source:
             self.assertEqual(release.ENTRY_POINTS, tomllib.load(source)["project"]["scripts"])
 
-    def test_prepare_flattens_artifacts_and_preserves_only_wheel_bytes(self):
+    def test_prepare_wheel_artifacts(self):
         expected = {path.name: path.read_bytes() for path in self.wheels.glob("*.whl")}
         for path in list(self.wheels.glob("*.whl")):
             artifact = self.wheels / path.stem
@@ -258,7 +258,7 @@ class WheelReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unremapped developer path'):
             release.sanitize(directory)
 
-    def test_sanitize_refreshes_readme_without_changing_dependency_headers(self):
+    def test_sanitize_wheel_readme(self):
         directory = self.root / 'description-wheel'
         directory.mkdir()
         path = directory / 'omneum-1.0.3-cp311-cp311-macosx_11_0_arm64.whl'
@@ -281,7 +281,7 @@ class WheelReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "exactly one"):
             release.smoke(self.wheels, self.project)
 
-    def test_intel_dependency_requires_matching_manifest_and_metadata(self):
+    def test_intel_dependency_metadata(self):
         path = self.root / 'cryptography-50.0.2-cp311-abi3-macosx_10_13_x86_64.whl'
         metadata = 'cryptography-50.0.2.dist-info/METADATA'
         with zipfile.ZipFile(path, 'w') as archive:

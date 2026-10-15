@@ -196,7 +196,7 @@ def test_previous_utc_day_does_not_consume_today_budget(bound):
     assert submit(handler, p).status == 200
 
 
-def test_malformed_and_oversized_reports_leave_membership_unchanged(bound):
+def test_invalid_report_membership(bound):
     db, handler, *_ = bound
     p = payload()
     p['observations'][0]['claim_id'] = 'missing'
@@ -229,7 +229,7 @@ def test_report_membership_and_budget_migrate_legacy_rows(bound):
     assert submit(handler, p).status == 200
 
 
-def test_reported_dependency_evidence_is_preserved_with_uuid_direction(bound):
+def test_dependency_evidence_direction(bound):
     from uuid import UUID
     db, handler, *_ = bound
     for n, identity in ((1, UUID(int=2)), (2, UUID(int=1))):
@@ -252,7 +252,7 @@ def test_reported_dependency_evidence_is_preserved_with_uuid_direction(bound):
         matching_claim_count=1, qualifying_time_deltas_seconds=[1.0])
 
 
-def test_per_run_membership_foreign_keys_reject_cross_report_structure(bound):
+def test_cross_report_foreign_keys(bound):
     import psycopg
     db, handler, *_ = bound
     response = submit(handler)

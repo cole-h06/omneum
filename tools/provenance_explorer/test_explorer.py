@@ -10,7 +10,7 @@ from tools.provenance_explorer import explorer as e
 from omneum.canonicalization import canonicalize_source
 
 
-def test_fixture_has_meaningful_typed_lineage_and_independent_sources():
+def test_fixture_lineage():
     rows = e.fixture_observations()
     assert len(rows) == 72
     assert len({row.source for row in rows}) == 36
@@ -41,7 +41,7 @@ def test_connection_guard_rejects_before_any_database_access(dsn):
         connect.assert_not_called()
 
 
-def test_connection_pins_loopback_and_ignores_ambient_credentials(monkeypatch):
+def test_connection_isolation(monkeypatch):
     monkeypatch.delenv("PGSERVICE", raising=False)
     monkeypatch.setenv("PGHOSTADDR", "192.0.2.1")
     monkeypatch.setenv("PGDATABASE", "omneum_prod")
@@ -57,7 +57,7 @@ def test_connection_pins_loopback_and_ignores_ambient_credentials(monkeypatch):
 
 
 @pytest.mark.skipif(os.environ.get("OMNEUM_PROVENANCE_INTEGRATION") != "1", reason="explicit dev-only integration opt-in")
-def test_actual_development_fixture_is_idempotent_concurrent_and_readable():
+def test_fixture_concurrency():
     with e.connect() as db:
         before = e.read_graph(db)
         assert e.populate(db)["inserted_observations"] == 0
