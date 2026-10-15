@@ -1,6 +1,7 @@
 """Omneum SDK."""
 
 from .mapping import ContextMapper
+from .extraction import extract_observations
 from .client import (
     ClaimSupportResult,
     ConflictingClaimResult,
@@ -85,6 +86,7 @@ __all__ = [
     "OmneumClientError",
     "explain_claim",
     "explain_dependency",
+    "extract_observations",
     "evaluate",
     "evaluate_context",
     "evaluate_records",

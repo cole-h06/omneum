@@ -342,6 +342,77 @@ mapper = ContextMapper(
 
 See [ContextMapper](context_mapper.md) for the complete mapping contract.
 
+## Extract assertions from text
+
+`extract_observations()` optionally calls an LLM before evaluation. Pass an
+explicitly configured async provider that accepts a prompt and returns a mapping
+with `text` containing a JSON list of assertions. This uses the same callable
+contract as the benchmark `generate()` integrations.
+
+For example, install `anthropic` separately and set `ANTHROPIC_API_KEY` and
+`ANTHROPIC_MODEL`:
+
+```python
+import asyncio
+import os
+from datetime import datetime, timezone
+
+from anthropic import AsyncAnthropic
+from omneum import Source, evaluate_context, extract_observations
+from omneum.dependency import DependencyEstimatorConfig
+
+
+async def main():
+    async with AsyncAnthropic() as client:
+        async def generate(prompt):
+            response = await client.messages.create(
+                model=os.environ["ANTHROPIC_MODEL"],
+                max_tokens=2048,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            if response.stop_reason != "end_turn":
+                raise ValueError("extraction response is incomplete")
+            return {"text": "".join(
+                block.text for block in response.content if block.type == "text"
+            )}
+
+        observations = await extract_observations([{
+            "id": "report-chunk-1",
+            "source": Source("web_document", "https://example.com/report"),
+            "text": "Acme reported revenue of $4.2 billion in 2025.",
+            "observed_at": datetime.now(timezone.utc),
+        }], provider=generate)
+
+    if observations:
+        estimator = DependencyEstimatorConfig(
+            upstream_weight=1.0, citation_weight=0.0,
+            assertion_lineage_weight=0.0, ownership_weight=0.0,
+            temporal_weight=0.0, graph_weight=0.0,
+            temporal_window_seconds=7200.0,
+        )
+        result = evaluate_context(observations, estimator=estimator)
+        print(result.explanation)
+
+
+asyncio.run(main())
+```
+
+Each chunk requires a unique `id`, a `Source`, `text`, and a timezone-aware
+`observed_at`. Optional observation provenance fields and `metadata` pass through
+from the chunk. Each assertion receives an observation ID of `<chunk id>:<index>`
+and `metadata["chunk_id"]` identifies its originating chunk. Multiple chunks from
+one resource should use the same source identity and different chunk IDs.
+
+The provider must return a JSON list of objects containing exactly
+`entity_namespace`, `entity`, `attribute`, and `value`. An empty list produces no
+observations. Invalid or incomplete output raises `ValueError`; provider errors
+propagate without returning a partial result. Existing claim and observation
+validation applies. Structural validation cannot establish extraction accuracy.
+
+Raw text is sent to the configured provider. Source identity and provenance come
+from the caller. Extraction does not infer dependency signals. BRAID remains
+data-blind, and evaluation and the demo require no provider package or API key.
+
 ## Configure source-dependency estimation
 
 Pass a `DependencyEstimatorConfig` to override the estimator settings:
