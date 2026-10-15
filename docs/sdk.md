@@ -1,207 +1,149 @@
+# Omneum Python SDK
 
-# Python SDK
-
-Use `evaluate()` for dictionary inputs or `evaluate_context()` for structured
-observations. Both synchronous functions evaluate entirely in memory, without MCP,
-a daemon, service installation, network access, or a database. The existing
-`OmneumClient` connects through MCP for isolated VOPRF linkage and service evaluation.
-For MCP-only integrations without Python, see [Configuration](guides/configuration.md).
+The Python SDK evaluates context directly in-process or through a local Omneum server.
 
 ## Installation
 
-Supports CPython 3.11–3.14.
+Omneum supports CPython 3.11–3.14.
 
 ```bash
 pip install omneum
 ```
 
-For MCP integrations, also run `omneum install`. See [Installation](guides/installation.md) for supported platforms and local service setup.
+The Python API runs in-process without a daemon or database.
 
-## Evaluate Records
+For a managed MCP deployment, run:
+
+```bash
+omneum install
+```
+
+For platform requirements and managed-service setup, see
+[Installation](installation.md).
+
+## Quick Start
+
+Install the Python package:
+
+```bash
+pip install omneum
+```
+
+Create `evaluate.py`:
+
+Evaluate three observations against a single claim. Two sources reference the same upstream document.
 
 ```python
 import omneum
+from omneum.explanations import explain_evaluation
 
-records = [
-    {"url": "https://a.example", "value": 4200000000,
-     "upstream": ["https://sec.example"]},
-    {"url": "https://b.example", "value": 4200000000,
-     "upstream": ["https://sec.example"]},
-    {"url": "https://c.example", "value": 4200000000,
-     "upstream": []},
+observations = [
+    {
+        "url": "https://a.example",
+        "value": 4200000000,
+        "claim": {
+            "entity_namespace": "company",
+            "entity": "acme",
+            "attribute": "fy2025_gross_revenue",
+        },
+        "upstream": ["https://sec.example"],
+    },
+    {
+        "url": "https://b.example",
+        "value": 4200000000,
+        "claim": {
+            "entity_namespace": "company",
+            "entity": "acme",
+            "attribute": "fy2025_gross_revenue",
+        },
+        "upstream": ["https://sec.example"],
+    },
+    {
+        "url": "https://c.example",
+        "value": 4200000000,
+        "claim": {
+            "entity_namespace": "company",
+            "entity": "acme",
+            "attribute": "fy2025_gross_revenue",
+        },
+        "upstream": [],
+    },
 ]
 
-result = omneum.evaluate(records)
-print(f"Estimated independent support: {result.estimated_independent_support:.2f}")
+result = omneum.evaluate(observations)
+print(explain_evaluation(result))
 ```
+
+Run:
+
+```bash
+python evaluate.py
+```
+
+Output:
 
 ```text
-Estimated independent support: 2.00
+Omneum Evaluation
+Evaluation latency: 1.6 ms
+
+Fy2025 gross revenue
+
+  4200000000
+  Support: 0.67
+  Supporting sources: 3
+  Estimated independent support: 2.00
+  Dependency signal coverage: 1.00
+
+  Explanation:
+    3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
 ```
 
-`evaluate(records, *, estimator=None) -> ContextEvaluation` accepts a
-sequence of dictionaries. It converts them to `Observation` objects and calls
-`evaluate_context()`, which uses the existing dependency estimator, BRAID graph
-builder, inference engine, and result mapping. Synthetic examples execute that
-same algorithm; there is no alternate scoring implementation.
+`evaluate()` runs Omneum's graph-based evaluation algorithm in-process; it computes source reliability and claim support scores while accounting for dependencies between sources.
 
-`evaluate_records()` remains a backward-compatible alias of `evaluate()`.
+## MCP Client Initialization
 
-| Field | Meaning and default |
-| --- | --- |
-| `url` | Required source URL. Uses the existing `web_document` canonicalization; paths and queries distinguish sources, fragments do not. Nothing is fetched. |
-| `value` | Required JSON-compatible asserted value, including `None`. Existing claim canonicalization applies. |
-| `upstream` | List of upstream source URLs. Omitted or `None` means unknown provenance; `[]` means no known upstream sources. Shared upstream URLs produce dependency evidence even if they have no record of their own. |
-| `claim` | Optional mapping containing exactly `entity_namespace`, `entity`, and `attribute`, each a nonempty string. Supply it on every record or on none. |
-| `observation_id` | Optional nonempty string unique within this call. Defaults to `record:<zero-based index>`. |
-| `observed_at` | Optional timezone-aware `datetime`. Defaults to a single UTC timestamp captured once per call. |
-| `source_modified_at` | Optional timezone-aware `datetime`; default `None` (unknown). Observation time alone does not enable temporal dependency. |
-| `owner_id` | Optional source owner string; default `None`. Canonically identical source URLs must have consistent ownership. |
-| `cited` | Optional list of cited source URLs; omitted or `None` is unknown, `[]` means no known citations. |
-| `parent_observation_ids` | Optional list of observation IDs within this call for lineage; omitted or `None` is unknown, `[]` means no known parents. |
-| `metadata` | Optional dictionary of JSON-compatible application metadata; defaults to `{}`. Does not change scores. |
-
-Unknown fields and partial claim identities are rejected. Inputs are not mutated.
-Without `claim`, **all records in the call assert the same attribute**, identified
-as `entity_namespace="records", entity="default", attribute="value"`. Equal
-canonical values support the same claim; different values compete within that
-attribute. This mode is only for records that actually address the same question.
-Omneum does not infer claim identity from text, URLs, or values.
-
-For multiple attributes or entities, give each record its full claim identity:
-
-```python
-records = [
-    {"url": "https://a.example", "value": 90,
-     "claim": {"entity_namespace": "service", "entity": "payments", "attribute": "retention_days"}},
-    {"url": "https://b.example", "value": 30,
-     "claim": {"entity_namespace": "service", "entity": "payments", "attribute": "retention_days"}},
-    {"url": "https://a.example", "value": "eu",
-     "claim": {"entity_namespace": "service", "entity": "payments", "attribute": "region"}},
-]
-result = omneum.evaluate(records)
-for item in result.claim_support:
-    print(item.claim.attribute, item.claim.value, item.estimated_independent_support_count)
-```
-
-The return value is the full **`ContextEvaluation`**, including `claim_support`,
-`source_reliability`, `pairwise_dependencies`, convergence, latency, and explanations.
-`result.estimated_independent_support` returns the single claim's
-`estimated_independent_support_count` as a float, without rounding or truncation.
-It raises `ValueError` for multiple claims, including conflicting values. Select
-an item from `result.claim_support` in that case; summing support across unrelated
-claims would not describe independent evidence for any one claim.
-
-The convenience API defaults to the upstream-only estimator used in the original
-in-process example: `upstream_weight=1.0`, all other signal weights `0.0`,
-`temporal_window_seconds=7200.0`, estimator version `dependency-estimator-v4`,
-no dependency cluster threshold. This is a new wrapper default, not a change to
-`evaluate_context()` or the scoring algorithm. Pass an existing
-`DependencyEstimatorConfig` via `estimator=` to use citation, ownership, lineage,
-temporal, or graph signals and optional clustering. Fractional estimates from
-that estimator are preserved. Missing provenance is not proof of independence;
-inspect `dependency_signal_coverage` alongside estimated support.
-
-Existing graph validation and limits apply: at most 64 sources, 2,048 attributes,
-4,096 observations/claims, and 16,384 conflicting-claim entries. Duplicate canonical
-source/claim observations, duplicate observation IDs, and multiple competing values
-from the same source for one attribute raise `InformationGraphError` (`ValueError`).
-One source can report several distinct attributes. Invalid field types raise
-`TypeError` or `ValueError`; invalid URLs and claim values use existing validation.
-
-This API is for URL sources and explicit structured assertions. For other source
-kinds, retrieval metadata, or caller-certified exact equivalence, use the structured
-SDK APIs. For direct synchronous evaluation, call
-`evaluate_context(observations, estimator=config)`; the estimator remains required.
-The in-process functions do not issue VOPRF linkage tokens, isolate keys, persist
-history, or contribute to the network. Use the MCP client below when those service
-features are needed.
-
-## MCP Quick Start
-
-```python
-import asyncio
-from datetime import datetime, timezone
-
-from mcp import StdioServerParameters
-from omneum import (
-    Claim,
-    DependencyEstimatorConfig,
-    Observation,
-    OmneumClientConfig,
-    Source,
-    open_stdio_client,
-)
-
-async def main():
-    config = OmneumClientConfig.from_local_deployment()
-    server = StdioServerParameters(command="omneum-server")
-
-    observations = [
-        Observation(
-            observation_id="research-result",
-            source=Source(
-                kind="web_document",
-                identifier="https://research.example.com/acme-revenue",
-            ),
-            claim=Claim(
-                entity_namespace="company",
-                entity="acme",
-                attribute="revenue_2025",
-                value=4_200_000_000,
-            ),
-            observed_at=datetime.now(timezone.utc),
-        ),
-    ]
-
-    estimator = DependencyEstimatorConfig(
-        upstream_weight=0.25,
-        citation_weight=0.20,
-        assertion_lineage_weight=0.20,
-        ownership_weight=0.10,
-        temporal_weight=0.10,
-        graph_weight=0.15,
-        temporal_window_seconds=7200.0,
-    )
-
-    async with open_stdio_client(config, server) as client:
-        evaluation = await client.evaluate_context(observations, estimator=estimator)
-
-        for claim in evaluation.claim_support:
-            print(claim.support)
-            print(claim.estimated_independent_support_count)
-
-asyncio.run(main())
-```
-
-## Client Initialization
-
-`open_stdio_client()` starts `omneum-server` and establishes an MCP stdio session.
+For MCP evaluation, `open_stdio_client()` starts `omneum-server` over stdio and returns an asynchronous client.
 
 ```python
 from mcp import StdioServerParameters
+
 from omneum import OmneumClientConfig, open_stdio_client
 
 config = OmneumClientConfig.from_local_deployment()
-server = StdioServerParameters(command="omneum-server")
 
+server = StdioServerParameters(
+    command="omneum-server",
+)
+```
+
+Use the client as an async context manager:
+
+```python
 async with open_stdio_client(config, server) as client:
     ...
 ```
 
-`from_local_deployment()` reads the public configuration generated by `omneum install` or `omneum init`.
-
-The client communicates with the local evaluator through the MCP server. It does not load the evaluator into the Python process.
+`from_local_deployment()` reads the public configuration created by
+`omneum install` or `omneum init`.
 
 ## Core Operations
 
 ### Evaluate Context
 
-`OmneumClient.evaluate_context()` accepts a sequence of `Observation` objects and returns a `ContextEvaluation`.
+`omneum.evaluate()` accepts observations as Python dictionaries and runs synchronously in-process.
+
+```python
+import omneum
+
+result = omneum.evaluate(observations)
+```
+
+For typed inputs, `evaluate_context()` accepts a sequence of `Observation` objects. Each observation connects a `Source` to a `Claim`:
 
 ```python
 from datetime import datetime, timezone
-from omneum import Claim, DependencyEstimatorConfig, Observation, Source
+
+from omneum import Claim, Observation, Source
 
 claim = Claim(
     entity_namespace="service",
@@ -230,102 +172,32 @@ observations = [
         observed_at=datetime.now(timezone.utc),
     ),
 ]
-
-estimator = DependencyEstimatorConfig(
-    upstream_weight=0.25,
-    citation_weight=0.20,
-    assertion_lineage_weight=0.20,
-    ownership_weight=0.10,
-    temporal_weight=0.10,
-    graph_weight=0.15,
-    temporal_window_seconds=7200.0,
-)
-
-evaluation = await client.evaluate_context(observations, estimator=estimator)
 ```
 
-Each assertion observation links a `Claim` to a `Source`. Multiple observations can report the same claim or conflicting values.
 
-### Evaluate Mapped Context
-
-`evaluate_mapped()` converts application records into Omneum observations using `ContextMapper`, then evaluates them.
+Evaluate directly in-process:
 
 ```python
-from datetime import datetime, timezone
-from omneum import ContextMapper, Source
+from omneum import evaluate_context
 
-results = [
-    {
-        "id": "research-result",
-        "url": "https://research.example.com/acme-q3",
-        "company": "acme-corp",
-        "revenue": 42_000_000,
-    },
-    {
-        "id": "analytics-result",
-        "url": "https://analytics.example.com/acme-q3",
-        "company": "acme-corp",
-        "revenue": 42_000_000,
-    },
-]
-
-mapper = ContextMapper(
-    source=lambda r: Source(
-        kind="web_document",
-        identifier=r["url"],
-    ),
-    entity_namespace=lambda r: "company",
-    entity="company",
-    attribute=lambda r: "quarterly_revenue_usd",
-    value="revenue",
-    observation_id="id",
-    observed_at=lambda r: datetime.now(timezone.utc),
-)
-
-evaluation = await client.evaluate_mapped(results, mapper)
+result = evaluate_context(observations)
 ```
 
-String selectors such as `"company"` and `"revenue"` reference input fields. Callables support custom extraction.
-
-`ContextMapper` does not perform entity resolution or extract assertions from unstructured text.
-
-See [ContextMapper](context-mapper.md) for the mapping contract.
-
-### Configure Source Dependence
-
-Pass `DependencyEstimatorConfig` to override estimator parameters for an evaluation.
+Or evaluate through the MCP client:
 
 ```python
-from omneum import DependencyEstimatorConfig
-
-estimator = DependencyEstimatorConfig(
-    upstream_weight=0.25,
-    citation_weight=0.20,
-    assertion_lineage_weight=0.20,
-    ownership_weight=0.10,
-    temporal_weight=0.10,
-    graph_weight=0.15,
-    temporal_window_seconds=7200.0,
-)
-
-evaluation = await client.evaluate_context(
-    observations,
-    estimator=estimator,
-)
+async with open_stdio_client(config, server) as client:
+    result = await client.evaluate_context(observations)
 ```
 
-These parameters apply to the evaluation request, not the local deployment.
+Both methods return a `ContextEvaluation`.
 
-See [Source Dependence](architecture.md#source-dependence).
+## Inspect the Result
 
-## Evaluation Results
-
-`ContextEvaluation` exposes source reliability, claim support, conflicts, and dependency estimates.
-
-### Claim Support
+Claim scores are available through `claim_support`:
 
 ```python
-for claim in evaluation.claim_support:
+for claim in result.claim_support:
     print("Support:", claim.support)
     print(
         "Independent support:",
@@ -334,46 +206,28 @@ for claim in evaluation.claim_support:
     print("Conflicts:", claim.conflicting_claims)
 ```
 
-`support` is a graph-derived score, not a probability of correctness.
+`support` is Omneum's graph score for the claim. It is not a probability that
+the value is correct.
 
-`estimated_independent_support_count` adjusts the number of supporting sources using estimated source dependencies.
+`estimated_independent_support_count` adjusts the number of supporting sources
+using the source dependencies estimated for the evaluation. Four sources can,
+for example, provide substantially less than four independent confirmations.
 
-`conflicting_claims` contains other observed values for the same normalized entity and attribute.
+`conflicting_claims` contains other values observed for the same normalized
+entity and attribute.
 
-### Source Dependencies
+Pairwise source dependencies are available separately:
 
 ```python
-for dependency in evaluation.pairwise_dependencies:
+for dependency in result.pairwise_dependencies:
     print(dependency)
 ```
 
-Dependencies are estimated from available upstream lineage, citations, assertion lineage, ownership, timestamps, and graph structure.
+Use these fields to control retrieval, routing, or policy decisions. Omneum returns evaluation results without selecting an action.
 
-### Format Results
+## Add Provenance
 
-```python
-from omneum import (
-    explain_evaluation,
-    explain_claim,
-    explain_dependency,
-)
-
-print(explain_evaluation(evaluation))
-
-for claim in evaluation.claim_support:
-    print(explain_claim(claim))
-
-for dependency in evaluation.pairwise_dependencies:
-    print(explain_dependency(dependency))
-```
-
-Formatting helpers operate on existing evaluation results. They do not make additional model calls.
-
-Use structured result fields for application logic.
-
-## Observation Provenance
-
-`Observation` accepts source and retrieval metadata supplied by the application.
+An `Observation` can include source provenance:
 
 ```python
 observation = Observation(
@@ -393,26 +247,24 @@ observation = Observation(
 )
 ```
 
-The example assumes the application has already populated the timestamp, lineage, citation, and retrieval variables.
+Use the field that matches the data your runtime actually has:
 
-| Field | Description |
+| Field | Use |
 |---|---|
-| `source_modified_at` | Source-reported modification timestamp |
-| `upstream_sources` | Sources from which information was derived |
-| `cited_sources` | Explicitly cited sources |
-| `parent_observation_ids` | Direct parent observations |
-| `retrievals` | Retrieval executions associated with the observation |
+| `source_modified_at` | Timestamp reported by the source itself |
+| `upstream_sources` | Sources this source was derived from |
+| `cited_sources` | Sources explicitly cited by this source |
+| `parent_observation_ids` | Direct observations this observation was derived from |
+| `retrievals` | Retrieval executions that returned the observation |
 
-Leave unavailable fields unset. Do not infer provenance to populate the schema.
+Leave unavailable fields unset. Don't infer provenance just to populate the
+schema.
 
-### Application Metadata
+Additional fields can be stored in metadata:
 
 ```python
 observation = Observation(
-    observation_id="research-result",
-    source=source,
-    claim=claim,
-    observed_at=datetime.now(timezone.utc),
+    ...,
     metadata={
         "request_id": request_id,
         "tool_name": tool_name,
@@ -420,11 +272,122 @@ observation = Observation(
 )
 ```
 
-`metadata` is retained with the observation but does not automatically affect source-dependency estimation.
+`metadata` is retained with the observation but doesn't automatically affect
+source-dependency estimation.
+
+## Map Retrieved Chunks
+
+ContextMapper converts existing retrieval results into `Observation` objects.
+
+Suppose a retrieval tool returns chunks with extracted values and source metadata:
+
+```python
+from datetime import datetime, timezone
+
+now = datetime.now(timezone.utc)
+
+results = [
+    {
+        "id": "research-result",
+        "url": "https://research.example.com/acme-q3",
+        "company": "acme-corp",
+        "revenue": 42_000_000,
+    },
+    {
+        "id": "analytics-result",
+        "url": "https://analytics.example.com/acme-q3",
+        "company": "acme-corp",
+        "revenue": 42_000_000,
+    },
+]
+```
+
+Map the existing fields with `ContextMapper`:
+
+```python
+from omneum import ContextMapper, Source
+
+mapper = ContextMapper(
+    source=lambda result: Source(
+        kind="web_document",
+        identifier=result["url"],
+    ),
+    entity_namespace=lambda result: "company",
+    entity="company",
+    attribute=lambda result: "quarterly_revenue_usd",
+    value="revenue",
+    observation_id="id",
+    observed_at=lambda result: now,
+)
+```
+
+Pass the original retrieval results to `evaluate_mapped()`:
+
+```python
+result = await client.evaluate_mapped(
+    results,
+    mapper,
+)
+```
+
+String values such as `"revenue"` and `"id"` select fields from the input
+record. Callables can extract or transform values:
+
+```python
+mapper = ContextMapper(
+    ...,
+    value=lambda result: normalize_revenue(result),
+)
+```
+
+See [ContextMapper](context_mapper.md) for the complete mapping contract.
+
+## Configure source-dependency estimation
+
+Pass a `DependencyEstimatorConfig` to override the estimator settings:
+
+```python
+from omneum import DependencyEstimatorConfig
+
+estimator = DependencyEstimatorConfig(
+    upstream_weight=0.25,
+    citation_weight=0.20,
+    assertion_lineage_weight=0.20,
+    ownership_weight=0.10,
+    temporal_weight=0.10,
+    graph_weight=0.15,
+    temporal_window_seconds=7200.0,
+)
+
+result = await client.evaluate_context(
+    observations,
+    estimator=estimator,
+)
+```
+
+These values configure the estimator for the evaluation. They aren't
+deployment settings or calibrated defaults for every workload.
+
+## Format results
+
+Omneum includes local formatting helpers:
+
+```python
+from omneum import explain_claim, explain_dependency
+
+for claim in result.claim_support:
+    print(explain_claim(claim))
+
+for dependency in result.pairwise_dependencies:
+    print(explain_dependency(dependency))
+```
+
+The helpers only format data already returned by Omneum. They don't call an
+LLM or run another evaluation.
 
 ## Configuration
 
-Load the installed local deployment:
+Load an installed local deployment with:
 
 ```python
 from omneum import OmneumClientConfig
@@ -432,17 +395,22 @@ from omneum import OmneumClientConfig
 config = OmneumClientConfig.from_local_deployment()
 ```
 
-Override the public configuration directory:
+To read public configuration from another directory:
 
 ```bash
 export OMNEUM_CONFIG_DIR=/etc/omneum
 ```
 
-The SDK reads deployment metadata and public VOPRF parameters. The private VOPRF key remains with the managed evaluator daemon.
+The configuration contains the deployment metadata and public VOPRF
+information needed by the client. The daemon's private VOPRF key is not stored
+with the SDK configuration.
 
-See [Configuration](guides/configuration.md).
+For custom endpoints and administrator-managed deployments, see
+[Deployment](../deploy/README.md).
 
-## Error Handling
+## Errors
+
+Context evaluation can raise:
 
 ```python
 from omneum import (
@@ -453,39 +421,42 @@ from omneum import (
 )
 ```
 
-| Exception | Condition |
-|---|---|
-| `ContextEvaluationMappingError` | Input record mapping failed |
-| `ContextEvaluationRejectedError` | Evaluation request rejected |
-| `ContextEvaluationResponseError` | Invalid evaluation response |
-| `ContextEvaluationTransportError` | MCP transport failure |
+`ContextEvaluationMappingError` indicates a failure while mapping input data through `ContextMapper`.
 
-See [API Reference](api/) for validation rules and response schemas.
+Transport failures, server rejections, and malformed responses raise separate exception types.
 
-## Current Limits
+See [API Reference](api.md) for validation rules and the complete request and
+response contract.
 
-- **In-process:** `evaluate()` and the synchronous `evaluate_context()` need no transport.
-- **Client transport:** Local MCP over stdio. No remote SDK transport.
-- **Python:** CPython 3.11–3.14.
-- **VOPRF:** One active key per deployment. Overlapping keys during rotation are not supported.
-- **Linkage tokens:** Persisted tokens require deployment and key-version metadata for valid comparisons.
+## Current limits
+
+The Python SDK supports synchronous in-process evaluation and asynchronous MCP evaluation over local stdio. Remote MCP transport is not currently supported.
+
+Supported Python versions are CPython 3.11–3.14.
+
+One VOPRF key is active at a time. Overlapping old and new keys during key
+rotation aren't currently supported.
+
+Persisted linkage tokens require their associated deployment and key-version information for valid comparisons.
 
 ## Examples
+
+Framework integrations:
 
 - [LangGraph](../examples/langgraph/)
 - [LlamaIndex](../examples/llamaindex/)
 - [CrewAI](../examples/crewai/)
 - [OpenAI Agents SDK](../examples/openai_agents/)
-- [Microsoft Agent Framework](../examples/microsoft/)
-- [Enterprise policy workflow](../examples/enterprise/)
+- [Microsoft Agent Framework](../examples/microsoft_agent_framework/)
+
+For the complete framework-independent workflow, see the
+[enterprise policy example](../examples/enterprise/).
 
 ## Reference
 
-- [API Reference](api/)
-- [ContextMapper](context-mapper.md)
-- [Architecture](architecture.md)
+- [API Reference](api.md)
+- [ContextMapper](context_mapper.md)
 - [Canonicalization](canonicalization.md)
 - [Protocol](protocol.md)
-- [Configuration](guides/configuration.md)
-- [Installation](guides/installation.md)
-- [Deployment](guides/deployment.md)
+- [Installation](installation.md)
+- [Deployment](../deploy/README.md)

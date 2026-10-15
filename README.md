@@ -27,52 +27,92 @@ Most agents focus on retrieving more context. Omneum is focused on making sure t
 
 **⚡ Fast context auditing for AI agents.**
 
-**10.6 ms Latency:** Source reliability and claim support scores without adding additional LLM inference layers or model judge steps.
+**33 ms median evaluation latency:** Measured across 250 observations, 3 independent sources, 84 claims on Apple M5. No additional LLM inference or model judge steps.
 
 **Dependency-aware:** Detects when multiple retrieved context chunks repeat information from the same upstream source.
 
-**Local by default:** A content-blind graph network algorithm running entirely within your environment, with SQLite persistence and optional PostgreSQL deployment.
+**Local by default:** A content-blind graph algorithm running entirely within your environment, with SQLite persistence and optional PostgreSQL deployment.
 
 ## Quick Start
 
-Python 3.11–3.14. No daemon, MCP connection, service installation, network access,
-or database is needed to evaluate records.
+Install the Python package:
 
 ```bash
 pip install omneum
 ```
 
+Create `evaluate.py`:
+
+Evaluate three observations against a single claim. Two sources reference the same upstream document.
+
 ```python
 import omneum
+from omneum.explanations import explain_evaluation
 
-records = [
-    {"url": "https://a.example", "value": 4200000000,
-     "upstream": ["https://sec.example"]},
-    {"url": "https://b.example", "value": 4200000000,
-     "upstream": ["https://sec.example"]},
-    {"url": "https://c.example", "value": 4200000000,
-     "upstream": []},
+observations = [
+    {
+        "url": "https://a.example",
+        "value": 4200000000,
+        "claim": {
+            "entity_namespace": "company",
+            "entity": "acme",
+            "attribute": "fy2025_gross_revenue",
+        },
+        "upstream": ["https://sec.example"],
+    },
+    {
+        "url": "https://b.example",
+        "value": 4200000000,
+        "claim": {
+            "entity_namespace": "company",
+            "entity": "acme",
+            "attribute": "fy2025_gross_revenue",
+        },
+        "upstream": ["https://sec.example"],
+    },
+    {
+        "url": "https://c.example",
+        "value": 4200000000,
+        "claim": {
+            "entity_namespace": "company",
+            "entity": "acme",
+            "attribute": "fy2025_gross_revenue",
+        },
+        "upstream": [],
+    },
 ]
 
-result = omneum.evaluate(records)
-print(f"Estimated independent support: {result.estimated_independent_support:.2f}")
+result = omneum.evaluate(observations)
+print(explain_evaluation(result))
 ```
 
-Expected output:
+Run:
+
+```bash
+python evaluate.py
+```
+
+Output:
 
 ```text
-Estimated independent support: 2.00
+Omneum Evaluation
+Evaluation latency: 1.6 ms
+
+Fy2025 gross revenue
+
+  4200000000
+  Support: 0.67
+  Supporting sources: 3
+  Estimated independent support: 2.00
+  Dependency signal coverage: 1.00
+
+  Explanation:
+    3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
 ```
 
-These synthetic records run through the real dependency estimator and BRAID
-algorithm. The default estimator uses upstream provenance: two reports share
-one upstream source and the third is independent. Without explicit claim
-identities, records describe one attribute; different values are conflicting
-claims. For multiple attributes, provide a structured `claim` on every record.
-The result is a full `ContextEvaluation`; the shortcut above requires one claim.
-See the [input schema and defaults](docs/sdk.md#evaluate-records).
+`evaluate()` runs Omneum's graph-based evaluation algorithm in-process; it computes source reliability and claim support scores, adjusting for dependencies between sources.
 
-Run the repository example with `python -m examples.python_quick_start`.
+See the [Python SDK](docs/sdk.md) for the input schema and complete evaluation result.
 
 ## Why Omneum and how it works
 
@@ -88,7 +128,7 @@ These techniques can be highly effective at selecting context, but relevance is 
 
 Chunks can still hold conflicting or stale information. Multiple retrieved chunks might not be deduplicated or appear independent despite sharing an upstream source. This contributes to context bloat: low-quality information consumes context-window capacity that could otherwise be used for higher quality information.
 
-Omneum addresses many of these limitations: it uses a graph-based mathematical analysis to model  the relationships between claims and their supporting sources. Importantly, this analysis does not naively assume every source has derived its information independently. The same information often propagates across multiple sources. Without dependency tracking, an agent cannot distinguish five independent observations from the same information repeated five times.
+Omneum addresses many of these limitations: it uses a graph-based mathematical analysis to model the relationships between claims and their supporting sources. Importantly, this analysis does not naively assume every source has derived its information independently. The same information often propagates across multiple sources. Without dependency tracking, an agent cannot distinguish five independent observations from the same information repeated five times.
 
 Agent pipelines already handle structured metadata alongside retrieved context. Omneum uses available provenance and lineage metadata to estimate source dependencies, then incorporates those estimates into its calculation of source reliability and claim support scores.
 
@@ -100,11 +140,11 @@ Its support score depends on the reliability of the sources supporting it. In tu
 
 This definition seems circular, and it is. Nonetheless, it yields a well-defined notion of reliability that helps distinguish strongly supported context from weakly supported context.
 
-Omneum uses **BRAID**, its open-source algorithm, to compute these reliability and support scores. [Explore the algorithm and research →](https://github.com/cole-h06/braid/tree/main)
+Omneum uses **BRAID**, its open-source algorithm, to compute these reliability and support scores. [Explore the algorithm and research →](https://github.com/cole-h06/braid)
 
 ## Where Omneum fits
 
-Omneum runs in-process in Python or locally as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
+Omneum runs locally as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
 
 **Retrieval / tools → Reranking (optional) → Omneum evaluation → agent control flow → LLM**
 
@@ -112,11 +152,9 @@ Omneum returns context-quality signals; your agent makes evidence-aware decision
 
 [Architecture and design →](docs/architecture.md)
 
-## Installation for MCP
+## MCP Installation
 
 **Note:** This tutorial assumes Python 3.11–3.14. SDKs for other languages are not currently supported.
-
-### 1. Install
 
 **Supported Platforms:**
 
@@ -126,13 +164,8 @@ Omneum returns context-quality signals; your agent makes evidence-aware decision
 | macOS (Intel / x86_64) | ✅ |
 | Linux (Ubuntu 22.04+ / x86_64) | ✅ |
 
-Install Omneum using pip:
 
-```bash
-pip install omneum
-```
-
-### 2. Set up Omneum
+### 1. Install the local evaluator
 
 Run the installer to configure the local evaluator:
 
@@ -164,7 +197,7 @@ The evaluator runs as a system service because its VOPRF private key is isolated
 
 See [`docs/guides/installation.md`](docs/guides/installation.md) for service accounts, sockets, installed paths, custom endpoints, and failure handling.
 
-### 3. Connect your agent
+### 2. Connect an MCP client
 
 Add Omneum to your MCP client configuration:
 
@@ -182,31 +215,15 @@ Restart your MCP client to expose Omneum's tools to your agent.
 
 If your MCP client cannot find `omneum-server`, set `command` to the absolute path returned by `command -v omneum-server`.
 
-#### Optional: Install the MCPB connector
-
-The [Omneum 1.0.4 connector](https://github.com/cole-h06/omneum/releases/download/v1.0.4/omneum-local-1.0.4.mcpb) requires an existing Omneum 1.0.4 installation and evaluator service on macOS arm64/x86_64 or Ubuntu 22.04+ x86_64. Use Python 3.11–3.14 and a compatible MCPB host that provides Node.js >=18 for the connector launcher. Direct `omneum-server` configuration above does not require Node.js.
-
-From your normal login account, run:
-
-```bash
-python -m pip install 'omneum==1.0.4'
-omneum install
-command -v omneum-server
-```
-
-Run the installer without `sudo` and approve administrator access when requested. Download and import the connector in your MCPB host, then select the absolute `omneum-server` path printed above from your 1.0.4 installation. Use the same login account that ran the installer. The connector does not install the Python package or daemon.
-
-### 4. Verify the connection
+### 3. Verify the connection
 
 Ask your agent to call Omneum's `ping` tool. A successful response returns `"status": "ok"`, confirming that your agent can reach the Omneum MCP server.
 
-## Advanced Usage
-
-### Running an Evaluation
+## Running an Evaluation
 
 Evaluate retrieved context using Omneum's Python SDK and local MCP server.
 
-#### 1. Map retrieved context
+### 1. Map retrieved context
 
 Use `ContextMapper` to map retrieved records into Omneum observations. The example uses three sources, two of which reference the same upstream document.
 
@@ -217,7 +234,6 @@ from datetime import datetime, timezone
 from omneum.mcp import StdioServerParameters
 from omneum import (
     ContextMapper,
-    DependencyEstimatorConfig,
     OmneumClientConfig,
     Source,
     open_stdio_client,
@@ -266,22 +282,11 @@ mapper = ContextMapper(
 
 The SDK handles canonicalization. See [Canonicalization](docs/canonicalization.md).
 
-#### 2. Evaluate context
+### 2. Evaluate context
 
-Connect to `omneum-server` and call `evaluate_mapped()` with a dependency estimator:
+Connect to `omneum-server` and call `evaluate_mapped()`:
 
 ```python
-estimator = DependencyEstimatorConfig(
-    upstream_weight=0.25,
-    citation_weight=0.20,
-    assertion_lineage_weight=0.20,
-    ownership_weight=0.10,
-    temporal_weight=0.10,
-    graph_weight=0.15,
-    retrieval_weight=0.0,
-    temporal_window_seconds=7200.0,
-)
-
 async def main():
     config = OmneumClientConfig.from_local_deployment()
     server = StdioServerParameters(command="omneum-server")
@@ -290,7 +295,6 @@ async def main():
         evaluation = await client.evaluate_mapped(
             records,
             mapper,
-            estimator=estimator,
         )
         print(evaluation.explanation)
 
@@ -301,10 +305,10 @@ asyncio.run(main())
 Save both Python blocks in `evaluate.py`, then run:
 
 ```bash
-python evaluate.py
+python evaluate_mcp.py
 ```
 
-#### 3. Evaluation results
+### 3. Evaluation results
 
 `evaluation.explanation` formats the evaluation result for inspection.
 
@@ -318,7 +322,7 @@ Fy2025 gross revenue
   Support: 0.67
   Supporting sources: 3
   Estimated independent support: 2.00
-  Dependency signal coverage: 0.25
+  Dependency signal coverage: 1.00
 
   Explanation:
     3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
@@ -427,7 +431,6 @@ Estimated source dependencies adjust the contribution of related sources when ca
 evaluation = await client.evaluate_mapped(
     records,
     mapper,
-    estimator=estimator,
 )
 print(evaluation.explanation)
 ```

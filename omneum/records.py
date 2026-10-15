@@ -5,19 +5,10 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .client import ContextEvaluation, evaluate_context
-from .dependency import DependencyEstimatorConfig
+from .dependency import DependencyEstimatorConfig, _UPSTREAM_ESTIMATOR
 from .information import Claim, Observation, Source, SourceReference
 
 
-_UPSTREAM_ESTIMATOR = DependencyEstimatorConfig(
-    upstream_weight=1.0,
-    citation_weight=0.0,
-    assertion_lineage_weight=0.0,
-    ownership_weight=0.0,
-    temporal_weight=0.0,
-    graph_weight=0.0,
-    temporal_window_seconds=7200.0,
-)
 _FIELDS = {
     "url", "value", "upstream", "claim", "observation_id", "observed_at",
     "source_modified_at", "owner_id", "cited", "parent_observation_ids", "metadata",

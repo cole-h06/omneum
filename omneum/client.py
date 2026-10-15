@@ -36,6 +36,7 @@ from .dependency import (
     DependencyCluster,
     DependencyEstimatorConfig,
     PairwiseDependencyResult,
+    _UPSTREAM_ESTIMATOR,
     estimate_dependencies,
 )
 from .engine_graph import AssertionTriple, SourcePair, build_graph
@@ -992,12 +993,12 @@ class OmneumClient:
         items: Sequence[Any],
         mapper: ContextMapper,
         *,
-        estimator: DependencyEstimatorConfig,
+        estimator: DependencyEstimatorConfig | None = None,
     ) -> ContextEvaluation:
         observations = mapper.map_many(items)
         return await self.evaluate_context(
             observations,
-            estimator=estimator,
+            estimator=_UPSTREAM_ESTIMATOR if estimator is None else estimator,
         )
 
     async def evaluate_context(

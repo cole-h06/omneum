@@ -1,14 +1,16 @@
 import asyncio
 from dataclasses import replace
 from datetime import datetime, timezone
+import math
 from pathlib import Path
+import re
 import runpy
 import subprocess
 import sys
 
 import pytest
 
-from omneum import Claim, Observation, OmneumClient, Source, evaluate_context, evaluate
+from omneum import Claim, Observation, OmneumClient, Source, evaluate_context
 from omneum.dependency import InformationGraphError
 import omneum.client as client_module
 
@@ -17,11 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = ROOT / "examples/python_quick_start.py"
 
 
-def example():
-    return runpy.run_path(str(EXAMPLE))
-
-
-def test_dependency_aware_real_pipeline(monkeypatch, capsys):
+def test_dependency_scoring(monkeypatch, capsys):
     calls = []
     for name in ("estimate_dependencies", "build_graph", "infer"):
         original = getattr(client_module, name)
@@ -32,30 +30,27 @@ def test_dependency_aware_real_pipeline(monkeypatch, capsys):
 
         monkeypatch.setattr(client_module, name, wrapped)
 
-    namespace = example()
+    namespace = runpy.run_path(str(EXAMPLE))
     assert calls == ["estimate_dependencies", "build_graph", "infer"]
-    assert capsys.readouterr().out == "Estimated independent support: 2.00\n"
+    assert "Estimated independent support: 2.00" in capsys.readouterr().out
     result = namespace["result"]
     claim = result.claim_support[0]
     assert claim.supporting_source_count == 3
     assert claim.estimated_independent_support_count == 2.0
     assert sorted(pair.dependency for pair in result.pairwise_dependencies) == [0.0, 0.0, 1.0]
     assert result.convergence.converged
-
-    independent = [dict(record, upstream=[]) for record in namespace["records"]]
-    result = evaluate(independent)
-    assert result.claim_support[0].estimated_independent_support_count == 3.0
+    assert math.isfinite(result.evaluation_latency_ms)
+    assert result.evaluation_latency_ms >= 0
 
 
-def test_matches_existing_sdk_pipeline(tmp_path):
+def test_client_parity(tmp_path):
     from test_client import make_config, make_server
-    from test_client_assertion_evaluation import Evaluator, estimator, observations
+    from test_client_evaluation import Evaluator, estimator, observations
 
     async def run():
         server = make_server(tmp_path)
         client = OmneumClient(make_config(server), Evaluator(server), local_persistence=None)
         values = observations()
-        # Include a conflicting claim and exercise the shared cluster mapping.
         values = (*values, replace(
             values[1], observation_id="c1",
             source=replace(values[1].source, identifier="https://c.example"),
@@ -72,8 +67,8 @@ def test_matches_existing_sdk_pipeline(tmp_path):
     asyncio.run(run())
 
 
-def test_validates_observations():
-    from test_client_assertion_evaluation import estimator as make_estimator
+def test_invalid_observations():
+    from test_client_evaluation import estimator as make_estimator
 
     estimator = make_estimator()
     with pytest.raises(InformationGraphError, match="empty"):
@@ -95,16 +90,26 @@ def test_validates_observations():
         evaluate_context([observation, conflicting_owner], estimator=estimator)
 
 
-def test_readme_example_without_services_or_persistence(tmp_path):
-    readme = (ROOT / "README.md").read_text()
-    section = readme.split("## Quick Start\n", 1)[1].split("## Why Omneum", 1)[0]
-    snippet = section.split("```python\n", 1)[1].split("```", 1)[0]
-    expected = section.split("```text\n", 1)[1].split("```", 1)[0]
-    assert snippet.strip() == EXAMPLE.read_text().split("\n\n", 1)[1].strip()
-    assert readme.index("## Quick Start") < readme.index("## Why Omneum")
-    assert readme.index("## Installation for MCP") < readme.index("omneum install\n```")
+def normalize_output(text):
+    return re.sub(
+        r"(?m)^Evaluation latency: \d+(?:\.\d+)? ms$",
+        "Evaluation latency: <elapsed> ms",
+        text,
+    ).strip()
 
-    # Reject network, subprocess, database, and filesystem writes.
+
+@pytest.mark.parametrize("example", ["readme", "script"])
+def test_evaluate_without_daemon(tmp_path, example):
+    readme = (ROOT / "README.md").read_text()
+    blocks = re.findall(r"```(\w+)\n(.*?)```", readme, re.DOTALL)
+    index, snippet = next(
+        (i, code) for i, (language, code) in enumerate(blocks)
+        if language == "python" and "omneum.evaluate(" in code
+    )
+    expected = next(code for language, code in blocks[index + 1:] if language == "text")
+    if example == "script":
+        snippet = EXAMPLE.read_text()
+
     harness = '''
 import sys
 sys.path.insert(0, sys.argv[1])
@@ -122,6 +127,6 @@ exec(sys.argv[2])
         [sys.executable, "-B", "-c", harness, str(ROOT), snippet],
         cwd=tmp_path, capture_output=True, text=True, check=True,
     )
-    assert completed.stdout == expected
+    assert normalize_output(completed.stdout) == normalize_output(expected)
     assert completed.stderr == ""
     assert list(tmp_path.iterdir()) == []

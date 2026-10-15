@@ -1,5 +1,8 @@
 import asyncio
+from dataclasses import replace
 from datetime import datetime, timezone
+
+import pytest
 
 from omneum.sources import internal_source_id
 from omneum import (
@@ -12,7 +15,7 @@ from omneum import (
 )
 
 from test_client import make_config, make_server
-from test_client_assertion_evaluation import Evaluator
+from test_client_evaluation import Evaluator
 
 
 def estimator():
@@ -27,11 +30,16 @@ def estimator():
     )
 
 
-def test_shared_claim_observation_evaluation(tmp_path):
+@pytest.fixture
+def client(tmp_path):
+    server = make_server(tmp_path)
+    evaluator = Evaluator(server)
+    return OmneumClient(make_config(server), evaluator), evaluator
+
+
+def test_shared_claim(client):
     async def run():
-        server = make_server(tmp_path)
-        evaluator = Evaluator(server)
-        client = OmneumClient(make_config(server), evaluator)
+        sdk, evaluator = client
 
         now = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
 
@@ -57,7 +65,7 @@ def test_shared_claim_observation_evaluation(tmp_path):
                 ("load-test", "v1:11111111-1111-1111-1111-111111111111:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             )
         )
-        result = await client.evaluate_context(
+        result = await sdk.evaluate_context(
             observations,
             estimator=estimator(),
         )
@@ -80,11 +88,9 @@ def test_shared_claim_observation_evaluation(tmp_path):
     asyncio.run(run())
 
 
-def test_mapped_evaluation(tmp_path):
+def test_mapped_evaluation(client):
     async def run():
-        server = make_server(tmp_path)
-        evaluator = Evaluator(server)
-        client = OmneumClient(make_config(server), evaluator)
+        sdk, evaluator = client
 
         now = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
 
@@ -113,8 +119,7 @@ def test_mapped_evaluation(tmp_path):
             },
         )
 
-        def normalize_sync_claim(record):
-            # Application-specific semantic normalization.
+        def sync_claim(record):
             return {
                 "effect": "full_sync_fallback",
                 "threshold": 2,
@@ -129,12 +134,12 @@ def test_mapped_evaluation(tmp_path):
             entity_namespace=lambda x: "service",
             entity=lambda x: "mobile",
             attribute=lambda x: "sync",
-            value=normalize_sync_claim,
+            value=sync_claim,
             observation_id="id",
             observed_at=lambda x: now,
         )
 
-        result = await client.evaluate_mapped(
+        result = await sdk.evaluate_mapped(
             records,
             mapper,
             estimator=estimator(),
@@ -157,11 +162,77 @@ def test_mapped_evaluation(tmp_path):
 
     asyncio.run(run())
 
-def test_mapped_tool_result_evaluation(tmp_path):
+
+@pytest.mark.parametrize("mode", ["omitted", "none", "default", "custom"])
+def test_mapped_estimator(client, mode):
     async def run():
-        server = make_server(tmp_path)
-        evaluator = Evaluator(server)
-        client = OmneumClient(make_config(server), evaluator)
+        sdk, evaluator = client
+        now = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
+        records = (
+            {"id": "a", "url": "https://a.example", "upstream": ["https://origin.example"]},
+            {"id": "b", "url": "https://b.example", "upstream": ["https://origin.example"]},
+            {"id": "c", "url": "https://c.example", "upstream": []},
+        )
+        mapper = ContextMapper(
+            source=lambda x: Source("web_document", x["url"]),
+            entity_namespace=lambda x: "service",
+            entity=lambda x: "mobile",
+            attribute=lambda x: "sync",
+            value=lambda x: "full_sync_fallback",
+            observation_id="id",
+            observed_at=lambda x: now,
+            upstream_sources=lambda x: [
+                {"kind": "web_document", "identifier": url}
+                for url in x["upstream"]
+            ],
+            cited_sources=lambda x: [],
+        )
+        config = DependencyEstimatorConfig(
+            upstream_weight=1.0,
+            citation_weight=0.0,
+            assertion_lineage_weight=0.0,
+            ownership_weight=0.0,
+            temporal_weight=0.0,
+            graph_weight=0.0,
+            temporal_window_seconds=7200.0,
+        )
+        if mode == "custom":
+            config = replace(
+                config,
+                upstream_weight=0.0,
+                citation_weight=1.0,
+                dependency_cluster_threshold=0.5,
+            )
+
+        if mode == "omitted":
+            result = await sdk.evaluate_mapped(records, mapper)
+        else:
+            result = await sdk.evaluate_mapped(
+                records,
+                mapper,
+                estimator=None if mode == "none" else config,
+            )
+        expected = await sdk.evaluate_context(
+            mapper.map_many(records),
+            estimator=config,
+        )
+
+        assert result == expected
+        assert result.estimated_independent_support == (
+            3.0 if mode == "custom" else 2.0
+        )
+        assert sorted(pair.dependency for pair in result.pairwise_dependencies) == (
+            [0.0, 0.0, 0.0] if mode == "custom" else [0.0, 0.0, 1.0]
+        )
+        assert result.dependency_cluster_threshold == config.dependency_cluster_threshold
+        assert len(evaluator.requests) == 2
+
+    asyncio.run(run())
+
+
+def test_mapped_tool_results(client):
+    async def run():
+        sdk, evaluator = client
 
         now = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
 
@@ -211,7 +282,7 @@ def test_mapped_tool_result_evaluation(tmp_path):
             metadata={"tool_name": "tool_name"},
         )
 
-        result = await client.evaluate_mapped(
+        result = await sdk.evaluate_mapped(
             records,
             mapper,
             estimator=estimator(),

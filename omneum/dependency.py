@@ -114,6 +114,17 @@ class DependencyEstimatorConfig:
             )
 
 
+_UPSTREAM_ESTIMATOR = DependencyEstimatorConfig(
+    upstream_weight=1.0,
+    citation_weight=0.0,
+    assertion_lineage_weight=0.0,
+    ownership_weight=0.0,
+    temporal_weight=0.0,
+    graph_weight=0.0,
+    temporal_window_seconds=7200.0,
+)
+
+
 @dataclass(frozen=True, slots=True)
 class DependencySignal:
     value: float
