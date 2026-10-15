@@ -41,6 +41,12 @@ Install the Python package:
 pip install omneum
 ```
 
+Run a local evaluation with independent sources, shared upstream dependencies, and conflicting values:
+
+```bash
+python -m omneum.demo
+```
+
 Create `evaluate.py`:
 
 Evaluate three observations against a single claim. Two sources reference the same upstream document.
@@ -163,7 +169,6 @@ Omneum returns context-quality signals; your agent makes evidence-aware decision
 | macOS (Apple Silicon / arm64) | ✅ |
 | macOS (Intel / x86_64) | ✅ |
 | Linux (Ubuntu 22.04+ / x86_64) | ✅ |
-
 
 ### 1. Install the local evaluator
 
