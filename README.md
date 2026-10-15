@@ -118,7 +118,8 @@ Fy2025 gross revenue
 
 `evaluate()` runs Omneum's graph-based evaluation algorithm in-process; it computes source reliability and claim support scores, adjusting for dependencies between sources.
 
-See the [Python SDK](docs/sdk.md) for the input schema and complete evaluation result.
+For raw retrieval text, use the optional `extract_observations()` API to extract structured assertions with an LLM before evaluation. See [Python SDK](docs/sdk.md#extract-assertions-from-text).
+
 
 ## Why Omneum and how it works
 
@@ -150,7 +151,7 @@ Omneum uses **BRAID**, its open-source algorithm, to compute these reliability a
 
 ## Where Omneum fits
 
-Omneum runs locally as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
+Omneum runs locally through its Python SDK or as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
 
 **Retrieval / tools → Reranking (optional) → Omneum evaluation → agent control flow → LLM**
 
@@ -307,7 +308,7 @@ async def main():
 asyncio.run(main())
 ```
 
-Save both Python blocks in `evaluate.py`, then run:
+Save both Python blocks in `evaluate_mcp.py`, then run:
 
 ```bash
 python evaluate_mcp.py
