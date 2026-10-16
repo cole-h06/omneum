@@ -214,8 +214,7 @@ The local stdio installation includes its MCP SDK and does not need Python
 cryptography. Operator account enrollment and SDK asymmetric OAuth require
 `pip install 'omneum[oauth]'` on macOS arm64 or Linux x86_64. On macOS Intel,
 those optional capabilities raise an explicit dependency error because patched
-public crypto wheels are unavailable. See [the SDK architecture and maintenance
-contract](../mcp-sdk.md).
+public crypto wheels are unavailable.
 
 ### SQLite runtime requirement
 

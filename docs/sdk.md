@@ -19,7 +19,7 @@ omneum install
 ```
 
 For platform requirements and managed-service setup, see
-[Installation](installation.md).
+[Installation](guides/installation.md).
 
 ## Quick Start
 
@@ -340,7 +340,7 @@ mapper = ContextMapper(
 )
 ```
 
-See [ContextMapper](context_mapper.md) for the complete mapping contract.
+See [ContextMapper](context-mapper.md) for the complete mapping contract.
 
 ## Extract assertions from text
 
@@ -496,8 +496,8 @@ from omneum import (
 
 Transport failures, server rejections, and malformed responses raise separate exception types.
 
-See [API Reference](api.md) for validation rules and the complete request and
-response contract.
+See [MCP Tool Reference](api/evaluate-context.md) for the context evaluation
+request and response contract.
 
 ## Current limits
 
@@ -518,16 +518,18 @@ Framework integrations:
 - [LlamaIndex](../examples/llamaindex/)
 - [CrewAI](../examples/crewai/)
 - [OpenAI Agents SDK](../examples/openai_agents/)
-- [Microsoft Agent Framework](../examples/microsoft_agent_framework/)
+- [Microsoft Agent Framework](../examples/microsoft/)
 
 For the complete framework-independent workflow, see the
 [enterprise policy example](../examples/enterprise/).
 
 ## Reference
 
-- [API Reference](api.md)
-- [ContextMapper](context_mapper.md)
+- [Evaluate Context](api/evaluate-context.md)
+- [Evaluate VOPRF](api/evaluate-voprf.md)
+- [Ping](api/ping.md)
+- [ContextMapper](context-mapper.md)
 - [Canonicalization](canonicalization.md)
 - [Protocol](protocol.md)
-- [Installation](installation.md)
+- [Installation](guides/installation.md)
 - [Deployment](../deploy/README.md)

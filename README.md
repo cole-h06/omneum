@@ -119,7 +119,6 @@ Fy2025 gross revenue
 
 For raw retrieval text, use the optional `extract_observations()` API to extract structured claims with an LLM before evaluation. See [Python SDK](docs/sdk.md#extract-assertions-from-text).
 
-
 ## Why Omneum and how it works
 
 Modern agent pipelines use several different techniques to decide what context should reach a model:
@@ -550,11 +549,13 @@ See [Omneum Network](docs/context-graph.md#omneum-network) for Network contribut
 
 ## External Evaluations
 
-External evaluations are published with the test inputs and Omneum outputs in [`evaluations/`](evaluations/).
+External evaluations are published with the test inputs and Omneum outputs in [`evals/`](evals/).
 
-**SearchTS.** SearchTS 0.13.0 returned the same Go 1.22 claim from `thenewstack.io` through `curl_cffi` and `go.dev` through `stealth-browser`. Omneum received the original `final_url` and `fetched_at` values for both captures. The evaluation returned `2.00` estimated independent support, pairwise dependency `0.0000`, and dependency-signal coverage `0.25`. [Results →](evaluations/searchts/)
+**SearchTS.** SearchTS 0.13.0 returned the same Go 1.22 claim from `thenewstack.io` through `curl_cffi` and `go.dev` through `stealth-browser`. Omneum received the original `final_url` and `fetched_at` values for both captures. The evaluation returned `2.00` estimated independent support, pairwise dependency `0.0000`, and dependency-signal coverage `0.25`. [Results →](evals/searchts/)
 
-**Bastra Recall.** Recall ran Omneum 1.0.3 `dependency-estimator-v4` against a 30-memory synthetic harness. Four memories sharing one upstream source collapsed to `1.0` effective independent support; three independent sources remained at `3.0`. A temporal-only sweep moved continuously from `2.5` effective sources at identical timestamps to `3.0` at 48 hours. The evaluation also exposed an open lineage-chain case where `v1 → v2 → v3 → v4` produces `1.6` rather than `1.0` because dependency is currently computed only across direct lineage edges. [Results →](evaluations/bastra-recall/)
+**Jawz.** Independent evaluation of Omneum 1.0.3 on 14 financial observations across 5 sources and 10 claims. Declared FRED lineage produced dependency scores of **1.00**; omitting lineage reduced mean dependency from **0.70 to 0.42**, while estimator v4 detected partial dependency (**0.10**) between shared-series pairs. Unrelated controls remained at **0.00**. Runs were deterministic in a network-isolated Linux Docker environment. [Results →](evals/jawz/)
+
+**Bastra Recall.** Recall ran Omneum 1.0.3 `dependency-estimator-v4` against a 30-memory synthetic harness. Four memories sharing one upstream source collapsed to `1.0` effective independent support; three independent sources remained at `3.0`. A temporal-only sweep moved continuously from `2.5` effective sources at identical timestamps to `3.0` at 48 hours. The evaluation also exposed an open lineage-chain case where `v1 → v2 → v3 → v4` produces `1.6` rather than `1.0` because dependency is currently computed only across direct lineage edges. [Results →](evals/bastra-recall/)
 
 ## Contributing
 

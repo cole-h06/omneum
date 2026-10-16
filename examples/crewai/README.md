@@ -316,7 +316,7 @@ uv run --locked --python 3.13 \
 | [`routing/flow.py`](routing/flow.py) | Conditional routing and context selection |
 | [`routing/state.py`](routing/state.py) | Routing state |
 | [`routing/run.py`](routing/run.py) | Routing scenario CLI |
-| [`routing/README.md`](routing/README.md) | Routing example |
+| [`routing/run.py`](routing/run.py) | Routing example |
 | [`../../tests/test_crewai_routing.py`](../../tests/test_crewai_routing.py) | Routing and selection tests |
 | [`../enterprise/`](../enterprise/) | Shared enterprise retrieval example |
 
