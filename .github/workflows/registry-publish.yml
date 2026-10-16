@@ -1,0 +1,234 @@
+name: Publish official MCP Registry (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact Registry metadata version (1.0.8; independent of PyPI)
+        required: true
+        type: string
+        default: '1.0.8'
+      identity:
+        description: Type io.github.cole-h06/omneum to confirm the existing listing
+        required: true
+        type: string
+      publish:
+        description: Explicitly authorize metadata submission after preflight
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: official-mcp-registry
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'cole-h06/omneum' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    outputs:
+      manifest_sha256: ${{ steps.validate.outputs.manifest_sha256 }}
+      candidate_artifact: registry-candidate-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Prepare read-only metadata checks
+        env:
+          CANDIDATE: ${{ runner.temp }}/registry-candidate
+        run: |
+          mkdir -p "$CANDIDATE"
+          cp server.json "$CANDIDATE/server.json"
+          cat > "$CANDIDATE/check.py" <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          from urllib.error import HTTPError
+          from urllib.request import urlopen
+          import xml.etree.ElementTree as ET
+          import zipfile
+          import io
+          import jsonschema
+
+          identity = 'io.github.cole-h06/omneum'
+          registry = 'https://registry.modelcontextprotocol.io/v0.1'
+          endpoint = registry + '/servers/io.github.cole-h06%2Fomneum/versions/'
+          root = Path(__file__).parent
+          manifest = json.loads((root / 'server.json').read_text())
+
+          def require(condition, message):
+              if not condition:
+                  raise ValueError(message)
+
+          def fetch(url):
+              with urlopen(url, timeout=60) as response:
+                  return response.read()
+
+          require(os.environ['CONFIRMED_IDENTITY'] == identity, 'Wrong confirmed identity')
+          require(manifest['name'] == identity and manifest['title'] == 'Omneum', 'Identity/title changed')
+          require(manifest['description'] == "Evaluate source reliability, dependent evidence, and conflicting claims in your agent's context.", 'Description changed')
+          require(manifest['version'] == os.environ['METADATA_VERSION'] == '1.0.8', 'Wrong metadata version')
+          require(manifest['repository'] == {'url': 'https://github.com/cole-h06/omneum', 'source': 'github'}, 'Wrong repository')
+          schema_url = 'https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json'
+          require(manifest['$schema'] == schema_url, 'Unexpected schema')
+          jsonschema.Draft7Validator(json.loads(fetch(schema_url)), format_checker=jsonschema.FormatChecker()).validate(manifest)
+          latest = json.loads(fetch(endpoint + 'latest'))
+          require(latest['server']['name'] == identity, 'Existing listing missing or mismatched')
+          require(latest['_meta']['io.modelcontextprotocol.registry/official']['status'] == 'active', 'Existing listing is not active')
+          try:
+              fetch(endpoint + manifest['version'] + '?include_deleted=true')
+          except HTTPError as error:
+              if error.code != 404:
+                  raise
+          else:
+              raise ValueError('Metadata version already published; do not overwrite or blindly retry')
+
+          expected_package = {
+              'registryType': 'mcpb',
+              'identifier': 'https://github.com/cole-h06/omneum/releases/download/v1.0.4/omneum-local-1.0.4.mcpb',
+              'version': '1.0.4',
+              'fileSha256': '0fe8b402628ac034b197034bf4c12682fd1e8640554580e561b65561e2b22a2d',
+              'transport': {'type': 'stdio'},
+          }
+          require(manifest['packages'] == [expected_package], 'Published MCPB coordinates changed')
+          bundle = fetch(expected_package['identifier'])
+          require(hashlib.sha256(bundle).hexdigest() == expected_package['fileSha256'], 'Published MCPB hash mismatch')
+          with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+              require(json.loads(archive.read('manifest.json'))['version'] == '1.0.4', 'MCPB version mismatch')
+          for icon in manifest['icons']:
+              with urlopen(icon['src'], timeout=60) as response:
+                  require(response.headers.get_content_type() == 'image/svg+xml', 'Wrong public icon MIME type')
+                  require(ET.fromstring(response.read()).tag == '{http://www.w3.org/2000/svg}svg', 'Invalid SVG')
+          installation = manifest['_meta']['io.modelcontextprotocol.registry/publisher-provided']['installation']
+          require(installation['pythonPackage'] == 'omneum==1.1.0', 'Wrong Python installation version')
+          require("python -m pip install 'omneum==1.1.0'" in installation['instructions'], 'Missing exact installation command')
+          release = json.loads(fetch('https://pypi.org/pypi/omneum/1.1.0/json'))
+          require(release['info']['version'] == '1.1.0' and len(release['urls']) == 17, 'Public Python release incomplete')
+          require(all(not item['yanked'] for item in release['urls']), 'Public Python release has yanked files')
+          require('omneum-server' in installation['stdioExecutable'] and installation['setupCommand'] == 'omneum install', 'Wrong local installation entry points')
+          sums = fetch('https://github.com/cole-h06/omneum/releases/download/v1.1.0/SHA256SUMS').decode()
+          for target in ('linux-x86_64', 'macos-aarch64', 'macos-x86_64'):
+              require(f'omneum-daemon-1.1.0-{target}.tar.gz' in sums, 'Missing matching daemon release target')
+          print('PASS: schema, existing active identity, unused metadata version, public SVG, MCPB bytes, Python release and daemon targets')
+          PY
+      - name: Install checksum-pinned official publisher
+        env:
+          CANDIDATE: ${{ runner.temp }}/registry-candidate
+        run: |
+          curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+            https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz \
+            --output "$RUNNER_TEMP/mcp-publisher.tar.gz"
+          printf '%s  %s\n' a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc "$RUNNER_TEMP/mcp-publisher.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/mcp-publisher.tar.gz" -C "$CANDIDATE" mcp-publisher
+          python -m pip install 'jsonschema==4.26.0'
+      - name: Validate exact candidate without publication
+        id: validate
+        env:
+          CONFIRMED_IDENTITY: ${{ inputs.identity }}
+          METADATA_VERSION: ${{ inputs.version }}
+          CANDIDATE: ${{ runner.temp }}/registry-candidate
+        run: |
+          python "$CANDIDATE/check.py"
+          "$CANDIDATE/mcp-publisher" validate "$CANDIDATE/server.json"
+          printf 'manifest_sha256=%s\n' "$(sha256sum "$CANDIDATE/server.json" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+      - name: Require main-only publishing environment
+        if: inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/cole-h06/omneum/environments/mcp-registry > "$RUNNER_TEMP/registry-environment.json"
+          gh api repos/cole-h06/omneum/environments/mcp-registry/deployment-branch-policies > "$RUNNER_TEMP/registry-branches.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          environment = json.loads((Path(os.environ['RUNNER_TEMP']) / 'registry-environment.json').read_text())
+          policy = environment.get('deployment_branch_policy')
+          if environment.get('name') != 'mcp-registry' or policy != {'protected_branches': False, 'custom_branch_policies': True}:
+              raise ValueError('mcp-registry must restrict deployments with custom branch policies')
+          branches = json.loads((Path(os.environ['RUNNER_TEMP']) / 'registry-branches.json').read_text())['branch_policies']
+          if len(branches) != 1 or branches[0]['name'] != 'main' or branches[0]['type'] != 'branch':
+              raise ValueError('mcp-registry must allow only the main branch')
+          PY
+      - name: Retain the exact validated candidate and checks
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: registry-candidate-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/registry-candidate/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: preflight
+    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && inputs.identity == 'io.github.cole-h06/omneum' && github.repository == 'cole-h06/omneum' && github.ref == 'refs/heads/main'
+    environment: mcp-registry
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      CONFIRMED_IDENTITY: ${{ inputs.identity }}
+      METADATA_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Download this run's validated candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EXPECTED_MANIFEST_SHA256: ${{ needs.preflight.outputs.manifest_sha256 }}
+          CANDIDATE_ARTIFACT: ${{ needs.preflight.outputs.candidate_artifact }}
+          CANDIDATE: ${{ runner.temp }}/registry-candidate
+        run: |
+          gh run download "$GITHUB_RUN_ID" --name "$CANDIDATE_ARTIFACT" --dir "$CANDIDATE"
+          printf '%s  %s\n' "$EXPECTED_MANIFEST_SHA256" "$CANDIDATE/server.json" | sha256sum --check --strict
+          chmod +x "$CANDIDATE/mcp-publisher"
+          python -m pip install 'jsonschema==4.26.0'
+      - name: Recheck approved metadata, authenticate with GitHub OIDC, and publish
+        env:
+          CANDIDATE: ${{ runner.temp }}/registry-candidate
+        run: |
+          python "$CANDIDATE/check.py"
+          publisher="$CANDIDATE/mcp-publisher"
+          trap '"$publisher" logout >/dev/null 2>&1 || true' EXIT
+          "$publisher" login github-oidc --registry https://registry.modelcontextprotocol.io
+          "$publisher" validate "$CANDIDATE/server.json"
+          "$publisher" publish "$CANDIDATE/server.json"
+      - name: Verify the exact published metadata
+        env:
+          CANDIDATE: ${{ runner.temp }}/registry-candidate
+        run: |
+          python - <<'PY'
+          import json, os, time
+          from pathlib import Path
+          from urllib.error import HTTPError
+          from urllib.request import urlopen
+          expected = json.loads((Path(os.environ['CANDIDATE']) / 'server.json').read_text())
+          endpoint = 'https://registry.modelcontextprotocol.io/v0.1/servers/io.github.cole-h06%2Fomneum/versions/1.0.8'
+          for attempt in range(6):
+              try:
+                  with urlopen(endpoint, timeout=60) as response:
+                      published = json.load(response)
+                  if published['server'] != expected:
+                      raise ValueError('Published metadata differs from the validated candidate')
+                  if published['_meta']['io.modelcontextprotocol.registry/official']['status'] != 'active':
+                      raise ValueError('Published version is not active')
+                  print('PASS: existing io.github.cole-h06/omneum listing published as metadata version 1.0.8')
+                  break
+              except HTTPError as error:
+                  if error.code != 404 or attempt == 5:
+                      raise
+                  time.sleep(5)
+          PY

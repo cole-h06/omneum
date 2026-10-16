@@ -1,20 +1,21 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.cole-h06/omneum",
-  "description": "Evaluate agent context for unreliable sources, dependent evidence, and conflicting claims.",
+  "description": "Evaluate source reliability, dependent evidence, and conflicting claims in your agent's context.",
   "title": "Omneum",
-  "websiteUrl": "https://github.com/cole-h06/omneum",
+  "websiteUrl": "https://github.com/cole-h06/omneum/blob/v1.1.0/docs/guides/installation.md",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/cole-h06/omneum/main/assets/omneum-logomark-dark-bg.png",
-      "mimeType": "image/png"
+      "src": "https://raw.githubusercontent.com/cole-h06/omneum/main/assets/omneum-logomark-dark-bg.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": ["any"]
     }
   ],
   "repository": {
     "url": "https://github.com/cole-h06/omneum",
     "source": "github"
   },
-  "version": "1.0.7",
+  "version": "1.0.8",
   "packages": [
     {
       "registryType": "mcpb",
@@ -29,10 +30,10 @@
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "installation": {
-        "instructions": "Install Omneum 1.0.4, then run omneum install. Import this connector and select the absolute path to omneum-server. Requires an existing installation.",
-        "pythonPackage": "omneum==1.0.4",
+        "instructions": "Using a Python 3.11–3.14 virtual environment, run python -m pip install 'omneum==1.1.0', then omneum install from your normal login account, without sudo. Approve administrator access when requested. Run command -v omneum-server. For direct stdio configuration, use that absolute executable path as the client's command. Alternatively, import the MCPB in a compatible host with Node.js >=18 and select that path. Use the same login account. Node.js is required only for the MCPB launcher. The published launcher bundle remains version 1.0.4; use these 1.1.0 installation instructions instead of its embedded 1.0.4 guidance. The connector requires the installed evaluator service and does not install the package or daemon.",
+        "pythonPackage": "omneum==1.1.0",
         "requiresExistingInstallation": true,
-        "runtime": "Node.js >=18",
+        "runtime": "Host-provided Node.js >=18 for the MCPB launcher; Python 3.11–3.14 for Omneum.",
         "setupCommand": "omneum install",
         "stdioExecutable": "omneum-server",
         "supportedPlatforms": [
