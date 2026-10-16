@@ -1,5 +1,5 @@
 <!-- mcp-name: ai.omneum/omneum -->
-# What is Omneum
+# Omneum: context selection for AI agents
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/cole-h06/omneum/main/assets/omneum-logotype-white-bg.png" alt="Omneum" width="240">
@@ -22,9 +22,9 @@
   </a>
 </p>
 
-Agents routinely assemble context from many different sources — a RAG pipeline, web search, APIs, databases, files, memory systems, other agents — but stuffing dozens of raw chunks into a single context window can leave the model working through a mess of information that was never organized for it.
+Omneum is a text-blind context evaluator for coding agents, research agents, multi-agent systems, and RAG pipelines. It evaluates source reliability, evidence dependencies, and conflicting claims so your application can make more precise context selection decisions before model ingestion.
 
-Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is clean and reliable.
+Evaluation uses structured claims and provenance metadata. Your pipeline extracts the claims, applies Omneum's scores, and chooses which context reaches the model.
 
 **⚡ Fast context auditing for AI agents.**
 
@@ -157,6 +157,19 @@ Omneum runs locally through its Python SDK or as a [Model Context Protocol (MCP)
 Omneum returns context-quality signals; your agent makes evidence-aware decisions throughout its workflow.
 
 [Architecture and design →](docs/architecture.md)
+
+### Engineering workflows
+
+| Workflow | How to use the evaluation signals |
+| --- | --- |
+| Coding agents | Compare conflicting API or version claims from documentation and project records before selecting context. |
+| Multi-agent systems | Track shared upstream evidence across agent handoffs instead of counting dependent reports as independent support. |
+| Research agents and research workflows | Distinguish independent corroboration from repeated citations and inspect conflicting claim values. |
+| Enterprise RAG pipelines | Use source reliability and independent support for RAG context filtering after retrieval and optional semantic reranking. |
+
+Context evaluation complements relevance ranking: evidence dependency and conflicting claims describe context quality beyond query similarity. The application controls filtering thresholds and subsequent retrieval; the scores are structural signals, not calibrated probabilities of factual correctness.
+
+Use the [framework integrations](#integrations) to map existing records, or start with the [enterprise policy workflow](examples/enterprise/). For the existing Glama listing's ownership and build configuration, see [Glama indexing](docs/guides/glama.md).
 
 ## MCP Installation
 

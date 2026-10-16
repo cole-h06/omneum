@@ -7,6 +7,7 @@
 !build.rs
 !pyproject.toml
 !README.md
+!LICENSE
 !src/
 !src/**
 !omneum/
@@ -14,6 +15,11 @@
 !deploy/
 !deploy/network/
 !deploy/network/**
+!deploy/glama/
+!deploy/glama/**
+!deploy/install-foreground.sh
+!deploy/sysusers.d/
+!deploy/sysusers.d/omneum.conf
 **/__pycache__/
 **/*.pyc
 **/.env*
