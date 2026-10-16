@@ -137,7 +137,9 @@ def create_server(state: DeploymentState) -> FastMCP:
     @mcp.tool(
         name="evaluate_context",
         description=(
-            "Evaluate opaque assertions and return information-quality signals."
+            "Detect unreliable sources, duplicated or dependent evidence, "
+            "conflicting claims, and stale information in AI agent and RAG "
+            "pipeline context before model ingestion."
         ),
     )
     async def evaluate_context(
