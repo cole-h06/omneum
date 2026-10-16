@@ -180,7 +180,7 @@ class Server(Generic[LifespanResultT, RequestT]):
 
         return InitializationOptions(
             server_name=self.name,
-            server_version=self.version if self.version else "1.28.1",
+            server_version=self.version if self.version else "1.30.0",
             capabilities=self.get_capabilities(
                 notification_options or NotificationOptions(),
                 experimental_capabilities or {},

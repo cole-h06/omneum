@@ -62,8 +62,12 @@ from omneum.mcp.server.session import ServerSession, ServerSessionT
 from omneum.mcp.server.sse import SseServerTransport
 from omneum.mcp.server.stdio import stdio_server
 from omneum.mcp.server.streamable_http import EventStore
-from omneum.mcp.server.streamable_http_manager import StreamableHTTPSessionManager
-from omneum.mcp.server.transport_security import TransportSecuritySettings
+from omneum.mcp.server.streamable_http_manager import (
+    DEFAULT_MAX_SESSIONS,
+    DEFAULT_SESSION_IDLE_TIMEOUT,
+    StreamableHTTPSessionManager,
+)
+from omneum.mcp.server.transport_security import DEFAULT_MAX_REQUEST_BODY_SIZE, TransportSecuritySettings
 from omneum.mcp.shared.context import LifespanContextT, RequestContext, RequestT
 from omneum.mcp.types import Annotations, AnyFunction, ContentBlock, GetPromptResult, Icon, ToolAnnotations
 from omneum.mcp.types import Prompt as MCPPrompt
@@ -106,6 +110,12 @@ class Settings(BaseSettings, Generic[LifespanResultT]):
     json_response: bool
     stateless_http: bool
     """Define if the server should create a new transport per request."""
+    max_request_body_size: int
+    """Maximum request body size in bytes for the Streamable HTTP endpoint and the SSE message endpoint."""
+    session_idle_timeout: float | None
+    """Seconds a stateful session may have no request in flight before it is closed. None disables expiry."""
+    max_sessions: int | None
+    """Maximum number of concurrent stateful sessions. None removes the limit."""
 
     # resource settings
     warn_on_duplicate_resources: bool
@@ -166,6 +176,9 @@ class FastMCP(Generic[LifespanResultT]):
         streamable_http_path: str = "/mcp",
         json_response: bool = False,
         stateless_http: bool = False,
+        max_request_body_size: int = DEFAULT_MAX_REQUEST_BODY_SIZE,
+        session_idle_timeout: float | None = DEFAULT_SESSION_IDLE_TIMEOUT,
+        max_sessions: int | None = DEFAULT_MAX_SESSIONS,
         warn_on_duplicate_resources: bool = True,
         warn_on_duplicate_tools: bool = True,
         warn_on_duplicate_prompts: bool = True,
@@ -193,6 +206,9 @@ class FastMCP(Generic[LifespanResultT]):
             streamable_http_path=streamable_http_path,
             json_response=json_response,
             stateless_http=stateless_http,
+            max_request_body_size=max_request_body_size,
+            session_idle_timeout=session_idle_timeout,
+            max_sessions=max_sessions,
             warn_on_duplicate_resources=warn_on_duplicate_resources,
             warn_on_duplicate_tools=warn_on_duplicate_tools,
             warn_on_duplicate_prompts=warn_on_duplicate_prompts,
@@ -832,6 +848,7 @@ class FastMCP(Generic[LifespanResultT]):
         sse = SseServerTransport(
             normalized_message_endpoint,
             security_settings=self.settings.transport_security,
+            max_request_body_size=self.settings.max_request_body_size,
         )
 
         async def handle_sse(scope: Scope, receive: Receive, send: Send):  # pragma: no cover
@@ -864,7 +881,12 @@ class FastMCP(Generic[LifespanResultT]):
                     # extract auth info from request (but do not require it)
                     Middleware(
                         AuthenticationMiddleware,
-                        backend=BearerAuthBackend(self._token_verifier),
+                        backend=BearerAuthBackend(
+                            self._token_verifier,
+                            resource_server_url=self.settings.auth.resource_server_url
+                            if self.settings.auth.validate_token_resource
+                            else None,
+                        ),
                     ),
                     # Add the auth context middleware to store
                     # authenticated user in a contextvar
@@ -960,6 +982,9 @@ class FastMCP(Generic[LifespanResultT]):
                 json_response=self.settings.json_response,
                 stateless=self.settings.stateless_http,  # Use the stateless setting
                 security_settings=self.settings.transport_security,
+                max_request_body_size=self.settings.max_request_body_size,
+                session_idle_timeout=self.settings.session_idle_timeout,
+                max_sessions=self.settings.max_sessions,
             )
 
         # Create the ASGI handler
@@ -979,7 +1004,12 @@ class FastMCP(Generic[LifespanResultT]):
                 middleware = [
                     Middleware(
                         AuthenticationMiddleware,
-                        backend=BearerAuthBackend(self._token_verifier),
+                        backend=BearerAuthBackend(
+                            self._token_verifier,
+                            resource_server_url=self.settings.auth.resource_server_url
+                            if self.settings.auth.validate_token_resource
+                            else None,
+                        ),
                     ),
                     Middleware(AuthContextMiddleware),
                 ]
@@ -1083,6 +1113,11 @@ class FastMCP(Generic[LifespanResultT]):
             raise ValueError(str(e))
 
 
+# `Settings.lifespan` refers to FastMCP, which is only defined above; complete the model now so
+# settings sources never see an unresolved annotation when a FastMCP instance is created.
+Settings.model_rebuild()
+
+
 class StreamableHTTPASGIApp:
     """
     ASGI application for Streamable HTTP server transport.
@@ -1177,6 +1212,7 @@ class Context(BaseModel, Generic[ServerSessionT, LifespanContextT, RequestT]):
             progress=progress,
             total=total,
             message=message,
+            related_request_id=self.request_id,
         )
 
     async def read_resource(self, uri: str | AnyUrl) -> Iterable[ReadResourceContents]:

@@ -29,7 +29,7 @@ async def receive_loop(session: ServerSession):
 
 
 async def main():
-    version = "1.28.1"
+    version = "1.30.0"
     async with stdio_server() as (read_stream, write_stream):
         async with (
             ServerSession(

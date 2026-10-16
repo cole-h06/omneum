@@ -9,8 +9,10 @@ Provides OAuth providers for machine-to-machine authentication flows:
 """
 
 import time
+import warnings
 from collections.abc import Awaitable, Callable
 from typing import Any, Literal
+from urllib.parse import urlparse
 from uuid import uuid4
 
 import httpx
@@ -20,7 +22,49 @@ from omneum._crypto import require_crypto
 from pydantic import BaseModel, Field
 
 from omneum.mcp.client.auth import OAuthClientProvider, OAuthFlowError, OAuthTokenError, TokenStorage
+from omneum.mcp.client.auth.oauth2 import OAuthContext
+from omneum.mcp.client.auth.utils import issuers_match
 from omneum.mcp.shared.auth import OAuthClientInformationFull, OAuthClientMetadata
+
+
+def _checked_issuer(issuer: str | None) -> str | None:
+    if issuer is None:
+        warnings.warn(
+            "Omitting `issuer` is deprecated and it will be required in 3.0. Without it, the MCP server "
+            "decides which authorization server receives this client's credentials; pass "
+            "issuer=<your authorization server's issuer URL> so they are only ever sent there.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return None
+    if urlparse(issuer).scheme not in ("http", "https"):
+        raise ValueError(f"issuer must be the authorization server's http(s) issuer URL, got {issuer!r}")
+    return issuer
+
+
+def _preferred_authorization_server(advertised: list[str], issuer: str | None) -> str:
+    """The advertised server matching the configured issuer if there is one, else the first."""
+    return next(
+        (server for server in advertised if issuer is not None and issuers_match(server, issuer)), advertised[0]
+    )
+
+
+def _require_metadata_for_configured_issuer(context: OAuthContext, issuer: str | None) -> None:
+    """With an issuer configured, a token request is only built from metadata discovered for that issuer.
+
+    Anything else held is dropped along with the tokens, so the next request starts discovery afresh
+    rather than refreshing against it.
+    """
+    if issuer is None:
+        return
+    metadata = context.oauth_metadata
+    if metadata is not None and issuers_match(str(metadata.issuer), issuer):
+        return
+    context.oauth_metadata = None
+    context.clear_tokens()
+    if metadata is None:
+        raise OAuthFlowError(f"No authorization server metadata discovered for configured issuer {issuer}")
+    raise OAuthFlowError(f"Authorization server metadata issuer mismatch: {metadata.issuer} != {issuer}")
 
 
 class ClientCredentialsOAuthProvider(OAuthClientProvider):
@@ -28,6 +72,9 @@ class ClientCredentialsOAuthProvider(OAuthClientProvider):
 
     This provider sets client_info directly, bypassing dynamic client registration.
     Use this when you already have client credentials (client_id and client_secret).
+    Pass `issuer` to name the authorization server those credentials belong to: token
+    requests are then only built from authorization server metadata for that issuer, and
+    the flow stops if the MCP server leads anywhere else.
 
     Example:
         ```python
@@ -36,6 +83,7 @@ class ClientCredentialsOAuthProvider(OAuthClientProvider):
             storage=my_token_storage,
             client_id="my-client-id",
             client_secret="my-client-secret",
+            issuer="https://auth.example.com",
         )
         ```
     """
@@ -48,6 +96,7 @@ class ClientCredentialsOAuthProvider(OAuthClientProvider):
         client_secret: str,
         token_endpoint_auth_method: Literal["client_secret_basic", "client_secret_post"] = "client_secret_basic",
         scopes: str | None = None,
+        issuer: str | None = None,
     ) -> None:
         """Initialize client_credentials OAuth provider.
 
@@ -59,6 +108,12 @@ class ClientCredentialsOAuthProvider(OAuthClientProvider):
             token_endpoint_auth_method: Authentication method for token endpoint.
                 Either "client_secret_basic" (default) or "client_secret_post".
             scopes: Optional space-separated list of scopes to request.
+            issuer: The issuer identifier of the authorization server that issued
+                `client_id` and `client_secret`. When set, token requests are only built from
+                discovered authorization server metadata whose `issuer` is exactly this string;
+                otherwise the flow stops with `OAuthFlowError`. Omitting it is deprecated
+                (`DeprecationWarning`) and it will be required in 3.0; until then, whichever
+                authorization server discovery yields is used.
         """
         # Build minimal client_metadata for the base class
         client_metadata = OAuthClientMetadata(
@@ -68,6 +123,7 @@ class ClientCredentialsOAuthProvider(OAuthClientProvider):
             scope=scopes,
         )
         super().__init__(server_url, client_metadata, storage, None, None, 300.0)
+        self._issuer = _checked_issuer(issuer)
         # Store client_info to be set during _initialize - no dynamic registration needed
         self._fixed_client_info = OAuthClientInformationFull(
             redirect_uris=None,
@@ -84,12 +140,17 @@ class ClientCredentialsOAuthProvider(OAuthClientProvider):
         self.context.client_info = self._fixed_client_info
         self._initialized = True
 
+    def _select_authorization_server(self, advertised: list[str]) -> str:
+        return _preferred_authorization_server(advertised, self._issuer)
+
     async def _perform_authorization(self) -> httpx.Request:
         """Perform client_credentials authorization."""
         return await self._exchange_token_client_credentials()
 
     async def _exchange_token_client_credentials(self) -> httpx.Request:
         """Build token exchange request for client_credentials grant."""
+        _require_metadata_for_configured_issuer(self.context, self._issuer)
+
         token_data: dict[str, Any] = {
             "grant_type": "client_credentials",
         }
@@ -122,6 +183,7 @@ def static_assertion_provider(token: str) -> Callable[[str], Awaitable[str]]:
             storage=my_token_storage,
             client_id="my-client-id",
             assertion_provider=static_assertion_provider(my_prebuilt_jwt),
+            issuer="https://auth.example.com",
         )
         ```
 
@@ -156,6 +218,7 @@ class SignedJWTParameters(BaseModel):
             storage=my_token_storage,
             client_id="my-client-id",
             assertion_provider=jwt_params.create_assertion_provider(),
+            issuer="https://auth.example.com",
         )
         ```
     """
@@ -202,7 +265,10 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
 
     The JWT assertion's audience MUST be the authorization server's issuer identifier
     (per RFC 7523bis security updates). The `assertion_provider` callback receives
-    this audience value and must return a JWT with that audience.
+    this audience value and must return a JWT with that audience. Pass `issuer` to name
+    the authorization server this client is registered with: an assertion is then only
+    minted once metadata for that issuer has been discovered, and token requests are only
+    built from that metadata.
 
     **Option 1: Pre-built JWT via Workload Identity Federation**
 
@@ -220,6 +286,7 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
             storage=my_token_storage,
             client_id="my-client-id",
             assertion_provider=get_workload_identity_token,
+            issuer="https://auth.example.com",
         )
         ```
 
@@ -233,6 +300,7 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
             storage=my_token_storage,
             client_id="my-client-id",
             assertion_provider=static_assertion_provider(my_prebuilt_jwt),
+            issuer="https://auth.example.com",
         )
         ```
 
@@ -251,6 +319,7 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
             storage=my_token_storage,
             client_id="my-client-id",
             assertion_provider=jwt_params.create_assertion_provider(),
+            issuer="https://auth.example.com",
         )
         ```
     """
@@ -262,6 +331,7 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
         client_id: str,
         assertion_provider: Callable[[str], Awaitable[str]],
         scopes: str | None = None,
+        issuer: str | None = None,
     ) -> None:
         """Initialize private_key_jwt OAuth provider.
 
@@ -275,6 +345,12 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
                 `static_assertion_provider()` for pre-built JWTs, or provide your own
                 callback for workload identity federation.
             scopes: Optional space-separated list of scopes to request.
+            issuer: The issuer identifier of the authorization server `client_id` is
+                registered with. When set, an assertion is only minted, and token requests
+                are only built, once authorization server metadata whose `issuer` is exactly this
+                string has been discovered; otherwise the flow stops with `OAuthFlowError`.
+                Omitting it is deprecated (`DeprecationWarning`) and it will be required in
+                3.0; until then, whichever authorization server discovery yields is used.
         """
         # Build minimal client_metadata for the base class
         client_metadata = OAuthClientMetadata(
@@ -285,6 +361,7 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
         )
         super().__init__(server_url, client_metadata, storage, None, None, 300.0)
         self._assertion_provider = assertion_provider
+        self._issuer = _checked_issuer(issuer)
         # Store client_info to be set during _initialize - no dynamic registration needed
         self._fixed_client_info = OAuthClientInformationFull(
             redirect_uris=None,
@@ -299,6 +376,9 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
         self.context.current_tokens = await self.context.storage.get_tokens()
         self.context.client_info = self._fixed_client_info
         self._initialized = True
+
+    def _select_authorization_server(self, advertised: list[str]) -> str:
+        return _preferred_authorization_server(advertised, self._issuer)
 
     async def _perform_authorization(self) -> httpx.Request:
         """Perform client_credentials authorization with private_key_jwt."""
@@ -320,6 +400,8 @@ class PrivateKeyJWTOAuthProvider(OAuthClientProvider):
 
     async def _exchange_token_client_credentials(self) -> httpx.Request:
         """Build token exchange request for client_credentials grant with private_key_jwt."""
+        _require_metadata_for_configured_issuer(self.context, self._issuer)
+
         token_data: dict[str, Any] = {
             "grant_type": "client_credentials",
         }
@@ -415,8 +497,6 @@ class RFC7523OAuthClientProvider(OAuthClientProvider):
         timeout: float = 300.0,
         jwt_parameters: JWTParameters | None = None,
     ) -> None:
-        import warnings
-
         warnings.warn(
             "RFC7523OAuthClientProvider is deprecated. Use ClientCredentialsOAuthProvider "
             "or PrivateKeyJWTOAuthProvider instead.",

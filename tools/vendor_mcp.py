@@ -11,10 +11,10 @@ import re
 import tarfile
 
 
-VERSION = "1.28.1"
-REVISION = "777b8d06710c140e3606b0d4598e2aa48546c266"
-SHA256 = "d51e36a5f5644faea4f85ea649bfffa6bc6c26770d42798ad6a3de3d2ba69683"
-URL = "https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz"
+VERSION = "1.30.0"
+REVISION = "8c2fa6eabacde869d75568e33b9d466b58c2f512"
+SHA256 = "445414625fce5c295faa505bb11bacece661ab6f4028d57c935db57820b7a3e4"
+URL = "https://files.pythonhosted.org/packages/ba/93/0142dc84a666daf8ad51a34268f34c12fd6fda4f3810c4be2504eecc8212/mcp-1.30.0.tar.gz"
 ROOT = Path(__file__).resolve().parents[1]
 
 

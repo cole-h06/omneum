@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_bundle_provenance_and_dependency_boundary():
     root = ROOT / "omneum/mcp"
     manifest = json.loads((root / "UPSTREAM.json").read_text())
-    assert manifest["revision"] == "777b8d06710c140e3606b0d4598e2aa48546c266"
+    assert manifest["revision"] == "8c2fa6eabacde869d75568e33b9d466b58c2f512"
     for name, digest in manifest["files"].items():
         assert hashlib.sha256((root / name).read_bytes()).hexdigest() == digest, name
     assert "/home/runner/" not in (root / "UPSTREAM-PYPROJECT.toml").read_text()

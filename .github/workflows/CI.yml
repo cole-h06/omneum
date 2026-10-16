@@ -109,9 +109,9 @@ jobs:
         if: needs.changes.outputs.full_ci == 'true'
         run: |
           curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
-            https://files.pythonhosted.org/packages/6e/77/9450b8f251a13affb6281997d0523c4615f8a8b35d0b21ff30db3a5aac9d/mcp-1.28.1.tar.gz \
-            --output "$RUNNER_TEMP/mcp-1.28.1.tar.gz"
-          python tools/vendor_mcp.py "$RUNNER_TEMP/mcp-1.28.1.tar.gz" --check
+            https://files.pythonhosted.org/packages/ba/93/0142dc84a666daf8ad51a34268f34c12fd6fda4f3810c4be2504eecc8212/mcp-1.30.0.tar.gz \
+            --output "$RUNNER_TEMP/mcp-1.30.0.tar.gz"
+          python tools/vendor_mcp.py "$RUNNER_TEMP/mcp-1.30.0.tar.gz" --check
       - name: Validate release tag against Python package version
         if: needs.changes.outputs.full_ci == 'true' && (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
         env:
