@@ -269,9 +269,13 @@ def finish_install(initialize, verify, progress) -> None:
     progress("Initializing Omneum...")
     try:
         initialize()
-    except Exception:
+    except Exception as error:
+        kind = type(error).__name__
+        if error.__cause__ is not None:
+            kind += f" ({type(error.__cause__).__name__})"
         raise InstallError("Daemon deployed, but Omneum initialization failed. "
-                           "Check daemon access and the existing configuration; its key pin was not replaced.") from None
+                           "Check daemon access and the existing configuration; its key pin was not replaced. "
+                           f"Failure: {kind}.") from None
     progress("Verifying connection...")
     try:
         verify()

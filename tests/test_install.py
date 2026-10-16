@@ -313,6 +313,20 @@ def test_finish_success():
     assert progress.call_args.args == ('Omneum is ready.',)
 
 
+def test_finish_initialization_reports_safe_failure_types():
+    from omneum.initialization import InitializationError
+    from omneum.daemon import DaemonTransportError
+
+    error = InitializationError('private diagnostic detail')
+    error.__cause__ = DaemonTransportError('private transport detail')
+    verify = Mock()
+    with pytest.raises(install.InstallError) as result:
+        install.finish_install(Mock(side_effect=error), verify, Mock())
+    assert 'Failure: InitializationError (DaemonTransportError).' in str(result.value)
+    assert 'private' not in str(result.value)
+    verify.assert_not_called()
+
+
 @pytest.fixture
 def mac_install(monkeypatch):
     from omneum import initialization
