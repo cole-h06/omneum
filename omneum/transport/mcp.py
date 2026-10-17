@@ -9,14 +9,17 @@ from contextlib import asynccontextmanager
 from omneum.mcp.server.fastmcp import FastMCP
 from omneum.mcp.server.fastmcp.exceptions import ToolError
 from omneum.mcp.server.stdio import stdio_server
-from omneum.mcp.types import CallToolResult
-from pydantic import ValidationError
+from omneum.mcp.types import CallToolResult, Tool
+from pydantic import TypeAdapter, ValidationError
 
 from omneum.config import DeploymentState
 from omneum.models import (
     Assertion,
     EvaluateVOPRFRequest,
+    EvaluateVOPRFResponse,
     EvaluateAssertionRequest,
+    EvaluateAssertionResponse,
+    OmneumErrorResponse,
     SourcePair,
 )
 from omneum.tools.evaluate_voprf import (
@@ -30,6 +33,23 @@ from omneum.transport.stdio import BoundedStdin
 
 class OmneumFastMCP(FastMCP):
     """FastMCP server with stable Omneum validation failures."""
+
+    async def list_tools(self) -> list[Tool]:
+        tools = await super().list_tools()
+        response_models = {
+            "evaluate_voprf": EvaluateVOPRFResponse,
+            "evaluate_context": EvaluateAssertionResponse,
+        }
+        for tool in tools:
+            response_model = response_models.get(tool.name)
+            if response_model is not None:
+                # Advertise both existing payload forms without enabling FastMCP's
+                # return-value conversion or changing CallToolResult serialization.
+                tool.outputSchema = {
+                    "type": "object",
+                    **TypeAdapter(response_model | OmneumErrorResponse).json_schema(),
+                }
+        return tools
 
     async def run_stdio_async(self) -> None:
         # Shared by socket-activated, direct-socket and foreground sessions.
@@ -92,7 +112,13 @@ def create_server(state: DeploymentState) -> FastMCP:
     @mcp.tool(
         name="evaluate_voprf",
         description=(
-            "Evaluate one RFC 9497 VOPRF blinded element."
+            "Evaluate one RFC 9497 blinded element using this deployment’s VOPRF key. "
+            "Use the Omneum SDK for blinding, proof verification, and local finalization. "
+            "Supply matching deployment metadata and a canonical base64url-encoded "
+            "32-byte blinded element. Returns a 32-byte evaluated element and 64-byte "
+            "proof, both encoded as unpadded base64url. Evaluation uses the initialized "
+            "local daemon and does not receive the original plaintext. Capacity or "
+            "deadline failures return isError=true with message and omneum_code."
         ),
     )
     async def evaluate_voprf(
@@ -137,9 +163,14 @@ def create_server(state: DeploymentState) -> FastMCP:
     @mcp.tool(
         name="evaluate_context",
         description=(
-            "Detect unreliable sources, duplicated or dependent evidence, "
-            "conflicting claims, and stale information in AI agent and RAG "
-            "pipeline context before model ingestion."
+            "Evaluate relative source reliability and claim support from a "
+            "caller-prepared graph of opaque linkage tokens and pairwise evidence "
+            "dependencies. Use the Omneum SDK to prepare canonically ordered inputs "
+            "and map returned tokens back to local context. Returns source reliability, "
+            "claim support, conflicting claims, and estimated independent support for "
+            "context selection. The server does not inspect source text, fetch sources, "
+            "or independently determine factual truth or freshness. Graphs are evaluated "
+            "without persistence; failures return isError=true with message and omneum_code."
         ),
     )
     async def evaluate_context(
