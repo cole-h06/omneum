@@ -13,7 +13,7 @@ from release_publication import check_new, verify_document
 class PublicationTests(unittest.TestCase):
     def setUp(self):
         self.expected = {'version': '1.0.4', 'distributions': {'a.whl': {'sha256': 'a' * 64, 'size': 123}}}
-        self.document = {'info': {'version': '1.0.4', 'description': '<!-- mcp-name: ai.omneum/omneum -->'},
+        self.document = {'info': {'version': '1.0.4', 'description': '<!-- mcp-name: io.github.cole-h06/omneum -->'},
                          'urls': [{'filename': 'a.whl', 'digests': {'sha256': 'a' * 64}, 'size': 123, 'yanked': False}]}
 
     def test_new_version_and_existing_version(self):
@@ -43,6 +43,11 @@ class PublicationTests(unittest.TestCase):
 
     def test_missing_identity(self):
         self.document['info']['description'] = 'Omneum'
+        with self.assertRaises(ValueError):
+            verify_document(self.document, self.expected)
+
+    def test_legacy_identity_is_rejected(self):
+        self.document['info']['description'] = '<!-- mcp-name: ai.omneum/omneum -->'
         with self.assertRaises(ValueError):
             verify_document(self.document, self.expected)
 

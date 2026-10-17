@@ -46,7 +46,7 @@ def manifest(dist, assets, version):
     for wheel in wheels:
         with zipfile.ZipFile(wheel) as archive:
             metadata = Parser().parsestr(archive.read(f'omneum-{version}.dist-info/METADATA').decode())
-            if 'mcp-name: ai.omneum/omneum' not in metadata.get_payload():
+            if 'mcp-name: io.github.cole-h06/omneum' not in metadata.get_payload():
                 raise ValueError('published description must include verified MCP identity')
     release_daemon.verify(assets, version)
     def entries(paths):
@@ -61,7 +61,7 @@ def verify_document(document, expected):
     actual = {item['filename']: item for item in document['urls']}
     if len(actual) != len(document['urls']) or set(actual) != set(expected['distributions']):
         raise ValueError('public distribution set is incomplete or unexpected')
-    if 'mcp-name: ai.omneum/omneum' not in document['info']['description']:
+    if 'mcp-name: io.github.cole-h06/omneum' not in document['info']['description']:
         raise ValueError('public description is missing MCP verification identity')
     for name, recorded in expected['distributions'].items():
         item = actual[name]

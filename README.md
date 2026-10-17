@@ -1,4 +1,4 @@
-<!-- mcp-name: ai.omneum/omneum -->
+<!-- mcp-name: io.github.cole-h06/omneum -->
 # What is Omneum
 
 <p align="center">
@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/pypi/v/omneum?refresh=20261012" alt="PyPI">
   </a>
   <img src="https://img.shields.io/badge/Python-3.11%E2%80%933.14-blue" alt="Python 3.11–3.14">
-  <a href="LICENSE">
+  <a href="https://github.com/cole-h06/omneum/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
   </a>
 </p>
@@ -117,7 +117,7 @@ Fy2025 gross revenue
 
 `evaluate()` runs Omneum's graph-based evaluation algorithm in-process; it computes source reliability and claim support scores, adjusting for dependencies between sources.
 
-For raw retrieval text, use the optional `extract_observations()` API to extract structured claims with an LLM before evaluation. See [Python SDK](docs/sdk.md#extract-assertions-from-text).
+For raw retrieval text, use the optional `extract_observations()` API to extract structured claims with an LLM before evaluation. See [Python SDK](https://github.com/cole-h06/omneum/blob/main/docs/sdk.md#extract-assertions-from-text).
 
 ## Why Omneum and how it works
 
@@ -155,7 +155,7 @@ Omneum runs locally through its Python SDK or as a [Model Context Protocol (MCP)
 
 Omneum returns context-quality signals; your agent makes evidence-aware decisions throughout its workflow.
 
-[Architecture and design →](docs/architecture.md)
+[Architecture and design →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md)
 
 ## MCP Installation
 
@@ -199,7 +199,7 @@ The evaluator runs as a system service because its VOPRF private key is isolated
 
 `omneum-server` connects MCP clients to the installed local service. The installer finishes by sending a VOPRF request through that path and verifying the response against the configured public key. A running service alone does not count as a successful installation.
 
-See [`docs/guides/installation.md`](docs/guides/installation.md) for service accounts, sockets, installed paths, custom endpoints, and failure handling.
+See [`docs/guides/installation.md`](https://github.com/cole-h06/omneum/blob/main/docs/guides/installation.md) for service accounts, sockets, installed paths, custom endpoints, and failure handling.
 
 ### 2. Connect an MCP client
 
@@ -284,7 +284,7 @@ mapper = ContextMapper(
 )
 ```
 
-The SDK handles canonicalization. See [Canonicalization](docs/canonicalization.md).
+The SDK handles canonicalization. See [Canonicalization](https://github.com/cole-h06/omneum/blob/main/docs/canonicalization.md).
 
 ### 2. Evaluate context
 
@@ -336,23 +336,23 @@ Three sources report the same value, but two reference a shared upstream documen
 
 An agent can use this result to trigger additional retrieval or route execution back to a verification step before generating a response.
 
-See [Evaluation schema](docs/architecture.md#evaluation-results) for result fields.
+See [Evaluation schema](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#evaluation-results) for result fields.
 
 ## Integrations
 
-Use the [Python SDK](docs/sdk.md) and [ContextMapper](docs/context-mapper.md) to add Omneum to your agent.
+Use the [Python SDK](https://github.com/cole-h06/omneum/blob/main/docs/sdk.md) and [ContextMapper](https://github.com/cole-h06/omneum/blob/main/docs/context-mapper.md) to add Omneum to your agent.
 
 Framework examples:
 
-- [LangGraph](examples/langgraph/)
-- [LlamaIndex](examples/llamaindex/)
-- [CrewAI](examples/crewai/)
-- [OpenAI Agents SDK](examples/openai_agents/)
-- [Microsoft Agent Framework](examples/microsoft/)
-- [Google ADK](examples/google_adk/)
+- [LangGraph](https://github.com/cole-h06/omneum/tree/main/examples/langgraph/)
+- [LlamaIndex](https://github.com/cole-h06/omneum/tree/main/examples/llamaindex/)
+- [CrewAI](https://github.com/cole-h06/omneum/tree/main/examples/crewai/)
+- [OpenAI Agents SDK](https://github.com/cole-h06/omneum/tree/main/examples/openai_agents/)
+- [Microsoft Agent Framework](https://github.com/cole-h06/omneum/tree/main/examples/microsoft/)
+- [Google ADK](https://github.com/cole-h06/omneum/tree/main/examples/google_adk/)
 
 For a complete framework-independent workflow, see the
-[enterprise policy example](examples/enterprise/).
+[enterprise policy example](https://github.com/cole-h06/omneum/tree/main/examples/enterprise/).
 
 ### Optional: Contribute to the Omneum Network (Closed Beta)
 
@@ -364,7 +364,7 @@ Contributions use privacy-preserving cryptographic linkage via an RFC 9497 VOPRF
 
 Hosted Network enrollment is currently limited to approved beta participants.
 
-See [Enable Network contribution (MCP)](docs/guides/configuration.md#mcp-configuration) to get started, or [How Network contribution works](docs/context-graph.md#omneum-network) for technical details.
+See [Enable Network contribution (MCP)](https://github.com/cole-h06/omneum/blob/main/docs/guides/configuration.md#mcp-configuration) to get started, or [How Network contribution works](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md#omneum-network) for technical details.
 
 ## Data Model & Evaluation
 
@@ -383,7 +383,7 @@ Observation(
 
 Observations retain available provenance and metadata, including source ownership, timestamps, citations, upstream source relationships, and assertion lineage. Multiple assertion observations can support the same claim or report conflicting values without being merged or overwritten. Observations are not generated judgments about what is true: they preserve the evidence as reported.
 
-[Observations docs →](docs/architecture.md#observation)
+[Observations docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#observation)
 
 ### Sources
 
@@ -396,7 +396,7 @@ Source(
 )
 ```
 
-[Sources docs →](docs/architecture.md#source)
+[Sources docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#source)
 
 ### Claims
 
@@ -411,7 +411,7 @@ Claim(
 )
 ```
 
-[Claims docs →](docs/architecture.md#claim)
+[Claims docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#claim)
 
 ### Source Dependence
 
@@ -419,13 +419,13 @@ Multiple sources can report the same claim without providing independent support
 
 Estimated source dependencies adjust the contribution of related sources when calculating independent support for each claim.
 
-[Source dependence docs →](docs/architecture.md#dependency-estimation)
+[Source dependence docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#dependency-estimation)
 
 ### ContextMapper
 
 `ContextMapper` maps structured data from agent and retrieval pipelines into Omneum's observation model. It defines how source identifiers, claim fields, timestamps, and provenance metadata are read from existing records.
 
-[ContextMapper docs →](docs/context-mapper.md)
+[ContextMapper docs →](https://github.com/cole-h06/omneum/blob/main/docs/context-mapper.md)
 
 ### ContextEvaluation
 
@@ -439,7 +439,7 @@ evaluation = await client.evaluate_mapped(
 print(evaluation.explanation)
 ```
 
-[ContextEvaluation docs →](docs/architecture.md#evaluation-results)
+[ContextEvaluation docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#evaluation-results)
 
 ## Performance & Accuracy
 
@@ -449,7 +449,7 @@ Evaluated on **24 held-out cases across six domains**: coding agents, enterprise
 
 Measures how Omneum improves evidence selection when combined with semantic rerankers across diverse agent workflows.
 
-![Semantic Reranker Selection Precision](assets/benchmarks/semantic-reranker-selection-precision.png)
+![Semantic Reranker Selection Precision](https://raw.githubusercontent.com/cole-h06/omneum/main/assets/benchmarks/semantic-reranker-selection-precision.png)
 
 | Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -464,7 +464,7 @@ Measures how Omneum improves evidence selection when combined with semantic rera
 
 Each LLM judge is evaluated alongside Omneum under the same model-specific benchmark configuration.
 
-![Frontier LLM Judge Selection Latency](assets/benchmarks/llm-judge-selection-latency.png)
+![Frontier LLM Judge Selection Latency](https://raw.githubusercontent.com/cole-h06/omneum/main/assets/benchmarks/llm-judge-selection-latency.png)
 
 | Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -477,7 +477,7 @@ Each LLM judge is evaluated alongside Omneum under the same model-specific bench
 
 *Costs reflect estimated downstream generator API usage only; LLM judge inference costs and local compute are excluded. Omneum achieves competitive selection quality and downstream answer accuracy against frontier LLM judges, with 2.6–5.3× lower selection latency and no additional LLM inference step.*
 
-**Detailed evaluations:** [Methodology](benchmarks/README.md) · [Coding Agents](benchmarks/coding.md) · [Enterprise RAG](benchmarks/enterprise-rag.md) · [Research Agents](benchmarks/research.md) · [Multi-Agent Systems](benchmarks/multi-agent.md) · [Data Analytics](benchmarks/analytics.md) · [Support Operations](benchmarks/support.md)
+**Detailed evaluations:** [Methodology](https://github.com/cole-h06/omneum/blob/main/benchmarks/README.md) · [Coding Agents](https://github.com/cole-h06/omneum/blob/main/benchmarks/coding.md) · [Enterprise RAG](https://github.com/cole-h06/omneum/blob/main/benchmarks/enterprise-rag.md) · [Research Agents](https://github.com/cole-h06/omneum/blob/main/benchmarks/research.md) · [Multi-Agent Systems](https://github.com/cole-h06/omneum/blob/main/benchmarks/multi-agent.md) · [Data Analytics](https://github.com/cole-h06/omneum/blob/main/benchmarks/analytics.md) · [Support Operations](https://github.com/cole-h06/omneum/blob/main/benchmarks/support.md)
 
 ## Production
 
@@ -510,7 +510,7 @@ silently relocated; shared directory permissions are preserved.
 
 PostgreSQL can be configured for deployments that use an external database. Apache AGE provides the graph projection for PostgreSQL deployments.
 
-See [`docs/storage.md`](docs/storage.md) for the storage schema and deployment options.
+See [`docs/storage.md`](https://github.com/cole-h06/omneum/blob/main/docs/storage.md) for the storage schema and deployment options.
 
 ## Security & Privacy
 
@@ -545,24 +545,24 @@ Local persistence and Omneum Network contribution are configured independently.
 | **Local persistence** | Writes observations to `context.db` |
 | **Network contribution** | Sends pseudonymous observations to the Omneum Network through the ingestion API |
 
-See [Omneum Network](docs/context-graph.md#omneum-network) for Network contribution and [Local Persistence](docs/context-graph.md#local-persistence) for Context Graph storage.
+See [Omneum Network](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md#omneum-network) for Network contribution and [Local Persistence](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md#local-persistence) for Context Graph storage.
 
 ## External Evaluations
 
-External evaluations are published with the test inputs and Omneum outputs in [`evals/`](evals/).
+External evaluations are published with the test inputs and Omneum outputs in [`evals/`](https://github.com/cole-h06/omneum/tree/main/evals/).
 
-**SearchTS.** SearchTS 0.13.0 returned the same Go 1.22 claim from `thenewstack.io` through `curl_cffi` and `go.dev` through `stealth-browser`. Omneum received the original `final_url` and `fetched_at` values for both captures. The evaluation returned `2.00` estimated independent support, pairwise dependency `0.0000`, and dependency-signal coverage `0.25`. [Results →](evals/searchts/)
+**SearchTS.** SearchTS 0.13.0 returned the same Go 1.22 claim from `thenewstack.io` through `curl_cffi` and `go.dev` through `stealth-browser`. Omneum received the original `final_url` and `fetched_at` values for both captures. The evaluation returned `2.00` estimated independent support, pairwise dependency `0.0000`, and dependency-signal coverage `0.25`. [Results →](https://github.com/cole-h06/omneum/tree/main/evals/searchts/)
 
-**Jawz.** Independent evaluation of Omneum 1.0.3 on 14 financial observations across 5 sources and 10 claims. Declared FRED lineage produced dependency scores of **1.00**; omitting lineage reduced mean dependency from **0.70 to 0.42**, while estimator v4 detected partial dependency (**0.10**) between shared-series pairs. Unrelated controls remained at **0.00**. Runs were deterministic in a network-isolated Linux Docker environment. [Results →](evals/jawz/)
+**Jawz.** Independent evaluation of Omneum 1.0.3 on 14 financial observations across 5 sources and 10 claims. Declared FRED lineage produced dependency scores of **1.00**; omitting lineage reduced mean dependency from **0.70 to 0.42**, while estimator v4 detected partial dependency (**0.10**) between shared-series pairs. Unrelated controls remained at **0.00**. Runs were deterministic in a network-isolated Linux Docker environment. [Results →](https://github.com/cole-h06/omneum/tree/main/evals/jawz/)
 
-**Bastra Recall.** Recall ran Omneum 1.0.3 `dependency-estimator-v4` against a 30-memory synthetic harness. Four memories sharing one upstream source collapsed to `1.0` effective independent support; three independent sources remained at `3.0`. A temporal-only sweep moved continuously from `2.5` effective sources at identical timestamps to `3.0` at 48 hours. The evaluation also exposed an open lineage-chain case where `v1 → v2 → v3 → v4` produces `1.6` rather than `1.0` because dependency is currently computed only across direct lineage edges. [Results →](evals/bastra-recall/)
+**Bastra Recall.** Recall ran Omneum 1.0.3 `dependency-estimator-v4` against a 30-memory synthetic harness. Four memories sharing one upstream source collapsed to `1.0` effective independent support; three independent sources remained at `3.0`. A temporal-only sweep moved continuously from `2.5` effective sources at identical timestamps to `3.0` at 48 hours. The evaluation also exposed an open lineage-chain case where `v1 → v2 → v3 → v4` produces `1.6` rather than `1.0` because dependency is currently computed only across direct lineage edges. [Results →](https://github.com/cole-h06/omneum/tree/main/evals/bastra-recall/)
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are welcome. See [CONTRIBUTING.md](https://github.com/cole-h06/omneum/blob/main/CONTRIBUTING.md).
 
-If you find a security issue, please follow the private reporting process in [SECURITY.md](SECURITY.md) instead of opening a public issue.
+If you find a security issue, please follow the private reporting process in [SECURITY.md](https://github.com/cole-h06/omneum/blob/main/SECURITY.md) instead of opening a public issue.
 
 ## License
 
-Omneum is open source under the [MIT License](LICENSE).
+Omneum is open source under the [MIT License](https://github.com/cole-h06/omneum/blob/main/LICENSE).
