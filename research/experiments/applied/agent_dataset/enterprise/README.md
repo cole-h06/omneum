@@ -29,3 +29,7 @@ writes a new file and refuses to overwrite an existing one. The saved
 `results/context-selection-v1.json` is an immutable historical baseline; regression
 tests account for its original reconstruction ordering. Selection alone does not
 establish an improvement in generated-answer accuracy.
+
+The [consuming-agent experiment](AGENT_EXPERIMENT.md) adds two real local LLM
+requests and an eligibility tool after retrieval, comparing baseline context,
+Omneum selection, and the same selection ranked by utility.
