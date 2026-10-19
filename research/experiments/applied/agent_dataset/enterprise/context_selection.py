@@ -62,21 +62,21 @@ def run_experiment(token_budget=100):
     support = {claim_id(item.claim): item.support for item in evaluation.claim_support}
     chunks = load_chunks(sources, experiment["observations"])
     mapping = map_chunks(chunks, support)
-    root = Path(__file__).resolve().parents[6]
+    root = Path(__file__).resolve().parents[5]
     code_paths = (
         "uv.lock",
         "omneum/inference.py", "omneum/dependency.py", "omneum/engine_graph.py",
         "omneum/context_selection.py",
-        "research/braid/adapters/observations.py",
-        "research/braid/experiments/applied/agent_dataset/context_selection.py",
-        "research/braid/experiments/applied/agent_dataset/enterprise/context_selection.py",
-        "research/braid/experiments/applied/agent_dataset/enterprise/retrieve.py",
-        "research/braid/experiments/applied/agent_dataset/enterprise/agents.py",
-        "research/braid/experiments/applied/agent_dataset/enterprise/workflow.py",
-        "research/braid/experiments/applied/agent_dataset/enterprise/data.py",
-        "research/braid/experiments/applied/agent_dataset/dataset.py",
-        "research/braid/experiments/applied/agent_dataset/workflow/pipeline.py",
-        "research/braid/experiments/applied/agent_dataset/extraction/schema.py",
+        "research/adapters/observations.py",
+        "research/experiments/applied/agent_dataset/context_selection.py",
+        "research/experiments/applied/agent_dataset/enterprise/context_selection.py",
+        "research/experiments/applied/agent_dataset/enterprise/retrieve.py",
+        "research/experiments/applied/agent_dataset/enterprise/agents.py",
+        "research/experiments/applied/agent_dataset/enterprise/workflow.py",
+        "research/experiments/applied/agent_dataset/enterprise/data.py",
+        "research/experiments/applied/agent_dataset/dataset.py",
+        "research/experiments/applied/agent_dataset/workflow/pipeline.py",
+        "research/experiments/applied/agent_dataset/extraction/schema.py",
     )
     return {
         "configuration": {

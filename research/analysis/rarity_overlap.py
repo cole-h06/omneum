@@ -1,4 +1,4 @@
-"""Historical research diagnostic; not used by the current BRAID estimator."""
+"""Historical research diagnostic; not used by the current Omneum estimator."""
 
 
 def rarity_scores(

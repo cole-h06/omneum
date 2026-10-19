@@ -18,7 +18,7 @@ The local MCP server exposes three tools over stdio.
 | Tool | Description |
 |---|---|
 | `ping` | Check server availability |
-| `evaluate_context` | Evaluate opaque assertions using BRAID |
+| `evaluate_context` | Evaluate opaque source–claim relationships |
 | `evaluate_voprf` | Evaluate blinded VOPRF elements |
 
 After installation, configure the MCP host to launch `omneum-server`:

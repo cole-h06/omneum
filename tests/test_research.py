@@ -9,13 +9,13 @@ from omneum import ContextEvaluation, evaluate_context
 from omneum.engine_graph import AssertionTriple, SourcePair
 from omneum.engine_graph import build_graph as build_inference_graph
 from omneum.inference import InferenceResult, infer
-from research.braid.adapters.observations import estimator, source_identifier, to_observations
-from research.braid.adapters.structural import build_graph
-from research.braid.experiments.applied.agent_dataset.dataset import (
+from research.adapters.observations import estimator, source_identifier, to_observations
+from research.adapters.structural import build_graph
+from research.experiments.applied.agent_dataset.dataset import (
     DEPENDENCY_WEIGHTS,
     load_dataset,
 )
-from research.braid.experiments.applied.agent_dataset.run import run_experiment
+from research.experiments.applied.agent_dataset.run import run_experiment
 
 
 def test_agent_dataset():
@@ -107,7 +107,7 @@ def test_explicit_equivalence():
     "dependent_sources", "mixed_dependencies",
 ])
 def test_direct_experiment(name):
-    namespace = runpy.run_module(f"research.braid.experiments.algorithm.{name}", run_name="__main__")
+    namespace = runpy.run_module(f"research.experiments.algorithm.{name}", run_name="__main__")
     results = [value for value in namespace.values() if isinstance(value, InferenceResult)]
     assert results
     assert all(result.metadata.algorithm_version == "omneum-v2" for result in results)
@@ -116,7 +116,7 @@ def test_direct_experiment(name):
 
 def test_workflow_parity():
     pytest.importorskip("langgraph")
-    from research.braid.experiments.applied.agent_dataset.workflow.pipeline import run_workflow
+    from research.experiments.applied.agent_dataset.workflow.pipeline import run_workflow
 
     sequential = run_experiment()
     workflow = run_workflow()
@@ -128,8 +128,8 @@ def test_workflow_parity():
 
 def test_enterprise_fixtures_and_repeatability():
     pytest.importorskip("langgraph")
-    from research.braid.experiments.applied.agent_dataset.enterprise.data import FIXTURES, load_manifest
-    from research.braid.experiments.applied.agent_dataset.enterprise.workflow import run_enterprise
+    from research.experiments.applied.agent_dataset.enterprise.data import FIXTURES, load_manifest
+    from research.experiments.applied.agent_dataset.enterprise.workflow import run_enterprise
 
     manifest = load_manifest()
     for name, digest in manifest["snapshots"].items():

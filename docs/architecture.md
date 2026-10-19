@@ -223,7 +223,7 @@ The graph evaluator computes source reliability and claim support through iterat
 
 Provenance relationships are used during dependency estimation. They are not added to the graph as assertion edges.
 
-The mathematical specification, propagation equations, and convergence analysis are maintained in the [algorithm repository](https://github.com/cole-h06/braid).
+The [research workspace](../research/README.md) contains production-backed experiments and historical specifications. The production inference and dependency modules define current mathematical behavior.
 
 ## Evaluation Results
 
@@ -426,4 +426,4 @@ See [Research Telemetry](research/telemetry.md).
 - [Configuration](guides/configuration.md) — SDK, storage, and Network configuration
 - [Deployment](guides/deployment.md) — Service deployment and security boundaries
 - [Research Telemetry](research/telemetry.md) — Evaluation diagnostics
-- [Algorithm Specification](https://github.com/cole-h06/braid) — Reliability propagation and convergence
+- [Research Workspace](../research/README.md) — Experiments and historical specifications

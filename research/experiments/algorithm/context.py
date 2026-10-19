@@ -1,4 +1,4 @@
-"""Canonical synthetic context used by direct BRAID experiments."""
+"""Canonical synthetic context used by direct Omneum experiments."""
 
 from ...adapters.structural import build_graph as build_inference_graph
 

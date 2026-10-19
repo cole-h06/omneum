@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from omneum import Claim
-from research.braid.experiments.applied.agent_dataset.context_selection import (
+from research.experiments.applied.agent_dataset.context_selection import (
     STRATEGIES,
     claim_id,
     map_chunks,
@@ -115,8 +115,8 @@ def test_invalid_selection_configuration():
 
 def test_enterprise_reproducibility_and_engine_boundary(monkeypatch):
     pytest.importorskip("langgraph")
-    from research.braid.experiments.applied.agent_dataset.enterprise.context_selection import run_experiment
-    from research.braid.experiments.applied.agent_dataset.workflow import pipeline
+    from research.experiments.applied.agent_dataset.enterprise.context_selection import run_experiment
+    from research.experiments.applied.agent_dataset.workflow import pipeline
 
     evaluate = pipeline.evaluate_context
     inputs = []
@@ -145,7 +145,7 @@ def test_enterprise_reproducibility_and_engine_boundary(monkeypatch):
 
 def test_extra_chunk_does_not_create_an_assertion(monkeypatch):
     pytest.importorskip("langgraph")
-    from research.braid.experiments.applied.agent_dataset.enterprise import context_selection
+    from research.experiments.applied.agent_dataset.enterprise import context_selection
 
     first = context_selection.run_experiment()
     load = context_selection.load_chunks
@@ -162,7 +162,7 @@ def test_extra_chunk_does_not_create_an_assertion(monkeypatch):
 
 def test_phase2_selection_regression():
     pytest.importorskip("langgraph")
-    from research.braid.experiments.applied.agent_dataset.enterprise.context_selection import run_experiment
+    from research.experiments.applied.agent_dataset.enterprise.context_selection import run_experiment
 
     path = Path(__file__).resolve().parents[1] / "enterprise/results/context-selection-v1.json"
     recorded = json.loads(path.read_text())

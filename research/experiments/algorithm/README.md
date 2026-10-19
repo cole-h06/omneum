@@ -1,13 +1,13 @@
-# Direct BRAID Experiments
+# Structural algorithm experiments
 
-These experiments study BRAID on a shared synthetic context. The context is defined in [`context.py`](context.py) as a set of sources, claims, and assertions, with different dependency structures used to examine how BRAID scores the resulting graph.
+These experiments study Omneum on a shared synthetic context. The context is defined in [`context.py`](context.py) as a set of sources, claims, and assertions, with different dependency structures used to examine how Omneum scores the resulting graph.
 
 The authoritative implementation is Omneum's `omneum/inference.py`. These experiments use `../../adapters/structural.py` to build production graphs.
 
 Run an experiment from the repository root:
 
 ```bash
-uv run --locked python -m research.braid.experiments.algorithm.independent_sources
+uv run --locked python -m research.experiments.algorithm.independent_sources
 ```
 
 ## Experiments

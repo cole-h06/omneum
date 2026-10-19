@@ -6,5 +6,5 @@ not Omneum's production semantics, and are not part of the current test suite.
 Do not add the old engine to the production package or use its scores as
 production expectations.
 
-See [the migration record](../migration-map.md) for original paths.
-The active adapter regressions are `tests/test_braid_research.py` at the Omneum root.
+See [the migration record](migration-map.md) for original paths.
+The active adapter regressions are `../../tests/test_research.py` at the Omneum root.

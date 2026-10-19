@@ -410,7 +410,7 @@ propagate without returning a partial result. Existing claim and observation
 validation applies. Structural validation cannot establish extraction accuracy.
 
 Raw text is sent to the configured provider. Source identity and provenance come
-from the caller. Extraction does not infer dependency signals. BRAID remains
+from the caller. Extraction does not infer dependency signals. The evaluator remains
 data-blind, and evaluation and the demo require no provider package or API key.
 
 ## Configure source-dependency estimation

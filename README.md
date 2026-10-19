@@ -145,7 +145,7 @@ Its support score depends on the reliability of the sources supporting it. In tu
 
 This definition seems circular, and it is. Nonetheless, it yields a well-defined notion of reliability that helps distinguish strongly supported context from weakly supported context.
 
-Omneum uses **BRAID**, its open-source algorithm, to compute these reliability and support scores. [Explore the algorithm and research →](https://github.com/cole-h06/braid)
+Omneum's production inference algorithm computes these reliability and support scores. [Explore the experiments and research →](https://github.com/cole-h06/omneum/tree/main/research)
 
 ## Where Omneum fits
 

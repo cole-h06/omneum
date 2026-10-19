@@ -1,17 +1,17 @@
-"""Historical research diagnostic; not used by the current BRAID estimator."""
+"""Historical research diagnostic; not used by the current Omneum estimator."""
 
 
 def build_matrix(rows):
 
     matrix = {}
 
-    for _, domain, upstream in rows:
+    for _, domain, owner in rows:
 
         matrix[domain] = {}
 
-        for _, other_domain, other_upstream in rows:
+        for _, other_domain, other_owner in rows:
 
-            if upstream == other_upstream:
+            if owner == other_owner:
                 matrix[domain][other_domain] = 1.0
             else:
                 matrix[domain][other_domain] = 0.0
