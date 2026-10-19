@@ -1,0 +1,1533 @@
+{
+  "chunks": [
+    {
+      "chunk_id": "returns_handbook#return_window",
+      "claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d"
+      ],
+      "observation_ids": [
+        "handbook-001"
+      ],
+      "resource_id": "returns_handbook",
+      "source_id": "handbook"
+    },
+    {
+      "chunk_id": "returns_handbook#warranty",
+      "claim_ids": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "observation_ids": [
+        "handbook-002"
+      ],
+      "resource_id": "returns_handbook",
+      "source_id": "handbook"
+    },
+    {
+      "chunk_id": "returns_handbook#shipping_fee",
+      "claim_ids": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d"
+      ],
+      "observation_ids": [
+        "handbook-003"
+      ],
+      "resource_id": "returns_handbook",
+      "source_id": "handbook"
+    },
+    {
+      "chunk_id": "returns_faq#policy",
+      "claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d",
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d"
+      ],
+      "observation_ids": [
+        "faq-001",
+        "faq-002",
+        "faq-003"
+      ],
+      "resource_id": "returns_faq",
+      "source_id": "faq"
+    },
+    {
+      "chunk_id": "northstar_policy_config#policy-001",
+      "claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d"
+      ],
+      "observation_ids": [
+        "sql-001"
+      ],
+      "resource_id": "northstar_policy_config",
+      "source_id": "sql"
+    },
+    {
+      "chunk_id": "northstar_policy_config#policy-002",
+      "claim_ids": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "observation_ids": [
+        "sql-002"
+      ],
+      "resource_id": "northstar_policy_config",
+      "source_id": "sql"
+    },
+    {
+      "chunk_id": "northstar_policy_config#policy-003",
+      "claim_ids": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d"
+      ],
+      "observation_ids": [
+        "sql-003"
+      ],
+      "resource_id": "northstar_policy_config",
+      "source_id": "sql"
+    },
+    {
+      "chunk_id": "vendor-policy-response-004#vendor-001",
+      "claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2231342064617973227d"
+      ],
+      "observation_ids": [
+        "vendor-001"
+      ],
+      "resource_id": "vendor-policy-response-004",
+      "source_id": "vendor"
+    },
+    {
+      "chunk_id": "vendor-policy-response-004#vendor-002",
+      "claim_ids": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22312079656172227d"
+      ],
+      "observation_ids": [
+        "vendor-002"
+      ],
+      "resource_id": "vendor-policy-response-004",
+      "source_id": "vendor"
+    },
+    {
+      "chunk_id": "vendor-policy-response-004#vendor-003",
+      "claim_ids": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d"
+      ],
+      "observation_ids": [
+        "vendor-003"
+      ],
+      "resource_id": "vendor-policy-response-004",
+      "source_id": "vendor"
+    }
+  ],
+  "claims": {
+    "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2231342064617973227d": {
+      "agreement_weight": 0.3450252951096121,
+      "attribute": "return_window",
+      "conflicting_claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d"
+      ],
+      "dependency_signal_coverage": null,
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "estimated_independent_support_count": 1.0,
+      "support": 0.009344105005525403,
+      "supporting_sources": [
+        {
+          "contribution": 0.009344105005525403,
+          "independence": 1.0,
+          "source_id": "vendor"
+        }
+      ],
+      "value": "14 days"
+    },
+    "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d": {
+      "agreement_weight": 0.6549747048903878,
+      "attribute": "return_window",
+      "conflicting_claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2231342064617973227d"
+      ],
+      "dependency_signal_coverage": 0.85,
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "estimated_independent_support_count": 1.898338220918866,
+      "support": 0.0967100108176641,
+      "supporting_sources": [
+        {
+          "contribution": 0.04802500825863437,
+          "independence": 0.9090909090909091,
+          "source_id": "faq"
+        },
+        {
+          "contribution": 0.017609169694832602,
+          "independence": 0.3333333333333333,
+          "source_id": "sql"
+        },
+        {
+          "contribution": 0.017041131962741228,
+          "independence": 0.3225806451612903,
+          "source_id": "handbook"
+        },
+        {
+          "contribution": 0.014034700901455895,
+          "independence": 0.3333333333333333,
+          "source_id": "research"
+        }
+      ],
+      "value": "30 days"
+    },
+    "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d": {
+      "agreement_weight": 0.3465866466616654,
+      "attribute": "shipping_fee",
+      "conflicting_claim_ids": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d"
+      ],
+      "dependency_signal_coverage": 0.8500000000000001,
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "estimated_independent_support_count": 1.0,
+      "support": 0.015833106002880824,
+      "supporting_sources": [
+        {
+          "contribution": 0.01113991094468854,
+          "independence": 0.5,
+          "source_id": "research"
+        },
+        {
+          "contribution": 0.004693195058192284,
+          "independence": 0.5,
+          "source_id": "vendor"
+        }
+      ],
+      "value": "USD 5"
+    },
+    "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d": {
+      "agreement_weight": 0.6534133533383345,
+      "attribute": "shipping_fee",
+      "conflicting_claim_ids": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d"
+      ],
+      "dependency_signal_coverage": 0.8500000000000001,
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "estimated_independent_support_count": 1.8852813852813852,
+      "support": 0.09935730214079751,
+      "supporting_sources": [
+        {
+          "contribution": 0.04791052456846722,
+          "independence": 0.9090909090909091,
+          "source_id": "faq"
+        },
+        {
+          "contribution": 0.026350788512656972,
+          "independence": 0.5,
+          "source_id": "sql"
+        },
+        {
+          "contribution": 0.025095989059673307,
+          "independence": 0.47619047619047616,
+          "source_id": "handbook"
+        }
+      ],
+      "value": "customer pays"
+    },
+    "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22312079656172227d": {
+      "agreement_weight": 0.3450252951096121,
+      "attribute": "warranty",
+      "conflicting_claim_ids": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "dependency_signal_coverage": null,
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "estimated_independent_support_count": 1.0,
+      "support": 0.009344105005525403,
+      "supporting_sources": [
+        {
+          "contribution": 0.009344105005525403,
+          "independence": 1.0,
+          "source_id": "vendor"
+        }
+      ],
+      "value": "1 year"
+    },
+    "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d": {
+      "agreement_weight": 0.6549747048903878,
+      "attribute": "warranty",
+      "conflicting_claim_ids": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22312079656172227d"
+      ],
+      "dependency_signal_coverage": 0.85,
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "estimated_independent_support_count": 1.898338220918866,
+      "support": 0.0967100108176641,
+      "supporting_sources": [
+        {
+          "contribution": 0.04802500825863437,
+          "independence": 0.9090909090909091,
+          "source_id": "faq"
+        },
+        {
+          "contribution": 0.017609169694832602,
+          "independence": 0.3333333333333333,
+          "source_id": "sql"
+        },
+        {
+          "contribution": 0.017041131962741228,
+          "independence": 0.3225806451612903,
+          "source_id": "handbook"
+        },
+        {
+          "contribution": 0.014034700901455895,
+          "independence": 0.3333333333333333,
+          "source_id": "research"
+        }
+      ],
+      "value": "2 years"
+    }
+  },
+  "code_sha256": {
+    "omneum/dependency.py": "49360efbbc551254eda717867de63df96ebcd5759e9afa22e58f93db0f143954",
+    "omneum/engine_graph.py": "f1c94393dfc05f8283d39afc0e2abed4de1331f3da31dfa2616fccb7c9807d6e",
+    "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+    "research/braid/adapters/observations.py": "c660fd7a047897172bb64b5392c999e74531b9b75e52b71774a2b7cd90e04ef6",
+    "research/braid/experiments/applied/agent_dataset/context_selection.py": "e0beeba62f98841ddffa48750b229daaa49879c619d998523afe744356581d0d",
+    "research/braid/experiments/applied/agent_dataset/dataset.py": "0ac1754168084af9b26d30c155fa025a5e48f6ae52a7bbb35721e918056abbda",
+    "research/braid/experiments/applied/agent_dataset/enterprise/agents.py": "e474fdf41f430336b1bb811852925fde380130a8b53a73fee03fb4cff6062caf",
+    "research/braid/experiments/applied/agent_dataset/enterprise/context_selection.py": "4720031eb5cf3dbbbf372ed22f47339b1b6f486dd3f1f26824e610aaa78d666e",
+    "research/braid/experiments/applied/agent_dataset/enterprise/data.py": "52af1fdccf43580bb108925fa10de8d916b4a7321c9f35e01e706e7f9ec925cd",
+    "research/braid/experiments/applied/agent_dataset/enterprise/retrieve.py": "dc16b8afa160c8fd786aaa219e2fe93619a19fa78fb8f6432b4fa97510d22e0e",
+    "research/braid/experiments/applied/agent_dataset/enterprise/workflow.py": "ba74aded221234040d7ede2108dfb5325830e3c7e78dc5740acf3f39351b3cf3",
+    "research/braid/experiments/applied/agent_dataset/extraction/schema.py": "7d5e0db00208ea5d82aa683732984c9132d0321ded439f67867dca41b601f4e7",
+    "research/braid/experiments/applied/agent_dataset/workflow/pipeline.py": "7515d79074109b3e7b94013f912d790d44b9dfc92d97d1ff50f24a1dbe8c5287",
+    "uv.lock": "74bc569b85a7e85ce8c2787c931d876dc7af554058c453f438552a38454b3e80"
+  },
+  "configuration": {
+    "chunking": "handbook_sections_faq_body_sql_rows_vendor_facts_v1",
+    "claim_identity": "production canonical serialization in hexadecimal",
+    "estimator": {
+      "assertion_lineage_weight": 0.2,
+      "citation_weight": 0.2,
+      "dependency_cluster_threshold": null,
+      "estimator_version": "dependency-estimator-v4",
+      "graph_weight": 0.15,
+      "ownership_weight": 0.1,
+      "retrieval_weight": 0.0,
+      "temporal_weight": 0.1,
+      "temporal_window_seconds": 7200.0,
+      "upstream_weight": 0.25
+    },
+    "experiment": "enterprise_chunk_selection_v1",
+    "langgraph": "1.2.11",
+    "python": "3.13.15",
+    "ranking": {
+      "coverage_support": "sum of support of previously uncovered claims; stop at zero gain",
+      "max_support": "maximum support of distinct mapped claims",
+      "mean_support": "mean support of distinct mapped claims",
+      "retrieval": "first fitting chunk in retrieval order"
+    },
+    "reconstruction_order": "retrieval order",
+    "tie_break": "retrieval order",
+    "token_budget": 100,
+    "token_counter": {
+      "name": "unicode_regex_v1",
+      "pattern": "\\w+|[^\\w\\s]"
+    },
+    "token_scope": "reconstructed context including chunk headers"
+  },
+  "convergence": {
+    "algorithm_version": "omneum-v2",
+    "converged": true,
+    "convergence_delta": 2.0143866574784397e-09,
+    "convergence_tolerance": 1e-08,
+    "iterations": 12
+  },
+  "dependencies": [
+    {
+      "dependency": 0.0,
+      "evidence": {
+        "matching_claim_count": 0,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": false,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": false,
+        "temporal": 0.0,
+        "temporal_observable": false,
+        "upstream": 0.0,
+        "upstream_observable": true
+      },
+      "source_a": "vendor",
+      "source_b": "handbook",
+      "weighted_signal_coverage": 0.75
+    },
+    {
+      "dependency": 0.0,
+      "evidence": {
+        "matching_claim_count": 0,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": false,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": false,
+        "temporal": 0.0,
+        "temporal_observable": false,
+        "upstream": 0.0,
+        "upstream_observable": true
+      },
+      "source_a": "vendor",
+      "source_b": "faq",
+      "weighted_signal_coverage": 0.75
+    },
+    {
+      "dependency": 1.0,
+      "evidence": {
+        "matching_claim_count": 1,
+        "qualifying_time_deltas_seconds": [
+          240.0
+        ],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": true,
+        "source_b_cites_source_a": true,
+        "source_b_parent_count": 1,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 1.0,
+        "assertion_lineage_observable": true,
+        "citation": 1.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": true,
+        "temporal": 0.9666666666666667,
+        "temporal_observable": true,
+        "upstream": 1.0,
+        "upstream_observable": true
+      },
+      "source_a": "vendor",
+      "source_b": "research",
+      "weighted_signal_coverage": 0.8500000000000001
+    },
+    {
+      "dependency": 0.0,
+      "evidence": {
+        "matching_claim_count": 0,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": false,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": false,
+        "temporal": 0.0,
+        "temporal_observable": false,
+        "upstream": 0.0,
+        "upstream_observable": true
+      },
+      "source_a": "vendor",
+      "source_b": "sql",
+      "weighted_signal_coverage": 0.75
+    },
+    {
+      "dependency": 0.1,
+      "evidence": {
+        "matching_claim_count": 3,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": true,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": false,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 1.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": true,
+        "temporal": 0.0,
+        "temporal_observable": true,
+        "upstream": 0.0,
+        "upstream_observable": true
+      },
+      "source_a": "handbook",
+      "source_b": "faq",
+      "weighted_signal_coverage": 0.8500000000000001
+    },
+    {
+      "dependency": 1.0,
+      "evidence": {
+        "matching_claim_count": 2,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": true,
+        "source_b_cites_source_a": true,
+        "source_b_parent_count": 2,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 1.0,
+        "assertion_lineage_observable": true,
+        "citation": 1.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": true,
+        "temporal": 0.0,
+        "temporal_observable": true,
+        "upstream": 1.0,
+        "upstream_observable": true
+      },
+      "source_a": "handbook",
+      "source_b": "research",
+      "weighted_signal_coverage": 0.8500000000000001
+    },
+    {
+      "dependency": 1.0,
+      "evidence": {
+        "matching_claim_count": 3,
+        "qualifying_time_deltas_seconds": [
+          1800.0,
+          1800.0,
+          1800.0
+        ],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": true,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": true,
+        "temporal": 0.75,
+        "temporal_observable": true,
+        "upstream": 1.0,
+        "upstream_observable": true
+      },
+      "source_a": "handbook",
+      "source_b": "sql",
+      "weighted_signal_coverage": 0.8500000000000001
+    },
+    {
+      "dependency": 0.0,
+      "evidence": {
+        "matching_claim_count": 2,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": false,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": true,
+        "temporal": 0.0,
+        "temporal_observable": true,
+        "upstream": 0.0,
+        "upstream_observable": true
+      },
+      "source_a": "faq",
+      "source_b": "research",
+      "weighted_signal_coverage": 0.8500000000000001
+    },
+    {
+      "dependency": 0.0,
+      "evidence": {
+        "matching_claim_count": 3,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": false,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": true,
+        "temporal": 0.0,
+        "temporal_observable": true,
+        "upstream": 0.0,
+        "upstream_observable": true
+      },
+      "source_a": "faq",
+      "source_b": "sql",
+      "weighted_signal_coverage": 0.8500000000000001
+    },
+    {
+      "dependency": 1.0,
+      "evidence": {
+        "matching_claim_count": 2,
+        "qualifying_time_deltas_seconds": [],
+        "same_owner": false,
+        "source_a_cites_source_b": false,
+        "source_a_parent_count": 0,
+        "source_a_upstream_of_source_b": false,
+        "source_b_cites_source_a": false,
+        "source_b_parent_count": 0,
+        "source_b_upstream_of_source_a": false
+      },
+      "signals": {
+        "assertion_lineage": 0.0,
+        "assertion_lineage_observable": true,
+        "citation": 0.0,
+        "citation_observable": true,
+        "graph": 0.0,
+        "graph_observable": false,
+        "ownership": 0.0,
+        "ownership_observable": true,
+        "retrieval": 0.0,
+        "retrieval_observable": true,
+        "temporal": 0.0,
+        "temporal_observable": true,
+        "upstream": 1.0,
+        "upstream_observable": true
+      },
+      "source_a": "research",
+      "source_b": "sql",
+      "weighted_signal_coverage": 0.8500000000000001
+    }
+  ],
+  "fixture_sha256": {
+    "company.sql": "bf3dde35cd11df45830e5a841326c11784df0a6f5d5717470e6a6aaa517f3a13",
+    "docs/faq.md": "032bab4df4f48849db9cc053476a024a78412e6e5abeb8ec0da69b5cb60b8e87",
+    "docs/handbook.md": "027c08f84353673305400b3274157f7139cc61fdf71294a30ec0cdb93ca300fa",
+    "manifest.json": "fe238f723f2053859687e2ab4443d4748cf63f10cd6660d08dece3a22f0a2389",
+    "relationships.json": "659796bbd57c930e9ffa55e168646eeb6e780ab71bca69b6e0675e61cc46f732",
+    "vendor.json": "a49874f80fd5c16eb5ccd76f7460a981d753ea79bdf1a1bedb0cbd33380f82dd"
+  },
+  "mapping": {
+    "chunk_claims": {
+      "northstar_policy_config#policy-001": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d"
+      ],
+      "northstar_policy_config#policy-002": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "northstar_policy_config#policy-003": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d"
+      ],
+      "returns_faq#policy": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "returns_handbook#return_window": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d"
+      ],
+      "returns_handbook#shipping_fee": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d"
+      ],
+      "returns_handbook#warranty": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "vendor-policy-response-004#vendor-001": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2231342064617973227d"
+      ],
+      "vendor-policy-response-004#vendor-002": [
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22312079656172227d"
+      ],
+      "vendor-policy-response-004#vendor-003": [
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d"
+      ]
+    },
+    "chunk_text": {
+      "northstar_policy_config#policy-001": "{\"attribute\": \"return_window\", \"record_id\": \"policy-001\", \"source_modified_at\": \"2026-02-02T09:30:00Z\", \"upstream_source_id\": \"handbook\", \"value\": \"30 days\"}",
+      "northstar_policy_config#policy-002": "{\"attribute\": \"warranty\", \"record_id\": \"policy-002\", \"source_modified_at\": \"2026-02-02T09:30:00Z\", \"upstream_source_id\": \"handbook\", \"value\": \"2 years\"}",
+      "northstar_policy_config#policy-003": "{\"attribute\": \"shipping_fee\", \"record_id\": \"policy-003\", \"source_modified_at\": \"2026-02-02T09:30:00Z\", \"upstream_source_id\": \"handbook\", \"value\": \"customer pays\"}",
+      "returns_faq#policy": "## return_window\n30 days\n\n## warranty\n2 years\n\n## shipping_fee\ncustomer pays",
+      "returns_handbook#return_window": "## return_window\n30 days",
+      "returns_handbook#shipping_fee": "## shipping_fee\ncustomer pays",
+      "returns_handbook#warranty": "## warranty\n2 years",
+      "vendor-policy-response-004#vendor-001": "{\"attribute\": \"return_window\", \"record_id\": \"vendor-001\", \"value\": \"14 days\"}",
+      "vendor-policy-response-004#vendor-002": "{\"attribute\": \"warranty\", \"record_id\": \"vendor-002\", \"value\": \"1 year\"}",
+      "vendor-policy-response-004#vendor-003": "{\"attribute\": \"shipping_fee\", \"record_id\": \"vendor-003\", \"value\": \"USD 5\"}"
+    },
+    "claim_chunks": {
+      "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2231342064617973227d": [
+        "vendor-policy-response-004#vendor-001"
+      ],
+      "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d": [
+        "returns_handbook#return_window",
+        "returns_faq#policy",
+        "northstar_policy_config#policy-001"
+      ],
+      "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d": [
+        "vendor-policy-response-004#vendor-003"
+      ],
+      "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d": [
+        "returns_handbook#shipping_fee",
+        "returns_faq#policy",
+        "northstar_policy_config#policy-003"
+      ],
+      "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22312079656172227d": [
+        "vendor-policy-response-004#vendor-002"
+      ],
+      "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d": [
+        "returns_handbook#warranty",
+        "returns_faq#policy",
+        "northstar_policy_config#policy-002"
+      ]
+    },
+    "retrieval_order": [
+      "returns_handbook#return_window",
+      "returns_handbook#warranty",
+      "returns_handbook#shipping_fee",
+      "returns_faq#policy",
+      "northstar_policy_config#policy-001",
+      "northstar_policy_config#policy-002",
+      "northstar_policy_config#policy-003",
+      "vendor-policy-response-004#vendor-001",
+      "vendor-policy-response-004#vendor-002",
+      "vendor-policy-response-004#vendor-003"
+    ]
+  },
+  "observation_claim_ids": {
+    "faq-001": "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+    "faq-002": "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d",
+    "faq-003": "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+    "handbook-001": "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+    "handbook-002": "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d",
+    "handbook-003": "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+    "research-001": "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+    "research-002": "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d",
+    "research-003": "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d",
+    "sql-001": "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+    "sql-002": "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d",
+    "sql-003": "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+    "vendor-001": "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2231342064617973227d",
+    "vendor-002": "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22312079656172227d",
+    "vendor-003": "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d"
+  },
+  "observations": [
+    {
+      "assertion_id": "handbook-001",
+      "attribute": "return_window",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "chunk_id": "returns_handbook#return_window",
+            "document_id": "returns_handbook",
+            "document_sha256": "027c08f84353673305400b3274157f7139cc61fdf71294a30ec0cdb93ca300fa",
+            "path": "fixtures/docs/handbook.md",
+            "policy_release_id": "northstar_returns_2026_q1",
+            "sha256": "2c0362009a0524fedac248225e7f6d0a0ee5eb3958cbf0d92c29c58ac9092217"
+          },
+          "kind": "document",
+          "resource_id": "returns_handbook",
+          "retrieval_id": "handbook-retrieval-001",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "handbook",
+      "source_modified_at": "2026-02-02T09:00:00Z",
+      "upstream_source_ids": [],
+      "value": "30 days"
+    },
+    {
+      "assertion_id": "handbook-002",
+      "attribute": "warranty",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "chunk_id": "returns_handbook#warranty",
+            "document_id": "returns_handbook",
+            "document_sha256": "027c08f84353673305400b3274157f7139cc61fdf71294a30ec0cdb93ca300fa",
+            "path": "fixtures/docs/handbook.md",
+            "policy_release_id": "northstar_returns_2026_q1",
+            "sha256": "4c53ac216f2299157f3c9bf4a9b353482220fc886c14f75354a8d8871c9892c3"
+          },
+          "kind": "document",
+          "resource_id": "returns_handbook",
+          "retrieval_id": "handbook-retrieval-002",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "handbook",
+      "source_modified_at": "2026-02-02T09:00:00Z",
+      "upstream_source_ids": [],
+      "value": "2 years"
+    },
+    {
+      "assertion_id": "handbook-003",
+      "attribute": "shipping_fee",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "chunk_id": "returns_handbook#shipping_fee",
+            "document_id": "returns_handbook",
+            "document_sha256": "027c08f84353673305400b3274157f7139cc61fdf71294a30ec0cdb93ca300fa",
+            "path": "fixtures/docs/handbook.md",
+            "policy_release_id": "northstar_returns_2026_q1",
+            "sha256": "b5e7fd26e2294f595add3bef106049613cdee2ff24d7721095ec02e5defb5962"
+          },
+          "kind": "document",
+          "resource_id": "returns_handbook",
+          "retrieval_id": "handbook-retrieval-003",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "handbook",
+      "source_modified_at": "2026-02-02T09:00:00Z",
+      "upstream_source_ids": [],
+      "value": "customer pays"
+    },
+    {
+      "assertion_id": "faq-001",
+      "attribute": "return_window",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "chunk_id": "returns_faq#return_window",
+            "document_id": "returns_faq",
+            "document_sha256": "032bab4df4f48849db9cc053476a024a78412e6e5abeb8ec0da69b5cb60b8e87",
+            "path": "fixtures/docs/faq.md",
+            "policy_release_id": "northstar_returns_2026_q1",
+            "sha256": "2c0362009a0524fedac248225e7f6d0a0ee5eb3958cbf0d92c29c58ac9092217"
+          },
+          "kind": "document",
+          "resource_id": "returns_faq",
+          "retrieval_id": "faq-retrieval-001",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "faq",
+      "source_modified_at": "2026-02-03T09:00:00Z",
+      "upstream_source_ids": [],
+      "value": "30 days"
+    },
+    {
+      "assertion_id": "faq-002",
+      "attribute": "warranty",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "chunk_id": "returns_faq#warranty",
+            "document_id": "returns_faq",
+            "document_sha256": "032bab4df4f48849db9cc053476a024a78412e6e5abeb8ec0da69b5cb60b8e87",
+            "path": "fixtures/docs/faq.md",
+            "policy_release_id": "northstar_returns_2026_q1",
+            "sha256": "4c53ac216f2299157f3c9bf4a9b353482220fc886c14f75354a8d8871c9892c3"
+          },
+          "kind": "document",
+          "resource_id": "returns_faq",
+          "retrieval_id": "faq-retrieval-002",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "faq",
+      "source_modified_at": "2026-02-03T09:00:00Z",
+      "upstream_source_ids": [],
+      "value": "2 years"
+    },
+    {
+      "assertion_id": "faq-003",
+      "attribute": "shipping_fee",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "chunk_id": "returns_faq#shipping_fee",
+            "document_id": "returns_faq",
+            "document_sha256": "032bab4df4f48849db9cc053476a024a78412e6e5abeb8ec0da69b5cb60b8e87",
+            "path": "fixtures/docs/faq.md",
+            "policy_release_id": "northstar_returns_2026_q1",
+            "sha256": "b5e7fd26e2294f595add3bef106049613cdee2ff24d7721095ec02e5defb5962"
+          },
+          "kind": "document",
+          "resource_id": "returns_faq",
+          "retrieval_id": "faq-retrieval-003",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "faq",
+      "source_modified_at": "2026-02-03T09:00:00Z",
+      "upstream_source_ids": [],
+      "value": "customer pays"
+    },
+    {
+      "assertion_id": "sql-001",
+      "attribute": "return_window",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "database_id": "northstar_policy_config",
+            "query_id": "returns_policy_by_record",
+            "query_sha256": "60d602e1054e1a70723d0f6cf3c9bf4bee5e66a114310abf0b6ed026d3a08203",
+            "record_id": "policy-001",
+            "table": "policy_config"
+          },
+          "kind": "sql",
+          "resource_id": "northstar_policy_config",
+          "retrieval_id": "sql-retrieval-001",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "sql",
+      "source_modified_at": "2026-02-02T09:30:00Z",
+      "upstream_source_ids": [
+        "handbook"
+      ],
+      "value": "30 days"
+    },
+    {
+      "assertion_id": "sql-002",
+      "attribute": "warranty",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "database_id": "northstar_policy_config",
+            "query_id": "returns_policy_by_record",
+            "query_sha256": "60d602e1054e1a70723d0f6cf3c9bf4bee5e66a114310abf0b6ed026d3a08203",
+            "record_id": "policy-002",
+            "table": "policy_config"
+          },
+          "kind": "sql",
+          "resource_id": "northstar_policy_config",
+          "retrieval_id": "sql-retrieval-002",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "sql",
+      "source_modified_at": "2026-02-02T09:30:00Z",
+      "upstream_source_ids": [
+        "handbook"
+      ],
+      "value": "2 years"
+    },
+    {
+      "assertion_id": "sql-003",
+      "attribute": "shipping_fee",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "database_id": "northstar_policy_config",
+            "query_id": "returns_policy_by_record",
+            "query_sha256": "60d602e1054e1a70723d0f6cf3c9bf4bee5e66a114310abf0b6ed026d3a08203",
+            "record_id": "policy-003",
+            "table": "policy_config"
+          },
+          "kind": "sql",
+          "resource_id": "northstar_policy_config",
+          "retrieval_id": "sql-retrieval-003",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "sql",
+      "source_modified_at": "2026-02-02T09:30:00Z",
+      "upstream_source_ids": [
+        "handbook"
+      ],
+      "value": "customer pays"
+    },
+    {
+      "assertion_id": "vendor-001",
+      "attribute": "return_window",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "endpoint": "https://returns.vendor.example/v1/policy",
+            "record_id": "vendor-001",
+            "response_id": "vendor-policy-response-004",
+            "sha256": "a49874f80fd5c16eb5ccd76f7460a981d753ea79bdf1a1bedb0cbd33380f82dd",
+            "snapshot_path": "fixtures/vendor.json"
+          },
+          "kind": "api",
+          "resource_id": "vendor-policy-response-004",
+          "retrieval_id": "vendor-retrieval-001",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "vendor",
+      "source_modified_at": "2026-02-05T12:00:00Z",
+      "upstream_source_ids": [],
+      "value": "14 days"
+    },
+    {
+      "assertion_id": "vendor-002",
+      "attribute": "warranty",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "endpoint": "https://returns.vendor.example/v1/policy",
+            "record_id": "vendor-002",
+            "response_id": "vendor-policy-response-004",
+            "sha256": "a49874f80fd5c16eb5ccd76f7460a981d753ea79bdf1a1bedb0cbd33380f82dd",
+            "snapshot_path": "fixtures/vendor.json"
+          },
+          "kind": "api",
+          "resource_id": "vendor-policy-response-004",
+          "retrieval_id": "vendor-retrieval-002",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "vendor",
+      "source_modified_at": "2026-02-05T12:00:00Z",
+      "upstream_source_ids": [],
+      "value": "1 year"
+    },
+    {
+      "assertion_id": "vendor-003",
+      "attribute": "shipping_fee",
+      "cited_source_ids": [],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [],
+      "retrievals": [
+        {
+          "fields": {
+            "endpoint": "https://returns.vendor.example/v1/policy",
+            "record_id": "vendor-003",
+            "response_id": "vendor-policy-response-004",
+            "sha256": "a49874f80fd5c16eb5ccd76f7460a981d753ea79bdf1a1bedb0cbd33380f82dd",
+            "snapshot_path": "fixtures/vendor.json"
+          },
+          "kind": "api",
+          "resource_id": "vendor-policy-response-004",
+          "retrieval_id": "vendor-retrieval-003",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "vendor",
+      "source_modified_at": "2026-02-05T12:00:00Z",
+      "upstream_source_ids": [],
+      "value": "USD 5"
+    },
+    {
+      "assertion_id": "research-001",
+      "attribute": "return_window",
+      "cited_source_ids": [
+        "handbook"
+      ],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [
+        "handbook-001"
+      ],
+      "retrievals": [
+        {
+          "fields": {
+            "input_assertion_id": "handbook-001",
+            "input_source_id": "handbook"
+          },
+          "kind": "aggregation",
+          "resource_id": "handbook-001",
+          "retrieval_id": "research-retrieval-001",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "research",
+      "source_modified_at": "2026-02-05T12:04:00Z",
+      "upstream_source_ids": [
+        "handbook"
+      ],
+      "value": "30 days"
+    },
+    {
+      "assertion_id": "research-002",
+      "attribute": "warranty",
+      "cited_source_ids": [
+        "handbook"
+      ],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [
+        "handbook-002"
+      ],
+      "retrievals": [
+        {
+          "fields": {
+            "input_assertion_id": "handbook-002",
+            "input_source_id": "handbook"
+          },
+          "kind": "aggregation",
+          "resource_id": "handbook-002",
+          "retrieval_id": "research-retrieval-002",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "research",
+      "source_modified_at": "2026-02-05T12:04:00Z",
+      "upstream_source_ids": [
+        "handbook"
+      ],
+      "value": "2 years"
+    },
+    {
+      "assertion_id": "research-003",
+      "attribute": "shipping_fee",
+      "cited_source_ids": [
+        "vendor"
+      ],
+      "dependency_signals": {},
+      "entity": "northstar_returns",
+      "entity_namespace": "agent_dataset",
+      "metadata": {},
+      "observed_at": "2026-02-05T12:05:00Z",
+      "parent_assertion_ids": [
+        "vendor-003"
+      ],
+      "retrievals": [
+        {
+          "fields": {
+            "input_assertion_id": "vendor-003",
+            "input_source_id": "vendor"
+          },
+          "kind": "aggregation",
+          "resource_id": "vendor-003",
+          "retrieval_id": "research-retrieval-003",
+          "retrieved_at": "2026-02-05T12:05:00Z"
+        }
+      ],
+      "source_id": "research",
+      "source_modified_at": "2026-02-05T12:04:00Z",
+      "upstream_source_ids": [
+        "vendor"
+      ],
+      "value": "USD 5"
+    }
+  ],
+  "selections": [
+    {
+      "candidate_scores": {
+        "northstar_policy_config#policy-001": 0.0,
+        "northstar_policy_config#policy-002": 0.0,
+        "northstar_policy_config#policy-003": 0.0,
+        "returns_faq#policy": 0.0,
+        "returns_handbook#return_window": 0.0,
+        "returns_handbook#shipping_fee": 0.0,
+        "returns_handbook#warranty": 0.0,
+        "vendor-policy-response-004#vendor-001": 0.0,
+        "vendor-policy-response-004#vendor-002": 0.0,
+        "vendor-policy-response-004#vendor-003": 0.0
+      },
+      "claim_coverage": {
+        "covered": 4,
+        "total": 6
+      },
+      "context": "[returns_handbook#return_window]\n## return_window\n30 days\n\n[returns_handbook#warranty]\n## warranty\n2 years\n\n[returns_handbook#shipping_fee]\n## shipping_fee\ncustomer pays\n\n[returns_faq#policy]\n## return_window\n30 days\n\n## warranty\n2 years\n\n## shipping_fee\ncustomer pays\n\n[vendor-policy-response-004#vendor-001]\n{\"attribute\": \"return_window\", \"record_id\": \"vendor-001\", \"value\": \"14 days\"}",
+      "covered_claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2231342064617973227d",
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "covered_support": 0.3021214287816511,
+      "selected_chunk_ids": [
+        "returns_handbook#return_window",
+        "returns_handbook#warranty",
+        "returns_handbook#shipping_fee",
+        "returns_faq#policy",
+        "vendor-policy-response-004#vendor-001"
+      ],
+      "selection_order": [
+        "returns_handbook#return_window",
+        "returns_handbook#warranty",
+        "returns_handbook#shipping_fee",
+        "returns_faq#policy",
+        "vendor-policy-response-004#vendor-001"
+      ],
+      "selection_scores": [
+        {
+          "chunk_id": "returns_handbook#return_window",
+          "score": 0.0
+        },
+        {
+          "chunk_id": "returns_handbook#warranty",
+          "score": 0.0
+        },
+        {
+          "chunk_id": "returns_handbook#shipping_fee",
+          "score": 0.0
+        },
+        {
+          "chunk_id": "returns_faq#policy",
+          "score": 0.0
+        },
+        {
+          "chunk_id": "vendor-policy-response-004#vendor-001",
+          "score": 0.0
+        }
+      ],
+      "strategy": "retrieval",
+      "token_usage": 91
+    },
+    {
+      "candidate_scores": {
+        "northstar_policy_config#policy-001": 0.0967100108176641,
+        "northstar_policy_config#policy-002": 0.0967100108176641,
+        "northstar_policy_config#policy-003": 0.09935730214079751,
+        "returns_faq#policy": 0.09935730214079751,
+        "returns_handbook#return_window": 0.0967100108176641,
+        "returns_handbook#shipping_fee": 0.09935730214079751,
+        "returns_handbook#warranty": 0.0967100108176641,
+        "vendor-policy-response-004#vendor-001": 0.009344105005525403,
+        "vendor-policy-response-004#vendor-002": 0.009344105005525403,
+        "vendor-policy-response-004#vendor-003": 0.015833106002880824
+      },
+      "claim_coverage": {
+        "covered": 3,
+        "total": 6
+      },
+      "context": "[returns_handbook#return_window]\n## return_window\n30 days\n\n[returns_handbook#shipping_fee]\n## shipping_fee\ncustomer pays\n\n[returns_faq#policy]\n## return_window\n30 days\n\n## warranty\n2 years\n\n## shipping_fee\ncustomer pays\n\n[northstar_policy_config#policy-003]\n{\"attribute\": \"shipping_fee\", \"record_id\": \"policy-003\", \"source_modified_at\": \"2026-02-02T09:30:00Z\", \"upstream_source_id\": \"handbook\", \"value\": \"customer pays\"}",
+      "covered_claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "covered_support": 0.2927773237761257,
+      "selected_chunk_ids": [
+        "returns_handbook#return_window",
+        "returns_handbook#shipping_fee",
+        "returns_faq#policy",
+        "northstar_policy_config#policy-003"
+      ],
+      "selection_order": [
+        "returns_handbook#shipping_fee",
+        "returns_faq#policy",
+        "northstar_policy_config#policy-003",
+        "returns_handbook#return_window"
+      ],
+      "selection_scores": [
+        {
+          "chunk_id": "returns_handbook#shipping_fee",
+          "score": 0.09935730214079751
+        },
+        {
+          "chunk_id": "returns_faq#policy",
+          "score": 0.09935730214079751
+        },
+        {
+          "chunk_id": "northstar_policy_config#policy-003",
+          "score": 0.09935730214079751
+        },
+        {
+          "chunk_id": "returns_handbook#return_window",
+          "score": 0.0967100108176641
+        }
+      ],
+      "strategy": "max_support",
+      "token_usage": 99
+    },
+    {
+      "candidate_scores": {
+        "northstar_policy_config#policy-001": 0.0967100108176641,
+        "northstar_policy_config#policy-002": 0.0967100108176641,
+        "northstar_policy_config#policy-003": 0.09935730214079751,
+        "returns_faq#policy": 0.09759244125870857,
+        "returns_handbook#return_window": 0.0967100108176641,
+        "returns_handbook#shipping_fee": 0.09935730214079751,
+        "returns_handbook#warranty": 0.0967100108176641,
+        "vendor-policy-response-004#vendor-001": 0.009344105005525403,
+        "vendor-policy-response-004#vendor-002": 0.009344105005525403,
+        "vendor-policy-response-004#vendor-003": 0.015833106002880824
+      },
+      "claim_coverage": {
+        "covered": 3,
+        "total": 6
+      },
+      "context": "[returns_handbook#return_window]\n## return_window\n30 days\n\n[returns_handbook#shipping_fee]\n## shipping_fee\ncustomer pays\n\n[returns_faq#policy]\n## return_window\n30 days\n\n## warranty\n2 years\n\n## shipping_fee\ncustomer pays\n\n[northstar_policy_config#policy-003]\n{\"attribute\": \"shipping_fee\", \"record_id\": \"policy-003\", \"source_modified_at\": \"2026-02-02T09:30:00Z\", \"upstream_source_id\": \"handbook\", \"value\": \"customer pays\"}",
+      "covered_claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "covered_support": 0.2927773237761257,
+      "selected_chunk_ids": [
+        "returns_handbook#return_window",
+        "returns_handbook#shipping_fee",
+        "returns_faq#policy",
+        "northstar_policy_config#policy-003"
+      ],
+      "selection_order": [
+        "returns_handbook#shipping_fee",
+        "northstar_policy_config#policy-003",
+        "returns_faq#policy",
+        "returns_handbook#return_window"
+      ],
+      "selection_scores": [
+        {
+          "chunk_id": "returns_handbook#shipping_fee",
+          "score": 0.09935730214079751
+        },
+        {
+          "chunk_id": "northstar_policy_config#policy-003",
+          "score": 0.09935730214079751
+        },
+        {
+          "chunk_id": "returns_faq#policy",
+          "score": 0.09759244125870857
+        },
+        {
+          "chunk_id": "returns_handbook#return_window",
+          "score": 0.0967100108176641
+        }
+      ],
+      "strategy": "mean_support",
+      "token_usage": 99
+    },
+    {
+      "candidate_scores": {
+        "northstar_policy_config#policy-001": 0.0967100108176641,
+        "northstar_policy_config#policy-002": 0.0967100108176641,
+        "northstar_policy_config#policy-003": 0.09935730214079751,
+        "returns_faq#policy": 0.2927773237761257,
+        "returns_handbook#return_window": 0.0967100108176641,
+        "returns_handbook#shipping_fee": 0.09935730214079751,
+        "returns_handbook#warranty": 0.0967100108176641,
+        "vendor-policy-response-004#vendor-001": 0.009344105005525403,
+        "vendor-policy-response-004#vendor-002": 0.009344105005525403,
+        "vendor-policy-response-004#vendor-003": 0.015833106002880824
+      },
+      "claim_coverage": {
+        "covered": 4,
+        "total": 6
+      },
+      "context": "[returns_faq#policy]\n## return_window\n30 days\n\n## warranty\n2 years\n\n## shipping_fee\ncustomer pays\n\n[vendor-policy-response-004#vendor-003]\n{\"attribute\": \"shipping_fee\", \"record_id\": \"vendor-003\", \"value\": \"USD 5\"}",
+      "covered_claim_ids": [
+        "7b22617474726962757465223a2272657475726e5f77696e646f77222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2233302064617973227d",
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a225553442035227d",
+        "7b22617474726962757465223a227368697070696e675f666565222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a22637573746f6d65722070617973227d",
+        "7b22617474726962757465223a2277617272616e7479222c22656e74697479223a226e6f727468737461725f72657475726e73222c22656e746974795f6e616d657370616365223a226167656e745f64617461736574222c2276616c7565223a2232207965617273227d"
+      ],
+      "covered_support": 0.30861042977900655,
+      "selected_chunk_ids": [
+        "returns_faq#policy",
+        "vendor-policy-response-004#vendor-003"
+      ],
+      "selection_order": [
+        "returns_faq#policy",
+        "vendor-policy-response-004#vendor-003"
+      ],
+      "selection_scores": [
+        {
+          "chunk_id": "returns_faq#policy",
+          "score": 0.2927773237761257
+        },
+        {
+          "chunk_id": "vendor-policy-response-004#vendor-003",
+          "score": 0.015833106002880824
+        }
+      ],
+      "strategy": "coverage_support",
+      "token_usage": 61
+    }
+  ],
+  "source_reliability": {
+    "faq": 0.24196740129073535,
+    "handbook": 0.24196740129073535,
+    "research": 0.19285066609441331,
+    "sql": 0.24196740129073535,
+    "vendor": 0.08124713003338072
+  },
+  "sources": [
+    {
+      "display_name": "Returns Handbook",
+      "identifier": "v1:57f5ab8e-a430-4be9-a7d0-5f12872d0a29:53165dc5-4a10-527a-82ad-fa2e7fc6c51b",
+      "kind": "internal_resource",
+      "owner_id": "northstar_policy",
+      "source_id": "handbook"
+    },
+    {
+      "display_name": "Returns FAQ",
+      "identifier": "v1:57f5ab8e-a430-4be9-a7d0-5f12872d0a29:56a74185-5bb4-56d9-a3b0-a134bc7a6b15",
+      "kind": "internal_resource",
+      "owner_id": "northstar_policy",
+      "source_id": "faq"
+    },
+    {
+      "display_name": "Policy Configuration",
+      "identifier": "v1:57f5ab8e-a430-4be9-a7d0-5f12872d0a29:a040a6b2-1961-5b6f-8e29-46c50a99e39a",
+      "kind": "internal_resource",
+      "owner_id": "northstar_ops",
+      "source_id": "sql"
+    },
+    {
+      "display_name": "Returns Vendor",
+      "identifier": "v1:57f5ab8e-a430-4be9-a7d0-5f12872d0a29:36e3bb1b-4d3b-59e4-8842-17ede4de3c3b",
+      "kind": "internal_resource",
+      "owner_id": "returns_vendor",
+      "source_id": "vendor"
+    },
+    {
+      "display_name": "Policy Research",
+      "identifier": "v1:57f5ab8e-a430-4be9-a7d0-5f12872d0a29:9e564e36-028e-50ef-9c04-6ae89c86b7a0",
+      "kind": "internal_resource",
+      "owner_id": "northstar_research",
+      "source_id": "research"
+    }
+  ]
+}

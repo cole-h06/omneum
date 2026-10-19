@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Cursor
+.cursor/
+
+# Environment variables
+.env
+
+
+paper/
+
+# Test and packaging output
+.pytest_cache/
+*.egg-info/
+build/
+dist/

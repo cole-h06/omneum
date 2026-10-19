@@ -1,0 +1,4 @@
+pydantic
+networkx
+pytest
+langgraph

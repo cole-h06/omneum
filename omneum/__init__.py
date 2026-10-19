@@ -47,6 +47,7 @@ from .observations import (
     retrieval,
 )
 from .records import evaluate, evaluate_records
+from .context_selection import reconstruct_context
 
 __version__ = "1.1.4"
 
@@ -90,6 +91,7 @@ __all__ = [
     "evaluate",
     "evaluate_context",
     "evaluate_records",
+    "reconstruct_context",
     "observe",
     "open_stdio_client",
     "reference",
