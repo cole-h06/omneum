@@ -248,6 +248,7 @@ now = datetime.now(timezone.utc)
 records = [
     {
         "id": "obs-1",
+        "raw_text": "Acme reported FY2025 gross revenue of $4.2 billion.",
         "url": "https://example.com/report-a",
         "value": 4_200_000_000,
         "upstream": ["https://example.com/filing"],
@@ -255,6 +256,7 @@ records = [
     },
     {
         "id": "obs-2",
+        "raw_text": "FY2025 gross revenue for Acme was $4.2 billion, per the filing.",
         "url": "https://example.org/report-b",
         "value": 4_200_000_000,
         "upstream": ["https://example.com/filing"],
@@ -262,6 +264,7 @@ records = [
     },
     {
         "id": "obs-3",
+        "raw_text": "Acme's FY2025 gross revenue totaled $4.2 billion.",
         "url": "https://example.net/report-c",
         "value": 4_200_000_000,
         "upstream": [],
@@ -311,6 +314,44 @@ Save both Python blocks in `evaluate_mcp.py`, then run:
 ```bash
 python evaluate_mcp.py
 ```
+
+To evaluate and select locally retained chunks in one operation, replace the
+`evaluate_mapped()` call with:
+
+```python
+from omneum import DependencyEstimatorConfig
+from omneum.context_selection import claim_id
+
+observations = mapper.map_many(records)
+chunks = [
+    {"chunk_id": record["id"], "raw_text": record["raw_text"],
+     "claim_ids": [claim_id(observation.claim)]}
+    for record, observation in zip(records, observations)
+]
+estimator = DependencyEstimatorConfig(
+    upstream_weight=1.0, citation_weight=0.0, assertion_lineage_weight=0.0,
+    ownership_weight=0.0, temporal_weight=0.0, graph_weight=0.0,
+    temporal_window_seconds=7200.0,
+)
+result = await client.evaluate_context_with_chunks(
+    observations, chunks, estimator=estimator, token_budget=200,
+    strategy="coverage_support",
+)
+evaluation = result["evaluation"]
+selected_chunks = result["chunks"]
+context = result["context"]
+```
+
+`evaluation` retains source reliability, claim support, and evaluation telemetry.
+`chunks` contains only selected `{chunk_id, score, raw_text}` records in descending
+utility order; `context` renders them in that same order. Raw text remains in
+client memory and is never included in the MCP request. The consuming agent
+assembles its own model request.
+
+The default budget counts Unicode words and punctuation, including chunk headers.
+Pass `count_tokens=your_token_counter` for model-specific accounting. Strategies
+are `retrieval`, `max_support`, `mean_support`, and `coverage_support`; coverage
+selection records marginal gains separately from final chunk utilities.
 
 ### 3. Evaluation results
 

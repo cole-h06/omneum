@@ -75,6 +75,7 @@ def test_package_exports() -> None:
         "extract_observations",
         "evaluate",
         "evaluate_context",
+        "reconstruct_context",
         "evaluate_records",
         "observe",
         "open_stdio_client",

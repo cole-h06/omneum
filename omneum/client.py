@@ -6,7 +6,7 @@ import asyncio
 import math
 import os
 import uuid
-from collections.abc import AsyncIterator, Sequence
+from collections.abc import AsyncIterator, Callable, Mapping, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field, replace
 from typing import Any, Literal, Protocol
@@ -1000,6 +1000,33 @@ class OmneumClient:
             observations,
             estimator=_UPSTREAM_ESTIMATOR if estimator is None else estimator,
         )
+
+    async def evaluate_context_with_chunks(
+        self,
+        observations: Sequence[Observation],
+        chunks: Sequence[Mapping[str, Any]],
+        *,
+        estimator: DependencyEstimatorConfig,
+        token_budget: int,
+        strategy: str = "coverage_support",
+        count_tokens: Callable[[str], int] | None = None,
+        exact_equivalences: Sequence[ExactEquivalence] = (),
+    ) -> dict[str, Any]:
+        from .context_selection import reconstruct_context, token_count
+
+        evaluation = await self.evaluate_context(
+            observations,
+            estimator=estimator,
+            exact_equivalences=exact_equivalences,
+        )
+        context = reconstruct_context(
+            evaluation,
+            chunks,
+            token_budget=token_budget,
+            strategy=strategy,
+            count_tokens=token_count if count_tokens is None else count_tokens,
+        )
+        return {"evaluation": evaluation, **context}
 
     async def evaluate_context(
         self,
