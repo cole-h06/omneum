@@ -166,10 +166,33 @@ def test_phase2_selection_regression():
 
     path = Path(__file__).resolve().parents[1] / "enterprise/results/context-selection-v1.json"
     recorded = json.loads(path.read_text())
-    current = run_experiment(recorded["configuration"]["token_budget"])
+    current = json.loads(json.dumps(run_experiment(recorded["configuration"]["token_budget"])))
     assert current["mapping"] == recorded["mapping"]
+    for field in ("claims", "source_reliability", "dependencies", "observations"):
+        assert current[field] == recorded[field]
     assert len(current["selections"]) == len(recorded["selections"])
     for actual, expected in zip(current["selections"], recorded["selections"]):
-        for key, value in expected.items():
-            assert actual[key] == value
+        for field in (
+            "strategy", "selection_order", "candidate_scores", "covered_claim_ids",
+            "claim_coverage", "covered_support", "token_usage",
+        ):
+            assert actual[field] == expected[field]
+        order = sorted(expected["selected_chunk_ids"], key=lambda value: -expected["candidate_scores"][value])
+        assert actual["selected_chunk_ids"] == order
+        assert actual["chunks"] == [
+            {
+                "chunk_id": identifier,
+                "score": expected["candidate_scores"][identifier],
+                "raw_text": recorded["mapping"]["chunk_text"][identifier],
+            }
+            for identifier in order
+        ]
+        assert actual["context"] == "\n\n".join(
+            f"[{identifier}]\n{recorded['mapping']['chunk_text'][identifier]}" for identifier in order
+        )
+        for actual_score, expected_score in zip(actual["selection_scores"], expected["selection_scores"]):
+            assert actual_score["chunk_id"] == expected_score["chunk_id"]
+            assert actual_score["score"] == expected_score["score"]
+            if actual["strategy"] == "coverage_support":
+                assert actual_score["marginal_gain"] == expected_score["score"]
         assert set(actual["mapping"]["chunk_text"]) == set(actual["selected_chunk_ids"])

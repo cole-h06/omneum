@@ -93,7 +93,7 @@ def run_experiment(token_budget=100):
                 "coverage_support": "sum of support of previously uncovered claims; stop at zero gain",
             },
             "tie_break": "retrieval order",
-            "reconstruction_order": "retrieval order",
+            "reconstruction_order": "descending chunk utility; ties in retrieval order",
             "estimator": asdict(estimator(DEPENDENCY_WEIGHTS)),
             "python": sys.version.split()[0],
             "langgraph": version("langgraph"),

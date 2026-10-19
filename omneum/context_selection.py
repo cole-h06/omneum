@@ -103,10 +103,14 @@ def select_chunks(mapping, support, token_budget, strategy, *, count_tokens=toke
         return sum(support[value] for value in claims if value not in covered)
 
     candidate_scores = {identifier: score(identifier) for identifier in remaining}
+    render_mapping = {
+        **mapping,
+        "retrieval_order": sorted(remaining, key=lambda identifier: -candidate_scores[identifier]),
+    }
     while remaining:
         fitting = [
             identifier for identifier in remaining
-            if usage(reconstruct(mapping, [*selected, identifier])) <= token_budget
+            if usage(reconstruct(render_mapping, [*selected, identifier])) <= token_budget
         ]
         if not fitting:
             break
@@ -116,17 +120,29 @@ def select_chunks(mapping, support, token_budget, strategy, *, count_tokens=toke
         if strategy == "coverage_support" and gain <= 0.0:
             break
         selected.append(identifier)
-        selection_scores.append({"chunk_id": identifier, "score": gain})
+        selection_score = {"chunk_id": identifier, "score": gain}
+        if strategy == "coverage_support":
+            selection_score["marginal_gain"] = gain
+        selection_scores.append(selection_score)
         covered.update(mapping["chunk_claims"][identifier])
         remaining.remove(identifier)
 
-    context = reconstruct(mapping, selected)
+    ordered = [identifier for identifier in render_mapping["retrieval_order"] if identifier in selected]
+    context = reconstruct(render_mapping, ordered)
     tokens = usage(context)
     if tokens > token_budget:
         raise ValueError("reconstructed context exceeds token budget")
     return {
+        "chunks": [
+            {
+                "chunk_id": identifier,
+                "score": candidate_scores[identifier],
+                "raw_text": mapping["chunk_text"][identifier],
+            }
+            for identifier in ordered
+        ],
         "strategy": strategy,
-        "selected_chunk_ids": [value for value in mapping["retrieval_order"] if value in selected],
+        "selected_chunk_ids": ordered,
         "selection_order": selected,
         "candidate_scores": candidate_scores,
         "selection_scores": selection_scores,

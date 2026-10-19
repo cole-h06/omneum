@@ -43,11 +43,57 @@ def test_existing_evaluation_stays_local(evaluated_chunks, monkeypatch):
     assert result["context"] == f"[chunk-0]\n{chunks[0]['raw_text']}"
     assert result["token_usage"] == budget
     assert result["selection_scores"][0]["score"] == evaluation.claim_support[0].support
+    assert result["chunks"] == [{
+        "chunk_id": "chunk-0",
+        "score": evaluation.claim_support[0].support,
+        "raw_text": chunks[0]["raw_text"],
+    }]
     assert result["mapping"]["chunk_text"] == {"chunk-0": chunks[0]["raw_text"]}
     assert result["mapping"]["chunk_claims"] == {"chunk-0": chunks[0]["claim_ids"]}
     assert result["mapping"]["claim_chunks"] == {chunks[0]["claim_ids"][0]: ["chunk-0"]}
     assert chunks[1]["raw_text"] not in json.dumps(result)
     assert chunks == before
+
+
+@pytest.mark.parametrize("strategy", STRATEGIES)
+def test_chunk_utility_order_and_original_text(evaluated_chunks, strategy):
+    evaluation, chunks = evaluated_chunks
+    chunks[0]["raw_text"] = " \t30 days\r\n"
+    chunks[1]["raw_text"] = "\n14 days 😀  "
+    result = reconstruct_context(evaluation, list(reversed(chunks)), token_budget=100, strategy=strategy)
+    expected = list(reversed(chunks)) if strategy == "retrieval" else chunks
+    assert result["selected_chunk_ids"] == [chunk["chunk_id"] for chunk in expected]
+    assert [chunk["chunk_id"] for chunk in result["chunks"]] == result["selected_chunk_ids"]
+    assert [chunk["raw_text"] for chunk in result["chunks"]] == [chunk["raw_text"] for chunk in expected]
+    scores = [chunk["score"] for chunk in result["chunks"]]
+    assert scores == sorted(scores, reverse=True)
+    assert result["context"] == "\n\n".join(
+        f"[{chunk['chunk_id']}]\n{chunk['raw_text']}" for chunk in result["chunks"]
+    )
+    assert result["token_usage"] == token_count(result["context"])
+
+
+def test_coverage_utility_and_marginal_gain():
+    evaluation = evaluate([
+        {
+            "url": "https://a.example",
+            "claim": {"entity_namespace": "research", "entity": "policy", "attribute": attribute},
+            "value": attribute,
+        }
+        for attribute in "abcdef"
+    ])
+    claims = {item.claim.attribute: claim_id(item.claim) for item in evaluation.claim_support}
+    chunks = [
+        {"chunk_id": identifier, "raw_text": identifier, "claim_ids": [claims[value] for value in attributes]}
+        for identifier, attributes in (("first", "abc"), ("second", "ad"), ("third", "e"), ("fourth", "abf"))
+    ]
+    result = reconstruct_context(evaluation, chunks, token_budget=100)
+    assert result["selection_order"] == ["first", "second", "third", "fourth"]
+    assert result["selected_chunk_ids"] == ["first", "fourth", "second", "third"]
+    assert [chunk["score"] for chunk in result["chunks"]] == pytest.approx([0.5, 0.5, 1 / 3, 1 / 6])
+    assert [item["marginal_gain"] for item in result["selection_scores"]] == pytest.approx([0.5, 1 / 6, 1 / 6, 1 / 6])
+    assert result["chunks"][1]["score"] > result["selection_scores"][3]["marginal_gain"]
+    assert result["context"] == "[first]\nfirst\n\n[fourth]\nfourth\n\n[second]\nsecond\n\n[third]\nthird"
 
 
 def test_conflicting_and_duplicate_claims(evaluated_chunks):
@@ -106,6 +152,7 @@ def test_empty_candidates(evaluated_chunks, strategy):
     evaluation, _ = evaluated_chunks
     result = reconstruct_context(evaluation, [], token_budget=0, strategy=strategy)
     assert result["selected_chunk_ids"] == []
+    assert result["chunks"] == []
     assert result["context"] == ""
     assert result["token_usage"] == 0
     assert result["claim_coverage"] == {"covered": 0, "total": 2}
@@ -145,6 +192,24 @@ def test_invalid_budget(evaluated_chunks, budget):
     evaluation, chunks = evaluated_chunks
     with pytest.raises(ValueError, match="nonnegative integer"):
         reconstruct_context(evaluation, chunks, token_budget=budget)
+
+
+@pytest.mark.parametrize("strategy", ["max_support", "mean_support", "coverage_support"])
+def test_budget_counts_utility_order(evaluated_chunks, strategy):
+    evaluation, chunks = evaluated_chunks
+    full = "\n\n".join(f"[{chunk['chunk_id']}]\n{chunk['raw_text']}" for chunk in chunks)
+
+    def count_tokens(text):
+        return token_count(text) + int(text.startswith("[chunk-0]"))
+
+    result = reconstruct_context(
+        evaluation, list(reversed(chunks)), token_budget=token_count(full),
+        strategy=strategy, count_tokens=count_tokens,
+    )
+    assert result["selected_chunk_ids"] == ["chunk-0"]
+    assert result["chunks"][0]["raw_text"] == chunks[0]["raw_text"]
+    assert result["token_usage"] == count_tokens(result["context"])
+    assert result["token_usage"] <= token_count(full)
 
 
 @pytest.mark.parametrize("count", [-1, 1.5, True])
