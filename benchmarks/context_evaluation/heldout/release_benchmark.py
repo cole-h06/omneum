@@ -155,7 +155,7 @@ async def run(args):
             'Cohere direct API USD/search pricing for rerank-v4.0-pro is not published; '
             'the complete paid run is blocked before any provider dispatch'
         )
-    ledger = SpendingLedger(args.ledger)
+    ledger = SpendingLedger(SPENDING_LEDGER)
     cases = base.discover_cases(base.CASES_DIR)[:args.limit]
     generator = base.LocalGenerator('qwen2.5:7b')
     count = lru_cache(maxsize=None)(generator.count)
@@ -175,7 +175,7 @@ async def run(args):
         'options': generator.options, 'tokenizer': generator.tokenizer_identity,
         'frozen_inputs': prior['frozen_inputs'], 'budgets': args.budgets, 'trials': args.trials,
         'cases': [c.case_id for _, _, c, _ in cases], 'models': MODELS,
-        'spending': {'ledger': str(args.ledger), 'estimated_cap_usd': 30.0,
+        'spending': {'ledger': str(SPENDING_LEDGER), 'estimated_cap_usd': 30.0,
                      'cohere_price_usd_per_search': COHERE_USD_PER_SEARCH,
                      'retry_policy': 'no provider SDK retries; uncertain calls remain reserved'},
         'production_matches_reference': reference_matches,
@@ -419,7 +419,6 @@ if __name__ == '__main__':
     parser.add_argument('--reuse', nargs='+', type=Path, default=[NATIVE,
         base.RESULTS_DIR / 'relevance-gate-v1', base.RESULTS_DIR / 'query-expansion-v2',
         base.RESULTS_DIR / 'prepare-context-v1', base.RESULTS_DIR / 'retriever-native-bge-matched-v1'])
-    parser.add_argument('--ledger', type=Path, default=SPENDING_LEDGER)
     args = parser.parse_args()
     args.command = ' '.join(sys.argv)
     asyncio.run(recheck(args) if args.recheck_from else run(args))

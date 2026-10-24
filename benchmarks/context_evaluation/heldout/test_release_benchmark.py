@@ -88,11 +88,13 @@ def test_cohere_search_unit_preflight_is_conservative():
 def test_full_paid_run_stops_before_output_or_provider_dispatch(monkeypatch, tmp_path):
     import asyncio
 
-    args = SimpleNamespace(output=tmp_path / 'must-not-exist', ledger=tmp_path / 'ledger.sqlite3')
+    ledger = tmp_path / 'ledger.sqlite3'
+    monkeypatch.setattr(release, 'SPENDING_LEDGER', ledger)
+    args = SimpleNamespace(output=tmp_path / 'must-not-exist')
     with pytest.raises(release.UnpricedProviderError, match='Cohere direct API'):
         asyncio.run(release.run(args))
     assert not args.output.exists()
-    assert not args.ledger.exists()
+    assert not ledger.exists()
 
 
 def test_evaluation_inventory_and_provider_configuration_are_frozen():
