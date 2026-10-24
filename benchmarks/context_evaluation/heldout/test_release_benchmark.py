@@ -85,6 +85,15 @@ def test_cohere_search_unit_preflight_is_conservative():
         release.cohere_search_units('q', [{'raw_text': 'x' * 500}])
 
 
+def test_full_cohere_request_inventory_is_checked_before_dispatch():
+    cases = base.discover_cases(base.CASES_DIR)
+    inventory = release.preflight_cohere(cases)
+    assert len(inventory) == 24
+    assert sum(row['search_units'] for row in inventory) == 24
+    assert sum(row['documents'] for row in inventory) == 189
+    assert max(row['documents'] for row in inventory) == 10
+
+
 def test_full_paid_run_stops_before_output_or_provider_dispatch(monkeypatch, tmp_path):
     import asyncio
 

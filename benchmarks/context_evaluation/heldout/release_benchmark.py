@@ -11,7 +11,8 @@ from omneum import LocalPersistenceConfig, open_stdio_client
 from omneum.storage import SQLiteStorage
 from benchmarks.context_evaluation.clients import _generate_anthropic, _generate_google, _generate_openai
 from benchmarks.context_evaluation.semantic_reranker import rerank_cohere
-from .spending import SpendingLedger, conservative_token_cost, request_fingerprint, UnpricedProviderError
+from .spending import (SpendingLedger, SpendingLimitError, conservative_token_cost,
+                      request_fingerprint, UnpricedProviderError)
 from . import prepare_benchmark as base
 from . import query_benchmark as query
 from .artifacts import checkpoint, write_json
@@ -38,6 +39,15 @@ def cohere_search_units(question, chunks):
     if any(len((question + '\n' + c['raw_text']).encode('utf-8')) > 500 for c in chunks):
         raise UnpricedProviderError('Cohere document may exceed its 500-token chunk boundary')
     return 1
+
+
+def preflight_cohere(cases):
+    inventory = []
+    for _, _, case, _ in cases:
+        _, chunks, _ = query.inputs(case)
+        inventory.append({'case_id': case.case_id, 'documents': len(chunks),
+                          'search_units': cohere_search_units(case.question, chunks)})
+    return inventory
 GENERATION_FIELDS = ('answer', 'generator_input_tokens', 'generator_output_tokens',
                      'generation_seconds', 'generator_prompt', 'generator_options', 'generator_metadata')
 
@@ -156,8 +166,9 @@ async def run(args):
             'Cohere direct API USD/search pricing for rerank-v4.0-pro is not published; '
             'the complete paid run is blocked before any provider dispatch'
         )
-    ledger = SpendingLedger(SPENDING_LEDGER)
     cases = base.discover_cases(base.CASES_DIR)[:args.limit]
+    cohere_inventory = preflight_cohere(cases)
+    ledger = SpendingLedger(SPENDING_LEDGER)
     generator = base.LocalGenerator('qwen2.5:7b')
     count = lru_cache(maxsize=None)(generator.count)
     prior = json.loads((NATIVE / 'manifest.json').read_text())
@@ -179,6 +190,7 @@ async def run(args):
         'spending': {'ledger': str(SPENDING_LEDGER), 'estimated_cap_usd': 30.0,
                      'cohere_price_usd_per_search': COHERE_USD_PER_SEARCH,
                      'cohere_pricing_basis': COHERE_PRICING_BASIS,
+                     'cohere_request_inventory': cohere_inventory,
                      'retry_policy': 'no provider SDK retries; uncertain calls remain reserved'},
         'production_matches_reference': reference_matches,
         'methods': list(METHODS), 'full_context': 'Unbudgeted control, once per case/trial.',
@@ -200,7 +212,7 @@ async def run(args):
         'latency': 'selection_seconds adds measured ranker duration to packing/SDK duration; cached ranker duration is historical. '
                    'component_sum_seconds adds recorded generation time, not contiguous wall time. '
                    'end_to_end_seconds measures fresh generation with current preparation, excludes shared cached ranking.',
-        'cost': 'Local generator has no measured dollar rate. Judge list-price estimates separate from unknown local and Cohere costs.',
+        'cost': 'Local generator has no external API cost. Cohere cost uses a user-authorized provisional rate, not a verified direct-API rate.',
         'scope': 'Previously evaluated 24 synthetic cases; development/release regression, not fresh held-out validation.'}
     write_json(args.output / 'manifest.json', manifest)
     cache = generation_cache(generator, cases, args.reuse)
@@ -247,6 +259,8 @@ async def run(args):
                     ranks[(case.case_id, 'cohere', 0)] = (ranking, response['latency_seconds'])
                     providers.append({'case_id': case.case_id, 'method': 'cohere', 'trial': 0, **response})
                 except Exception as error:
+                    if isinstance(error, (SpendingLimitError, UnpricedProviderError)):
+                        raise
                     failures.append({'case_id': case.case_id, 'method': 'cohere', **base.provider_error_diagnostics(error)})
                 for trial in range(1, args.trials + 1):
                     for method in ('claude', 'gpt', 'gemini'):
@@ -255,6 +269,8 @@ async def run(args):
                             ranks[(case.case_id, method, trial)] = ([by_id[k] for k in response['ranking']], response['seconds'])
                             providers.append({'case_id': case.case_id, 'method': method, 'trial': trial, **response})
                         except Exception as error:
+                            if isinstance(error, SpendingLimitError):
+                                raise
                             failures.append({'case_id': case.case_id, 'method': method, 'trial': trial,
                                              **base.provider_error_diagnostics(error)})
                     checkpoint(args.output / 'provider_results.jsonl', providers)
