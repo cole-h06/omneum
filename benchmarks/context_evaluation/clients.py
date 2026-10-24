@@ -80,17 +80,22 @@ def _require_env(name):
     return value
 
 
-async def _generate_anthropic(prompt, model, max_tokens, *, response_schema=None):
+async def _generate_anthropic(prompt, model, max_tokens, *, response_schema=None, effort=None,
+                              max_retries=None, timeout=None):
     _require_env("ANTHROPIC_API_KEY")
 
     started = time.perf_counter()
 
-    options = {}
+    output_config = {}
     if response_schema is not None:
-        options["output_config"] = {
-            "format": {"type": "json_schema", "schema": response_schema},
-        }
-    async with AsyncAnthropic() as client:
+        output_config["format"] = {"type": "json_schema", "schema": response_schema}
+    if effort is not None:
+        output_config["effort"] = effort
+    options = {"output_config": output_config} if output_config else {}
+    client_options = {} if max_retries is None else {"max_retries": max_retries}
+    if timeout is not None:
+        client_options["timeout"] = timeout
+    async with AsyncAnthropic(**client_options) as client:
         response = await client.messages.create(
             model=model,
             max_tokens=max_tokens,
@@ -130,18 +135,24 @@ async def _generate_anthropic(prompt, model, max_tokens, *, response_schema=None
     }
 
 
-async def _generate_openai(prompt, model, max_tokens, *, response_schema=None):
+async def _generate_openai(prompt, model, max_tokens, *, response_schema=None,
+                           reasoning_effort=None, max_retries=None, timeout=None):
     _require_env("OPENAI_API_KEY")
 
     started = time.perf_counter()
 
     options = {}
+    if reasoning_effort is not None:
+        options["reasoning"] = {"effort": reasoning_effort}
     if response_schema is not None:
         options["text"] = {"format": {
             "type": "json_schema", "name": "source_selection",
             "strict": True, "schema": response_schema,
         }}
-    async with AsyncOpenAI() as client:
+    client_options = {} if max_retries is None else {"max_retries": max_retries}
+    if timeout is not None:
+        client_options["timeout"] = timeout
+    async with AsyncOpenAI(**client_options) as client:
         response = await client.responses.create(
             model=model,
             input=prompt,
@@ -174,12 +185,20 @@ async def _generate_openai(prompt, model, max_tokens, *, response_schema=None):
     }
 
 
-async def _generate_google(prompt, model, max_tokens, *, response_schema=None, thinking_level=None):
+async def _generate_google(prompt, model, max_tokens, *, response_schema=None, thinking_level=None,
+                           retry_attempts=None, timeout=None):
     if thinking_level is not None and (model != "gemini-3.8-flash" or thinking_level not in {"low", "medium", "high"}):
         raise ValueError("gemini-3.8-flash supports thinking levels low, medium, high")
     api_key = _require_env("GEMINI_API_KEY")
 
-    client = genai.Client(api_key=api_key)
+    client_options = {"api_key": api_key}
+    if retry_attempts is not None or timeout is not None:
+        client_options["http_options"] = genai.types.HttpOptions(
+            **({"retry_options": genai.types.HttpRetryOptions(attempts=retry_attempts)}
+               if retry_attempts is not None else {}),
+            **({"timeout": timeout * 1000} if timeout is not None else {}),
+        )
+    client = genai.Client(**client_options)
 
     started = time.perf_counter()
 

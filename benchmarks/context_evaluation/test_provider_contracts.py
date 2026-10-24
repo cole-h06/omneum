@@ -29,7 +29,8 @@ from benchmarks.context_evaluation.application_comparison import _extract_json, 
     ],
 )
 @pytest.mark.parametrize("schema", [None, SELECTION_SCHEMA])
-def test_anthropic_actual_sdk_extraction(monkeypatch, blocks, expected, schema):
+@pytest.mark.parametrize("effort", [None, "low"])
+def test_anthropic_actual_sdk_extraction(monkeypatch, blocks, expected, schema, effort):
     requests = []
 
     def respond(request):
@@ -47,7 +48,7 @@ def test_anthropic_actual_sdk_extraction(monkeypatch, blocks, expected, schema):
         http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
     ))
     result = asyncio.run(clients._generate_anthropic(
-        "frozen prompt", "claude-sonnet-5-5", 1024, response_schema=schema,
+        "frozen prompt", "claude-sonnet-5-5", 1024, response_schema=schema, effort=effort,
     ))
     assert result["text"] == expected
     assert len(requests) == 1
@@ -56,8 +57,13 @@ def test_anthropic_actual_sdk_extraction(monkeypatch, blocks, expected, schema):
         "model": "claude-sonnet-5-5", "max_tokens": 1024,
         "messages": [{"role": "user", "content": "frozen prompt"}],
     }
+    output_config = {}
     if schema is not None:
-        expected_request["output_config"] = {"format": {"type": "json_schema", "schema": schema}}
+        output_config["format"] = {"type": "json_schema", "schema": schema}
+    if effort is not None:
+        output_config["effort"] = effort
+    if output_config:
+        expected_request["output_config"] = output_config
     assert json.loads(requests[0].content) == expected_request
     assert result["input_tokens"] == 12
     assert result["output_tokens"] == 9
@@ -146,7 +152,8 @@ def test_google_actual_sdk_schema_request(monkeypatch, schema, model, max_tokens
 
 
 @pytest.mark.parametrize("schema", [None, SELECTION_SCHEMA])
-def test_openai_actual_sdk_schema_request(monkeypatch, schema):
+@pytest.mark.parametrize("reasoning_effort", [None, "low"])
+def test_openai_actual_sdk_schema_request(monkeypatch, schema, reasoning_effort):
     from openai import AsyncOpenAI
     requests = []
 
@@ -167,13 +174,16 @@ def test_openai_actual_sdk_schema_request(monkeypatch, schema):
         api_key="offline-fixture", base_url="https://offline.invalid",
         http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
     ))
-    result = asyncio.run(clients.generate(
-        "frozen prompt", provider="openai", model="gpt-6-astra", response_schema=schema,
+    result = asyncio.run(clients._generate_openai(
+        "frozen prompt", "gpt-6-astra", 1024, response_schema=schema,
+        reasoning_effort=reasoning_effort,
     ))
     expected = {"model": "gpt-6-astra", "input": "frozen prompt", "max_output_tokens": 1024}
     if schema is not None:
         expected["text"] = {"format": {"type": "json_schema", "name": "source_selection",
                                         "strict": True, "schema": schema}}
+    if reasoning_effort is not None:
+        expected["reasoning"] = {"effort": reasoning_effort}
     assert len(requests) == 1
     assert json.loads(requests[0].content) == expected
     assert _extract_json(result["text"]) == {"selected_sources": ["a"]}

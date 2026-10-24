@@ -241,7 +241,9 @@ def test_enterprise_model_configuration(monkeypatch):
     assert agent.model == "gemini-2.5-pro"
     declaration = evaluation_tool._get_declaration()
     assert declaration.name == "evaluate_context"
-    assert not declaration.parameters or not declaration.parameters.required
+    assert declaration.parameters.required == []
+    assert declaration.parameters.properties["question"].type.value == "STRING"
+    assert declaration.parameters.properties["question"].default == routing.QUESTION
 
 
 def test_enterprise_runner_tool_round_trip_with_stub_model(example_daemon, monkeypatch, capsys):

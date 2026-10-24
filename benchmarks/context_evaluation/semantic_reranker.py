@@ -44,7 +44,7 @@ def rerank_bge(query, candidates, *, top_n):
     ]
 
 
-def rerank_cohere(query, candidates, *, top_n):
+def rerank_cohere(query, candidates, *, top_n, max_retries=None, timeout=None):
     if top_n < 1:
         raise ValueError("top_n must be at least 1")
 
@@ -59,7 +59,12 @@ def rerank_cohere(query, candidates, *, top_n):
     if not api_key:
         raise RuntimeError("COHERE_API_KEY is not set")
 
-    client = cohere.ClientV2(api_key=api_key)
+    client_options = {"api_key": api_key}
+    if max_retries is not None:
+        client_options["max_retries"] = max_retries
+    if timeout is not None:
+        client_options["timeout"] = timeout
+    client = cohere.ClientV2(**client_options)
 
     started = perf_counter()
 

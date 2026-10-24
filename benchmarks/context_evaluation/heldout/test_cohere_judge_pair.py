@@ -214,6 +214,7 @@ def test_reranker_billing(monkeypatch):
 
     candidates = [{"source": "a", "text": "A"}, {"source": "b", "text": "B"}]
     calls = []
+    client_options = []
 
     def rerank(**kwargs):
         calls.append(kwargs)
@@ -221,8 +222,12 @@ def test_reranker_billing(monkeypatch):
                   meta=NS(billed_units=NS(search_units=1), tokens=None))
 
     monkeypatch.setenv("COHERE_API_KEY", "fixture-key")
-    monkeypatch.setattr(reranker.cohere, "ClientV2", lambda **kw: NS(rerank=rerank))
-    result = reranker.rerank_cohere("q", candidates, top_n=2)
+    def client(**kwargs):
+        client_options.append(kwargs)
+        return NS(rerank=rerank)
+    monkeypatch.setattr(reranker.cohere, "ClientV2", client)
+    result = reranker.rerank_cohere("q", candidates, top_n=2, max_retries=0, timeout=120)
+    assert client_options == [{"api_key": "fixture-key", "max_retries": 0, "timeout": 120}]
     assert calls == [{"model": "rerank-v4.0-pro", "query": "q", "documents": ["A", "B"], "top_n": 2}]
     assert result["selected"] == [{**candidates[1], "reranker_score": .9},
                                   {**candidates[0], "reranker_score": .5}]
