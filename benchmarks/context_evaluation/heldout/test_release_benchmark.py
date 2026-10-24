@@ -91,6 +91,7 @@ def test_full_paid_run_stops_before_output_or_provider_dispatch(monkeypatch, tmp
     ledger = tmp_path / 'ledger.sqlite3'
     monkeypatch.setattr(release, 'SPENDING_LEDGER', ledger)
     args = SimpleNamespace(output=tmp_path / 'must-not-exist')
+    monkeypatch.setattr(release, 'COHERE_USD_PER_SEARCH', None)
     with pytest.raises(release.UnpricedProviderError, match='Cohere direct API'):
         asyncio.run(release.run(args))
     assert not args.output.exists()
@@ -108,4 +109,5 @@ def test_evaluation_inventory_and_provider_configuration_are_frozen():
     assert len(release.METHODS) == 11
     assert release.METHODS[:8] == ('bm25', 'embedding', 'bge', 'cohere', 'claude',
                                    'gpt', 'gemini', 'omneum')
-    assert release.COHERE_USD_PER_SEARCH is None
+    assert release.COHERE_USD_PER_SEARCH == 0.0025
+    assert 'provisional' in release.COHERE_PRICING_BASIS

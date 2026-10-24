@@ -25,7 +25,8 @@ MODELS = {'claude': 'claude-sonnet-5-5', 'gpt': 'gpt-6-astra', 'gemini': 'gemini
 METHODS = ('bm25', 'embedding', 'bge', 'cohere', 'claude', 'gpt', 'gemini',
            'omneum', 'bm25_omneum', 'embedding_omneum', 'bge_omneum')
 SPENDING_LEDGER = Path(__file__).parent / 'results' / '.release-spending.sqlite3'
-COHERE_USD_PER_SEARCH = None  # Set only from applicable first-party billing terms.
+COHERE_USD_PER_SEARCH = 0.0025  # User-authorized provisional estimate; not first-party verified.
+COHERE_PRICING_BASIS = 'user-authorized provisional estimate; direct API rate unverified'
 
 
 def cohere_search_units(question, chunks):
@@ -177,6 +178,7 @@ async def run(args):
         'cases': [c.case_id for _, _, c, _ in cases], 'models': MODELS,
         'spending': {'ledger': str(SPENDING_LEDGER), 'estimated_cap_usd': 30.0,
                      'cohere_price_usd_per_search': COHERE_USD_PER_SEARCH,
+                     'cohere_pricing_basis': COHERE_PRICING_BASIS,
                      'retry_policy': 'no provider SDK retries; uncertain calls remain reserved'},
         'production_matches_reference': reference_matches,
         'methods': list(METHODS), 'full_context': 'Unbudgeted control, once per case/trial.',
