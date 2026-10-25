@@ -1,0 +1,16 @@
+{
+  "display_name": "Omneum",
+  "version": "1.0.3",
+  "official_identity": "ai.omneum/omneum",
+  "repository": "https://github.com/cole-h06/omneum",
+  "description": "Local provenance-aware context evaluator for AI agents. Requires pip install omneum and omneum install on macOS or Ubuntu.",
+  "transport": "stdio",
+  "setup": ["python -m pip install omneum", "omneum install"],
+  "command": "omneum-server",
+  "python": ">=3.11,<3.15",
+  "daemon_release_platforms": ["macos-aarch64", "macos-x86_64", "linux-x86_64"],
+  "windows_local_server": false,
+  "administrator_installation": true,
+  "one_click_installation": false,
+  "remote_mcp_required": false
+}

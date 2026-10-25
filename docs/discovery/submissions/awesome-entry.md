@@ -1,0 +1,1 @@
+- [cole-h06/omneum](https://github.com/cole-h06/omneum) 🐍 🦀 🏠 🍎 🐧 - Provenance-aware context evaluator for AI agents over local stdio on macOS and Ubuntu; requires `pip install omneum` followed by `omneum install`. [![cole-h06/omneum MCP server](https://glama.ai/mcp/servers/cole-h06/omneum/badges/score.svg)](https://glama.ai/mcp/servers/cole-h06/omneum)
