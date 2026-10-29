@@ -2,10 +2,7 @@ import os
 from copy import deepcopy
 import time
 
-from anthropic import AsyncAnthropic
 from dotenv import load_dotenv
-from google import genai
-from openai import AsyncOpenAI
 
 
 load_dotenv()
@@ -82,6 +79,8 @@ def _require_env(name):
 
 async def _generate_anthropic(prompt, model, max_tokens, *, response_schema=None, effort=None,
                               max_retries=None, timeout=None):
+    from anthropic import AsyncAnthropic
+
     _require_env("ANTHROPIC_API_KEY")
 
     started = time.perf_counter()
@@ -137,6 +136,8 @@ async def _generate_anthropic(prompt, model, max_tokens, *, response_schema=None
 
 async def _generate_openai(prompt, model, max_tokens, *, response_schema=None,
                            reasoning_effort=None, max_retries=None, timeout=None):
+    from openai import AsyncOpenAI
+
     _require_env("OPENAI_API_KEY")
 
     started = time.perf_counter()
@@ -187,6 +188,8 @@ async def _generate_openai(prompt, model, max_tokens, *, response_schema=None,
 
 async def _generate_google(prompt, model, max_tokens, *, response_schema=None, thinking_level=None,
                            retry_attempts=None, timeout=None):
+    from google import genai
+
     if thinking_level is not None and (model != "gemini-3.8-flash" or thinking_level not in {"low", "medium", "high"}):
         raise ValueError("gemini-3.8-flash supports thinking levels low, medium, high")
     api_key = _require_env("GEMINI_API_KEY")

@@ -153,6 +153,9 @@ jobs:
       - name: Enforce independent algorithm conformance
         if: needs.changes.outputs.full_ci == 'true'
         run: uv run --locked python -m omneum.conformance --spec-checkout "$ALGORITHM_SPEC_CHECKOUT"
+      - name: Collect qualification tests without optional benchmark integrations
+        if: needs.changes.outputs.full_ci == 'true'
+        run: uv run --locked --group langgraph --group auth-test pytest --collect-only -q
       - name: Test Python and native extension
         if: needs.changes.outputs.full_ci == 'true'
         # These example tests import LangGraph during collection. Keep that

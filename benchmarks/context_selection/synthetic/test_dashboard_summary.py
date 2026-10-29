@@ -20,6 +20,18 @@ from .build_dashboard_summary import (
 )
 
 
+HISTORICAL_README_SHA256 = "5af5e9b5118adf8258eef864065139fc785bb3b6d6695d1c599b6f335cc8448b"
+
+
+@pytest.fixture(scope="module")
+def historical_readme():
+    # Verbatim published README, Git blob 2066f7f597314da86d63167e008dbfb1e1705477.
+    path = BASE / "contracts/publication-v1" / (HISTORICAL_README_SHA256 + ".txt")
+    content = path.read_bytes()
+    assert hashlib.sha256(content).hexdigest() == HISTORICAL_README_SHA256
+    return content.decode("utf-8")
+
+
 @pytest.fixture(scope="module")
 def data():
     return build_verified_gemini_summary()
@@ -160,10 +172,10 @@ def assert_readme_tables(readme, catalogue):
             assert float(cells[7].removeprefix("$")) == pytest.approx(config["cost_usd"]["generation"], abs=0.0000005)
 
 
-def test_units_percentiles_and_published_metrics(data, raw, catalogue):
+def test_units_percentiles_and_published_metrics(data, raw, catalogue, historical_readme):
     saved = json.loads((BASE/"analysis"/RUN/"comparison.json").read_text())["metrics"]
     assert data["units"] == dict(rates="fraction", latency="seconds", api_tokens="provider_tokens", cost="USD")
-    readme = (ROOT/"README.md").read_text()
+    readme = historical_readme
     for c in data["configurations"]:
         a = saved[c["id"]]
         assert c["selection"]["macro"]["precision"] == pytest.approx(a["precision"])
@@ -179,8 +191,8 @@ def test_units_percentiles_and_published_metrics(data, raw, catalogue):
 
 
 @pytest.mark.parametrize("old,new", [("114,250", "406,605"), ("$0.686916", "$1.553232")])
-def test_generator_metric_scope(catalogue, old, new):
-    readme = (ROOT / "README.md").read_text()
+def test_generator_metric_scope(catalogue, historical_readme, old, new):
+    readme = historical_readme
     assert old in readme
     with pytest.raises(AssertionError):
         assert_readme_tables(readme.replace(old, new), catalogue)

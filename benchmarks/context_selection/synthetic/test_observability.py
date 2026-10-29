@@ -56,7 +56,7 @@ def test_anthropic_diagnostics_to_disk(tmp_path, monkeypatch, kind, method):
         })
 
     monkeypatch.setenv("ANTHROPIC_API_KEY", "private-api-key")
-    monkeypatch.setattr(clients, "AsyncAnthropic", lambda: AsyncAnthropic(
+    monkeypatch.setattr("anthropic.AsyncAnthropic", lambda: AsyncAnthropic(
         api_key="private-api-key", base_url="https://offline.invalid",
         http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
     ))
@@ -96,7 +96,7 @@ def test_google_failure_diagnostics_to_disk(tmp_path, monkeypatch, status, metho
 
     real_client = genai.Client
     monkeypatch.setenv("GEMINI_API_KEY", "private-google-key")
-    monkeypatch.setattr(clients.genai, "Client", lambda **kwargs: real_client(
+    monkeypatch.setattr(genai, "Client", lambda **kwargs: real_client(
         **kwargs, http_options={"base_url": "https://offline.invalid",
                                 "async_client_args": {"transport": httpx.MockTransport(respond)}},
     ))
@@ -142,7 +142,7 @@ def test_google_finish_reason_is_preserved(tmp_path, monkeypatch):
 
     real_client = genai.Client
     monkeypatch.setenv("GEMINI_API_KEY", "private-google-key")
-    monkeypatch.setattr(clients.genai, "Client", lambda **kwargs: real_client(
+    monkeypatch.setattr(genai, "Client", lambda **kwargs: real_client(
         **kwargs, http_options={"base_url": "https://offline.invalid",
                                 "async_client_args": {"transport": httpx.MockTransport(respond)}},
     ))
