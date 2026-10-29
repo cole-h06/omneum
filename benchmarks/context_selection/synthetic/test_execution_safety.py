@@ -8,7 +8,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from .execution_safety import DEFAULT_TRACE, TRACE_SHA256, read_trace, recovery_analysis_preflight
+from .execution_safety import (DEFAULT_TRACE, TRACE_SHA256, read_trace, recovery_analysis_preflight,
+                               verify_recovery_analysis_protected_inputs,
+                               RECOVERY_UNPUBLISHED_NON_INPUTS)
 from .experiments import analyze_budget_recovery, budget_recovery
 
 
@@ -157,3 +159,51 @@ def test_hardware_metadata_does_not_require_macos(monkeypatch):
 
     monkeypatch.setattr(tier1_benchmark.subprocess, 'check_output', git_only)
     assert tier1_benchmark.environment()['hardware'] == {}
+
+
+def test_public_analysis_scope_is_exact_and_execution_remains_strict():
+    from .execution_safety import verify_hashes
+    source = Path(__file__).parent / 'results/budget-exhaustion-recovery-20261026-v2'
+    assert set(verify_recovery_analysis_protected_inputs(source)) == RECOVERY_UNPUBLISHED_NON_INPUTS
+    with pytest.raises(ValueError, match='Protected input digest mismatch'):
+        verify_hashes(json.loads((source / 'protected_inputs.json').read_text()),
+                      allow_source_snapshots=True)
+
+
+def test_unknown_manifest_cannot_exempt_missing_historical_files(tmp_path):
+    source = Path(__file__).parent / 'results/budget-exhaustion-recovery-20261026-v2'
+    content = (source / 'protected_inputs.json').read_bytes()
+    (tmp_path / 'protected_inputs.json').write_bytes(content + b'\n')
+    with pytest.raises(ValueError, match='Protected input digest mismatch'):
+        verify_recovery_analysis_protected_inputs(tmp_path)
+
+
+@pytest.mark.parametrize('state', ['missing', 'corrupt'])
+def test_public_analysis_rejects_damaged_published_input_before_output(tmp_path, monkeypatch, state):
+    from .. import paths
+    source = Path(__file__).parent / 'results/budget-exhaustion-recovery-20261026-v2'
+    entries = json.loads((source / 'protected_inputs.json').read_text())
+    target = next(path for path in entries if '/canonical/cases/' in path and path.endswith('.json'))
+    damaged = tmp_path / 'damaged.json'
+    if state == 'corrupt':
+        damaged.write_bytes(b'{}')
+    resolve = paths.resolve_artifact
+    monkeypatch.setattr(paths, 'resolve_artifact',
+                        lambda path, **kw: damaged if path == target else resolve(path, **kw))
+    with pytest.raises(ValueError, match='Protected input digest mismatch'):
+        recovery_analysis_preflight(source, tmp_path / 'new-analysis')
+    assert not (tmp_path / 'new-analysis').exists()
+
+
+def test_supplied_unpublished_non_input_must_still_match(tmp_path, monkeypatch):
+    from .. import paths
+    source = Path(__file__).parent / 'results/budget-exhaustion-recovery-20261026-v2'
+    target = sorted(RECOVERY_UNPUBLISHED_NON_INPUTS)[0]
+    damaged = tmp_path / 'supplied-private-file'
+    damaged.write_bytes(b'wrong bytes')
+    resolve = paths.resolve_artifact
+    monkeypatch.setattr(paths, 'resolve_artifact',
+                        lambda path, **kw: damaged if path == target else resolve(path, **kw))
+    with pytest.raises(ValueError, match='Protected input digest mismatch'):
+        recovery_analysis_preflight(source, tmp_path / 'new-analysis')
+    assert not (tmp_path / 'new-analysis').exists()

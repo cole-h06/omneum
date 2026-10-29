@@ -106,3 +106,32 @@ Analysis scripts require a new output directory and leave completed execution ar
 - [Dataset Manifest](../dataset_manifest.json)
 - [Source Recovery Manifest](../source_recovery_manifest_v1.json)
 - [Canonical Source Manifest](../source_manifest_canonical_v1.json)
+
+
+## Offline Analysis Scope
+
+The v2 recovery experiment's original `protected_inputs.json` is an execution-time
+workspace immutability inventory, not a list of analysis dependencies. All 182
+entries and their original hashes remain unchanged. Saved-result analysis verifies
+all 179 published entries. Three unpublished non-inputs (the old question-aware
+`selections.jsonl`, `results.jsonl`, and `local/omneum.db`) are not required for
+analysis: it reads saved recovery/prior selections, timings, canonical cases,
+ground truth, alternatives and the saved reliability audit instead. The preserved
+structural trace has its own unchanged hash and is not a replacement for either
+missing log. Recreating the logs or the private database is unnecessary and would
+not establish their historical hashes.
+
+This public analysis scope is authorized only for the exact original v2 protection
+manifest SHA-256 `dce8e3c32998df4122f73e7f89ea86b1b8b4437624cf9b0e9582fc59ecb4827f`.
+If any of the three non-inputs is supplied, its original hash is still checked.
+Unknown manifests and new experiment execution retain full verification. New
+analysis validation output identifies unpublished non-inputs explicitly; historical
+validation files are not rewritten. This does not claim to reproduce the complete
+historical execution environment.
+
+The historical selection-and-answer README is preserved verbatim from commit
+`7e42c1d` (Git blob `2066f7f597314da86d63167e008dbfb1e1705477`) as
+[`publication-v1/5af5e9b5118adf8258eef864065139fc785bb3b6d6695d1c599b6f335cc8448b.txt`](publication-v1/5af5e9b5118adf8258eef864065139fc785bb3b6d6695d1c599b6f335cc8448b.txt).
+Dashboard tests verify its SHA-256 and compare published tables to frozen dashboard
+and raw-run metrics, including generator-only tokens and costs. The current root
+README describes a different, selection-only benchmark.

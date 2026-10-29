@@ -9,7 +9,8 @@ import numpy as np
 
 from ..tier1_metrics import measure
 from ..loader import load_ground_truth
-from ..execution_safety import DEFAULT_TRACE, recovery_analysis_preflight, verify_hashes
+from ..execution_safety import (DEFAULT_TRACE, recovery_analysis_preflight, verify_hashes,
+                                verify_recovery_analysis_protected_inputs)
 
 BASE=Path(__file__).resolve().parents[1]
 OLD=BASE/'results/tier1-competitors-20261025-v1'
@@ -231,10 +232,11 @@ def main(out, *, source=None, trace=DEFAULT_TRACE):
     add('Runner: `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m benchmarks.context_selection.synthetic.experiments.budget_recovery --output NEW_EXPERIMENT --tokenizer ORIGINAL_QWEN_TOKENIZER`. The runner requires a protected_inputs.json and task-start source snapshots in the new directory, as documented by this experiment. It refuses to overwrite completed selections. Analyze: `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m benchmarks.context_selection.synthetic.experiments.analyze_budget_recovery --input '+str(source)+' --output NEW_ANALYSIS --trace '+str(trace)+'`. The first command runs only local native/SDK inference; the second reads saved results. Production-change.patch is relative to task-start files, excluding unrelated pre-existing working-tree changes.')
     (out/'report.md').write_text('\n'.join(lines)+'\n')
     protected=read(source/'protected_inputs.json')
-    verify_hashes(protected, allow_source_snapshots=True)
+    unpublished_non_inputs=verify_recovery_analysis_protected_inputs(source)
     verify_hashes(read(source/'manifest.json')['code_sha256'], allow_source_snapshots=True)
     write(out/'analysis_validation.json',dict(metrics_recomputed=720,timing_samples=3600,
-        original_artifacts_preserved=True,protected_files=len(protected),bootstrap_replicates=reps,
+        original_artifacts_preserved=True,protected_files=len(protected)-len(unpublished_non_inputs),
+        unpublished_non_inputs=unpublished_non_inputs,bootstrap_replicates=reps,
         bootstrap_seed=seed,paired_comparison_metric_rows=len(pairrows),
         no_completeness_regressions_against_original=True,source_reliability_matches_frozen=True,
         original_selected_passages_preserved_in_every_cell=True,execution_source_snapshots_verified=True,
