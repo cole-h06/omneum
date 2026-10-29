@@ -9,7 +9,7 @@ import sys
 from omneum import Claim, reconstruct_context
 
 from .....adapters.observations import estimator, source_identifier, to_observations
-from ..context_selection import STRATEGIES, TOKEN_PATTERN, claim_id, map_chunks
+from ..context_selection import LEGACY_STRATEGIES, TOKEN_PATTERN, claim_id, map_chunks
 from ..dataset import DEPENDENCY_WEIGHTS
 from .data import FIXTURES, controlled_clock
 from .retrieve import api_snapshot, document, sql_records
@@ -161,7 +161,7 @@ def run_experiment(token_budget=100):
         "mapping": mapping,
         "selections": [
             reconstruct_context(evaluation, chunks, token_budget=token_budget, strategy=strategy)
-            for strategy in STRATEGIES
+            for strategy in LEGACY_STRATEGIES
         ],
     }
 

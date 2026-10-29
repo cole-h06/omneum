@@ -1,0 +1,33 @@
+{
+  "tests": {
+    "command": ".venv/bin/python -m pytest -q research/experiments/applied/agent_dataset/tests/test_agent_experiment.py research/experiments/applied/agent_dataset/tests/test_context_selection.py tests/test_client_context_reconstruction.py",
+    "passed": 23
+  },
+  "artifact_audit": {
+    "executions": 9,
+    "requests": 18,
+    "all_checks_passed": true,
+    "checks": [
+      "code hashes",
+      "exact context construction",
+      "identical paired evidence",
+      "differing paired orders",
+      "budget compliance",
+      "actual input/output usage",
+      "model settings",
+      "summary reconstruction"
+    ]
+  },
+  "base_commit": "8851d02094c955194092dee56f17c1f60cabeef2",
+  "versions": {
+    "httpx": "0.28.1",
+    "langgraph": "1.2.11",
+    "mcp": "1.28.1",
+    "pydantic": "2.12.5",
+    "pytest": "9.1.1"
+  },
+  "additional_code_sha256": {
+    "uv.lock": "74bc569b85a7e85ce8c2787c931d876dc7af554058c453f438552a38454b3e80",
+    "benchmarks/context_evaluation/deployment.py": "7c913ea1aba176d1730369d06b8c430892fce04f68d9a55c6aff8e611e12333a"
+  }
+}

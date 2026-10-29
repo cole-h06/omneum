@@ -1,14 +1,16 @@
 
 # LangGraph
 
-LangGraph integration for [Omneum](https://github.com/cole-h06/omneum) — provenance-aware context evaluation for AI agents.
+LangGraph integration for [Omneum](https://github.com/cole-h06/omneum).
 
-Provides two integration patterns:
+Omneum evaluates retrieved evidence through provenance-aware source–claim graph inference, selects passages using BM25 query relevance and incremental claim coverage, and assembles the selected text within a configured context budget.
 
-- **Enterprise Graph** (`build_graph`) — Collect observations from parallel retrieval nodes and evaluate source reliability, claim support, and source dependencies.
-- **Conditional Routing** (`build_routing_graph`) — Use Omneum evaluations to retrieve additional evidence, resolve conflicts, diversify sources, and select context before generation.
+This integration provides two LangGraph workflows:
 
-Both examples use LangGraph's `StateGraph` API and Omneum's Python SDK over MCP stdio.
+- **Enterprise retrieval graph:** Runs five retrieval nodes in parallel, evaluates the combined observations with Omneum, selects and assembles the original passages, and passes the prepared messages to an injected LangChain chat model.
+- **Conditional routing:** Uses `RoutingPolicy` to request additional retrieval when claim support, estimated independent support, or competing claim values fail the configured thresholds.
+
+Both workflows use LangGraph's `StateGraph` API. LangGraph schedules nodes and combines parallel state updates through configured reducers. Omneum's Python SDK prepares the generation context using its local MCP graph evaluator.
 
 ## Installation
 
@@ -18,403 +20,429 @@ From the repository root:
 uv sync --locked --group langgraph
 ```
 
-## Quick Start: Enterprise Graph
+Provision the local Omneum evaluator using the [installation guide](../../docs/guides/installation.md).
 
-Run the five-agent retrieval workflow:
+## Quick Start
+
+Run the enterprise retrieval graph:
 
 ```bash
-uv run --locked --group langgraph -m examples.langgraph.run
+uv run --locked --group langgraph \
+  -m examples.langgraph.run
 ```
 
-Or invoke the graph directly:
+Inspect the prepared context without invoking a model:
 
-```python
-import asyncio
-
-from examples.enterprise.workflow.run import QUESTION
-from examples.langgraph.graph import build_graph
-
-
-async def main():
-    graph = build_graph()
-
-    result = await graph.ainvoke({
-        "question": QUESTION,
-        "observation_batches": [],
-    })
-
-    print(result["answer"])
-
-
-asyncio.run(main())
+```bash
+uv run --locked --group langgraph \
+  -m examples.langgraph.run --inspect-context
 ```
 
-The graph collects observations from five retrieval nodes, merges them, evaluates the context through Omneum, and returns a formatted evaluation report.
-
-### Parallel Retrieval
-
-LangGraph uses `StateGraph` to coordinate retrieval and evaluation.
-
-```python
-from langgraph.graph import START, END, StateGraph
-
-from examples.langgraph.nodes import (
-    retrieve_documents,
-    retrieve_research,
-    retrieve_sql,
-    retrieve_api,
-    retrieve_search,
-    merge_observations,
-    evaluate_context,
-    render_answer,
-)
-from examples.langgraph.state import WorkflowState
-
-
-builder = StateGraph(WorkflowState)
-
-retrieval_nodes = {
-    "retrieve_documents": retrieve_documents,
-    "retrieve_research": retrieve_research,
-    "retrieve_sql": retrieve_sql,
-    "retrieve_api": retrieve_api,
-    "retrieve_search": retrieve_search,
-}
-
-for name, node in retrieval_nodes.items():
-    builder.add_node(name, node)
-    builder.add_edge(START, name)
-    builder.add_edge(name, "merge_observations")
-
-builder.add_node("merge_observations", merge_observations)
-builder.add_node("evaluate_context", evaluate_context)
-builder.add_node("render_answer", render_answer)
-
-builder.add_edge("merge_observations", "evaluate_context")
-builder.add_edge("evaluate_context", "render_answer")
-builder.add_edge("render_answer", END)
-
-graph = builder.compile()
-```
-
-| Retrieval node | Source |
-|---|---|
-| `retrieve_documents` | Internal documents |
-| `retrieve_research` | Research evidence |
-| `retrieve_sql` | SQL records |
-| `retrieve_api` | API responses |
-| `retrieve_search` | Search results |
-
-The graph collects parallel updates through an `Annotated` state reducer and merges observation batches in deterministic order.
-
-See [`graph.py`](graph.py), [`nodes.py`](nodes.py), and [`state.py`](state.py).
-
-## Quick Start: Conditional Routing
-
-Run all three routing scenarios:
+Run the conditional routing examples:
 
 ```bash
 uv run --locked --group langgraph \
   -m examples.langgraph.routing.run
 ```
 
-Run an individual scenario:
+Run a specific routing scenario:
 
 ```bash
 uv run --locked --group langgraph \
-  -m examples.langgraph.routing.run --scenario resolve_conflicts
+  -m examples.langgraph.routing.run \
+  --scenario resolve_conflicts
 ```
 
-Available scenarios:
+Compare Omneum with retrieval-order context packing:
 
-| Scenario | Routing condition | Action |
-|---|---|---|
-| `diversify_sources` | Supporting sources lack sufficient independence | Retrieve evidence from additional independent sources |
-| `retrieve_support` | Required evidence is missing or insufficient | Retrieve additional supporting observations |
-| `resolve_conflicts` | Competing claims have insufficient support separation | Retrieve evidence addressing competing values |
-
-The routing example uses synthetic enterprise evidence fixtures and evaluates each evidence set through the Omneum MCP server.
-
-### Build the Routing Graph
-
-```python
-from examples.langgraph.routing.graph import build_routing_graph
-
-graph = build_routing_graph()
+```bash
+uv run --locked --group langgraph \
+  -m examples.langgraph.run --compare --token-budget 400
 ```
 
-To evaluate a preloaded observation set:
+## Enterprise Retrieval Graph
 
-```python
-from examples.langgraph.routing.graph import build_routing_graph
-from examples.langgraph.routing.scenarios import initial_observations
+[`graph.py`](graph.py) defines `build_graph()`, which constructs a LangGraph `StateGraph` and compiles it into an executable graph.
 
-graph = build_routing_graph(preloaded=True)
+Five retrieval nodes run in parallel:
 
-result = await graph.ainvoke({
-    "question": "Evaluate the EU Customer Support Copilot deployment.",
-    "observation_batches": [],
-    "observations": initial_observations("resolve_conflicts"),
-    "retry_count": 0,
-    "routing_history": (),
-})
-
-print(result["routing_history"])
-print(result["answer"])
-```
-
-### Conditional Edges
-
-Use `add_conditional_edges()` to select the next node from Omneum's evaluation results.
-
-```python
-from examples.langgraph.routing.policy import assess_context
-
-
-def route_context(state):
-    decision = assess_context(
-        state["context_evaluation"],
-        retries=state.get("retry_count", 0),
-    )
-    return decision.route
-
-
-builder.add_conditional_edges(
-    "evaluate_context",
-    route_context,
-    {
-        "generate": "select_context",
-        "retrieve_support": "retrieve_support",
-        "resolve_conflicts": "resolve_conflicts",
-        "diversify_sources": "diversify_sources",
-        "escalate": "escalate",
-    },
-)
-```
-
-Each retrieval branch adds observations and returns to evaluation:
-
-```python
-for node in (
-    "retrieve_support",
-    "resolve_conflicts",
-    "diversify_sources",
-):
-    builder.add_edge(node, "evaluate_context")
-```
-
-The graph continues until the context satisfies the application policy or the retry limit is reached.
-
-See [`routing/graph.py`](routing/graph.py).
-
-## Context Evaluation
-
-The evaluation node maps retrieved observations and submits them to Omneum through MCP stdio.
-
-```python
-from examples.enterprise.config import example_deployment
-from examples.enterprise.workflow.run import estimator_config
-from omneum import open_stdio_client
-
-
-async def evaluate_context(state: WorkflowState) -> dict[str, object]:
-    with example_deployment() as (config, server):
-        async with open_stdio_client(config, server) as client:
-            result = await client.evaluate_mapped(
-                state["observations"],
-                mapper,
-                estimator=estimator_config(),
-            )
-
-    return {"context_evaluation": result}
-```
-
-The shared `ContextMapper` extracts claim fields, source identity, timestamps, lineage, and dependency signals.
-
-### Evaluation Results
-
-```python
-evaluation = result["context_evaluation"]
-
-source_scores = evaluation.source_reliability
-claim_scores = evaluation.claim_support
-dependencies = evaluation.pairwise_dependencies
-latency_ms = evaluation.evaluation_latency_ms
-```
-
-| Field | Description |
+| Node | Retrieved evidence |
 |---|---|
-| `source_reliability` | Source reliability scores |
-| `claim_support` | Claim support scores, ordered by attribute and descending support |
-| `pairwise_dependencies` | Estimated source dependencies |
-| `evaluation_latency_ms` | Evaluation latency in milliseconds |
-| `explanation` | Formatted evaluation report |
+| `retrieve_documents` | Internal documents |
+| `retrieve_research` | Research documents |
+| `retrieve_sql` | Database records |
+| `retrieve_api` | API responses |
+| `retrieve_search` | Search results |
 
-Inspect claim support and estimated independent support:
-
-```python
-for claim in evaluation.claim_support:
-    print(
-        claim.claim.attribute,
-        claim.claim.value,
-        claim.support,
-        claim.estimated_independent_support_count,
-    )
+```text
+START
+  |
+  +-- retrieve_documents --+
+  +-- retrieve_research ---+
+  +-- retrieve_sql --------+
+  +-- retrieve_api --------+--> merge_observations
+  +-- retrieve_search -----+            |
+                                       v
+                                evaluate_context
+                                       |
+                                       v
+                                 prepare_context
+                                       |
+                                       v
+                                  render_answer
+                                       |
+                                       v
+                                      END
 ```
 
-Print the standard Omneum report:
+The retrieval nodes write their results to shared graph state. [`state.py`](state.py) defines the state schema and reducers used to combine updates from parallel branches.
+
+`merge_observations` collects the retrieved observations before `evaluate_context` invokes Omneum's graph evaluator. `prepare_context` reuses the resulting `ContextEvaluation` to select passages and assemble the generation context.
+
+[`nodes.py`](nodes.py) contains the node implementations.
+
+### Generation
+
+`render_answer` receives the prepared generation messages and invokes an injected LangChain `BaseChatModel` through `ainvoke()`.
+
+Without an injected model, the graph retains the prepared context for inspection.
+
+`build_graph()` returns the compiled graph, which supports LangGraph's standard invocation interface.
+
+## Omneum's Algorithm
+
+The enterprise graph uses the shared [`context_preparation.py`](../context_preparation.py) helper to pass retrieved observations and chunks to `OmneumClient.prepare_context()`.
+
+### Retrieved Chunks
+
+Each retrieved passage retains its original text and the identifiers linking it to Omneum's source–claim graph.
 
 ```python
-print(evaluation.explanation)
+{
+    "chunk_id": "record-123",
+    "raw_text": "...",
+    "source": source,
+    "observation_ids": [...],
+    "claim_ids": [...],
+}
 ```
 
-See [`nodes.py`](nodes.py).
+| Field | Purpose |
+|---|---|
+| `chunk_id` | Identifies the passage during selection and assembly |
+| `raw_text` | Preserves the original passage text |
+| `source` | Identifies the evidence source |
+| `observation_ids` | Links the passage to its Omneum observations |
+| `claim_ids` | Links the passage to claims evaluated in the source–claim graph |
 
-## Routing and Context Selection
+A chunk can contain multiple claims, and multiple chunks can reference the same claim.
 
-The application routing policy uses claim support, estimated independent support, and competing claim values.
+The `claim_ids` mapping connects claim-level evaluation results to the original passages considered during budget-constrained context selection.
+
+### Graph Inference
+
+Omneum's algorithm constructs a bipartite graph from structured source and claim observations.
+
+It iteratively computes source reliability and claim support, using estimated source dependencies to adjust evidence contributions during propagation.
+
+Dependency-adjusted propagation reduces the influence of repeated assertions derived from shared upstream material. Claim scores contribute to chunk utility through each passage's `claim_ids` mapping.
+
+The `evaluate_context` node stores the resulting `ContextEvaluation` in LangGraph state.
+
+### Context Selection
+
+`prepare_generation()` accepts the retrieved observations, user query, estimator configuration, and optional `RetrievedChunk` records.
+
+The shared helper invokes `OmneumClient.prepare_context()` with the configured selection parameters:
 
 ```python
-from examples.langgraph.routing.policy import (
-    RoutingPolicy,
-    assess_context,
+prepared = await client.prepare_context(
+    observations,
+    chunks,
+    estimator=estimator,
+    token_budget=token_budget,
+    user_query=question,
+    local_relevance="bm25",
+    strategy="coverage_support_density",
+    token_cost_exponent=1.0,
+    complementary_evidence=True,
+    query_diagnostics=diagnostics,
+    include_dependencies=True,
 )
-from examples.langgraph.routing.selection import select_context
+```
 
-policy = RoutingPolicy(
+The example uses local BM25 relevance and the `coverage_support_density` selection strategy.
+
+Chunk utility incorporates graph-derived claim support and BM25 relevance. Incremental coverage adjusts each candidate's contribution according to the claims already represented by selected passages.
+
+The SDK packs passages within the configured context budget and assembles their original text in rendering order.
+
+The enterprise graph passes its existing `ContextEvaluation` to `prepare_generation()`. The shared helper forwards that evaluation to `OmneumClient.prepare_context()`, avoiding another graph evaluation of unchanged observations.
+
+### Context Assembly
+
+`prepare_context()` returns the selected passage identifiers and assembled context:
+
+```python
+prepared["packed_chunk_ids"]
+prepared["context"]
+```
+
+The selected identifiers are resolved against the original retrieved chunks:
+
+```python
+by_id = {
+    chunk["chunk_id"]: chunk
+    for chunk in chunks
+}
+
+selected = [
+    by_id[identifier]
+    for identifier in prepared["packed_chunk_ids"]
+]
+```
+
+`generation_messages()` constructs the messages supplied to the injected LangChain chat model:
+
+```python
+messages = generation_messages(
+    question,
+    prepared["context"],
+    selected,
+)
+```
+
+The selected chunks retain their original `raw_text`. Passages excluded during selection are omitted from the assembled generation context.
+
+The MCP evaluator processes structured observations and provenance metadata. The Python SDK retains the retrieved passage text for context assembly.
+
+### Generation Input
+
+`prepare_generation()` returns a `GenerationInput` dictionary.
+
+| Field | Content |
+|---|---|
+| `retrieved_chunks` | Original retrieved candidates |
+| `evaluation` | Source–claim graph evaluation results |
+| `prepared_context` | Selected chunk identifiers and assembled context |
+| `messages` | Messages supplied to the injected chat model |
+| `query_diagnostics` | BM25 query relevance diagnostics |
+| `comparison` | Raw RAG comparison when enabled |
+| `telemetry` | Available SDK execution measurements |
+
+The generation messages contain the selected original passages. The complete retrieved candidate set remains available through `retrieved_chunks`.
+
+## Conditional Routing
+
+[`routing/graph.py`](routing/graph.py) defines `build_routing_graph()`.
+
+The routing graph evaluates accumulated observations in LangGraph state and applies `RoutingPolicy` to determine whether additional retrieval is required before generation.
+
+### Routing Policy
+
+The example configures:
+
+```python
+RoutingPolicy(
     min_independent_support=1.9,
     min_support_ratio=2.0,
     max_retries=2,
 )
-
-decision = assess_context(
-    evaluation,
-    retries=retry_count,
-    policy=policy,
-)
-
-if decision.route == "generate":
-    selected = select_context(evaluation, policy=policy)
 ```
 
-| Route | Behavior |
+| Decision | Operation |
 |---|---|
-| `generate` | Select supported claims and produce the response |
-| `retrieve_support` | Retrieve additional supporting evidence |
-| `resolve_conflicts` | Retrieve evidence for competing claim values |
-| `diversify_sources` | Retrieve evidence from independent sources |
-| `escalate` | Stop when the retry limit is reached |
+| `retrieve_support` | Retrieve additional evidence for insufficiently supported claims |
+| `resolve_conflicts` | Retrieve evidence addressing competing claim values |
+| `diversify_sources` | Retrieve evidence from additional independent sources |
+| `generate` | Proceed to context selection and generation |
+| `escalate` | Terminate without model generation |
 
-### Context Selection Node
+The included scenarios exercise three retrieval conditions:
 
-```python
-from examples.langgraph.routing.selection import select_context
+| Scenario | Condition |
+|---|---|
+| `retrieve_support` | Insufficient support for required claims |
+| `resolve_conflicts` | Competing claim values require further resolution |
+| `diversify_sources` | Insufficient estimated independent support |
 
+### Retrieval Loop
 
-def select_claims(state):
-    return {
-        "selected_claims": select_context(
-            state["context_evaluation"]
-        ),
-    }
+The routing graph evaluates accumulated observations before applying `RoutingPolicy`.
 
-
-builder.add_node("select_context", select_claims)
-builder.add_edge("select_context", "generate")
-```
-
-The generation node consumes `selected_claims` instead of the complete evaluation. Claims failing the application's independent-support or conflict-separation requirements are excluded.
-
-See [`routing/policy.py`](routing/policy.py) and [`routing/selection.py`](routing/selection.py).
-
-## Example Output
-
-Recorded output from the conflict-resolution scenario:
+When the policy requests additional retrieval, the corresponding branch appends observations to graph state. The updated observation set is evaluated before the next routing decision.
 
 ```text
-=== resolve_conflicts ===
-Observations: 9 -> 12
-Routing: resolve_conflicts -> generate
-Retries: 1
+                 +-------------------+
+                 | Retrieved evidence|
+                 +---------+---------+
+                           |
+                           v
+                   evaluate_context
+                           |
+                           v
+                      route_context
+                           |
+         +-----------------+------------------+
+         |                 |                  |
+         v                 v                  v
+  retrieve_support  resolve_conflicts  diversify_sources
+         |                 |                  |
+         +-----------------+------------------+
+                           |
+                           v
+                   Updated evidence
+                           |
+                           +----> evaluate_context
 
-Claim support:
-  input_data_policy: redacted customer content only | support=0.1804 | independent=2.000
-  input_data_policy: unredacted customer content allowed | support=0.0105 | independent=1.000
-  processing_region: EU | support=0.1804 | independent=2.000
-  processing_region: US | support=0.0105 | independent=1.000
-  provider_retention: 0 days | support=0.1804 | independent=2.000
-  provider_retention: 30 days | support=0.0105 | independent=1.000
-
-Answer:
-Application decision: EVALUATION COMPLETE
-Selected context:
-input_data_policy: redacted customer content only
-provider_retention: 0 days
-processing_region: EU
+                 route_context
+                      |
+            +---------+---------+
+            |                   |
+            v                   v
+         generate             escalate
+            |                   |
+            v                   v
+      prepare_context          END
+            |
+            v
+       render_answer
+            |
+            v
+           END
 ```
 
-The conflicting values remain available in the evaluation but are excluded from the selected context.
+`max_retries` limits additional retrieval attempts.
 
-The example produces a deterministic response from selected claims. No LLM call is required.
+When the decision is `generate`, the graph calls `prepare_generation()` with the accumulated observations and configured context budget.
+
+`escalate` terminates the retry sequence without invoking the chat model.
+
+### Routing and Context Selection
+
+`RoutingPolicy` applies the configured support thresholds to the current `ContextEvaluation`.
+
+`OmneumClient.prepare_context()` selects passages from the accumulated evidence using graph-derived claim support, BM25 relevance, incremental claim coverage, and the configured context budget.
+
+Retrieval branches append observations to graph state before reevaluation. The resulting candidate pool is passed to context preparation when the routing policy permits generation.
+
+The selected passages are assembled into the final generation messages.
 
 ## Configuration
 
-| Component | Implementation |
+The examples use the following LangGraph and Omneum settings:
+
+| Parameter | Value |
 |---|---|
-| Graph orchestration | `langgraph.graph.StateGraph` |
-| Context mapping | `omneum.ContextMapper` |
-| Evaluation client | `omneum.open_stdio_client` |
-| Dependency estimator | `examples.enterprise.workflow.run.estimator_config` |
-| Routing policy | `examples.langgraph.routing.policy` |
-| Context selection | `examples.langgraph.routing.selection` |
-| Evidence fixtures | `examples.langgraph.routing.scenarios` |
-| Additional retrieval | `examples.langgraph.routing.retrieval` |
+| Graph API | `StateGraph` |
+| MCP client | `open_stdio_client()` |
+| SDK method | `OmneumClient.prepare_context()` |
+| Default context budget | `600` |
+| `local_relevance` | `"bm25"` |
+| `strategy` | `"coverage_support_density"` |
+| `token_cost_exponent` | `1.0` |
+| `complementary_evidence` | `True` |
+| `include_dependencies` | `True` |
+| `min_independent_support` | `1.9` |
+| `min_support_ratio` | `2.0` |
+| `max_retries` | `2` |
 
-## Tests
+`token_budget` is passed through `prepare_generation()` and can be overridden by the calling workflow.
 
-Run routing and selection tests:
+Routing thresholds are configured separately through `RoutingPolicy`.
 
-```bash
-uv run --locked --group langgraph -m pytest -q \
-  tests/test_langgraph_selection.py \
-  tests/test_langgraph_routing_selection.py \
-  tests/test_langgraph_routing.py \
-  tests/test_langgraph_routing_scenarios.py \
-  tests/test_langgraph_routing_strategies.py
-```
+The context budget applies to assembled retrieved evidence. The SDK counts Unicode word/punctuation units, including rendered chunk headers, rather than model-provider tokens.
 
-Run the enterprise integration tests:
+The complete model input may also include the query and additional system or conversation messages.
+
+## Inspection and Telemetry
+
+Both CLI entry points use the shared `run_cli()` interface.
+
+### Context Inspection
 
 ```bash
 uv run --locked --group langgraph \
-  -m pytest -q tests/test_enterprise_example.py
+  -m examples.langgraph.run --inspect-context
 ```
+
+Inspection reports the selected chunk identifiers and prepared context without invoking a chat model.
+
+### Raw RAG Comparison
+
+```bash
+uv run --locked --group langgraph \
+  -m examples.langgraph.run --compare --token-budget 400
+```
+
+The comparison evaluates retrieval-order packing and Omneum's graph-informed selection against the same retrieved chunks and context budget.
+
+| Configuration | Selection behavior |
+|---|---|
+| Raw RAG | Packs retrieved chunks in retrieval order |
+| Omneum | Selects chunks using BM25 relevance, graph-derived claim support, and incremental claim coverage |
+
+The comparison reports selected chunk IDs, rendering order, budget consumption, claim coverage, and excluded chunks.
+
+Graph evaluation diagnostics cover the complete observation set before passage selection.
+
+### JSON Output
+
+```bash
+uv run --locked --group langgraph \
+  -m examples.langgraph.run --json --include-context
+```
+
+JSON output includes retrieved chunk identifiers, selected chunk identifiers, rendering order, graph evaluation diagnostics, and context-preparation results.
+
+`--include-context` adds the selected original passages and generation messages.
+
+### Execution Telemetry
+
+```bash
+uv run --locked --group langgraph \
+  -m examples.langgraph.run \
+  --inspect-context \
+  --collect-telemetry \
+  --telemetry-format human
+```
+
+Available SDK measurements include:
+
+| Measurement | SDK field |
+|---|---|
+| End-to-end SDK latency | `sdk_end_to_end_latency_ms` |
+| Graph evaluation latency | `graph_evaluation_latency_ms` |
+| MCP round-trip latency | `mcp_roundtrip_latency_ms` |
+| Chunk selection latency | `chunk_selection_latency_ms` |
+| Context reconstruction latency | `context_reconstruction_latency_ms` |
+| CPU time | `cpu_time_ms` |
+| Peak memory | `peak_memory_bytes` |
+
+SDK telemetry measures graph evaluation and context preparation. Model generation latency is excluded.
 
 ## Files
 
-| File | Description |
+| File | Responsibility |
 |---|---|
-| [`graph.py`](graph.py) | Parallel retrieval and evaluation graph |
-| [`nodes.py`](nodes.py) | Retrieval, merging, evaluation, and rendering |
-| [`state.py`](state.py) | Graph state and parallel reducers |
-| [`run.py`](run.py) | Enterprise graph entry point |
+| [`graph.py`](graph.py) | Enterprise `StateGraph` construction |
+| [`nodes.py`](nodes.py) | Enterprise retrieval, evaluation, preparation, and generation nodes |
+| [`state.py`](state.py) | Shared graph state schema and reducers |
+| [`run.py`](run.py) | Enterprise CLI |
 | [`routing/graph.py`](routing/graph.py) | Conditional routing graph |
-| [`routing/policy.py`](routing/policy.py) | Routing decisions and thresholds |
-| [`routing/retrieval.py`](routing/retrieval.py) | Additional evidence retrieval |
-| [`routing/scenarios.py`](routing/scenarios.py) | Scenario observation sets |
-| [`routing/selection.py`](routing/selection.py) | Claim selection policy |
-| [`routing/selection_graph.py`](routing/selection_graph.py) | Standalone context-selection graph |
-| [`routing/run.py`](routing/run.py) | Routing scenario CLI |
-| [`../enterprise/`](../enterprise/) | Shared enterprise retrieval example |
-
-## Requirements
-
-- Python environment compatible with the repository's locked dependencies
-- LangGraph dependency group
-- Omneum Python SDK and local MCP server
+| [`routing/policy.py`](routing/policy.py) | Routing thresholds and decisions |
+| [`routing/retrieval.py`](routing/retrieval.py) | Routing retrieval records |
+| [`routing/scenarios.py`](routing/scenarios.py) | Routing scenarios |
+| [`routing/selection.py`](routing/selection.py) | Claim-selection functions |
+| [`routing/selection_graph.py`](routing/selection_graph.py) | Selection graph |
+| [`routing/run.py`](routing/run.py) | Routing CLI |
+| [`../context_preparation.py`](../context_preparation.py) | Shared Omneum SDK context preparation |
 
 ## Documentation
 
-- [LangGraph Documentation](https://docs.langchain.com/oss/python/langgraph/overview)
-- [Enterprise Example](../enterprise/)
-- [CrewAI Integration](../crewai/)
+- [LangGraph Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api)
+- [Using the LangGraph Graph API](https://docs.langchain.com/oss/python/langgraph/use-graph-api)
+- [Omneum Python SDK](../../docs/sdk.md)
+- [Omneum Installation](../../docs/guides/installation.md)
+- [Omneum Enterprise Example](../enterprise/)
+- [Omneum Repository](https://github.com/cole-h06/omneum)

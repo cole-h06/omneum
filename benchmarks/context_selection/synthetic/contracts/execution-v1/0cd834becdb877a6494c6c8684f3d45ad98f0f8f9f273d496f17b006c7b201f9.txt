@@ -1,0 +1,190 @@
+"""Frozen Tier 1 recovery experiment; no ranking models or hosted APIs."""
+import argparse
+import asyncio
+import csv
+import hashlib
+import itertools
+import json
+from pathlib import Path
+import random
+import time
+from unittest.mock import patch
+
+import httpx
+
+from omneum import evaluate_context, open_stdio_client
+from omneum import context_selection as selection
+from omneum.query_context import discover_chunks
+from benchmarks.context_selection import deployment
+from benchmarks.context_selection.config import estimator_config
+from ..tier1_benchmark import BASE, BUDGETS, prepare_cases, environment
+from ..tier1_competitors import provider_ranks
+from ..tier1_metrics import measure
+from ..loader import load_ground_truth
+from ..prepare_benchmark import render
+
+METHODS=('omneum','bm25_omneum','embedding_omneum','bge_omneum','cohere_omneum')
+PRIOR=BASE/'results/tier1-competitors-20261025-v1'
+
+
+def write(path,value):path.write_text(json.dumps(value,indent=2,default=str,allow_nan=False)+'\n')
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+async def run(args):
+    out=args.output
+    protected=json.loads((out/'protected_inputs.json').read_text())
+    assert all(sha(Path(k))==v for k,v in protected.items())
+    trace=[json.loads(l) for l in args.trace.open()]
+    graphs={r['case_id']:r for r in trace if r['type']=='graph'}
+    cases=prepare_cases(graphs)
+    old=json.loads((PRIOR/'selections.json').read_text())
+    reference={(r['case_id'],r['method'],r['budget']):r for r in old if r['method'] in METHODS}
+    ranks=provider_ranks(BASE/'results/question-aware-release-v1')
+    raw={c:json.loads((BASE/'canonical/cases'/c/'case.json').read_text()) for c in cases}
+    truth={c:load_ground_truth(BASE/'canonical/cases'/c/'ground_truth.json') for c in cases}
+    cache_path=out/'token_counts.json'
+    cache=json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    requests=0
+    with httpx.Client(trust_env=False,timeout=120) as http:
+        def count(text):
+            nonlocal requests
+            if text not in cache:
+                r=http.post(args.tokenizer+'/tokenize',json=dict(content=text,add_special=False,parse_special=True))
+                r.raise_for_status();cache[text]=len(r.json()['tokens']);requests+=1
+            return cache[text]
+        for data in cases.values():
+            for size in range(len(data['order'])+1):
+                for subset in itertools.combinations(data['order'],size):count(render(subset))
+        for r in old:assert count(r['context'])==r['tokenizer_tokens']
+        print('Exact original Qwen counts verified:',len(old),'contexts; prewarmed',len(cache),flush=True)
+        alternatives=[];native={};native_graphs={}
+        for cid,data in cases.items():
+            ev=evaluate_context(data['graph'],estimator=estimator_config())
+            support={selection.claim_id(c.claim):c.support for c in ev.claim_support}
+            expected={c['claim_id']:c['support'] for c in graphs[cid]['claims']}
+            assert support.keys()==expected.keys()
+            assert all(abs(support[k]-expected[k])<=1e-12 for k in support)
+            native_graphs[cid]=support
+            for method in METHODS:
+                if method=='omneum':
+                    relevance=None;initial=data['chunks'];deferred=()
+                    options=dict(question=data['case'].question)
+                else:
+                    name=method.removesuffix('_omneum')
+                    scores=ranks[cid,'cohere',0]['scores'] if name=='cohere' else data['scores'][name]['raw_scores']
+                    discovery=discover_chunks(data['graph'],selection.map_chunks(data['chunks'],support),
+                        scores,'reranker_score' if name=='bge' else 'similarity','expanded',3,2)
+                    initial=[c for c in data['chunks'] if c['chunk_id'] in discovery['eligible_chunk_ids']]
+                    assert [c['chunk_id'] for c in initial]==reference[cid,method,64]['eligible']
+                    deferred=tuple(c['chunk_id'] for c in data['chunks'] if c not in initial)
+                    relevance=discovery['normalized_relevance_scores']
+                    options=dict(strategy='coverage_support_density',complementary_evidence=True,token_cost_exponent=1)
+                for budget in BUDGETS:
+                    for arm in ('original','full_pool','staged_recovery'):
+                        pool=initial if arm=='original' else data['chunks']
+                        weights=None if relevance is None else {c['chunk_id']:relevance[c['chunk_id']] for c in pool}
+                        diag=[]
+                        result=selection.reconstruct_context(ev,pool,token_budget=budget,count_tokens=count,
+                            chunk_relevance=weights,_allow_unmapped_claims=True,
+                            _deferred_chunk_ids=deferred if arm=='staged_recovery' else (),
+                            _selection_trace=diag,**options)
+                        selected,context,tokens=result['selected_chunk_ids'],result['context'],result['token_usage']
+                        if arm=='original':
+                            r=reference[cid,method,budget]
+                            assert (selected,context,tokens)==(r['selected'],r['context'],r['tokenizer_tokens']),(cid,method,budget)
+                        assert count(context)==tokens<=budget
+                        row=dict(case_id=cid,method=method,budget=budget,arm=arm,selected=selected,
+                            context=context,tokenizer_tokens=tokens,selection_order=result['selection_order'],
+                            initial_eligible=[c['chunk_id'] for c in initial],
+                            recovered=[k for k in selected if k in deferred],
+                            **measure(raw[cid],truth[cid],selected,context))
+                        alternatives.append(row)
+                        if arm=='staged_recovery':native[cid,method,budget]=row
+                        if cid=='coding_package_fix_lineage' and method in ('bge_omneum','cohere_omneum') and budget==256:
+                            write(out/f'{method}-{arm}-trace.json',dict(**row,utility_trace=diag))
+        write(out/'alternatives.json',alternatives)
+        write(cache_path,cache)
+        write(out/'offline_validation.json',dict(original_cells_reproduced=720,graph_support_matches_frozen=True,
+            exact_original_context_token_counts_verified=len(old),tokenizer_contexts=len(cache),
+            original_input_hashes_unchanged=True,paid_api_calls=0))
+        if args.offline_only:
+            print('Offline alternatives complete',flush=True);return
+        assert not (out/'selections.json').exists(),'Never overwrite a completed experiment'
+        write(out/'manifest.json',dict(cases=24,budgets=BUDGETS,methods=METHODS,repeats=args.repeats,
+            seed=42,conflict_aware=False,prior=str(PRIOR),trace_sha256=sha(args.trace),
+            environment=environment(),daemon_sha256=sha(args.daemon),tokenizer=args.tokenizer,
+            tokenizer_model='Qwen2.5 7B; cached GGUF sha256-2bada8a7450677000f678be90653b85d364de7db25eb5ea54136ada5f3933730',
+            code_sha256={str(p):sha(p) for p in [Path(__file__),Path('omneum/client.py'),Path('omneum/context_selection.py'),Path('omneum/query_context.py')]},
+            timing='Fresh production prepare_context, graph and client verification each repeat; original exact token counts prewarmed; scores supplied; extraction, loading and scoring excluded.',
+            correction='Expanded discovery priority set followed by positive feasible inferred marginal utility over deferred original candidates, at least the weakest initial accepted utility/token; explicit top_k remains restrictive; no inference or relevance normalization changes.',
+            paid_api_calls=0,downstream_generations=0))
+        cells=[];seen={}
+        original_reconstruct=selection.reconstruct_context
+        with patch.object(deployment,'_build_daemon',return_value=args.daemon.resolve()):
+            with deployment.benchmark_deployment() as (config,server):
+                async with open_stdio_client(config,server,local_persistence=None) as client:
+                    async def execute(cid,method,budget):
+                        data=cases[cid];diagnostics={}
+                        if method=='omneum':options=dict(question=data['case'].question)
+                        else:
+                            name=method.removesuffix('_omneum')
+                            scores=ranks[cid,'cohere',0]['scores'] if name=='cohere' else data['scores'][name]['raw_scores']
+                            options=dict(strategy='coverage_support_density',complementary_evidence=True,token_cost_exponent=1,
+                                user_query=data['case'].question,chunk_relevance=scores,
+                                relevance_score_type='reranker_score' if name=='bge' else 'similarity',
+                                candidate_discovery='expanded',candidate_count=3,expansion_depth=2,query_evaluation='full')
+                        def check(evaluation,chunks,**kwargs):
+                            actual={selection.claim_id(c.claim):c.support for c in evaluation.claim_support}
+                            assert actual.keys()==native_graphs[cid].keys()
+                            assert all(abs(actual[k]-native_graphs[cid][k])<=1e-12 for k in actual)
+                            return original_reconstruct(evaluation,chunks,**kwargs)
+                        start=time.perf_counter()
+                        with patch.object(selection,'reconstruct_context',check):
+                            result=await client.prepare_context(data['graph'],data['chunks'],estimator=estimator_config(),
+                                token_budget=budget,count_tokens=count,query_diagnostics=diagnostics,include_telemetry=True,**options)
+                        elapsed=(time.perf_counter()-start)*1000
+                        selected,context,tokens=result['packed_chunk_ids'],result['context'],result['selection']['selected_tokens']
+                        expected=native[cid,method,budget]
+                        assert (selected,context,tokens)==(expected['selected'],expected['context'],expected['tokenizer_tokens'])
+                        assert count(context)==tokens<=budget
+                        return dict(**expected,diagnostics=diagnostics),dict(selection_ms=elapsed,
+                            **{f:result['telemetry'][f] for f in ('graph_evaluation_latency_ms','chunk_selection_latency_ms','context_reconstruction_latency_ms','mcp_roundtrip_latency_ms','local_inference_latency_ms')})
+                    for method in METHODS:await execute(next(iter(cases)),method,128)
+                    jobs=[(c,m,b,t) for c in cases for m in METHODS for b in BUDGETS for t in range(args.repeats)]
+                    random.Random(42).shuffle(jobs)
+                    with (out/'timings.csv').open('x',newline='') as f:
+                        writer=csv.DictWriter(f,fieldnames=['case_id','method','budget','repeat','selection_ms','graph_evaluation_latency_ms','chunk_selection_latency_ms','context_reconstruction_latency_ms','mcp_roundtrip_latency_ms','local_inference_latency_ms'])
+                        writer.writeheader()
+                        for n,(cid,method,budget,repeat) in enumerate(jobs,1):
+                            row,timing=await execute(cid,method,budget)
+                            key=cid,method,budget
+                            signature=row['selected'],row['context'],row['tokenizer_tokens']
+                            if key in seen:assert seen[key]==signature
+                            else:seen[key]=signature;cells.append(row)
+                            # Diagnostics include live durations, so deterministic
+                            # comparisons above concern selected bytes and tokens.
+                            writer.writerow(dict(case_id=cid,method=method,budget=budget,repeat=repeat,**timing))
+                            if n%144==0:
+                                f.flush();write(out/'selections.partial.json',cells)
+                                print('Completed',n,'of',len(jobs),flush=True)
+        write(out/'selections.json',cells)
+        write(cache_path,cache)
+        changed=[k for k,v in protected.items() if sha(Path(k))!=v]
+        assert not changed,changed
+        write(out/'validation.json',dict(cells=len(cells),executions=len(jobs),warmups=5,
+            deterministic_selected_contexts_and_tokens=True,exact_budget_violations=0,
+            full_graph_support_matches_frozen_trace=True,protected_files=len(protected),changed=changed,
+            paid_api_calls=0,downstream_generations=0,tokenizer_requests_after_prewarm=requests))
+        print('Complete',out,flush=True)
+
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--trace',type=Path,default=Path('/tmp/omneum-conflict-heldout-1792958991711192000.jsonl'))
+    p.add_argument('--tokenizer',default='http://127.0.0.1:57704')
+    p.add_argument('--daemon',type=Path,default=Path('target/test-daemon/debug/omneumd'))
+    p.add_argument('--repeats',type=int,default=5)
+    p.add_argument('--offline-only',action='store_true')
+    asyncio.run(run(p.parse_args()))

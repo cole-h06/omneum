@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any
 
 from omneum import Claim, Observation, Source
 
@@ -31,13 +32,7 @@ STRATEGIES = {
 }
 
 
-def retrieve_additional_evidence(
-    attributes: tuple[str, ...],
-    *,
-    strategy: str,
-    attempt: int = 1,
-) -> tuple[Observation, ...]:
-    """Retrieve attribute-specific evidence using the selected strategy."""
+def retrieval_record(strategy: str, attempt: int) -> dict[str, Any]:
     if strategy not in STRATEGIES:
         raise ValueError(f"Unknown retrieval strategy: {strategy}")
     if attempt < 1 or attempt > 2:
@@ -46,15 +41,32 @@ def retrieve_additional_evidence(
     config = STRATEGIES[strategy]
     source_number = config["source_number"] + attempt
 
-    source = Source(
-        config["source_kind"],
-        f"v1:{SCOPE}:{source_number:08d}-0000-4000-8000-{source_number:012d}",
-        f"{config['owner']}-{attempt}",
-    )
-
     timestamp = datetime(
         2026, 7, 17 + attempt, 9, 0, tzinfo=timezone.utc
     )
+    return {
+        "record_id": f"routing-{strategy}-{attempt}",
+        "source": {
+            "kind": config["source_kind"],
+            "identifier": f"v1:{SCOPE}:{source_number:08d}-0000-4000-8000-{source_number:012d}",
+            "owner_id": f"{config['owner']}-{attempt}",
+        },
+        "service": ENTITY,
+        "updated_at": timestamp.isoformat(),
+        "controls": dict(ROUTING_VALUES),
+    }
+
+
+def retrieve_additional_evidence(
+    attributes: tuple[str, ...],
+    *,
+    strategy: str,
+    attempt: int = 1,
+) -> tuple[Observation, ...]:
+    """Map requested controls from the structured retry fixture."""
+    record = retrieval_record(strategy, attempt)
+    source = Source(**record["source"])
+    timestamp = datetime.fromisoformat(record["updated_at"])
 
     selected = tuple(dict.fromkeys(attributes))
 
@@ -66,7 +78,7 @@ def retrieve_additional_evidence(
                 ENTITY_NAMESPACE,
                 ENTITY,
                 attribute,
-                ROUTING_VALUES[attribute],
+                record["controls"][attribute],
             ),
             observed_at=timestamp,
             source_modified_at=timestamp,

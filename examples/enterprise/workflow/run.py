@@ -1,12 +1,14 @@
-from omneum.explanations import explain_evaluation
-import asyncio
+from __future__ import annotations
 
-from omneum import (
-    DependencyEstimatorConfig,
-    explain_claim,
-    explain_dependency,
-    open_stdio_client,
-)
+import argparse
+import asyncio
+from typing import TYPE_CHECKING
+
+from omneum import ContextEvaluation, DependencyEstimatorConfig, Observation, OmneumClientConfig
+from omneum.mcp import StdioServerParameters
+
+if TYPE_CHECKING:
+    from examples.context_preparation import GenerationInput, PreparationOptions
 
 from ..agents.api import api_agent
 from ..agents.common import (
@@ -21,7 +23,7 @@ from ..agents.documents import documents_agent
 from ..agents.research import research_agent
 from ..agents.search import search_agent
 from ..agents.sql import sql_agent
-from ..config import example_deployment
+from .retrieval import collect_chunks
 
 
 QUESTION = (
@@ -44,9 +46,10 @@ SOURCE_LABELS = {
     GATEWAY_SOURCE: "AI gateway",
     VENDOR_SOURCE: "Vendor enterprise data controls",
 }
+TOKEN_BUDGET = 600
 
 
-def collect_observations():
+def collect_observations() -> tuple[Observation, ...]:
     return tuple(
         observation
         for agent in RETRIEVAL_AGENTS
@@ -54,7 +57,7 @@ def collect_observations():
     )
 
 
-def estimator_config():
+def estimator_config() -> DependencyEstimatorConfig:
     return DependencyEstimatorConfig(
         upstream_weight=25.0,
         citation_weight=20.0,
@@ -68,146 +71,46 @@ def estimator_config():
     )
 
 
-async def run_workflow(config=None, server=None):
-    if config is None and server is None:
-        with example_deployment() as deployment:
-            return await run_workflow(*deployment)
-    if config is None or server is None:
-        raise TypeError("config and server must be supplied together")
-    async with open_stdio_client(
-        config,
-        server,
-    ) as client:
-        result = await client.evaluate_context(
-            collect_observations(),
-            estimator=estimator_config(),
-        )
-    return result, render_result(result)
+async def run_workflow(
+    config: OmneumClientConfig | None = None,
+    server: StdioServerParameters | None = None,
+    *, token_budget: int = TOKEN_BUDGET,
+    preparation: PreparationOptions | None = None,
+) -> tuple[ContextEvaluation, str]:
+    result = await prepare_workflow(config, server, token_budget=token_budget, preparation=preparation)
+    return result["evaluation"], result["messages"][1]["content"]
 
 
-def render_result(result):
-    sections = [QUESTION, render_conclusion(result), "Source reliability"]
-    for item in sorted(
-        result.source_reliability,
-        key=lambda value: SOURCE_LABELS.get(
-            value.source, value.source.identifier
-        ),
-    ):
-        sections.append(
-            f"{SOURCE_LABELS.get(item.source, item.source.identifier)}\n"
-            f"Reliability: {item.reliability:.2f}"
-        )
+async def prepare_workflow(
+    config: OmneumClientConfig | None = None,
+    server: StdioServerParameters | None = None,
+    *, token_budget: int = TOKEN_BUDGET,
+    preparation: PreparationOptions | None = None,
+) -> GenerationInput:
+    # Framework examples import the enterprise question and estimator during initialization.
+    from examples.context_preparation import prepare_generation
 
-    sections.append(explain_evaluation(result))
-
-    sections.append("Pair dependencies")
-    for item in result.pairwise_dependencies:
-        if any(
-            getattr(item.signals, f"{name}_observable")
-            and getattr(item.signals, name) > 0.0
-            for name in (
-                "upstream",
-                "citation",
-                "assertion_lineage",
-                "ownership",
-                "temporal",
-                "graph",
-            )
-        ):
-            sections.append(
-                explain_dependency(
-                    item,
-                    source_labels={
-                        **SOURCE_LABELS,
-                        **{
-                            source.source: source.source.identifier
-                            for source in result.source_reliability
-                            if source.source not in SOURCE_LABELS
-                        },
-                    },
-                )
-            )
-    return "\n\n".join(sections)
-
-
-def render_conclusion(result):
-    """Apply an example application policy to Omneum's claim-support results."""
-    required = (
-        "input_data_policy",
-        "provider_retention",
-        "processing_region",
-    )
-
-    groups = {}
-    for item in result.claim_support:
-        groups.setdefault(item.claim.attribute, []).append(item)
-
-    selected = {}
-    for attribute in required:
-        candidates = sorted(
-            groups.get(attribute, ()),
-            key=lambda item: item.support,
-            reverse=True,
-        )
-
-        if not candidates:
-            return (
-                "Application decision: ESCALATE\n"
-                f"Missing evidence for {attribute}."
-            )
-
-        if (
-            len(candidates) > 1
-            and candidates[0].support <= candidates[1].support
-        ):
-            return (
-                "Application decision: RETRIEVE MORE\n"
-                f"Unresolved competing claims for {attribute}."
-            )
-
-        selected[attribute] = candidates[0]
-
-    lines = [
-        "Application decision: EVALUATION COMPLETE",
-        "Highest-supported claims:",
-    ]
-
-    for attribute in required:
-        item = selected[attribute]
-        lines.append(
-            f"{attribute}: {item.claim.value} "
-            f"(support {item.support:.4f}, "
-            f"independent support "
-            f"{item.estimated_independent_support_count:.2f})"
-        )
-
-    lines.append(
-        "These are relative evidence-support scores, "
-        "not probabilities or authorization decisions."
-    )
-
-    return "\n".join(lines)
-
-
-def _dependency(result, first, second):
-    identities = {
-        (first.kind, first.identifier),
-        (second.kind, second.identifier),
-    }
-    return next(
-        item
-        for item in result.pairwise_dependencies
-        if {
-            (item.source_a.kind, item.source_a.identifier),
-            (item.source_b.kind, item.source_b.identifier),
-        } == identities
+    observations = collect_observations()
+    return await prepare_generation(
+        observations, chunks=collect_chunks(observations), question=QUESTION,
+        estimator=estimator_config(), token_budget=token_budget, preparation=preparation,
+        config=config, server=server,
     )
 
 
-def main():
-    _, output = asyncio.run(run_workflow())
-    print(output)
+async def execute(
+    options: PreparationOptions, args: argparse.Namespace, scenario: str | None,
+) -> tuple[GenerationInput, None]:
+    return await prepare_workflow(preparation=options), None
 
+
+def main() -> None:
+    from examples.context_output import run_cli
+
+    asyncio.run(run_cli("enterprise", execute, debug_json=DEBUG_JSON))
+
+
+DEBUG_JSON = False
 
 if __name__ == "__main__":
     main()

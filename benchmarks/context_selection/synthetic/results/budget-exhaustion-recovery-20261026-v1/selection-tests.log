@@ -1,0 +1,140 @@
+........................................................................ [ 36%]
+....................................F................................... [ 73%]
+......F..............................................                    [100%]
+=================================== FAILURES ===================================
+________ test_sdk_precedence_local_options_structural_fallback_and_wire ________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/colehoke/Development/omneum/tests/test_retriever_relevance.py", line 217, in test_sdk_precedence_local_options_structural_fallback_and_wire
+  |     asyncio.run(run())
+  |     ~~~~~~~~~~~^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 196, in run
+  |     return runner.run(main)
+  |            ~~~~~~~~~~^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 119, in run
+  |     return self._loop.run_until_complete(task)
+  |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 726, in run_until_complete
+  |     return future.result()
+  |            ~~~~~~~~~~~~~^^
+  |   File "/Users/colehoke/Development/omneum/tests/test_retriever_relevance.py", line 138, in run
+  |     async with open_stdio_client(config, server, local_persistence=LocalPersistenceConfig(storage)) as client:
+  |                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/colehoke/Development/omneum/omneum/client.py", line 2301, in open_stdio_client
+  |     async with stdio_client(server) as (
+  |                ~~~~~~~~~~~~^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/colehoke/Development/omneum/omneum/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/Users/colehoke/Development/omneum/omneum/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/Users/colehoke/Development/omneum/omneum/client.py", line 2305, in open_stdio_client
+    |     async with ClientSession(
+    |                ~~~~~~~~~~~~~^
+    |         read,
+    |         ^^^^^
+    |         write,
+    |         ^^^^^^
+    |     ) as session:
+    |     ^
+    |   File "/Users/colehoke/Development/omneum/omneum/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+    |     raise BaseExceptionGroup(
+    |         "unhandled errors in a TaskGroup", self._exceptions
+    |     ) from None
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/Users/colehoke/Development/omneum/omneum/client.py", line 2336, in open_stdio_client
+      |     yield OmneumClient(
+      |     ...<8 lines>...
+      |     )
+      |   File "/Users/colehoke/Development/omneum/tests/test_retriever_relevance.py", line 152, in run
+      |     assert diag['eligible_chunk_ids'] == ['a', 'd']
+      | AssertionError: assert ['a', 'd', 'b'] == ['a', 'd']
+      |   
+      |   Left contains one more item: 'b'
+      |   Use -v to get more diff
+      +------------------------------------
+______ test_sdk_conflict_eligibility_preserves_full_inference_and_budget _______
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/colehoke/Development/omneum/tests/test_conflict_discovery.py", line 140, in test_sdk_conflict_eligibility_preserves_full_inference_and_budget
+  |     asyncio.run(run())
+  |     ~~~~~~~~~~~^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 196, in run
+  |     return runner.run(main)
+  |            ~~~~~~~~~~^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 119, in run
+  |     return self._loop.run_until_complete(task)
+  |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 726, in run_until_complete
+  |     return future.result()
+  |            ~~~~~~~~~~~~~^^
+  |   File "/Users/colehoke/Development/omneum/tests/test_conflict_discovery.py", line 121, in run
+  |     async with open_stdio_client(config, server) as client:
+  |                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/colehoke/Development/omneum/omneum/client.py", line 2301, in open_stdio_client
+  |     async with stdio_client(server) as (
+  |                ~~~~~~~~~~~~^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/colehoke/Development/omneum/omneum/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/Users/colehoke/Development/omneum/omneum/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/Users/colehoke/Development/omneum/omneum/client.py", line 2305, in open_stdio_client
+    |     async with ClientSession(
+    |                ~~~~~~~~~~~~~^
+    |         read,
+    |         ^^^^^
+    |         write,
+    |         ^^^^^^
+    |     ) as session:
+    |     ^
+    |   File "/Users/colehoke/Development/omneum/omneum/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+    |     raise BaseExceptionGroup(
+    |         "unhandled errors in a TaskGroup", self._exceptions
+    |     ) from None
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/Users/colehoke/Development/omneum/omneum/client.py", line 2336, in open_stdio_client
+      |     yield OmneumClient(
+      |     ...<8 lines>...
+      |     )
+      |   File "/Users/colehoke/Development/omneum/tests/test_conflict_discovery.py", line 134, in run
+      |     assert diagnostics['eligible_chunk_ids'] == (['0', '1'] if enabled else ['0'])
+      | AssertionError: assert ['0', '1'] == ['0']
+      |   
+      |   Left contains one more item: '1'
+      |   Use -v to get more diff
+      +------------------------------------
+=========================== short test summary info ============================
+FAILED tests/test_retriever_relevance.py::test_sdk_precedence_local_options_structural_fallback_and_wire
+FAILED tests/test_conflict_discovery.py::test_sdk_conflict_eligibility_preserves_full_inference_and_budget
+2 failed, 195 passed in 14.97s

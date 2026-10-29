@@ -227,7 +227,7 @@ def evaluate_local_graph():
                 assert not result.isError and result.structuredContent['status'] == 'ok'
         async with open_stdio_client(config, server=server) as client:
             assert client._network_contribution is None
-            result = await client.evaluate_mapped(records, mapper, estimator=estimator)
+            result = await client._evaluate_mapped(records, mapper, estimator=estimator)
             assert result.claim_support
     asyncio.run(acceptance())
 

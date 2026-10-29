@@ -35,7 +35,11 @@ class SourceReleaseTests(unittest.TestCase):
 
     def test_unrelated_and_secret_files_rejected(self):
         for name in ('tools/provenance_explorer/untracked.py', 'docs/reviews/audit.md',
-                     'evaluate.py', 'examples/enterprise.zip', 'private.pem', 'voprf.key', '.env', '../escape'):
+                     'evaluate.py', 'examples/enterprise.zip', 'private.pem', 'voprf.key', '.env', '../escape',
+                     'benchmarks/local_llm/runs/local/trials.jsonl',
+                     'benchmarks/context_selection/STAGING_MANIFEST.json',
+                     'benchmarks/context_selection/synthetic/results/run/summary.json',
+                     'local.db-wal', 'cache.sqlite3-shm', '__pycache__/example.pyc', '.pytest_cache/state'):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 verify(self.archive({name: 'fixture'}), '1.0.3')
 

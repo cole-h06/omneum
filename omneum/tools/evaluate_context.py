@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from omneum.mcp.types import CallToolResult, TextContent
@@ -64,6 +65,7 @@ class AssertionEvaluationService:
         self,
         request: EvaluateAssertionRequest,
     ) -> CallToolResult:
+        started = time.perf_counter()
         mismatch = self._metadata_error(request)
         if mismatch is not None:
             return mismatch
@@ -113,6 +115,7 @@ class AssertionEvaluationService:
             )
         except Exception:
             return _internal_error_result()
+        response.evaluation_latency_ms = (time.perf_counter() - started) * 1000.0
         return _success_result(response)
 
     def close(self) -> None:

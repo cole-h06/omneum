@@ -1,0 +1,1514 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "benchmark_id",
+    "measurement_date",
+    "selector_version",
+    "supported_method_families",
+    "definitions",
+    "pairing",
+    "pricing",
+    "source_file_sha256",
+    "implementation",
+    "limitations",
+    "unmeasured_configurations",
+    "configurations",
+    "units",
+    "runs",
+    "analyses",
+    "leaderboards",
+    "comparability",
+    "publication",
+    "lineage_audit",
+    "publication_contract"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "dashboard_summary.schema.json"
+    },
+    "schema_version": {
+      "const": "2.0.0"
+    },
+    "benchmark_id": {
+      "type": "string"
+    },
+    "measurement_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "selector_version": {
+      "type": "string"
+    },
+    "supported_method_families": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/family"
+      }
+    },
+    "definitions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcomes",
+        "selection",
+        "latency",
+        "tokens",
+        "cost",
+        "configuration"
+      ],
+      "properties": {
+        "outcomes": {
+          "type": "string"
+        },
+        "selection": {
+          "type": "string"
+        },
+        "latency": {
+          "type": "string"
+        },
+        "tokens": {
+          "type": "string"
+        },
+        "cost": {
+          "type": "string"
+        },
+        "configuration": {
+          "type": "string"
+        }
+      }
+    },
+    "pairing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "methods",
+        "pair_count",
+        "keys",
+        "identical_bge_shortlists",
+        "identical_context_budgets",
+        "shared_generator"
+      ],
+      "properties": {
+        "methods": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "pair_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "identical_bge_shortlists": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "identical_context_budgets": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "shared_generator": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "pricing": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "date_checked",
+        "usd_per_million",
+        "basis"
+      ],
+      "properties": {
+        "date_checked": {
+          "type": "string"
+        },
+        "usd_per_million": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "basis": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "source_file_sha256": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unmeasured_configurations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "configurations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/configuration"
+          },
+          {
+            "properties": {
+              "publication_status": {
+                "const": "authoritative"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "units": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rates",
+        "latency",
+        "api_tokens",
+        "cost"
+      ],
+      "properties": {
+        "rates": {
+          "const": "fraction"
+        },
+        "latency": {
+          "const": "seconds"
+        },
+        "api_tokens": {
+          "const": "provider_tokens"
+        },
+        "cost": {
+          "const": "USD"
+        }
+      }
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "records",
+          "configuration_ids",
+          "issues",
+          "verification",
+          "publication_status",
+          "publication_reason",
+          "source_paths",
+          "git",
+          "versions",
+          "implementation_lineage",
+          "recorded_evaluation_metrics"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "partial",
+              "quarantined",
+              "diagnostic_only"
+            ]
+          },
+          "records": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "configuration_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verification": {
+            "type": "object"
+          },
+          "dataset_sha256": {
+            "type": "string"
+          },
+          "implementation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "trials_per_case": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pairing": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "case_trial_pairs",
+              "shared_shortlist_verified",
+              "context_budgets_verified",
+              "generator_model_verified"
+            ],
+            "properties": {
+              "case_trial_pairs": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "shared_shortlist_verified": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "context_budgets_verified": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "generator_model_verified": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            }
+          },
+          "timestamp_utc": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "publication_status": {
+            "enum": [
+              "authoritative",
+              "historical",
+              "superseded",
+              "diagnostic",
+              "partial",
+              "quarantined"
+            ]
+          },
+          "publication_reason": {
+            "type": "string"
+          },
+          "source_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "git": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "recorded_evaluation_metrics": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "versions": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "implementation_lineage": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "dependency_estimator": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "models": {
+            "type": "object"
+          },
+          "method_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "case_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "component_manifests": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "analyses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "trial_run",
+          "files",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "trial_run": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "leaderboards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "semantic_rerankers",
+        "frontier_llm_judges"
+      ],
+      "properties": {
+        "semantic_rerankers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "configuration_ids",
+            "reference_configuration_ids",
+            "comparator_configuration_ids"
+          ],
+          "properties": {
+            "configuration_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reference_configuration_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "comparator_configuration_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "frontier_llm_judges": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "configuration_ids",
+            "reference_configuration_ids",
+            "comparator_configuration_ids"
+          ],
+          "properties": {
+            "configuration_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reference_configuration_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "comparator_configuration_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "comparability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "cross_run_blockers"
+      ],
+      "properties": {
+        "policy": {
+          "type": "string"
+        },
+        "cross_run_blockers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_scope",
+        "selection_policy",
+        "pairs",
+        "tables",
+        "unverified_claims"
+      ],
+      "properties": {
+        "authority_scope": {
+          "type": "string"
+        },
+        "selection_policy": {
+          "type": "string"
+        },
+        "pairs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "run_id",
+              "configuration_ids",
+              "family",
+              "reason",
+              "evidence_paths"
+            ],
+            "properties": {
+              "run_id": {
+                "type": "string"
+              },
+              "configuration_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "family": {
+                "enum": [
+                  "semantic_rerankers",
+                  "frontier_llm_judges"
+                ]
+              },
+              "reason": {
+                "type": "string"
+              },
+              "evidence_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tables": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "semantic_rerankers",
+            "frontier_llm_judges"
+          ],
+          "properties": {
+            "semantic_rerankers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "configuration_id",
+                  "label",
+                  "source_run",
+                  "attempts",
+                  "accuracy",
+                  "accuracy_basis",
+                  "precision",
+                  "recall",
+                  "selection_scored_attempts",
+                  "selection_p50_seconds",
+                  "selection_p95_seconds",
+                  "end_to_end_p50_seconds",
+                  "end_to_end_p95_seconds",
+                  "latency_basis",
+                  "api_tokens",
+                  "estimated_api_cost_usd"
+                ],
+                "properties": {
+                  "configuration_id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "source_run": {
+                    "type": "string"
+                  },
+                  "attempts": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "accuracy": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "accuracy_basis": {
+                    "type": "string"
+                  },
+                  "precision": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "recall": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "selection_scored_attempts": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "selection_p50_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "selection_p95_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "end_to_end_p50_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "end_to_end_p95_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "latency_basis": {
+                    "type": "string"
+                  },
+                  "api_tokens": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "estimated_api_cost_usd": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "frontier_llm_judges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "configuration_id",
+                  "label",
+                  "source_run",
+                  "attempts",
+                  "accuracy",
+                  "accuracy_basis",
+                  "precision",
+                  "recall",
+                  "selection_scored_attempts",
+                  "selection_p50_seconds",
+                  "selection_p95_seconds",
+                  "end_to_end_p50_seconds",
+                  "end_to_end_p95_seconds",
+                  "latency_basis",
+                  "api_tokens",
+                  "estimated_api_cost_usd"
+                ],
+                "properties": {
+                  "configuration_id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "source_run": {
+                    "type": "string"
+                  },
+                  "attempts": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "accuracy": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "accuracy_basis": {
+                    "type": "string"
+                  },
+                  "precision": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "recall": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "selection_scored_attempts": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "selection_p50_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "selection_p95_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "end_to_end_p50_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "end_to_end_p95_seconds": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "latency_basis": {
+                    "type": "string"
+                  },
+                  "api_tokens": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "estimated_api_cost_usd": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "unverified_claims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lineage_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "git_snapshots",
+        "events",
+        "tied_diagnostic",
+        "uncertainty"
+      ],
+      "properties": {
+        "git_snapshots": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "tied_diagnostic": {
+          "type": "object"
+        },
+        "uncertainty": {
+          "type": "string"
+        }
+      }
+    },
+    "publication_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "path",
+        "scope",
+        "original_dashboard_sha256",
+        "verification_limit"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "path": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "original_dashboard_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "verification_limit": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Omneum benchmark dashboard summary v2.0.0",
+  "description": "Schema for published benchmark configurations, measurements, and provenance.",
+  "$defs": {
+    "family": {
+      "enum": [
+        "semantic_reranker",
+        "frontier_llm_judge",
+        "standalone_omneum",
+        "semantic_retriever"
+      ]
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "rate"
+      ],
+      "properties": {
+        "count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "rate": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input",
+        "output",
+        "total",
+        "reasoning"
+      ],
+      "properties": {
+        "input": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "output": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "total": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "reasoning": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "percentiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "p50",
+        "p95"
+      ],
+      "properties": {
+        "p50": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "p95": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "method_families",
+        "configuration_kind",
+        "execution_shape",
+        "baseline_configuration_id",
+        "augmentation_target",
+        "components",
+        "selector_inputs",
+        "attempts",
+        "case_count",
+        "trials_per_case",
+        "outcomes",
+        "selection",
+        "latency_seconds",
+        "api_tokens",
+        "cost_usd",
+        "local_reranker_tokens",
+        "run_id",
+        "method_id",
+        "accuracy_basis",
+        "recorded_answer_scores",
+        "measurement_coverage",
+        "comparison_scope",
+        "lineage",
+        "publication_status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "method_families": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/family"
+          }
+        },
+        "configuration_kind": {
+          "enum": [
+            "baseline",
+            "omneum_augmented"
+          ]
+        },
+        "execution_shape": {
+          "enum": [
+            "pipeline",
+            "standalone"
+          ]
+        },
+        "baseline_configuration_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "augmentation_target": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "role",
+              "method",
+              "model"
+            ],
+            "properties": {
+              "role": {
+                "enum": [
+                  "reranker",
+                  "context_selector",
+                  "answer_generator"
+                ]
+              },
+              "method": {
+                "type": "string"
+              },
+              "model": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "selector_inputs": {
+          "type": "string"
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "case_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "trials_per_case": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "outcomes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "complete_answer_accuracy",
+            "incorrect",
+            "incomplete",
+            "generator_refusal",
+            "unanswered",
+            "unadjudicated",
+            "other_failure"
+          ],
+          "properties": {
+            "complete_answer_accuracy": {
+              "$ref": "#/$defs/outcome"
+            },
+            "incorrect": {
+              "$ref": "#/$defs/outcome"
+            },
+            "incomplete": {
+              "$ref": "#/$defs/outcome"
+            },
+            "generator_refusal": {
+              "$ref": "#/$defs/outcome"
+            },
+            "unanswered": {
+              "$ref": "#/$defs/outcome"
+            },
+            "unadjudicated": {
+              "$ref": "#/$defs/outcome"
+            },
+            "other_failure": {
+              "$ref": "#/$defs/outcome"
+            }
+          }
+        },
+        "selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "macro",
+            "micro",
+            "counts"
+          ],
+          "properties": {
+            "macro": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "precision",
+                "recall",
+                "f1"
+              ],
+              "properties": {
+                "precision": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "recall": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "f1": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            },
+            "micro": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "precision",
+                "recall",
+                "f1"
+              ],
+              "properties": {
+                "precision": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "recall": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "f1": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            },
+            "counts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "true_positive",
+                "false_positive",
+                "false_negative"
+              ],
+              "properties": {
+                "true_positive": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "false_positive": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "false_negative": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        "latency_seconds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selection",
+            "end_to_end"
+          ],
+          "properties": {
+            "selection": {
+              "$ref": "#/$defs/percentiles"
+            },
+            "end_to_end": {
+              "$ref": "#/$defs/percentiles"
+            }
+          }
+        },
+        "api_tokens": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selection",
+            "generation",
+            "total"
+          ],
+          "properties": {
+            "selection": {
+              "$ref": "#/$defs/tokens"
+            },
+            "generation": {
+              "$ref": "#/$defs/tokens"
+            },
+            "total": {
+              "$ref": "#/$defs/tokens"
+            },
+            "selection_judge_only": {
+              "$ref": "#/$defs/tokens"
+            }
+          }
+        },
+        "cost_usd": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "estimated_api_total",
+            "estimated_api_per_answer",
+            "selection",
+            "generation",
+            "invoiced_api_total",
+            "local_compute_total"
+          ],
+          "properties": {
+            "estimated_api_total": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "estimated_api_per_answer": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "selection": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "generation": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "invoiced_api_total": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "local_compute_total": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "known_api_subtotal": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            }
+          }
+        },
+        "local_reranker_tokens": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "method_id": {
+          "type": "string"
+        },
+        "accuracy_basis": {
+          "type": "string"
+        },
+        "recorded_answer_scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "counts",
+            "accuracy",
+            "definition"
+          ],
+          "properties": {
+            "counts": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "accuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "definition": {
+              "type": "string"
+            }
+          }
+        },
+        "measurement_coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selection_scores",
+            "selection_latency",
+            "end_to_end_latency"
+          ],
+          "properties": {
+            "selection_scores": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "selection_latency": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end_to_end_latency": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "comparison_scope": {
+          "type": "string"
+        },
+        "lineage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reused_baseline_run",
+            "implementation"
+          ],
+          "properties": {
+            "reused_baseline_run": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "implementation": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "cohere_billed_search_units": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "publication_status": {
+          "enum": [
+            "authoritative",
+            "historical",
+            "superseded",
+            "diagnostic",
+            "partial",
+            "quarantined"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method_families": {
+                "contains": {
+                  "const": "standalone_omneum"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "execution_shape": {
+                "const": "standalone"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "configuration_kind": {
+                "const": "omneum_augmented"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "augmentation_target": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

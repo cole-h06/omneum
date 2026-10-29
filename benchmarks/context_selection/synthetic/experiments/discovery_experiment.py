@@ -1,0 +1,327 @@
+"""Isolated discovery and score-normalization experiments; no production defaults."""
+import argparse
+from ..execution_safety import DEFAULT_TRACE
+import asyncio
+import csv
+import itertools
+import json
+import random
+import time
+from pathlib import Path
+from statistics import mean
+from unittest.mock import patch
+
+import httpx
+
+from omneum import open_stdio_client
+from omneum import context_selection as selection
+from omneum import query_context as query
+from benchmarks.context_selection import deployment
+from benchmarks.context_selection.config import estimator_config
+from benchmarks.context_selection.paths import resolve_artifact
+from ..tier1_benchmark import BASE, BUDGETS, environment, integrity, prepare_cases, sha, snapshot, write
+from ..tier1_competitors import provider_ranks
+from ..tier1_metrics import distribution, measure
+from ..loader import load_ground_truth
+from ..prepare_benchmark import render
+
+
+METHODS = ('omneum', 'bge_omneum', 'embedding_omneum', 'bm25_omneum', 'cohere_omneum')
+ARMS = ('baseline', 'A', 'B', 'AB')
+FIELDS = ('evidence_retention', 'supporting_passage_claim_coverage', 'independent_evidence_coverage',
+          'actual_context_tokens', 'context_reduction', 'tokenizer_tokens', 'source_precision', 'source_recall',
+          'excluded_gold', 'recovered_claims', 'lost_claims', 'recovered_origins', 'lost_origins',
+          'unused_tokens', 'nongold_selected', 'newly_eligible')
+
+
+def weights(scores, kind):
+    """Retain ordinal separation; raw strength adds at most one rank interval."""
+    raw, _ = query.normalize_chunk_relevance(scores, list(scores), 'similarity')
+    values = list(raw.values())
+    if kind == 'bounded':
+        if any(not 0 <= v <= 1 for v in values):
+            raise ValueError('bounded scores must be in [0, 1]')
+    elif kind == 'cosine':
+        if any(not -1 <= v <= 1 for v in values):
+            raise ValueError('cosine scores must be in [-1, 1]')
+    elif kind == 'bm25':
+        if any(v < 0 for v in values):
+            raise ValueError('BM25 scores must be nonnegative')
+    else:
+        raise ValueError('unknown score semantics')
+    levels = sorted(set(values))
+    if len(levels) <= 1:
+        return dict.fromkeys(raw, 1.0)
+    rank = {value: i for i, value in enumerate(levels)}
+    maximum = max(max(values), 0)
+    return {k: (rank[v] + (max(v, 0) / maximum if maximum else 0)) / len(levels)
+            for k, v in raw.items()}
+
+
+def admit(evaluation, chunks, full, result, options, relevance, state,
+          pack=selection.reconstruct_context):
+    """Expand eligibility at the initial selection's fixed quality boundary."""
+    probe = []
+    pack(evaluation, full, **dict(options, token_budget=0, chunk_relevance=relevance,
+                                 _selection_trace=probe))
+    potential = {c['chunk_id']: c for c in probe[0]['candidates']}
+    terms = selection._inferred_coverage_terms(evaluation, full)
+    eligible = {c['chunk_id'] for c in chunks}
+    reference = result['selected_chunk_ids'] or list(eligible)
+    positive = [potential[k]['utility'] for k in reference if potential[k]['utility'] > 0]
+    boundary = min(positive) if positive else None
+    state['density_boundary'] = boundary
+    ranked = sorted(full, key=lambda c: -relevance[c['chunk_id']])
+    for chunk in ranked:
+        key = chunk['chunk_id']
+        if key in eligible:
+            continue
+        candidate = potential[key]
+        fits = candidate['proposed_context_tokens'] <= options['token_budget']
+        accepted = fits and boundary is not None and candidate['utility'] >= boundary
+        reason = 'eligible' if accepted else 'singleton_over_budget' if not fits else 'below_reference_density'
+        state['attempts'].append(dict(candidate, reason=reason, density_boundary=boundary,
+            claim_contributions={a: dict(group=group, converged_mass=mass)
+                                 for a, (group, mass) in terms[key].items()}))
+        if accepted:
+            eligible.add(key)
+            state['admitted'].append(key)
+    state['eligible'] = [c['chunk_id'] for c in full if c['chunk_id'] in eligible]
+    if state['admitted']:
+        trace = []
+        result = pack(evaluation, [c for c in full if c['chunk_id'] in eligible],
+                      **dict(options, chunk_relevance={k: relevance[k] for k in eligible}, _selection_trace=trace))
+        options['_selection_trace'][:] = trace
+    return result
+
+
+def stats(cells, runs):
+    groups = {}
+    for arm in ARMS:
+        for method in METHODS:
+            rows = [r for r in cells if r['arm'] == arm and r['method'] == method]
+            if not rows:
+                continue
+            samples = [r for r in runs if r['arm'] == arm and r['method'] == method]
+            value = {k: mean(r[k] for r in rows) for k in FIELDS}
+            value.update(cells=len(rows), budget_violations=sum(r['tokenizer_tokens'] > r['budget'] for r in rows))
+            for field in ('selection_ms', 'graph_ms', 'packing_ms', 'discovery_ms'):
+                value[field] = distribution([float(r[field]) for r in samples])
+            groups[arm + ':' + method] = value
+    return groups
+
+
+def report(out):
+    cells = json.loads((out / 'selections.json').read_text())
+    with (out / 'timings.csv').open() as stream:
+        runs = list(csv.DictReader(stream))
+    for r in runs:
+        r['budget'] = int(r['budget'])
+    return dict(aggregate=stats(cells, runs),
+        per_budget={str(b): stats([r for r in cells if r['budget'] == b],
+                                  [r for r in runs if r['budget'] == b]) for b in BUDGETS},
+        per_case={c: stats([r for r in cells if r['case_id'] == c],
+                           [r for r in runs if r['case_id'] == c]) for c in sorted({r['case_id'] for r in cells})})
+
+
+async def run(args):
+    out = args.output.resolve()
+    out.mkdir(exist_ok=True)
+    assert not (out / 'manifest.json').exists(), 'Never overwrite an existing run'
+    snapshot(out)
+    records = [json.loads(line) for line in args.trace.open()]
+    missing = []
+    semantic_drift = {}
+    for name, digest in records[0]['source_sha256'].items():
+        if name.startswith('omneum/') or '/canonical/' in name:
+            path = resolve_artifact(name)
+            if not path.is_file():
+                missing.append(name)
+            else:
+                current = sha(path)
+                if current != digest:
+                    assert name in {'omneum/extraction.py', 'omneum/normalization.py',
+                                    'omneum/_extraction_verification.py', 'omneum/_numeric.py'}, name
+                    semantic_drift[name] = dict(recorded_sha256=digest, current_sha256=current)
+    # An unrelated demo was removed by concurrent work after the recorded run.
+    assert set(missing) <= {'omneum/demo.py'}, missing
+    graphs = {r['case_id']: r for r in records if r['type'] == 'graph'}
+    cases = prepare_cases(graphs)
+    prior = json.loads((args.prior / 'selections.json').read_text())
+    reference = {(r['case_id'], r['method'], r['budget']): r for r in prior if r['method'] in METHODS}
+    ranks = provider_ranks(BASE / 'results/question-aware-release-v1')
+    raw = {c: json.loads((BASE / 'canonical/cases' / c / 'case.json').read_text()) for c in cases}
+    truth = {c: load_ground_truth(BASE / 'canonical/cases' / c / 'ground_truth.json') for c in cases}
+    write(out / 'manifest.json', dict(cases=24, budgets=BUDGETS, methods=METHODS, arms=ARMS,
+        repeats=args.repeats, seed=42, conflict_aware=False, environment=environment(),
+        prior=str(args.prior), source_trace=str(args.trace), trace_sha256=sha(args.trace),
+        code_sha256=sha(Path(__file__)), tokenizer=args.tokenizer, daemon_sha256=sha(args.daemon),
+        historical_files_absent_before_run=missing,
+        unrelated_semantic_code_drift=semantic_drift,
+        discovery='Probe singleton utilities with production packer at budget zero (trace only). In relevance order, admit singleton-feasible excluded candidates whose support/relevance density meets the weakest positive singleton density among initially selected chunks. Boundary stays fixed; final production packer selects once. No residual-capacity target.',
+        normalization='w=(ascending distinct score rank + max(raw,0)/max_positive_raw)/number_distinct_scores. BGE/Cohere require [0,1], cosine [-1,1], BM25 nonnegative. Negative cosine has no raw-strength credit. Constant batches remain one as production. Positive best=1; positive last receives <=one rank interval; actual zero/negative last stays zero. No cross-model calibration.',
+        isolation='B retains original discovery eligibility. A uses original dense ranks. Standalone is unchanged in all arms.',
+        timing='Fresh complete prepare_context wall time in every repetition, including graph, SDK verification, discovery, all experimental admission checks and repacking. Exact token counts prewarmed; relevance inference and loading excluded.',
+        metrics='Unchanged tier1_metrics.measure; strict gold-claim labels unavailable. Added recovery metrics are distinct canonical supporting-passage claim IDs and annotated gold origins versus paired baseline.',
+        paid_api_calls=0, downstream_generations=0))
+    cache = {}
+    with httpx.Client(trust_env=False, timeout=120) as http:
+        def count(text):
+            if text not in cache:
+                body = http.post(args.tokenizer + '/tokenize', json=dict(content=text,
+                    add_special=False, parse_special=True)).raise_for_status().json()
+                cache[text] = len(body['tokens'])
+            return cache[text]
+        for cid, data in cases.items():
+            count(render(data['chunks']))
+            for size in range(len(data['order']) + 1):
+                for subset in itertools.combinations(data['order'], size):
+                    count(render(subset))
+            for method in METHODS:
+                for budget in BUDGETS:
+                    r = reference[cid, method, budget]
+                    assert count(r['context']) == r['tokenizer_tokens']
+        print('Tokenizer prewarmed:', len(cache), 'contexts', flush=True)
+        original_select = selection.reconstruct_context
+        original_discover = query.discover_chunks
+        cells, seen = [], {}
+        with patch.object(deployment, '_build_daemon', return_value=args.daemon.resolve()):
+            with deployment.benchmark_deployment() as (config, server):
+                async with open_stdio_client(config, server, local_persistence=None) as client:
+                    async def execute(cid, method, budget, arm):
+                        data = cases[cid]
+                        state = dict(admitted=[], attempts=[], packing_ms=0.0, density_boundary=None)
+                        if method == 'omneum':
+                            scores, kind = {}, None
+                            options = dict(question=data['case'].question)
+                        else:
+                            name = method.removesuffix('_omneum')
+                            scores = ranks[cid, 'cohere', 0]['scores'] if name == 'cohere' else data['scores'][name]['raw_scores']
+                            kind = 'cosine' if name == 'embedding' else 'bm25' if name == 'bm25' else 'bounded'
+                            options = dict(strategy='coverage_support_density', complementary_evidence=True,
+                                token_cost_exponent=1, user_query=data['case'].question, chunk_relevance=scores,
+                                relevance_score_type='reranker_score' if name in ('bge', 'cohere') else 'similarity',
+                                candidate_discovery='expanded', candidate_count=3, expansion_depth=2, query_evaluation='full')
+                        def discover(*args, **kwargs):
+                            d = original_discover(*args, **kwargs)
+                            state['initial_eligible'] = list(d['eligible_chunk_ids'])
+                            if arm in ('B', 'AB'):
+                                d['normalized_relevance_scores'] = weights(d['raw_relevance_scores'], kind)
+                                d['normalization'] = 'ordinal ranks with at most one rank interval of raw-strength credit'
+                            state['relevance'] = dict(d['normalized_relevance_scores'])
+                            return d
+                        def reconstruct(evaluation, chunks, **kwargs):
+                            start = time.perf_counter()
+                            actual = {selection.claim_id(c.claim): c.support for c in evaluation.claim_support}
+                            expected = {c['claim_id']: c['support'] for c in graphs[cid]['claims']}
+                            assert actual.keys() == expected.keys()
+                            assert all(abs(actual[k]-expected[k]) <= 1e-12 for k in actual)
+                            result = original_select(evaluation, chunks, **kwargs)
+                            if arm in ('A', 'AB') and method != 'omneum':
+                                result = admit(evaluation, chunks, data['chunks'], result, kwargs,
+                                               state['relevance'], state)
+                            state['packing_ms'] = (time.perf_counter() - start) * 1000
+                            return result
+                        diag = {}
+                        start = time.perf_counter()
+                        with patch.object(query, 'discover_chunks', discover), \
+                             patch.object(selection, 'reconstruct_context', reconstruct):
+                            result = await client.prepare_context(data['graph'], data['chunks'],
+                                estimator=estimator_config(), token_budget=budget, count_tokens=count,
+                                query_diagnostics=diag, include_telemetry=True, **options)
+                        elapsed = (time.perf_counter() - start) * 1000
+                        selected, context = result['packed_chunk_ids'], result['context']
+                        tokens = result['selection']['selected_tokens']
+                        assert count(context) == tokens <= budget
+                        expected = reference[cid, method, budget]
+                        if arm == 'baseline' or method == 'omneum':
+                            assert (selected, context, tokens) == (expected['selected'], expected['context'], expected['tokenizer_tokens'])
+                        if method != 'omneum':
+                            assert state['initial_eligible'] == expected['eligible']
+                        eligible = state.get('eligible', state.get('initial_eligible', [c['chunk_id'] for c in data['chunks']]))
+                        telemetry = result['telemetry']
+                        timing = dict(selection_ms=elapsed, graph_ms=telemetry['graph_evaluation_latency_ms'],
+                                      packing_ms=state['packing_ms'], discovery_ms=diag.get('candidate_discovery_latency_ms', 0.0))
+                        return selected, context, tokens, eligible, state, diag, timing
+                    for method in METHODS:
+                        await execute(next(iter(cases)), method, 128, 'baseline')
+                    jobs = [(c, m, b, a, t) for c in cases for m in METHODS for b in BUDGETS
+                            for a in ARMS for t in range(args.repeats)]
+                    random.Random(42).shuffle(jobs)
+                    with (out / 'timings.csv').open('x', newline='') as stream:
+                        writer = csv.DictWriter(stream, fieldnames=['case_id', 'method', 'budget', 'arm', 'repeat',
+                            'selection_ms', 'graph_ms', 'packing_ms', 'discovery_ms'])
+                        writer.writeheader()
+                        for n, (cid, method, budget, arm, repeat) in enumerate(jobs, 1):
+                            selected, context, tokens, eligible, state, diag, timing = await execute(cid, method, budget, arm)
+                            key = cid, method, budget, arm
+                            signature = selected, context, tokens, eligible
+                            if key in seen:
+                                assert seen[key] == signature
+                            else:
+                                seen[key] = signature
+                                old = reference[cid, method, budget]
+                                by = {'chunk-' + c['source_id']: c for c in raw[cid]['candidates']}
+                                claims = lambda ids: {a['claim_id'] for k in ids for a in by[k]['claims']}
+                                gold = set(truth[cid].supporting_sources)
+                                required = {a['claim_id'] for c in raw[cid]['candidates'] if c['source_id'] in gold for a in c['claims']}
+                                quality = measure(raw[cid], truth[cid], selected, context)
+                                new_origins = {tuple(x) for x in quality['retained_gold_origins']}
+                                old_origins = {tuple(x) for x in old['retained_gold_origins']}
+                                cells.append(dict(case_id=cid, method=method, budget=budget, arm=arm,
+                                    selected=selected, context=context, tokenizer_tokens=tokens, eligible=eligible,
+                                    excluded_gold=sum(k not in eligible and c['source_id'] in gold for k, c in by.items()),
+                                    recovered_claims=len((claims(selected) - claims(old['selected'])) & required),
+                                    lost_claims=len((claims(old['selected']) - claims(selected)) & required),
+                                    recovered_origins=len(new_origins - old_origins), lost_origins=len(old_origins - new_origins),
+                                    added=sorted(set(selected) - set(old['selected'])),
+                                    removed=sorted(set(old['selected']) - set(selected)),
+                                    admitted=state['admitted'], admission_checks=state['attempts'],
+                                    density_boundary=state['density_boundary'], unused_tokens=budget-tokens,
+                                    newly_eligible=len(state['admitted']),
+                                    nongold_selected=sum(by[k]['source_id'] not in gold for k in selected),
+                                    diagnostics=diag, **quality))
+                            writer.writerow(dict(case_id=cid, method=method, budget=budget, arm=arm, repeat=repeat, **timing))
+                            if n % 144 == 0:
+                                stream.flush()
+                                print('Completed', n, 'of', len(jobs), flush=True)
+                    write(out / 'selections.json', cells)
+    summary = report(out)
+    write(out / 'summary.json', summary)
+    for name, groups in [('aggregate', [('all', summary['aggregate'])]),
+                         ('per_budget', list(summary['per_budget'].items())),
+                         ('per_case', list(summary['per_case'].items()))]:
+        with (out / (name + '.csv')).open('x', newline='') as stream:
+            writer = csv.DictWriter(stream, fieldnames=['group', 'arm_method', *FIELDS, 'p50_ms', 'p95_ms', 'budget_violations'])
+            writer.writeheader()
+            for group, methods in groups:
+                for method, v in methods.items():
+                    writer.writerow(dict(group=group, arm_method=method, **{k: v[k] for k in FIELDS},
+                        p50_ms=v['selection_ms']['p50'], p95_ms=v['selection_ms']['p95'], budget_violations=v['budget_violations']))
+    write(out / 'validation.json', dict(cells=len(cells), executions=len(jobs), warmups=5,
+        baseline_cells_reproduced=720, standalone_cells_unchanged=576, repeats_identical=True,
+        graph_support_matches_frozen_trace=True, budget_violations=0, paid_api_calls=0, downstream_generations=0))
+    integrity(out)
+    print('Complete:', out, flush=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--prior', type=Path, default=BASE / 'results/tier1-competitors-20261025-v1')
+    parser.add_argument('--trace', type=Path, default=DEFAULT_TRACE)
+    parser.add_argument('--tokenizer', required=True)
+    parser.add_argument('--daemon', type=Path, default=Path('target/test-daemon/debug/omneumd'))
+    parser.add_argument('--repeats', type=int, default=3)
+    parser.add_argument('--verify', action='store_true')
+    args = parser.parse_args()
+    if args.verify:
+        assert report(args.output) == json.loads((args.output / 'summary.json').read_text())
+        print('Summary reproduced exactly')
+    else:
+        assert args.repeats >= 2
+        asyncio.run(run(args))
+
+
+if __name__ == '__main__':
+    main()

@@ -73,7 +73,7 @@ print(line.hex(),file=sys.stderr,flush=True)
                     item.claim, item.observed_at,
                 ) for i, item in enumerate(observations)]
                 try:
-                    await client.evaluate_context(observations, estimator=DependencyEstimatorConfig(
+                    await client._evaluate_context(observations, estimator=DependencyEstimatorConfig(
                         upstream_weight=1., citation_weight=1., assertion_lineage_weight=1.,
                         ownership_weight=1., temporal_weight=1., graph_weight=1.,
                         temporal_window_seconds=3600.,

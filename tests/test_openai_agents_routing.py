@@ -29,7 +29,7 @@ def test_scenarios_sdk_tools_and_mcp_reevaluation(scenario, example_daemon, monk
     async def record_client(*args):
         async with open_client(*args) as client:
             async def evaluate(observations, **kwargs):
-                result = await client.evaluate_context(observations, **kwargs)
+                result = await client._evaluate_context(observations, **kwargs)
                 evaluations.append((observations, result))
                 return result
             yield SimpleNamespace(evaluate_context=evaluate)
@@ -40,7 +40,7 @@ def test_scenarios_sdk_tools_and_mcp_reevaluation(scenario, example_daemon, monk
         pytest.fail("Deterministic routing must not enter Runner.run")
 
     monkeypatch.setattr(Runner, "run", no_runner)
-    for tool in (routing.evaluate_context, routing.retrieve_evidence):
+    for tool in (routing.evaluate_context, routing.retrieve_evidence, routing.prepare_context):
         assert isinstance(tool, FunctionTool)
         original = tool.on_invoke_tool
 
@@ -63,17 +63,19 @@ def test_scenarios_sdk_tools_and_mcp_reevaluation(scenario, example_daemon, monk
     assert len(evaluations[0][0]) == state.initial_observation_count
     assert evaluations[-1][0] == state.observations
     assert all(result.evaluation_latency_ms is not None for _, result in evaluations)
-    expected = ["evaluate_context", "retrieve_evidence"] * state.retry_count + ["evaluate_context"]
+    expected = ["evaluate_context", "retrieve_evidence"] * state.retry_count + ["evaluate_context", "prepare_context"]
     assert invocations == list(state.tool_history) == expected
     assert state.selected_claims == select_context(state.context_evaluation)
     assert {claim.attribute: claim.value for claim in state.selected_claims} == ROUTING_VALUES
     assert all(claim.independent_support >= RoutingPolicy().min_independent_support for claim in state.selected_claims)
-    assert state.answer == "\n".join([
-        "Application decision: EVALUATION COMPLETE", "Selected context:",
-        *(f"{attribute}: {ROUTING_VALUES[attribute]}" for attribute in REQUIRED_ATTRIBUTES),
-    ])
-    for conflicting in ("unredacted customer content allowed", "30 days", "processing_region: US"):
-        assert conflicting not in state.answer
+    generation = state.generation
+    assert generation["prepared_context"]["context"] in state.answer
+    assert generation["messages"][1]["content"] in state.answer
+    for chunk in generation["retrieved_chunks"]:
+        if chunk["chunk_id"] in generation["prepared_context"]["packed_chunk_ids"]:
+            assert chunk["raw_text"] in state.answer
+        else:
+            assert chunk["raw_text"] not in state.answer
     if scenario == "resolve_conflicts":
         assert {item.claim.value for item in state.context_evaluation.claim_support} >= {
             "US", "30 days", "unredacted customer content allowed",
@@ -182,41 +184,33 @@ def test_enterprise_mapping_and_mcp_regression(example_daemon, monkeypatch):
     assert isinstance(basic.evaluate_context, FunctionTool)
     assert "evaluate_context tool" in basic.agent.instructions
     captured = []
-    render = basic.render_result
+    prepare = basic.prepare_generation
 
-    def capture(result):
+    async def capture(*args, **kwargs):
+        result = await prepare(*args, **kwargs)
         captured.append(result)
-        return render(result)
+        return result
 
-    monkeypatch.setattr(basic, "render_result", capture)
+    monkeypatch.setattr(basic, "prepare_generation", capture)
 
     async def evaluate():
         context = ToolContext.from_agent_context(
             RunContextWrapper(None), tool_call_id="enterprise",
             tool_name="evaluate_context", tool_arguments="{}", agent=basic.agent,
         )
-        report = await basic.evaluate_context.on_invoke_tool(context, "{}")
-        with basic.example_deployment() as (config, server):
-            async with basic.open_stdio_client(config, server) as client:
-                direct = await client.evaluate_context(
-                    basic.collect_observations(), estimator=basic.estimator_config(),
-                )
-        return report, direct
+        return await basic.evaluate_context.on_invoke_tool(context, "{}")
 
-    report, direct = asyncio.run(evaluate())
+    model_input = asyncio.run(evaluate())
     assert len(basic.collect_observations()) == 17
     assert len(captured) == 1
     result = captured[0]
-    assert len(result.source_reliability) == 6
-    assert len(result.claim_support) == 6
-    assert len(result.pairwise_dependencies) == 15
-    assert result.evaluation_latency_ms is not None
-    assert report == render(result)
-    assert "Omneum Evaluation" in report
-    assert "Application decision: EVALUATION COMPLETE" in report
-    assert result.claim_support == direct.claim_support
-    assert result.source_reliability == direct.source_reliability
-    assert result.pairwise_dependencies == direct.pairwise_dependencies
+    assert model_input == result["messages"][1]["content"]
+    assert result["prepared_context"]["context"] in model_input
+    assert len(result["prepared_context"]["evaluation"]["source_reliability"]) == 6
+    assert len(result["prepared_context"]["evaluation"]["pairwise_dependencies"]) == 15
+    assert result["query_diagnostics"]["relevance_source"] == "bm25"
+    assert "Source references:" in model_input
+    assert "Omneum Evaluation" not in model_input
 
 
 @pytest.mark.parametrize("scenario", (*SCENARIOS, "all"))
@@ -234,3 +228,43 @@ def test_cli_without_openai(scenario, example_daemon, monkeypatch, capsys):
     assert output.count("Application decision: EVALUATION COMPLETE") == len(scenarios)
     for field in ("Observations:", "Routing:", "Retries:", "Claim support:", "independent=", "Selected context:"):
         assert field in output
+
+
+def test_runner_receives_original_context(example_daemon, monkeypatch):
+    import json
+    from agents import RunConfig
+    from agents.items import ModelResponse
+    from agents.models.openai_responses import OpenAIResponsesModel
+    from agents.usage import Usage
+    from openai.types.responses import ResponseFunctionToolCall, ResponseOutputMessage, ResponseOutputText
+    from examples.openai_agents.agent import agent
+
+    monkeypatch.setenv("OPENAI_API_KEY", "unused-test-key")
+    requests = []
+
+    async def respond(self, *args, **kwargs):
+        requests.append(kwargs["input"])
+        if len(requests) == 1:
+            output = [ResponseFunctionToolCall(
+                type="function_call", name="evaluate_context", call_id="prepare-evidence",
+                arguments=json.dumps({"question": "What are the EU copilot controls?"}),
+            )]
+        else:
+            tool_outputs = [item["output"] for item in kwargs["input"] if item.get("type") == "function_call_output"]
+            assert len(tool_outputs) == 1
+            assert "Retrieved context:" in tool_outputs[0]
+            assert '"document"' in tool_outputs[0] or '"enterprise_controls"' in tool_outputs[0]
+            assert "Source references:" in tool_outputs[0]
+            assert "Omneum Evaluation" not in tool_outputs[0]
+            output = [ResponseOutputMessage(
+                id="test-message", type="message", role="assistant", status="completed",
+                content=[ResponseOutputText(type="output_text", text="Test model received evidence.", annotations=[])],
+            )]
+        return ModelResponse(output=output, usage=Usage(), response_id=None)
+
+    monkeypatch.setattr(OpenAIResponsesModel, "get_response", respond)
+    result = asyncio.run(Runner.run(
+        agent, "What are the EU copilot controls?", run_config=RunConfig(tracing_disabled=True),
+    ))
+    assert len(requests) == 2
+    assert result.final_output == "Test model received evidence."

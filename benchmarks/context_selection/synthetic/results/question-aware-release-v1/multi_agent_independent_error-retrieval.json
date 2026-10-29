@@ -1,0 +1,62 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.17169883288443089,
+    "ranking": [
+      "chunk-api_result",
+      "chunk-database_result",
+      "chunk-researcher_agent",
+      "chunk-tool_result",
+      "chunk-specialist_agent",
+      "chunk-analyst_agent"
+    ],
+    "raw_scores": {
+      "chunk-analyst_agent": 0.04440193995833397,
+      "chunk-api_result": 0.8265049457550049,
+      "chunk-database_result": 0.658267617225647,
+      "chunk-researcher_agent": 0.45514270663261414,
+      "chunk-specialist_agent": 0.08742505311965942,
+      "chunk-tool_result": 0.2131996899843216
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 6.787478923797607e-05,
+    "ranking": [
+      "chunk-api_result",
+      "chunk-tool_result",
+      "chunk-analyst_agent",
+      "chunk-database_result",
+      "chunk-researcher_agent",
+      "chunk-specialist_agent"
+    ],
+    "raw_scores": {
+      "chunk-analyst_agent": 3.6808996698285923,
+      "chunk-api_result": 5.239597955443062,
+      "chunk-database_result": 3.192026758616207,
+      "chunk-researcher_agent": 2.679384686563415,
+      "chunk-specialist_agent": 2.3917331354072,
+      "chunk-tool_result": 4.0820996994650365
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.02482508309185505,
+    "ranking": [
+      "chunk-api_result",
+      "chunk-tool_result",
+      "chunk-database_result",
+      "chunk-specialist_agent",
+      "chunk-researcher_agent",
+      "chunk-analyst_agent"
+    ],
+    "raw_scores": {
+      "chunk-analyst_agent": 0.457439661026001,
+      "chunk-api_result": 0.767900824546814,
+      "chunk-database_result": 0.586796760559082,
+      "chunk-researcher_agent": 0.46313172578811646,
+      "chunk-specialist_agent": 0.5273596048355103,
+      "chunk-tool_result": 0.5969922542572021
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

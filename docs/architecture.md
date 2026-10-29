@@ -1,7 +1,6 @@
-
 # Architecture Overview
 
-Omneum is a context evaluation system for AI agents. It runs locally through an MCP server and provides a Python SDK for evaluating structured context. A SQLite-backed Context Graph stores observations and evaluation history.
+Omneum is a text-blind context control plane for AI agents and RAG pipelines. Its provenance-aware graph inference iteratively computes source reliability and claim support, accounting for dependencies as evidence propagates across a bipartite graph. `OmneumClient.prepare_context()` uses these scores to select retrieved passages under a token budget and reconstruct their original text for the LLM's context window.
 
 ## System Overview
 
@@ -13,74 +12,89 @@ flowchart TB
         Mapper["ContextMapper"]
         Client["OmneumClient"]
         Dependency["Dependency Estimator"]
+        Preparation["Context Selection & Reconstruction"]
         VOPRF["VOPRF Client"]
+
+        Mapper --> Client
+        Client --> Dependency
+        Client --> VOPRF
     end
 
-    subgraph Local["Local Evaluation"]
+    subgraph Runtime["Local Evaluation"]
         MCP["omneum-server"]
+        Graph["Provenance-Aware Graph Inference"]
         Daemon["omneumd"]
+
+        MCP --> Graph
+        MCP <-->|"Authenticated local IPC"| Daemon
     end
 
     subgraph Storage["Local Storage"]
         SQLite[("SQLite Context Graph")]
     end
 
+    subgraph Network["Optional Omneum Network"]
+        Contributor["Network Contributor"]
+        API["Network Ingestion API"]
+        Postgres[("PostgreSQL")]
+
+        Contributor -->|"Authenticated HTTPS"| API
+        API --> Postgres
+    end
+
     Agent --> Mapper
-    Mapper --> Client
-    Client --> Dependency
-    Client --> VOPRF
-    Client <-->|"MCP stdio"| MCP
-    MCP <-->|"Authenticated local IPC"| Daemon
+    Dependency --> MCP
+    Graph --> Preparation
+    Preparation -->|"Prepared context"| Agent
+
     Client <-->|"Local persistence"| SQLite
-
-    Contributor["Network Contributor"]
-    API["Network Ingestion API"]
-    Postgres[("PostgreSQL")]
-
     Client -.->|"Optional contribution"| Contributor
-    Contributor -->|"Authenticated HTTPS"| API
-    API --> Postgres
 ```
 
-The Python SDK handles observation mapping, dependency estimation, VOPRF client operations, and local persistence. `omneum-server` exposes the evaluation tools over MCP stdio. The server also forwards blinded VOPRF requests to `omneumd`, which holds the deployment private key.
+`ContextMapper` maps retrieval records into typed observations. `OmneumClient` coordinates dependency estimation and graph evaluation, then uses the resulting claim-support scores for context selection and reconstruction. `omneum-server` executes graph inference and forwards blinded VOPRF requests to `omneumd`.
 
-The local Context Graph is stored in SQLite. Network contribution is optional and uses a separate ingestion API.
+SQLite persists the local Context Graph. The optional Network contributor sends authorized records through the Network Ingestion API to PostgreSQL.
 
 ## Core Modules
 
 | Module | Responsibility | Key Components |
 |--------|----------------|----------------|
-| **Client** | Python evaluation interface | `OmneumClient`, `OmneumClientConfig`, `open_stdio_client()` |
-| **Mapping** | Structured context mapping | `ContextMapper`, `Source`, `Claim`, `Observation` |
-| **Dependency Estimation** | Source dependency analysis | `DependencyEstimatorConfig`, `DependencySignal` |
-| **Evaluation** | Graph construction and reliability scoring | `omneum-server`, MCP evaluation tools |
+| **Client** | Python evaluation and context preparation | `OmneumClient`, `OmneumClientConfig`, `open_stdio_client()` |
+| **Mapping** | Retrieval records to structured observations | `ContextMapper`, `Source`, `Claim`, `Observation` |
+| **Dependency Estimation** | Pairwise source dependency analysis | `DependencyEstimatorConfig`, `DependencySignal` |
+| **Evaluation** | Provenance-aware graph inference | `omneum-server`, MCP evaluation tools |
+| **Context Selection** | Chunk utility scoring, claim coverage, token-budgeted packing | `OmneumClient.prepare_context()`, `omneum.context_selection` |
+| **Reconstruction** | Original-text assembly and token accounting | `raw_text`, `packed_chunk_ids`, `count_tokens` |
 | **VOPRF** | Privacy-preserving identifier linkage | SDK VOPRF client, `omneumd` |
-| **Storage** | Local Context Graph persistence | SQLite, `omneum/storage/` |
+| **Storage** | Local Context Graph and execution history | SQLite, `omneum/storage/` |
 | **Network** | Optional contribution and ingestion | Contributor, Network API, PostgreSQL |
 | **Research** | Evaluation telemetry | `omneum.research_telemetry` |
 
 ## Evaluation Pipeline
 
-Omneum evaluates structured observations through the Python SDK. The MCP server receives encoded graph inputs and returns source and claim scores.
+`OmneumClient.prepare_context()` coordinates provenance-aware graph inference and context preparation. It accepts typed `Observation` records and retrieval chunks containing `chunk_id`, `raw_text`, and `claim_ids`. Each chunk retains its original text for reconstruction after selection.
 
 ### Evaluating Context
 
 ```text
-Structured Context → Observation Mapping → Dependency Estimation → VOPRF Linkage → Graph Evaluation → Results
+Retrieval Chunks → ContextMapper → Dependency Estimation → VOPRF Linkage → Provenance-Aware Graph Inference → Context Selection → Reconstruction → Prepared Context
 ```
 
-1. **Observation Mapping**: `ContextMapper` converts structured records into `Observation` objects. Sources, claims, timestamps, and provenance are mapped using field selectors or callables.
-2. **Dependency Estimation**: The SDK computes source-pair dependencies from the available provenance signals. The estimator also produces claim-specific independence weights.
-3. **VOPRF Linkage**: The SDK generates opaque identifiers using the local VOPRF evaluator. Plaintext linkage inputs remain outside the daemon.
-4. **Graph Evaluation**: `omneum-server` constructs the source–claim graph and computes reliability and support scores.
-5. **Results**: `OmneumClient` returns a `ContextEvaluation` containing scores, dependencies, and convergence information.
+1. **Observation Mapping**: `ContextMapper.map_many()` converts retrieval records into `Observation` objects. Each chunk references canonical claim identifiers generated by `omneum.context_selection.claim_id()`.
+2. **Dependency Estimation**: The SDK computes pairwise source dependencies from provenance signals, including upstream references, citations, assertion lineage, ownership, and source modification timestamps.
+3. **VOPRF Linkage**: The SDK blinds canonical source and claim identifiers. `omneum-server` forwards blinded elements to `omneumd` and returns the evaluated elements and proofs.
+4. **Graph Evaluation**: `omneum-server` evaluates the bipartite source–claim graph and returns source reliability, claim support, and convergence diagnostics.
+5. **Context Selection**: `prepare_context()` combines claim-support scores with marginal claim coverage, optional query relevance, and chunk token costs. The selector packs chunks under `token_budget`.
+6. **Reconstruction**: The SDK assembles the selected `raw_text` passages in final rendering order. `result["context"]` contains the reconstructed payload.
+
+`evaluate_context()` exposes the graph evaluation operation independently of context selection. `prepare_context()` executes the complete preparation path and returns both the prepared context and evaluation diagnostics.
 
 ### Python SDK
 
 The SDK connects to the MCP server using `open_stdio_client()`.
 
 ```python
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 from omneum import (
     DependencyEstimatorConfig,
     OmneumClientConfig,
@@ -108,6 +122,19 @@ async with open_stdio_client(config, server) as client:
 ```
 
 `evaluate_context()` accepts a sequence of `Observation` objects. For existing retrieval records, `evaluate_mapped()` accepts a `ContextMapper` and maps the records before evaluation.
+
+For context preparation, pass mapped observations and their original retrieval chunks to `prepare_context()`:
+
+```python
+result = await client.prepare_context(
+    observations,
+    chunks,
+    estimator=estimator,
+    token_budget=4096,
+)
+```
+
+`result["context"]` contains the reconstructed text. `result["selection"]` reports token usage and claim coverage. `result["evaluation"]` contains graph evaluation results.
 
 See [Python SDK](sdk.md) and [ContextMapper](context-mapper.md).
 
@@ -185,11 +212,11 @@ The dependency estimator runs before graph evaluation. It computes dependencies 
 | **Citation** | `cited_sources` | Explicit source citations |
 | **Assertion Lineage** | `parent_observation_ids` | Direct observation ancestry |
 | **Ownership** | `owner_id` | Shared source ownership |
-| **Temporal** | Source and observation timestamps | Timestamp proximity |
-| **Graph** | Source–claim relationships | Structural overlap |
-| **Retrieval** | Retrieval records | Shared retrieval origin |
+| **Temporal** | `source_modified_at` | Source modification timestamp proximity |
+| **Graph** | Source–claim relationships | Reserved; currently unobservable |
+| **Retrieval** | `retrievals` | Shared retrieval origin |
 
-`DependencyEstimatorConfig` defines the signal weights and temporal window. The estimator produces pairwise dependency values and claim-specific independence weights.
+`DependencyEstimatorConfig` defines signal weights and the temporal window. The estimator computes pairwise source dependency values. Graph inference applies those dependencies to claim-specific source contributions and estimates independent support.
 
 Missing provenance is tracked separately from observed zero dependency. `DependencySignal` exposes both `value` and `observable`:
 
@@ -200,7 +227,7 @@ DependencySignal(value=0.0, observable=False)
 
 The first represents an observed signal with no dependency evidence. The second represents unavailable evidence.
 
-The estimator also computes `estimated_independent_support_count`, which adjusts the number of supporting sources using their estimated dependencies.
+`estimated_independent_support_count` adjusts the number of supporting sources using their estimated dependencies. The result is exposed through claim evaluation output.
 
 ## Evaluation Engine
 
@@ -250,7 +277,21 @@ for claim in evaluation.claim_support:
 
 The scores measure structural reliability and support. They are not calibrated probabilities of factual correctness.
 
-The calling agent or retrieval pipeline determines how the scores affect context selection, ranking, or subsequent execution.
+`prepare_context()` returns a `dict[str, Any]` containing the reconstructed context and selection results:
+
+| Field | Description |
+|-------|-------------|
+| `context` | Reconstructed original text |
+| `chunks` | Selected chunks with scores and original text |
+| `packed_chunk_ids` | Selected chunk identifiers in rendering order |
+| `selection` | Token usage, reduction ratio, and claim coverage |
+| `evaluation` | Source reliability, claim support, and convergence diagnostics |
+
+`selection` includes `input_tokens`, `selected_tokens`, `token_budget`, `reduction_ratio`, `token_counter`, and `claim_coverage`.
+
+Optional `include_dependencies=True` adds `pairwise_dependencies` to the evaluation payload. `include_telemetry=True` adds execution measurements.
+
+The calling agent receives the prepared context and controls subsequent model execution.
 
 ## Storage Architecture
 
@@ -266,7 +307,11 @@ Omneum uses SQLite for local Context Graph persistence. The Python SDK initializ
 
 The Context Graph persists observations and evaluation records between SDK sessions. It runs independently of the hosted Network.
 
-`open_stdio_client()` enables SQLite persistence by default. Pass `local_persistence=None` to disable it:
+`open_stdio_client()` enables SQLite persistence by default. The default database filename is `omneum.db`, resolved through `get_context_db_path()`.
+
+Each successful `prepare_context()` call records execution history linked to its evaluation run, including token counts and execution measurements.
+
+Pass `local_persistence=None` to disable it:
 
 ```python
 async with open_stdio_client(
@@ -317,6 +362,8 @@ The managed local deployment separates the SDK, MCP server, and VOPRF daemon.
 | Context Graph | SDK process | SQLite adapter |
 | Network Contributor | Optional local contributor | HTTPS |
 | Network API | Hosted service | Authenticated ingestion endpoints |
+
+The SDK owns observation mapping, dependency estimation, chunk scoring, token-budgeted selection, and original-text reconstruction. `omneum-server` executes graph inference over MCP stdio. The final `result["context"]` payload is assembled in the SDK process.
 
 The MCP server does not own the VOPRF private key. The daemon runs under a separate operating-system identity in protected local deployments.
 
@@ -407,12 +454,14 @@ See [Research Telemetry](research/telemetry.md).
 | Principle | Description |
 |-----------|-------------|
 | **Structured Context** | `Observation` and `ContextMapper` define the input model. Entity resolution remains outside Omneum. |
-| **Dependency-Aware Evaluation** | Source dependencies are estimated before reliability propagation. |
+| **Dependency-Aware Evaluation** | Pairwise source dependencies adjust graph contributions and independent-support estimates. |
+| **Budgeted Context Selection** | `coverage_support` selects chunks using claim support, marginal coverage, and token cost. |
+| **Original-Text Reconstruction** | Selected `raw_text` passages are assembled into `result["context"]` within the configured token budget. |
 | **Separate Cryptographic Boundary** | `omneumd` holds the VOPRF private key outside the MCP process. |
-| **Local Context Graph** | SQLite stores observations and evaluation history without requiring a hosted database. |
+| **Local Context Graph** | SQLite stores observations, evaluation history, and context-preparation execution records. |
 | **Content-Blind Evaluation** | The MCP evaluator operates on opaque identifiers and numeric graph inputs. |
 | **Explicit Network Contribution** | Network uploads require separate configuration and authorization. |
-| **Application-Controlled Decisions** | Evaluation results are returned to the calling code without enforcing retrieval or agent policies. |
+| **Application-Controlled Decisions** | `prepare_context()` selects and reconstructs context; the calling agent controls subsequent model calls and actions. |
 
 ## Related Documents
 

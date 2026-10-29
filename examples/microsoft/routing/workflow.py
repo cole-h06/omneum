@@ -1,4 +1,6 @@
-from agent_framework import Executor, Workflow, WorkflowBuilder, WorkflowContext, executor, handler
+from agent_framework import Agent, Executor, Message, Workflow, WorkflowBuilder, WorkflowContext, executor, handler
+
+from examples.context_preparation import PreparationOptions, collect_chunks, prepare_generation
 
 from examples.enterprise.config import example_deployment
 from examples.enterprise.workflow.run import estimator_config
@@ -19,6 +21,7 @@ async def load_evidence(scenario: str, ctx: WorkflowContext[RoutingState]) -> No
 
 @executor
 async def evaluate_context(state: RoutingState, ctx: WorkflowContext[RoutingState]) -> None:
+    state.retrieved_chunks = collect_chunks(state.observations)
     with example_deployment() as (config, server):
         async with open_stdio_client(config, server) as client:
             state.context_evaluation = await client.evaluate_context(
@@ -65,12 +68,25 @@ async def select_claims(state: RoutingState, ctx: WorkflowContext[RoutingState])
 
 
 @executor
+async def prepare_context(state: RoutingState, ctx: WorkflowContext[RoutingState]) -> None:
+    state.generation = await prepare_generation(
+        state.observations, question=state.question, estimator=estimator_config(),
+        chunks=state.retrieved_chunks, evaluation=state.context_evaluation,
+        preparation=state.preparation,
+    )
+    state.generation_messages = [
+        Message(message["role"], contents=[message["content"]])
+        for message in state.generation["messages"]
+    ]
+    await ctx.send_message(state)
+
+
+@executor
 async def generate_answer(state: RoutingState, ctx: WorkflowContext[None, RoutingState]) -> None:
-    state.answer = "\n".join([
-        "Application decision: EVALUATION COMPLETE",
-        "Selected context:",
-        *(f"{claim.attribute}: {claim.value}" for claim in state.selected_claims),
-    ])
+    state.answer = (
+        "Application decision: EVALUATION COMPLETE\nSelected context:\n"
+        + state.generation_messages[1].text
+    )
     await ctx.yield_output(state)
 
 
@@ -83,12 +99,30 @@ async def escalate_answer(state: RoutingState, ctx: WorkflowContext[None, Routin
     await ctx.yield_output(state)
 
 
-def build_routing_workflow() -> Workflow:
+def build_routing_workflow(
+    *, preparation: PreparationOptions | None = None, generation_agent: Agent | None = None,
+) -> Workflow:
+    @executor(id="load_evidence")
+    async def load(scenario: str, ctx: WorkflowContext[RoutingState]) -> None:
+        observations = initial_observations(scenario)
+        state = RoutingState(scenario, len(observations), observations)
+        state.preparation = preparation or PreparationOptions()
+        await ctx.send_message(state)
+
+    @executor(id="generate_answer")
+    async def generate(state: RoutingState, ctx: WorkflowContext[None, RoutingState]) -> None:
+        if generation_agent is None:
+            state.answer = "Application decision: EVALUATION COMPLETE\nSelected context:\n" + state.generation_messages[1].text
+        else:
+            response = await generation_agent.run(state.generation_messages)
+            state.answer = response.text
+        await ctx.yield_output(state)
+
     builder = WorkflowBuilder(
-        start_executor=load_evidence,
-        output_from=[generate_answer, escalate_answer],
+        start_executor=load,
+        output_from=[generate, escalate_answer],
     )
-    builder.add_edge(load_evidence, evaluate_context)
+    builder.add_edge(load, evaluate_context)
     builder.add_edge(evaluate_context, route_context)
     for strategy in ("retrieve_support", "resolve_conflicts", "diversify_sources"):
         retrieval = RetrieveEvidence(strategy)
@@ -105,6 +139,7 @@ def build_routing_workflow() -> Workflow:
         route_context, escalate_answer,
         condition=lambda state: state.decision.route == "escalate",
     )
-    builder.add_edge(select_claims, generate_answer)
+    builder.add_edge(select_claims, prepare_context)
+    builder.add_edge(prepare_context, generate)
     return builder.build()
 

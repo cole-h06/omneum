@@ -1,0 +1,46 @@
+{
+  "case_id": "5a7b3ec95542995eb53be8d3",
+  "chunk_id": "p00",
+  "source_text": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000. However, he served as Acting Secretary of Labor from February 2–24, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings. He stepped down from the position when Solis was confirmed and sworn in as Secretary of Labor. Ed Hugler served as Acting Secretary of Labor from January 20, 2017 to April 28, 2017 until when Alexander Acosta was confirmed and sworn into office.",
+  "accepted": {
+    "claim": {
+      "attribute": "served_as",
+      "entity": "Edward Charles \"Ed\" Hugler | February 2–24, 2009",
+      "entity_namespace": "acting_secretary_of_labor",
+      "value": {
+        "assertion": "Edward Charles \"Ed\" Hugler served as Acting Secretary of Labor from February 2–24, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings",
+        "condition": null,
+        "modality": "historical_description",
+        "ordering": null,
+        "scope": null
+      }
+    },
+    "observation_id": "p00:3",
+    "source_span": {
+      "end": 486,
+      "start": 0,
+      "text": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000. However, he served as Acting Secretary of Labor from February 2–24, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings."
+    }
+  },
+  "rejected": {
+    "issues": [
+      "repair conflicts with an accepted source/property"
+    ],
+    "observation_id": "p00:6",
+    "record": {
+      "claim": {
+        "attribute": "served_as",
+        "entity": "Edward Charles \"Ed\" Hugler | February 2–24, 2009",
+        "entity_namespace": "acting_secretary_of_labor",
+        "value": {
+          "assertion": "Edward Charles \"Ed\" Hugler has been in the position of Acting Secretary of Labor since February 2, 2009",
+          "condition": null,
+          "modality": "historical_description",
+          "ordering": null,
+          "scope": null
+        }
+      },
+      "evidence": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000. However, he served as Acting Secretary of Labor from February 2–24, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings."
+    }
+  }
+}

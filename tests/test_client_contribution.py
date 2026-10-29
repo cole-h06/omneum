@@ -37,7 +37,7 @@ def network(tmp_path, monkeypatch):
 
 def run(runtime, **kwargs):
     config, evaluator, observations, estimator = runtime
-    return asyncio.run(OmneumClient(config, evaluator, **kwargs).evaluate_context(
+    return asyncio.run(OmneumClient(config, evaluator, **kwargs)._evaluate_context(
         observations, estimator=estimator))
 
 
@@ -229,7 +229,7 @@ def test_real_stdio_contribution(tmp_path, computed, network):
     config = OmneumClientConfig(DEPLOYMENT_ID, 1, 'voprf', 'ristretto255-SHA512', 1, key)
     async def evaluate():
         async with open_stdio_client(config, params, network_contribution=network[0]) as client:
-            return await client.evaluate_context(computed[4], estimator=computed[3])
+            return await client._evaluate_context(computed[4], estimator=computed[3])
     assert asyncio.run(evaluate()).claim_support
     assert len(network[2]) == 1
     assert 'test-token' not in repr(params)

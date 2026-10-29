@@ -1,13 +1,10 @@
-
 # Evaluate VOPRF
 
-`evaluate_voprf` evaluates one RFC 9497 blinded Ristretto255 element. The MCP server returns the evaluated element and a DLEQ proof.
+The Python SDK performs VOPRF blinding and verifies the server's DLEQ proof before finalizing linkage tokens. `OmneumClient.evaluate_context()` invokes this protocol internally.
 
 ## Evaluate a Blinded Element
 
-The Python SDK handles blinding, MCP evaluation, proof verification, and finalization. Applications using `evaluate_context()` do not need to call `evaluate_voprf` directly.
-
-For direct MCP integrations, retrieve the deployment parameters with `ping` before submitting a blinded element.
+Direct MCP clients retrieve the active deployment parameters through `ping` before submitting a blinded element.
 
 ```python
 result = await session.call_tool("ping", {})
@@ -67,12 +64,12 @@ The registered tool accepts `EvaluateVOPRFRequest` from `omneum/models.py`.
 | `voprf_key_version` | `int` | `1` through `2³² - 1`; matches active key |
 | `voprf_mode` | `str` | `voprf` |
 | `voprf_ciphersuite` | `str` | `ristretto255-SHA512` |
-| `linkage_encoding_version` | `int` | Matches active linkage encoding |
+| `linkage_encoding_version` | `int` | `1` |
 | `blinded_element` | `str` | Canonical unpadded base64url, 32 decoded bytes |
 
 All seven fields are required. Unknown fields and type coercion are rejected.
 
-The handler validates deployment metadata before decoding the blinded element.
+Deployment identity and VOPRF configuration are checked against the active server configuration before blinded-element evaluation.
 
 ## MCP Response
 
@@ -96,16 +93,7 @@ The response follows `EvaluateVOPRFResponse` in `omneum/models.py`.
 | `evaluated_element` | 32 bytes, unpadded base64url |
 | `proof` | 64 bytes, unpadded base64url |
 
-The six protocol and deployment fields are returned unchanged from the active server configuration.
-
-Both representations are available through MCP `CallToolResult`:
-
-```python
-response = result.structuredContent
-
-evaluated_element = response["evaluated_element"]
-proof = response["proof"]
-```
+Response metadata identifies the active deployment and VOPRF key version used for evaluation.
 
 `structuredContent` contains the response dictionary. `content` also contains its compact JSON serialization as `TextContent`.
 
@@ -165,16 +153,9 @@ omneumd
 EvaluateVOPRFResponse
 ```
 
-The service uses a bounded `ThreadPoolExecutor` with `voprf_max_concurrency` workers.
+`EvaluationService` bounds concurrent evaluations using `voprf_max_concurrency`. Requests exceeding available capacity return `server_busy`.
 
-```python
-self._executor = ThreadPoolExecutor(
-    max_workers=state.voprf_max_concurrency,
-    thread_name_prefix="omneum-voprf",
-)
-```
-
-`voprf_evaluation_timeout_ms` controls the request deadline. A saturated executor returns `server_busy`; an expired deadline returns `request_timeout`.
+`voprf_evaluation_timeout_ms` sets the evaluation deadline. Expired requests return `request_timeout`.
 
 The VOPRF private scalar remains in the evaluator process. The MCP handler receives only the evaluated element and proof.
 
@@ -205,18 +186,6 @@ Failed evaluations return `CallToolResult` with `isError=true`.
 | `internal_error` | Unexpected server failure |
 
 Check `isError` before reading `evaluated_element` or `proof`.
-
-```python
-result = await session.call_tool("evaluate_voprf", request)
-
-if result.isError:
-    error = result.structuredContent
-    raise RuntimeError(
-        f'{error["omneum_code"]}: {error["message"]}'
-    )
-
-response = result.structuredContent
-```
 
 See [Errors](errors.md) for the shared MCP error format.
 

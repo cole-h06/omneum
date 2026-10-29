@@ -1,0 +1,68 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.1853173328563571,
+    "ranking": [
+      "chunk-service_state",
+      "chunk-deployment_config",
+      "chunk-runbook",
+      "chunk-monitoring_result",
+      "chunk-ticket",
+      "chunk-ticket_2",
+      "chunk-change_record"
+    ],
+    "raw_scores": {
+      "chunk-change_record": 0.03580609709024429,
+      "chunk-deployment_config": 0.282174289226532,
+      "chunk-monitoring_result": 0.17597874999046326,
+      "chunk-runbook": 0.25861498713493347,
+      "chunk-service_state": 0.5626943707466125,
+      "chunk-ticket": 0.1419782191514969,
+      "chunk-ticket_2": 0.03839569166302681
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 7.733283564448357e-05,
+    "ranking": [
+      "chunk-runbook",
+      "chunk-service_state",
+      "chunk-deployment_config",
+      "chunk-ticket_2",
+      "chunk-change_record",
+      "chunk-ticket",
+      "chunk-monitoring_result"
+    ],
+    "raw_scores": {
+      "chunk-change_record": 2.0069388901483167,
+      "chunk-deployment_config": 4.314770099141593,
+      "chunk-monitoring_result": 1.8028917318311515,
+      "chunk-runbook": 5.971026448833262,
+      "chunk-service_state": 4.465970245071995,
+      "chunk-ticket": 1.8028917318311515,
+      "chunk-ticket_2": 2.267808022973912
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.020782374776899815,
+    "ranking": [
+      "chunk-runbook",
+      "chunk-deployment_config",
+      "chunk-service_state",
+      "chunk-change_record",
+      "chunk-ticket_2",
+      "chunk-ticket",
+      "chunk-monitoring_result"
+    ],
+    "raw_scores": {
+      "chunk-change_record": 0.5931742787361145,
+      "chunk-deployment_config": 0.6773209571838379,
+      "chunk-monitoring_result": 0.477800577878952,
+      "chunk-runbook": 0.7649151086807251,
+      "chunk-service_state": 0.6154069900512695,
+      "chunk-ticket": 0.569216251373291,
+      "chunk-ticket_2": 0.5791640877723694
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

@@ -1,8 +1,13 @@
-from pydantic import BaseModel, ConfigDict
+from typing import Any
 
+from crewai import Task
+from pydantic import BaseModel, ConfigDict, Field
+
+from examples.context_preparation import PreparationOptions
+from omneum import ContextEvaluation, Observation
+from examples.enterprise.workflow.run import QUESTION
 from examples.langgraph.routing.policy import RoutingDecision
 from examples.langgraph.routing.selection import SelectedClaim
-from omneum import ContextEvaluation, Observation
 
 
 class RoutingState(BaseModel):
@@ -17,3 +22,8 @@ class RoutingState(BaseModel):
     routing_history: tuple[str, ...] = ()
     selected_claims: tuple[SelectedClaim, ...] = ()
     answer: str = ""
+    preparation: PreparationOptions = Field(default_factory=PreparationOptions)
+    question: str = QUESTION
+    generation: dict[str, Any] | None = None
+    retrieved_chunks: list[dict[str, Any]] = Field(default_factory=list)
+    generation_task: Task | None = None

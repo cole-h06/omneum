@@ -1,0 +1,16 @@
+{
+  "case_id": "multi_agent_repeated_subagent",
+  "answer": "Order OR-821 dispatched on August 19, 2026.",
+  "supporting_sources": [
+    "tool_result",
+    "database_result",
+    "verifier_agent"
+  ],
+  "scoring": {
+    "required": [
+      "August 19",
+      "2026"
+    ],
+    "forbidden": []
+  }
+}

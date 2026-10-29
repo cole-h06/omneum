@@ -1,0 +1,5 @@
+method,requests,input_tokens,output_tokens,reported_reasoning_tokens,reasoning_unknown_requests,estimated_saved_rate_usd,input_rate_per_million,output_rate_per_million
+claude,48,36738,4052,,48,0.113996,2,10
+gpt,48,16518,2318,0,0,0.28108,10,50
+gemini,48,17596,3209,,48,0.02523075,0.75,3.75
+cohere,24,,,,24,,,

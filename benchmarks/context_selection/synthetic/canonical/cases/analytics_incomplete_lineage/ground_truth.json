@@ -1,0 +1,16 @@
+{
+  "case_id": "analytics_incomplete_lineage",
+  "answer": "There are 487 delivered parcels in the August 16 dispatch cohort, excluding returns.",
+  "supporting_sources": [
+    "source_table",
+    "source_table_2",
+    "metric_store",
+    "query_result"
+  ],
+  "scoring": {
+    "required": [
+      "487"
+    ],
+    "forbidden": []
+  }
+}

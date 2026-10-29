@@ -1,0 +1,457 @@
+{
+  "id": "multi_agent_feedback_loop",
+  "domain": "multi_agent_systems",
+  "question": "Can the orchestrator mark build Aster 118 approved for production under release gate RG-2?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "researcher_agent",
+      "source": {
+        "kind": "researcher_agent",
+        "identifier": "https://researcher-agent.benchmark.example/multi_agent_feedback_loop/researcher_agent"
+      },
+      "text": "Researcher shared note r118, revision 3: Aster 118 is approved for production, citing reviewer v118. The reviewer link was added after the initial handoff.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:researcher_agent",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "reviewer_agent",
+            "identifier": "https://reviewer-agent.benchmark.example/multi_agent_feedback_loop/reviewer_agent"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118",
+          "attribute": "asserted_production_approval",
+          "value": "approved",
+          "claim_id": "sha256:3dc0450f48da3c3ad7a8bf432fb399d88e1e45f801b566f34033dec8528fe0a9",
+          "observation_id": "multi_agent_feedback_loop:researcher_agent",
+          "evidence": [
+            {
+              "source_id": "researcher_agent",
+              "start": 0,
+              "end": 155,
+              "text": "Researcher shared note r118, revision 3: Aster 118 is approved for production, citing reviewer v118. The reviewer link was added after the initial handoff."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "researcher note r118",
+          "attribute": "note_revision",
+          "value": 3,
+          "claim_id": "sha256:fefabba0679087f8d24d59c2bfc5ecefa181085fbd0dbce2585f0372d74a05a6",
+          "observation_id": "multi_agent_feedback_loop:researcher_agent:claim:2",
+          "evidence": [
+            {
+              "source_id": "researcher_agent",
+              "start": 0,
+              "end": 155,
+              "text": "Researcher shared note r118, revision 3: Aster 118 is approved for production, citing reviewer v118. The reviewer link was added after the initial handoff."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "researcher note r118",
+          "attribute": "reviewer_link_timing",
+          "value": "added after initial handoff",
+          "claim_id": "sha256:89018ffe89818af33accab060e5be3a14ac2210cbe89e30df6f5f8d27829597e",
+          "observation_id": "multi_agent_feedback_loop:researcher_agent:claim:3",
+          "evidence": [
+            {
+              "source_id": "researcher_agent",
+              "start": 0,
+              "end": 155,
+              "text": "Researcher shared note r118, revision 3: Aster 118 is approved for production, citing reviewer v118. The reviewer link was added after the initial handoff."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "analyst_agent",
+      "source": {
+        "kind": "analyst_agent",
+        "identifier": "https://analyst-agent.benchmark.example/multi_agent_feedback_loop/analyst_agent"
+      },
+      "text": "Analyst shared note a118: Aster 118 is approved for production; basis is researcher r118. No gate API request attached.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:analyst_agent",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "researcher_agent",
+            "identifier": "https://researcher-agent.benchmark.example/multi_agent_feedback_loop/researcher_agent"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118",
+          "attribute": "asserted_production_approval",
+          "value": "approved",
+          "claim_id": "sha256:3dc0450f48da3c3ad7a8bf432fb399d88e1e45f801b566f34033dec8528fe0a9",
+          "observation_id": "multi_agent_feedback_loop:analyst_agent",
+          "evidence": [
+            {
+              "source_id": "analyst_agent",
+              "start": 0,
+              "end": 119,
+              "text": "Analyst shared note a118: Aster 118 is approved for production; basis is researcher r118. No gate API request attached."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "analyst note a118",
+          "attribute": "gate_api_request_attached",
+          "value": false,
+          "claim_id": "sha256:c6bf5aca74db1bace97e4f34f78f90bee1e2c47981005d25ff2215ba4006b9ba",
+          "observation_id": "multi_agent_feedback_loop:analyst_agent:claim:2",
+          "evidence": [
+            {
+              "source_id": "analyst_agent",
+              "start": 0,
+              "end": 119,
+              "text": "Analyst shared note a118: Aster 118 is approved for production; basis is researcher r118. No gate API request attached."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "reviewer_agent",
+      "source": {
+        "kind": "reviewer_agent",
+        "identifier": "https://reviewer-agent.benchmark.example/multi_agent_feedback_loop/reviewer_agent"
+      },
+      "text": "Reviewer shared note v118: approve Aster 118 based on analyst a118. Researcher subsequently linked this review in r118.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:reviewer_agent",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "analyst_agent",
+            "identifier": "https://analyst-agent.benchmark.example/multi_agent_feedback_loop/analyst_agent"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118",
+          "attribute": "approval_recommendation",
+          "value": {
+            "action": "approve Aster 118",
+            "basis": "analyst a118"
+          },
+          "claim_id": "sha256:351931fef5a1d703de86bd70e2f6bff39e0fa4c5a596716d6ce2f807bd2855f2",
+          "observation_id": "multi_agent_feedback_loop:reviewer_agent",
+          "evidence": [
+            {
+              "source_id": "reviewer_agent",
+              "start": 0,
+              "end": 119,
+              "text": "Reviewer shared note v118: approve Aster 118 based on analyst a118. Researcher subsequently linked this review in r118."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "tool_result",
+      "source": {
+        "kind": "tool_result",
+        "identifier": "https://tool-result.benchmark.example/multi_agent_feedback_loop/tool_result"
+      },
+      "text": "Release gate CLI for Aster 118: gate RG-2 status=blocked; unresolved check=load_test; check result=failed.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:tool_result",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "gate_status",
+          "value": "blocked",
+          "claim_id": "sha256:b02185d7369eb3769d7704a377f5e4c150d08683801111df02045e5192346275",
+          "observation_id": "multi_agent_feedback_loop:tool_result",
+          "evidence": [
+            {
+              "source_id": "tool_result",
+              "start": 0,
+              "end": 106,
+              "text": "Release gate CLI for Aster 118: gate RG-2 status=blocked; unresolved check=load_test; check result=failed."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "failed_check",
+          "value": "load_test",
+          "claim_id": "sha256:3c265aa77c094258e4f0c06c51981df37fb85c431136472300cdd62477dd53f9",
+          "observation_id": "multi_agent_feedback_loop:tool_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "tool_result",
+              "start": 0,
+              "end": 106,
+              "text": "Release gate CLI for Aster 118: gate RG-2 status=blocked; unresolved check=load_test; check result=failed."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 load_test",
+          "attribute": "check_result",
+          "value": "failed",
+          "claim_id": "sha256:2db4f41e72c00a860c16723663c3ec325d7cfd49b5ee69052264ba1be16f8a99",
+          "observation_id": "multi_agent_feedback_loop:tool_result:claim:3",
+          "evidence": [
+            {
+              "source_id": "tool_result",
+              "start": 0,
+              "end": 106,
+              "text": "Release gate CLI for Aster 118: gate RG-2 status=blocked; unresolved check=load_test; check result=failed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "database_result",
+      "source": {
+        "kind": "database_result",
+        "identifier": "https://database-result.benchmark.example/multi_agent_feedback_loop/database_result"
+      },
+      "text": "Release registry row: build=118, gate=RG-2, decision=blocked, override_id=NULL.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:database_result",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "gate_status",
+          "value": "blocked",
+          "claim_id": "sha256:b02185d7369eb3769d7704a377f5e4c150d08683801111df02045e5192346275",
+          "observation_id": "multi_agent_feedback_loop:database_result",
+          "evidence": [
+            {
+              "source_id": "database_result",
+              "start": 0,
+              "end": 79,
+              "text": "Release registry row: build=118, gate=RG-2, decision=blocked, override_id=NULL."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "override_id",
+          "value": null,
+          "claim_id": "sha256:4f8f4c50b93cd159cc1aa511489ae798f96da369b5a1572f03d5a92ad7d20989",
+          "observation_id": "multi_agent_feedback_loop:database_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "database_result",
+              "start": 0,
+              "end": 79,
+              "text": "Release registry row: build=118, gate=RG-2, decision=blocked, override_id=NULL."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "web_result",
+      "source": {
+        "kind": "web_result",
+        "identifier": "https://web-result.benchmark.example/multi_agent_feedback_loop/web_result"
+      },
+      "text": "Release portal for build 118 renders RG-2 blocked while load_test remains failed.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:web_result",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "api_result",
+            "identifier": "https://api-result.benchmark.example/multi_agent_feedback_loop/api_result"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "gate_status",
+          "value": "blocked",
+          "claim_id": "sha256:b02185d7369eb3769d7704a377f5e4c150d08683801111df02045e5192346275",
+          "observation_id": "multi_agent_feedback_loop:web_result",
+          "evidence": [
+            {
+              "source_id": "web_result",
+              "start": 0,
+              "end": 81,
+              "text": "Release portal for build 118 renders RG-2 blocked while load_test remains failed."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "failed_check",
+          "value": "load_test",
+          "claim_id": "sha256:3c265aa77c094258e4f0c06c51981df37fb85c431136472300cdd62477dd53f9",
+          "observation_id": "multi_agent_feedback_loop:web_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "web_result",
+              "start": 0,
+              "end": 81,
+              "text": "Release portal for build 118 renders RG-2 blocked while load_test remains failed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "verifier_agent",
+      "source": {
+        "kind": "verifier_agent",
+        "identifier": "https://verifier-agent.benchmark.example/multi_agent_feedback_loop/verifier_agent"
+      },
+      "text": "Verifier agent queried gate CLI and release registry: build 118 remains blocked; no production approval recorded.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:verifier_agent",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "tool_result",
+            "identifier": "https://tool-result.benchmark.example/multi_agent_feedback_loop/tool_result"
+          },
+          {
+            "kind": "database_result",
+            "identifier": "https://database-result.benchmark.example/multi_agent_feedback_loop/database_result"
+          }
+        ],
+        "parent_assertion_ids": [
+          "multi_agent_feedback_loop:tool_result",
+          "multi_agent_feedback_loop:database_result"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118",
+          "attribute": "production_approval_recorded",
+          "value": false,
+          "claim_id": "sha256:5ccaf836f10f971c8a5434081a1fbfdce968a954e525be2a87ca9ee8f0d2c296",
+          "observation_id": "multi_agent_feedback_loop:verifier_agent",
+          "evidence": [
+            {
+              "source_id": "verifier_agent",
+              "start": 0,
+              "end": 113,
+              "text": "Verifier agent queried gate CLI and release registry: build 118 remains blocked; no production approval recorded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "gate_status",
+          "value": "blocked",
+          "claim_id": "sha256:b02185d7369eb3769d7704a377f5e4c150d08683801111df02045e5192346275",
+          "observation_id": "multi_agent_feedback_loop:verifier_agent:claim:2",
+          "evidence": [
+            {
+              "source_id": "verifier_agent",
+              "start": 0,
+              "end": 113,
+              "text": "Verifier agent queried gate CLI and release registry: build 118 remains blocked; no production approval recorded."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "api_result",
+      "source": {
+        "kind": "api_result",
+        "identifier": "https://api-result.benchmark.example/multi_agent_feedback_loop/api_result"
+      },
+      "text": "GET /releases/118/gates/RG-2: {\"status\":\"blocked\",\"failed_check\":\"load_test\",\"override\":null}.",
+      "provenance": {
+        "assertion_id": "multi_agent_feedback_loop:api_result",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "gate_status",
+          "value": "blocked",
+          "claim_id": "sha256:b02185d7369eb3769d7704a377f5e4c150d08683801111df02045e5192346275",
+          "observation_id": "multi_agent_feedback_loop:api_result",
+          "evidence": [
+            {
+              "source_id": "api_result",
+              "start": 0,
+              "end": 94,
+              "text": "GET /releases/118/gates/RG-2: {\"status\":\"blocked\",\"failed_check\":\"load_test\",\"override\":null}."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "failed_check",
+          "value": "load_test",
+          "claim_id": "sha256:3c265aa77c094258e4f0c06c51981df37fb85c431136472300cdd62477dd53f9",
+          "observation_id": "multi_agent_feedback_loop:api_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "api_result",
+              "start": 0,
+              "end": 94,
+              "text": "GET /releases/118/gates/RG-2: {\"status\":\"blocked\",\"failed_check\":\"load_test\",\"override\":null}."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "release",
+          "entity": "Aster build 118 release gate RG-2",
+          "attribute": "override_id",
+          "value": null,
+          "claim_id": "sha256:4f8f4c50b93cd159cc1aa511489ae798f96da369b5a1572f03d5a92ad7d20989",
+          "observation_id": "multi_agent_feedback_loop:api_result:claim:3",
+          "evidence": [
+            {
+              "source_id": "api_result",
+              "start": 0,
+              "end": 94,
+              "text": "GET /releases/118/gates/RG-2: {\"status\":\"blocked\",\"failed_check\":\"load_test\",\"override\":null}."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

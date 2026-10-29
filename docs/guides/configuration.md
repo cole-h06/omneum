@@ -1,7 +1,6 @@
-
 # Configuration
 
-Omneum uses SQLite for local Context Graph persistence by default. The MCP server connects to a protected VOPRF evaluator. Network contribution is disabled unless explicitly configured.
+Omneum supports in-process evaluation without an MCP server or daemon. For MCP-based evaluation, the local server connects to a protected VOPRF evaluator. SQLite is the default backend for persistent Context Graph storage. Network contribution is disabled unless explicitly configured.
 
 | Component | Default |
 |---|---|
@@ -81,11 +80,11 @@ SQLite creates the database on first use.
 
 | Platform | Default database path |
 |---|---|
-| macOS | `~/Library/Application Support/Omneum/context.db` |
-| Linux | `~/.local/share/omneum/context.db` |
+| macOS | `~/Library/Application Support/Omneum/omneum.db` |
+| Linux | `~/.local/share/omneum/omneum.db` |
 
 For a new default graph with unsafe data-directory ancestors, Omneum uses
-`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+`~/.omneum/data/omneum.db`. Existing graphs and explicit paths are never
 silently relocated; shared directory permissions are preserved.
 
 To use another database path, construct a `SQLiteStorage` adapter with the desired location and pass it to `LocalPersistenceConfig`.

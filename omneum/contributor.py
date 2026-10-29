@@ -70,7 +70,7 @@ async def evaluate(client, observations, estimator, enabled):
     values = tuple(item.observation() for item in observations)
     status = 'disabled'
     try:
-        result = await client.evaluate_context(values, estimator=estimator)
+        result = await client._evaluate_context(values, estimator=estimator)
         if enabled:
             status = 'submitted'
     except NetworkContributionError as error:

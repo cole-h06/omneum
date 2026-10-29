@@ -1,0 +1,56 @@
+{
+  "cases": 24,
+  "budgets": [
+    64,
+    96,
+    128,
+    160,
+    192,
+    256
+  ],
+  "methods": [
+    "omneum",
+    "bm25_omneum",
+    "embedding_omneum",
+    "bge_omneum",
+    "cohere_omneum"
+  ],
+  "repeats": 5,
+  "seed": 42,
+  "conflict_aware": false,
+  "prior": "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/results/tier1-competitors-20261025-v1",
+  "trace_sha256": "d19860c5b0a22c3bc762e1f72a42ffe6537b71e8de9400ced90f686994f7b4c3",
+  "environment": {
+    "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "cpu_count": 10,
+    "hardware": {
+      "hw.model": "Mac17,4",
+      "hw.memsize": "34359738368",
+      "machdep.cpu.brand_string": "Apple M5"
+    },
+    "packages": {
+      "omneum": "1.1.4",
+      "mcp": "1.30.0",
+      "httpx": "0.28.1",
+      "orjson": "3.12.0",
+      "numpy": "2.5.2",
+      "sentence-transformers": "5.7.0",
+      "transformers": "5.16.1"
+    },
+    "git_head": "6d430d4efd28559a262212e9f88aba63c080238a"
+  },
+  "daemon_sha256": "b90829263aff96f57c3c36980e950aa1e7814c300c43106a0d709bc5cbbfdd11",
+  "tokenizer": "http://127.0.0.1:57704",
+  "tokenizer_model": "Qwen2.5 7B; cached GGUF sha256-2bada8a7450677000f678be90653b85d364de7db25eb5ea54136ada5f3933730",
+  "code_sha256": {
+    "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/experiments/budget_recovery.py": "0cd834becdb877a6494c6c8684f3d45ad98f0f8f9f273d496f17b006c7b201f9",
+    "omneum/client.py": "a6a5255558d6fa0fe5f30a328303943a05ab37c19b7ecd30d26fe860d012df1f",
+    "omneum/context_selection.py": "bb79d59734e512ab75eebacc70334d7806627627462943b5ec61c7f93015bd6c",
+    "omneum/query_context.py": "a39e9e4962472af13677ba3817a32cfc2ec16db8753c8bc593ee81da8b6e8ceb"
+  },
+  "timing": "Fresh production prepare_context, graph and client verification each repeat; original exact token counts prewarmed; scores supplied; extraction, loading and scoring excluded.",
+  "correction": "Expanded discovery priority set followed by positive feasible inferred marginal utility over deferred original candidates, at least the weakest initial accepted utility/token; explicit top_k remains restrictive; no inference or relevance normalization changes.",
+  "paid_api_calls": 0,
+  "downstream_generations": 0
+}

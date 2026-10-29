@@ -1,0 +1,74 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.196406957693398,
+    "ranking": [
+      "chunk-announcement",
+      "chunk-email",
+      "chunk-drive_document_2",
+      "chunk-system_record",
+      "chunk-drive_document",
+      "chunk-confluence_page",
+      "chunk-team_wiki",
+      "chunk-slack_message"
+    ],
+    "raw_scores": {
+      "chunk-announcement": 0.9674184322357178,
+      "chunk-confluence_page": 0.7608141899108887,
+      "chunk-drive_document": 0.7678011059761047,
+      "chunk-drive_document_2": 0.9280489087104797,
+      "chunk-email": 0.9531646966934204,
+      "chunk-slack_message": 0.014761663973331451,
+      "chunk-system_record": 0.8375526070594788,
+      "chunk-team_wiki": 0.052616186439991
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 8.208397775888443e-05,
+    "ranking": [
+      "chunk-email",
+      "chunk-announcement",
+      "chunk-drive_document_2",
+      "chunk-team_wiki",
+      "chunk-drive_document",
+      "chunk-confluence_page",
+      "chunk-slack_message",
+      "chunk-system_record"
+    ],
+    "raw_scores": {
+      "chunk-announcement": 5.614306830132943,
+      "chunk-confluence_page": 2.188731420646457,
+      "chunk-drive_document": 2.265246180916078,
+      "chunk-drive_document_2": 5.311625502744718,
+      "chunk-email": 8.197638173072315,
+      "chunk-slack_message": 1.3523412845530056,
+      "chunk-system_record": 1.1421396199935876,
+      "chunk-team_wiki": 5.089782244527102
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.023232791107147932,
+    "ranking": [
+      "chunk-announcement",
+      "chunk-drive_document_2",
+      "chunk-drive_document",
+      "chunk-confluence_page",
+      "chunk-email",
+      "chunk-system_record",
+      "chunk-slack_message",
+      "chunk-team_wiki"
+    ],
+    "raw_scores": {
+      "chunk-announcement": 0.7255924940109253,
+      "chunk-confluence_page": 0.6546461582183838,
+      "chunk-drive_document": 0.6727752685546875,
+      "chunk-drive_document_2": 0.7123104333877563,
+      "chunk-email": 0.6439049243927002,
+      "chunk-slack_message": 0.5855346918106079,
+      "chunk-system_record": 0.6287164688110352,
+      "chunk-team_wiki": 0.5082619786262512
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

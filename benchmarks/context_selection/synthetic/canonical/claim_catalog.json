@@ -1,0 +1,4291 @@
+{
+  "sha256:2d48d8531d4edeb8390565a31699d216bc8dc56de2d6b86b9b0ff2de0ff64334": {
+    "entity_namespace": "analytics",
+    "entity": "Solis August 17 daily active accounts",
+    "attribute": "daily_active_account_count",
+    "value": 840,
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "derived_table",
+        "observation_id": "analytics_derived_metric_cycle:derived_table"
+      },
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "dashboard",
+        "observation_id": "analytics_derived_metric_cycle:dashboard"
+      },
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "exported_dataset",
+        "observation_id": "analytics_derived_metric_cycle:exported_dataset"
+      }
+    ]
+  },
+  "sha256:825ee3d00c47db001a56cfe5f610daaabf2c968832eea1cf33a6f23f148e60dd": {
+    "entity_namespace": "analytics",
+    "entity": "daily_activity repair job",
+    "attribute": "repair_input_rule",
+    "value": {
+      "condition": "source scan skipped",
+      "input": "dashboard CSV"
+    },
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "derived_table",
+        "observation_id": "analytics_derived_metric_cycle:derived_table:claim:2"
+      }
+    ]
+  },
+  "sha256:dc7cbae2055f8f202a4b7af5caf8fdd951cf71c00606aeb7e19f85269c918431": {
+    "entity_namespace": "analytics",
+    "entity": "operations activity dashboard",
+    "attribute": "input_dataset",
+    "value": "daily_activity",
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "dashboard",
+        "observation_id": "analytics_derived_metric_cycle:dashboard:claim:2"
+      }
+    ]
+  },
+  "sha256:3307668cbbe2f93f2df6dcea47b2c326d7072dd85f5d8c75ad627dfd36cf6361": {
+    "entity_namespace": "analytics",
+    "entity": "operations activity dashboard CSV",
+    "attribute": "reimported_by",
+    "value": "daily_activity repair job",
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "exported_dataset",
+        "observation_id": "analytics_derived_metric_cycle:exported_dataset:claim:2"
+      }
+    ]
+  },
+  "sha256:ae5a332580ff337305eb0e74ad4b041652baf579ba49dc432c951c32a00394a4": {
+    "entity_namespace": "analytics",
+    "entity": "Solis August 17 daily active accounts",
+    "attribute": "daily_active_account_count",
+    "value": 612,
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "source_table",
+        "observation_id": "analytics_derived_metric_cycle:source_table"
+      },
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "source_table_2",
+        "observation_id": "analytics_derived_metric_cycle:source_table_2"
+      },
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "query_result",
+        "observation_id": "analytics_derived_metric_cycle:query_result"
+      }
+    ]
+  },
+  "sha256:90a191baa1f400227f411fe0baedde4b0e2e5609d6af1c14e5a649ffa96b159a": {
+    "entity_namespace": "analytics",
+    "entity": "Solis August 17 daily active accounts",
+    "attribute": "session_count",
+    "value": 840,
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "source_table",
+        "observation_id": "analytics_derived_metric_cycle:source_table:claim:2"
+      }
+    ]
+  },
+  "sha256:72aa7a80c5878ce85db6e06e99f079da85ab78626c87bf1d6e013c62dede74a9": {
+    "entity_namespace": "analytics",
+    "entity": "Solis August 17 daily active accounts",
+    "attribute": "test_tenants_excluded",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "source_table",
+        "observation_id": "analytics_derived_metric_cycle:source_table:claim:3"
+      }
+    ]
+  },
+  "sha256:2812c76f5f54c106f00205fb47a0b65a5750fb3dc1bfbe6359bfaab7652aa3c8": {
+    "entity_namespace": "analytics",
+    "entity": "Solis August 17 daily active accounts",
+    "attribute": "account_activity_condition",
+    "value": "one or more August 17 session events",
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "source_table_2",
+        "observation_id": "analytics_derived_metric_cycle:source_table_2:claim:2"
+      }
+    ]
+  },
+  "sha256:76cf831bcac911b63e29193b2c5773138214aea2a05062736db0c877ff218e66": {
+    "entity_namespace": "analytics",
+    "entity": "Solis August 17 daily active accounts",
+    "attribute": "daily_active_account_definition",
+    "value": {
+      "population": "production accounts",
+      "aggregation": "distinct account IDs",
+      "condition": "at least one session",
+      "excludes": "counting session rows"
+    },
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "metric_store",
+        "observation_id": "analytics_derived_metric_cycle:metric_store"
+      }
+    ]
+  },
+  "sha256:050ea6be4aa66be36a165eedbf009eddd26e4471db4da7e9a4d3fec034c965c3": {
+    "entity_namespace": "analytics",
+    "entity": "daily_activity table",
+    "attribute": "feeds_dashboard",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_derived_metric_cycle:data_catalog"
+      }
+    ]
+  },
+  "sha256:ec870ac10fe3703b5d1b22eccfb48c6ed7a7485203673b68aec26d6f5021e3c3": {
+    "entity_namespace": "analytics",
+    "entity": "dashboard CSV",
+    "attribute": "feeds_nightly_repair_input",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_derived_metric_cycle:data_catalog:claim:2"
+      }
+    ]
+  },
+  "sha256:924fa641425ac0bd850fa713f408e28f7a2a21a565f2269deb94b0fcc787f573": {
+    "entity_namespace": "analytics",
+    "entity": "production session source",
+    "attribute": "source_in_repair_path",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "analytics_derived_metric_cycle",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_derived_metric_cycle:data_catalog:claim:3"
+      }
+    ]
+  },
+  "sha256:bdb254a9eebd34fad748801d9aea53d82eb3a6fc72423762c9ab2a05ce64dbb6": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "delivered_parcel_count",
+    "value": 487,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "source_table",
+        "observation_id": "analytics_incomplete_lineage:source_table"
+      },
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "source_table_2",
+        "observation_id": "analytics_incomplete_lineage:source_table_2"
+      },
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "metric_store",
+        "observation_id": "analytics_incomplete_lineage:metric_store"
+      },
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "query_result",
+        "observation_id": "analytics_incomplete_lineage:query_result"
+      }
+    ]
+  },
+  "sha256:170cf8bad5835005c9168b3d1b79418d232926d8170676a803d22be2d9821ffe": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "returned_parcel_count",
+    "value": 33,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "source_table",
+        "observation_id": "analytics_incomplete_lineage:source_table:claim:2"
+      },
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "source_table_2",
+        "observation_id": "analytics_incomplete_lineage:source_table_2:claim:2"
+      }
+    ]
+  },
+  "sha256:3217176a11be37274278195fea1232318d519ffab7df1efd0dac349b98a60c68": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "total_parcel_id_count",
+    "value": 520,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "source_table",
+        "observation_id": "analytics_incomplete_lineage:source_table:claim:3"
+      }
+    ]
+  },
+  "sha256:e8be71e7ad89aeaf6d6ee9b5f5bcf8ec7178c0ceae765f6bdb46b11bb630d869": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "delivered_parcel_count",
+    "value": 520,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "transformation",
+        "observation_id": "analytics_incomplete_lineage:transformation"
+      },
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "derived_table",
+        "observation_id": "analytics_incomplete_lineage:derived_table"
+      },
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "dashboard",
+        "observation_id": "analytics_incomplete_lineage:dashboard"
+      },
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "exported_dataset",
+        "observation_id": "analytics_incomplete_lineage:exported_dataset"
+      }
+    ]
+  },
+  "sha256:15957f71e0a17877915cb3518125cfcf054c76e6dfa98d943e8860d40993fc7e": {
+    "entity_namespace": "analytics",
+    "entity": "migrated dispatch transformation",
+    "attribute": "calculated_dispatch_row_count",
+    "value": {
+      "aggregation": "COUNT(*)",
+      "count": 520,
+      "population": "dispatch cohort"
+    },
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "transformation",
+        "observation_id": "analytics_incomplete_lineage:transformation:claim:2"
+      }
+    ]
+  },
+  "sha256:bf7f7ef8ae6f81309ff9678c9a6125892e365472f0f0c2cc6df3034d79c9ec13": {
+    "entity_namespace": "analytics",
+    "entity": "migrated dispatch transformation",
+    "attribute": "input_table_identifier_retained",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "transformation",
+        "observation_id": "analytics_incomplete_lineage:transformation:claim:3"
+      }
+    ]
+  },
+  "sha256:8afef8c773d6a4aef93124a1ef8119fcf964f6fe0fb34df75c21bb2f4d766235": {
+    "entity_namespace": "analytics",
+    "entity": "delivery_summary partition",
+    "attribute": "run_id_retained",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "derived_table",
+        "observation_id": "analytics_incomplete_lineage:derived_table:claim:2"
+      }
+    ]
+  },
+  "sha256:2424dc21da98237472ce3d0f3715141a27297682fb1c7dda8137ff84d7663468": {
+    "entity_namespace": "analytics",
+    "entity": "delivery_summary partition",
+    "attribute": "catalog_link",
+    "value": "migrated transformation",
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "derived_table",
+        "observation_id": "analytics_incomplete_lineage:derived_table:claim:3"
+      }
+    ]
+  },
+  "sha256:ceffba438bbdacbb09a03b7a3110b2fd29a0e08695091c7885231d2215a47cf2": {
+    "entity_namespace": "analytics",
+    "entity": "Noria delivery dashboard",
+    "attribute": "copied_sql_attachment_available",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "dashboard",
+        "observation_id": "analytics_incomplete_lineage:dashboard:claim:2"
+      }
+    ]
+  },
+  "sha256:7fc95ba041b0764c5a410eb84d244dceb3358928e75040e62121be77b2c7f86f": {
+    "entity_namespace": "analytics",
+    "entity": "delivered_count CSV export",
+    "attribute": "metadata_source",
+    "value": "dashboard snapshot",
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "exported_dataset",
+        "observation_id": "analytics_incomplete_lineage:exported_dataset:claim:2"
+      }
+    ]
+  },
+  "sha256:4e245b32e111b75a417fa5d9a4cefd67beff51f3a74e951a10dbb39665e94d80": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "reconciliation_input",
+    "value": "carrier receipts",
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "metric_store",
+        "observation_id": "analytics_incomplete_lineage:metric_store:claim:2"
+      }
+    ]
+  },
+  "sha256:64655378242109ee487a4d372826e64a078e7a6b4b62ed48e6283ab787b7a83a": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "catalog_import_tag",
+    "value": "delivery_summary",
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "metric_store",
+        "observation_id": "analytics_incomplete_lineage:metric_store:claim:3"
+      }
+    ]
+  },
+  "sha256:afa7de30ac60cc8fb92cc11a96a9c08b524b2cc81ace2c9227c3f5168721fa1d": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "delivered_parcel_definition",
+    "value": {
+      "excludes": "returned parcels"
+    },
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_incomplete_lineage:data_catalog"
+      }
+    ]
+  },
+  "sha256:b177202f217c38c45e6572769b8ad17db368b787bdce81756651f887c5aa7182": {
+    "entity_namespace": "analytics",
+    "entity": "delivery reporting folder",
+    "attribute": "job_level_lineage_complete",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_incomplete_lineage:data_catalog:claim:2"
+      }
+    ]
+  },
+  "sha256:48fc9d1ac9da93f92fae60fd75f6d70e7a037ecf87b0a962fde2e5611ce8431b": {
+    "entity_namespace": "analytics",
+    "entity": "Noria August 16 dispatch cohort",
+    "attribute": "reconciliation_query",
+    "value": {
+      "join": "dispatch IDs to carrier receipts",
+      "filter": "final_status=delivered",
+      "aggregation": "COUNT(DISTINCT parcel_id)"
+    },
+    "occurrences": [
+      {
+        "case_id": "analytics_incomplete_lineage",
+        "source_id": "query_result",
+        "observation_id": "analytics_incomplete_lineage:query_result:claim:2"
+      }
+    ]
+  },
+  "sha256:cfe1cc581096ea2c586d87848cd126fbddcfc73d5ddb4e0735a664446b3ec0c9": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "retention_percentage_excluding_expansion",
+    "value": 92,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "warehouse_query",
+        "observation_id": "analytics_metric_definition_conflict:warehouse_query"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "finance_report",
+        "observation_id": "analytics_metric_definition_conflict:finance_report"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "metric_docs",
+        "observation_id": "analytics_metric_definition_conflict:metric_docs"
+      }
+    ]
+  },
+  "sha256:8fd0bab19f17cfc6dc1ad7c20ad045a608005f60e540723751cc56e1957ce388": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "opening_recurring_revenue",
+    "value": 100000,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "warehouse_query",
+        "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:2"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "finance_report",
+        "observation_id": "analytics_metric_definition_conflict:finance_report:claim:2"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "metric_docs",
+        "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:2"
+      }
+    ]
+  },
+  "sha256:cd4ddcb1bb36db7c8b414961a8fb3089055b535ccdfa164f8d5039d2b55bfd9c": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "churn_revenue",
+    "value": 5000,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "warehouse_query",
+        "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:3"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "finance_report",
+        "observation_id": "analytics_metric_definition_conflict:finance_report:claim:3"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "metric_docs",
+        "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:3"
+      }
+    ]
+  },
+  "sha256:ab6b2f11b421fa3c8a28dfa1707ce12853a5e458c083591b071fc52f82ad6f69": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "contraction_revenue",
+    "value": 3000,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "warehouse_query",
+        "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:4"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "finance_report",
+        "observation_id": "analytics_metric_definition_conflict:finance_report:claim:4"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "metric_docs",
+        "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:4"
+      }
+    ]
+  },
+  "sha256:400311e1447f7014a1d9afd354fc2a1ebb4f9bf6557e9ab64f3578a08a6e525b": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "expansion_revenue",
+    "value": 20000,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "warehouse_query",
+        "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:5"
+      }
+    ]
+  },
+  "sha256:a343fce79421d4cfaa29b948235f10f4887c35f984d2515fada7bc24b544145f": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "retained_revenue_excluding_expansion",
+    "value": 92000,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "warehouse_query",
+        "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:6"
+      }
+    ]
+  },
+  "sha256:b5a9614f259588e376782efb7c1680388d90e60e29d72f38083746035cf0935c": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "retention_percentage_including_expansion",
+    "value": 112,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "semantic_layer",
+        "observation_id": "analytics_metric_definition_conflict:semantic_layer"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "dashboard",
+        "observation_id": "analytics_metric_definition_conflict:dashboard"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "transformation",
+        "observation_id": "analytics_metric_definition_conflict:transformation:claim:3"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "exported_report",
+        "observation_id": "analytics_metric_definition_conflict:exported_report"
+      }
+    ]
+  },
+  "sha256:2a91e28871f877dd3fa672fb975127726618eef3e6397f1e010675a2734e4447": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "retention_formula_including_expansion",
+    "value": "(opening - churn - contraction + expansion) / opening",
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "semantic_layer",
+        "observation_id": "analytics_metric_definition_conflict:semantic_layer:claim:2"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "transformation",
+        "observation_id": "analytics_metric_definition_conflict:transformation"
+      }
+    ]
+  },
+  "sha256:49eece98ff9d245e04cf1d072b6e14c93c33f445ba01a7e60e0589faffc31c47": {
+    "entity_namespace": "analytics",
+    "entity": "sales retention model",
+    "attribute": "output_label",
+    "value": "gross_revenue_retention",
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "semantic_layer",
+        "observation_id": "analytics_metric_definition_conflict:semantic_layer:claim:3"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "transformation",
+        "observation_id": "analytics_metric_definition_conflict:transformation:claim:2"
+      }
+    ]
+  },
+  "sha256:15c438d4f2ecbf199e444946d213e48c492b8b59e0ffd2c29e3ecf3c7ccc4857": {
+    "entity_namespace": "analytics",
+    "entity": "sales retention dashboard",
+    "attribute": "source_field",
+    "value": "semantic layer gross_revenue_retention",
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "dashboard",
+        "observation_id": "analytics_metric_definition_conflict:dashboard:claim:2"
+      }
+    ]
+  },
+  "sha256:f5aa7c59651ae3e07277163d996c0afc1c5670a59fd91cc2549732955a5f5af5": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "board_gross_retention_definition",
+    "value": {
+      "expansion": "excluded"
+    },
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "finance_report",
+        "observation_id": "analytics_metric_definition_conflict:finance_report:claim:5"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "metric_docs",
+        "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:5"
+      },
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_metric_definition_conflict:data_catalog"
+      }
+    ]
+  },
+  "sha256:81005f23407a9fda4ef3e5c8bdec53d78a2ae45e09496eefc6ff7e21faff2769": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "board_retention_formula",
+    "value": "(opening - churn - contraction) / opening",
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "metric_docs",
+        "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:6"
+      }
+    ]
+  },
+  "sha256:4fdbcba5e82b5dd8a98d63b3a5f3fa57abd216745a100faa92cf29bab949ef23": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "sales_retention_includes_expansion",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_metric_definition_conflict:data_catalog:claim:2"
+      }
+    ]
+  },
+  "sha256:6b0785760e82c03e5874364567fbb5c0494330218c43fbfe3e61b98f4b618e7d": {
+    "entity_namespace": "analytics",
+    "entity": "Atlas July revenue retention",
+    "attribute": "board_metric_owner",
+    "value": "Finance",
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_metric_definition_conflict:data_catalog:claim:3"
+      }
+    ]
+  },
+  "sha256:68acf4da9d33c3672119b169ab5aab8baad112e7271a949416bcaf5c0c7eaa8c": {
+    "entity_namespace": "analytics",
+    "entity": "exported sales retention report",
+    "attribute": "source_artifact",
+    "value": "sales dashboard",
+    "occurrences": [
+      {
+        "case_id": "analytics_metric_definition_conflict",
+        "source_id": "exported_report",
+        "observation_id": "analytics_metric_definition_conflict:exported_report:claim:2"
+      }
+    ]
+  },
+  "sha256:d82955b4636239316e1a905b65104677704cb2f28f3d57b7ed146ce6983b1da3": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July 2026 paid seats; revision B12",
+    "attribute": "paid_seat_count",
+    "value": 1284,
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "warehouse_table",
+        "observation_id": "analytics_stale_dashboard:warehouse_table"
+      },
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "transformation",
+        "observation_id": "analytics_stale_dashboard:transformation"
+      },
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "current_query",
+        "observation_id": "analytics_stale_dashboard:current_query"
+      },
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "metric_store",
+        "observation_id": "analytics_stale_dashboard:metric_store"
+      },
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "api_result",
+        "observation_id": "analytics_stale_dashboard:api_result"
+      }
+    ]
+  },
+  "sha256:a512c06b3d3fb1cea53379b536c39f5f589833a92dec117868dd7c7d4f604330": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July 2026 paid seats; revision B12",
+    "attribute": "partition_rebuilt_on",
+    "value": "August 12",
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "warehouse_table",
+        "observation_id": "analytics_stale_dashboard:warehouse_table:claim:2"
+      }
+    ]
+  },
+  "sha256:faf49a3d3779259a51677bdf12da3027e4c82aba9692cad092a701aea02155bf": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July 2026 paid seats; revision B12",
+    "attribute": "backfill_batch",
+    "value": "B12",
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "warehouse_table",
+        "observation_id": "analytics_stale_dashboard:warehouse_table:claim:3"
+      }
+    ]
+  },
+  "sha256:304d1f1d01a60004f8a567f85605f1a77412a3774a3657b8c5ecd2159c8ecc4d": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July 2026 paid seats; revision B12",
+    "attribute": "aggregation_rule",
+    "value": {
+      "population": "active paid subscriptions",
+      "aggregation": "sum seats"
+    },
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "transformation",
+        "observation_id": "analytics_stale_dashboard:transformation:claim:2"
+      }
+    ]
+  },
+  "sha256:629e106e733b1bb9e6a1b413b32350d72788518251aa2b7f51424442f6ebc2b8": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July 2026 paid seats; snapshot of run B02",
+    "attribute": "paid_seat_count",
+    "value": 1190,
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "dashboard_snapshot",
+        "observation_id": "analytics_stale_dashboard:dashboard_snapshot"
+      },
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "exported_report",
+        "observation_id": "analytics_stale_dashboard:exported_report"
+      }
+    ]
+  },
+  "sha256:752db5f2fa49f7f07f58949b0b613355eb7f4e29b5e1306def25cb4687ca06cf": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July dashboard snapshot",
+    "attribute": "generated_on",
+    "value": "August 2",
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "dashboard_snapshot",
+        "observation_id": "analytics_stale_dashboard:dashboard_snapshot:claim:2"
+      }
+    ]
+  },
+  "sha256:92608db229ea58269d3a4ab60228bc5850380e8dafce4e229fa0e623a131fe8c": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July dashboard snapshot",
+    "attribute": "artifact_type",
+    "value": "image",
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "dashboard_snapshot",
+        "observation_id": "analytics_stale_dashboard:dashboard_snapshot:claim:3"
+      }
+    ]
+  },
+  "sha256:bd14bf24ea23f678a49451b171143e02d3284177ddb0c323e7d04d41386844ad": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July board export",
+    "attribute": "generated_on",
+    "value": "August 3",
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "exported_report",
+        "observation_id": "analytics_stale_dashboard:exported_report:claim:2"
+      }
+    ]
+  },
+  "sha256:bd386aaeaa39ef521bd845246a75ec52d5d65ed55368f31379e7d03472a7f5ef": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July board export",
+    "attribute": "source_artifact",
+    "value": "August 2 dashboard image",
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "exported_report",
+        "observation_id": "analytics_stale_dashboard:exported_report:claim:3"
+      }
+    ]
+  },
+  "sha256:3b03e5481678cae651b94bf5daacd115817b38d9cb1b66bf740c65121b26ad5b": {
+    "entity_namespace": "analytics",
+    "entity": "Meridian July 2026 paid seats; revision B12",
+    "attribute": "finalized",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "metric_store",
+        "observation_id": "analytics_stale_dashboard:metric_store:claim:2"
+      },
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "api_result",
+        "observation_id": "analytics_stale_dashboard:api_result:claim:2"
+      }
+    ]
+  },
+  "sha256:3406f16548c495901953d8d6ceb2b3ec57ca6b6d20325ad8bd0339baa6cd4091": {
+    "entity_namespace": "analytics",
+    "entity": "July billing_seats partition",
+    "attribute": "partition_rebuild_reason",
+    "value": "late subscription events",
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_stale_dashboard:data_catalog"
+      }
+    ]
+  },
+  "sha256:58f4a6f071c8a761f677a786bf6155e87f78d22d6887aac49d961d378f72bbce": {
+    "entity_namespace": "analytics",
+    "entity": "July billing_seats partition",
+    "attribute": "pre_B12_exports_immutable",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "analytics_stale_dashboard",
+        "source_id": "data_catalog",
+        "observation_id": "analytics_stale_dashboard:data_catalog:claim:2"
+      }
+    ]
+  },
+  "sha256:93b4b7e90fdf1869a4fc211d34e182dea45123394f91cc3efcea02c156d54b26": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 2.6 CSV exports",
+    "attribute": "submission_call",
+    "value": "client.export_csv(account_id)",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "old_api_docs",
+        "observation_id": "coding_api_version_change:old_api_docs"
+      },
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "old_example",
+        "observation_id": "coding_api_version_change:old_example"
+      }
+    ]
+  },
+  "sha256:80ebc17f67af96768039a8280bb81ea626a8c62d0632711074a62587dcf19631": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 2.6 CSV exports",
+    "attribute": "return_type",
+    "value": "job ID",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "old_api_docs",
+        "observation_id": "coding_api_version_change:old_api_docs:claim:2"
+      }
+    ]
+  },
+  "sha256:79e128803f9e1fbaba5f094557ad9ea01cbbd3764b5b3ad5347cdfdd92e7dcb1": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 2.6 CSV exports",
+    "attribute": "completion_poll",
+    "value": "job.status",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "old_example",
+        "observation_id": "coding_api_version_change:old_example:claim:2"
+      }
+    ]
+  },
+  "sha256:20856b581f702a191298d0e6d73e80ed871e6513fdfc8e0634553880ac1034cf": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 CSV exports",
+    "attribute": "submission_call",
+    "value": "client.exports.create(account_id=account_id, format=\"csv\")",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "current_api_docs",
+        "observation_id": "coding_api_version_change:current_api_docs"
+      },
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "test_output",
+        "observation_id": "coding_api_version_change:test_output"
+      },
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "migration_guide",
+        "observation_id": "coding_api_version_change:migration_guide"
+      }
+    ]
+  },
+  "sha256:3b581e6fcacbc2a9f4be795cf865beaf6cc225df0cda10e3fb1a61643e87c22f": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 CSV exports",
+    "attribute": "return_type",
+    "value": "ExportJob",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "current_api_docs",
+        "observation_id": "coding_api_version_change:current_api_docs:claim:2"
+      }
+    ]
+  },
+  "sha256:7588602a9f0e1e7107b10de15d34089b6127323765eabde1b2f89b831cb302ac": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 exports",
+    "attribute": "export_csv_removed",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "changelog",
+        "observation_id": "coding_api_version_change:changelog"
+      }
+    ]
+  },
+  "sha256:cb9435691967df497e9140240602af05e576bb4ab5a1cbf5d857adceb28285e6": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 exports",
+    "attribute": "submission_method",
+    "value": "client.exports.create",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "changelog",
+        "observation_id": "coding_api_version_change:changelog:claim:2"
+      }
+    ]
+  },
+  "sha256:1ad309e89cdecd1304f2bc5938083aebfe6221adba1cd91d252ebfec81bbd506": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 exports",
+    "attribute": "explicit_format_required",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "changelog",
+        "observation_id": "coding_api_version_change:changelog:claim:3"
+      }
+    ]
+  },
+  "sha256:7cfc68d0f8bdbb4eda8cd858e3ac3c1ff4565babfa88bfce499d99b55a5c0670": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 exports",
+    "attribute": "submission_method_signature",
+    "value": "Exports.create(self, *, account_id, format)",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "repository_code",
+        "observation_id": "coding_api_version_change:repository_code"
+      }
+    ]
+  },
+  "sha256:792cdabb4bb53fd56af4c5a2087ba95c614f8a46aa0ca6994ad9c832ba9a8136": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 exports",
+    "attribute": "submission_http_request",
+    "value": {
+      "method": "POST",
+      "endpoint": "/exports"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "repository_code",
+        "observation_id": "coding_api_version_change:repository_code:claim:2"
+      }
+    ]
+  },
+  "sha256:a022399bef301009c0bab29b56d61c2c74be015f9bb6222e860b0ef18027ebde": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 3.0 exports",
+    "attribute": "client_exports_binding",
+    "value": "Exports(transport)",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "repository_code",
+        "observation_id": "coding_api_version_change:repository_code:claim:3"
+      }
+    ]
+  },
+  "sha256:4b14f33bcbc88bd8eb43b5b82108ae745dc3bcbd3cbfcfaabaeb10ac1fef0554": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit export worker",
+    "attribute": "locked_version",
+    "value": "3.0.0",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "package_metadata",
+        "observation_id": "coding_api_version_change:package_metadata"
+      }
+    ]
+  },
+  "sha256:9f03c1d1c87d39ebbf03d03c9f8c8281f13b55f237d2d6b41945ffb7b542ffad": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit export worker",
+    "attribute": "minimum_python_version",
+    "value": "3.11",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "package_metadata",
+        "observation_id": "coding_api_version_change:package_metadata:claim:2"
+      }
+    ]
+  },
+  "sha256:3f767ce5bbd028f0705da020ecbe356978a4f37a50b448927d24bb910f82b296": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit lockfile-environment CSV export smoke test",
+    "attribute": "observed_return_state",
+    "value": "queued ExportJob",
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "test_output",
+        "observation_id": "coding_api_version_change:test_output:claim:2"
+      }
+    ]
+  },
+  "sha256:f85db6ca225214e637e6b0b32f247ab6cce1193fdfe38e3e311ca549866cfde2": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit lockfile-environment CSV export smoke test",
+    "attribute": "observed_call_arguments",
+    "value": {
+      "account_id": "acct_9",
+      "format": "csv"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "test_output",
+        "observation_id": "coding_api_version_change:test_output:claim:3"
+      }
+    ]
+  },
+  "sha256:5a92ee428de0236247f596ebcae253c7da59a72cb117c7644093311b2cc78e03": {
+    "entity_namespace": "software",
+    "entity": "LedgerKit 2.x to 3.0 migration",
+    "attribute": "csv_output_changed",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "coding_api_version_change",
+        "source_id": "migration_guide",
+        "observation_id": "coding_api_version_change:migration_guide:claim:2"
+      }
+    ]
+  },
+  "sha256:177e5bae531917f9818e8b169ae807045cb9e045732fa915cd331b30e0524e50": {
+    "entity_namespace": "software",
+    "entity": "Sable event consumer",
+    "attribute": "balance_transaction_rule",
+    "value": {
+      "insert": "processed_events.event_id",
+      "condition": "insert succeeds",
+      "action": "apply balance update",
+      "atomicity": "both writes commit together"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "repository_code",
+        "observation_id": "coding_clean_dependency:repository_code"
+      }
+    ]
+  },
+  "sha256:4b1ced5f266410e8a033e92acf38e3d136bd562ba7fa7bd71374968a10f69eba": {
+    "entity_namespace": "software",
+    "entity": "Sable event consumer",
+    "attribute": "replay_test_result",
+    "value": {
+      "event_id": "evt_47",
+      "attempts": 2,
+      "second_insert": "conflicts",
+      "apply_balance_calls": 1
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "unit_test",
+        "observation_id": "coding_clean_dependency:unit_test"
+      }
+    ]
+  },
+  "sha256:504e1cda5ec443d905eba0e99c079ae76bca349b9a9082a12b39769b7ef299c0": {
+    "entity_namespace": "software",
+    "entity": "Sable event consumer",
+    "attribute": "crash_replay_result",
+    "value": {
+      "event_id": "evt_47",
+      "crash": "before commit",
+      "unique_key": "processed_events.event_id",
+      "transaction": "shared with balance update",
+      "committed_balance_updates": 1
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "integration_test",
+        "observation_id": "coding_clean_dependency:integration_test"
+      }
+    ]
+  },
+  "sha256:5d2f49467f8f5b772616fad741df73b9491bf48a6318494beb2c0fe9444f2410": {
+    "entity_namespace": "software",
+    "entity": "Sable event consumer",
+    "attribute": "replay_handling_instruction",
+    "value": {
+      "unique_key": "processed_events.event_id",
+      "transaction": "same as balance change",
+      "duplicate_action": "skip balance change"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "current_docs",
+        "observation_id": "coding_clean_dependency:current_docs"
+      }
+    ]
+  },
+  "sha256:b454afc62625e389ec0a360d8446661665973129fe355961dbb898870d348a08": {
+    "entity_namespace": "software",
+    "entity": "Sable 1.8 event consumer",
+    "attribute": "replay_handling_design",
+    "value": {
+      "unique_key": "processed_events.event_id",
+      "transaction": "atomic balance transaction"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "release_notes",
+        "observation_id": "coding_clean_dependency:release_notes"
+      }
+    ]
+  },
+  "sha256:e005fb7ab0aa7ec317e1893f43a72fd395c7092bdacd3e0ec41968f80f86104e": {
+    "entity_namespace": "software",
+    "entity": "Sable consumer 1.8",
+    "attribute": "minimum_postgresql_version",
+    "value": 15,
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "package_metadata",
+        "observation_id": "coding_clean_dependency:package_metadata"
+      }
+    ]
+  },
+  "sha256:c30d1512b72d74c5239b41fbe65c81e6e2412187d1579426c0d0e93c266b25d3": {
+    "entity_namespace": "software",
+    "entity": "Sable consumer 1.8",
+    "attribute": "ships_schema_migrations",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "package_metadata",
+        "observation_id": "coding_clean_dependency:package_metadata:claim:2"
+      }
+    ]
+  },
+  "sha256:f13528a06028a75fc3593bfc8d9df14eeb955294c77f7a10cb54ad2aed22d79d": {
+    "entity_namespace": "software",
+    "entity": "Sable event consumer",
+    "attribute": "example_balance_transaction",
+    "value": {
+      "insert": "processed_events(event_id)",
+      "on_conflict": "DO NOTHING",
+      "returning": "event_id",
+      "condition": "a row was returned",
+      "action": "update balances",
+      "ordering": "update balances before COMMIT"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_clean_dependency",
+        "source_id": "example",
+        "observation_id": "coding_clean_dependency:example"
+      }
+    ]
+  },
+  "sha256:b32b04e0245b1155e93e7e04768b3b05c3357a506ccef95dab16b7076bed200e": {
+    "entity_namespace": "software",
+    "entity": "Harbor API direct-binary quick-start example",
+    "attribute": "listener_port",
+    "value": 8080,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "readme",
+        "observation_id": "coding_config_conflict:readme"
+      }
+    ]
+  },
+  "sha256:2ced9f4bb2079d62027986fd3ef3dae0ccfe72b829c335646465ca8b33745699": {
+    "entity_namespace": "software",
+    "entity": "Harbor API direct-binary quick-start example",
+    "attribute": "readiness_probe_port_instruction",
+    "value": 8080,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "readme",
+        "observation_id": "coding_config_conflict:readme:claim:2"
+      }
+    ]
+  },
+  "sha256:b5404d45d5f00b8a262076f8e6d0d2a8ca51f0c2c4c524637b3d7378aa84ea8d": {
+    "entity_namespace": "software",
+    "entity": "Harbor API deploy/prod.yaml deployment",
+    "attribute": "readiness_port",
+    "value": 9092,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "coding_config_conflict:deployment_config"
+      },
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "test_output",
+        "observation_id": "coding_config_conflict:test_output"
+      }
+    ]
+  },
+  "sha256:9c2fb2a0691a9cb0726bece308de19118eb5682dcc5aee49ef99697e7a0b4423": {
+    "entity_namespace": "software",
+    "entity": "Harbor API deploy/prod.yaml deployment",
+    "attribute": "APP_PORT",
+    "value": 9092,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "coding_config_conflict:deployment_config:claim:2"
+      },
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "test_output",
+        "observation_id": "coding_config_conflict:test_output:claim:2"
+      }
+    ]
+  },
+  "sha256:7fcdbcd8f97e9f5b363bf5f9e43a13f1aad7f69e4b3df06ec251d1d6d4f2b503": {
+    "entity_namespace": "software",
+    "entity": "Harbor API deploy/prod.yaml deployment",
+    "attribute": "readiness_path",
+    "value": "/ready",
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "coding_config_conflict:deployment_config:claim:3"
+      }
+    ]
+  },
+  "sha256:89e97bb1c7f46c6715824bbef5bfa2c7b4659b6acee5c454994b9d1a732b1508": {
+    "entity_namespace": "software",
+    "entity": "Harbor API deploy/prod.yaml deployment",
+    "attribute": "port_remapping_present",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "coding_config_conflict:deployment_config:claim:4"
+      }
+    ]
+  },
+  "sha256:f89863cc8bc794a77ecd8133ba15779d12ddd4b4907f4fca6d9f040f4127a5a4": {
+    "entity_namespace": "software",
+    "entity": "Harbor API server",
+    "attribute": "listener_port_rule",
+    "value": {
+      "environment_variable": "APP_PORT",
+      "conversion": "int",
+      "default_when_unset": 8080
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "source_code",
+        "observation_id": "coding_config_conflict:source_code"
+      }
+    ]
+  },
+  "sha256:ee13ac17126f228a66e0a2e4a27115fa4d108e00c8e5ac718b38f30eda4def12": {
+    "entity_namespace": "software",
+    "entity": "Harbor API server",
+    "attribute": "readiness_listener_rule",
+    "value": {
+      "path": "/ready",
+      "port": "listen_port"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "source_code",
+        "observation_id": "coding_config_conflict:source_code:claim:2"
+      }
+    ]
+  },
+  "sha256:02e19b145ae1feb2da441c84fa4b54afdc1e1625ba1c9974f7eb3f465fc2dc06": {
+    "entity_namespace": "software",
+    "entity": "Harbor API CI unit job",
+    "attribute": "readiness_port",
+    "value": 8080,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "ci_config",
+        "observation_id": "coding_config_conflict:ci_config"
+      }
+    ]
+  },
+  "sha256:243c4ec6004116da76b36f651121a9ef527dd75c128d514ced9e2c56a540b16c": {
+    "entity_namespace": "software",
+    "entity": "Harbor API CI unit job",
+    "attribute": "APP_PORT_set",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "ci_config",
+        "observation_id": "coding_config_conflict:ci_config:claim:2"
+      }
+    ]
+  },
+  "sha256:c569bb20446268592641f4177d7ef6cc4d7ae97267f704e7fa637987de16dad6": {
+    "entity_namespace": "software",
+    "entity": "Harbor API CI unit job",
+    "attribute": "production_manifest_used",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "ci_config",
+        "observation_id": "coding_config_conflict:ci_config:claim:3"
+      }
+    ]
+  },
+  "sha256:f419a2eb106763a2ebc20ab717321a38d77f259bcc318c2e722fa8aae464a87f": {
+    "entity_namespace": "software",
+    "entity": "Harbor API deploy/prod.yaml integration run",
+    "attribute": "readiness_http_test",
+    "value": {
+      "request": "GET localhost:9092/ready",
+      "response_status": 200
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "test_output",
+        "observation_id": "coding_config_conflict:test_output:claim:3"
+      }
+    ]
+  },
+  "sha256:e19644ae0f4b1e4c8e44b2ef98f7e04bee0f4d81fb7cbcc5295593d16184f61f": {
+    "entity_namespace": "software",
+    "entity": "Harbor API deploy/prod.yaml integration run",
+    "attribute": "port_8080_result",
+    "value": "connection refused",
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "test_output",
+        "observation_id": "coding_config_conflict:test_output:claim:4"
+      }
+    ]
+  },
+  "sha256:d5293edb94811733558228aa5dac03473e7c16b2cdd8b7e4d71745b89cc77752": {
+    "entity_namespace": "software",
+    "entity": "Harbor API laptop deployment",
+    "attribute": "APP_PORT",
+    "value": 8080,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "example_config",
+        "observation_id": "coding_config_conflict:example_config"
+      }
+    ]
+  },
+  "sha256:d24e11e8c52d2c857061606e04bdf4a8a4c8189a81d2b2cab18e34a492f678ea": {
+    "entity_namespace": "software",
+    "entity": "Harbor API laptop deployment",
+    "attribute": "readiness_uses_same_listener",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_config_conflict",
+        "source_id": "example_config",
+        "observation_id": "coding_config_conflict:example_config:claim:2"
+      }
+    ]
+  },
+  "sha256:9733889429e4f9cb5ff5fd721470ace0819732054a7feaba4d1fc63f76ac6da2": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "workaround_proposal",
+    "value": "disable connection reuse",
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "issue_origin",
+        "observation_id": "issue-origin-fix"
+      }
+    ]
+  },
+  "sha256:a7def4fda326ce7ddce67568e30fd40fc49b28ec4fb368283adde6a1067cc2ae": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "asserted_workaround_effect",
+    "value": {
+      "action": "disable connection reuse",
+      "effect": "resolves pool exhaustion"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "issue_comment",
+        "observation_id": "issue-comment-fix"
+      }
+    ]
+  },
+  "sha256:0609cb8fb7a8cf0243378b042f4c39f99795150bb936a60f99baaa8878173a75": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "recommended_fix",
+    "value": "disable connection reuse",
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "community_note",
+        "observation_id": "community-note-fix"
+      }
+    ]
+  },
+  "sha256:50e1f096d9be7b1181919003146399463ff79bdfea0ccaea62b1c4c6e456b408": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "idle_connections_bounded",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "repository_code",
+        "observation_id": "repository-code-fix"
+      },
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "test_output",
+        "observation_id": "test-output-fix"
+      },
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "pull_request",
+        "observation_id": "pull-request-fix"
+      }
+    ]
+  },
+  "sha256:24d78a95560b0d95054e4dd683d1ef6c76f8856a1b210b019a12edc072d913dd": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "expired_entries_evicted",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "repository_code",
+        "observation_id": "repository-code-fix:claim:2"
+      },
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "test_output",
+        "observation_id": "test-output-fix:claim:2"
+      },
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "pull_request",
+        "observation_id": "pull-request-fix:claim:2"
+      }
+    ]
+  },
+  "sha256:25eb11cd7e821bb4ef3adbd5f1af30c5194bcfc1345c19c3ba37cc0e54ceb207": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "connection_reuse_enabled",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "repository_code",
+        "observation_id": "repository-code-fix:claim:3"
+      },
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "test_output",
+        "observation_id": "test-output-fix:claim:3"
+      },
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "pull_request",
+        "observation_id": "pull-request-fix:claim:3"
+      }
+    ]
+  },
+  "sha256:68ee7c92c3f77dd589e4f2805f71f28d4c9979e5fc788bb13b58313421aaa068": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "implementation_scope",
+    "value": "current client",
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "repository_code",
+        "observation_id": "repository-code-fix:claim:4"
+      }
+    ]
+  },
+  "sha256:240651a88af0f3645535539df4f9f902efe0bf2ddd4fb48dc12464988fb95d5b": {
+    "entity_namespace": "software",
+    "entity": "client version 4.2 connection pool",
+    "attribute": "pool_exhaustion_fix",
+    "value": {
+      "bound": "idle connections",
+      "evict": "expired entries",
+      "reuse": "enabled"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "release_notes",
+        "observation_id": "release-notes-fix"
+      }
+    ]
+  },
+  "sha256:08951f2380a990dbb987cded607e63c9ad977873bef0876fd9ea01136f3e7bd0": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "normal_operation_instruction",
+    "value": {
+      "connection_reuse": "keep enabled"
+    },
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "package_docs",
+        "observation_id": "package-docs-fix"
+      }
+    ]
+  },
+  "sha256:d3754ed6eec3449d9c73a91812363de856d60b3730b600d7b9f8e0a49dd5cb6a": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "pool_size_bounded",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "package_docs",
+        "observation_id": "package-docs-fix:claim:2"
+      }
+    ]
+  },
+  "sha256:4fc8b366258e05cf0af579af0d6b7ff6b5a7b5d6b0537ed64c5acc90c17d769e": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "idle_entry_eviction_bounded",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "package_docs",
+        "observation_id": "package-docs-fix:claim:3"
+      }
+    ]
+  },
+  "sha256:38c9dbc8b34da181ef7919cc44943e384725fd6141e24d1e5fe367a74ae3b05a": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "pool_regression_test",
+    "value": "passes",
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "test_output",
+        "observation_id": "test-output-fix:claim:4"
+      }
+    ]
+  },
+  "sha256:6d70555ac221543bcf3b6ab1af9e17dc10d8b6bcf37a6fe0d4bbc01dfd7147bd": {
+    "entity_namespace": "software",
+    "entity": "client connection pool",
+    "attribute": "change_purpose",
+    "value": "eliminate pool exhaustion without disabling reuse",
+    "occurrences": [
+      {
+        "case_id": "coding_package_fix_lineage",
+        "source_id": "pull_request",
+        "observation_id": "pull-request-fix:claim:4"
+      }
+    ]
+  },
+  "sha256:b59a6b794e38700335c0531f94b67bbcb7e02f765c8e9c9d638c65555fbfc01a": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Alder CS-8 production customer chat transcripts",
+    "attribute": "default_retention_days",
+    "value": 180,
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "drive_document",
+        "observation_id": "enterprise_partial_lineage:drive_document"
+      },
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "confluence_page",
+        "observation_id": "enterprise_partial_lineage:confluence_page"
+      },
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "slack_message",
+        "observation_id": "enterprise_partial_lineage:slack_message"
+      },
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "team_wiki",
+        "observation_id": "enterprise_partial_lineage:team_wiki"
+      }
+    ]
+  },
+  "sha256:3bb9bed5ce13229c149ee67ecd3601976084811bb82b88c4b25d0e2be04d206c": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "departmental onboarding checklist",
+    "attribute": "revision_history_retained",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "drive_document",
+        "observation_id": "enterprise_partial_lineage:drive_document:claim:2"
+      }
+    ]
+  },
+  "sha256:351a83979067d6bd35556b168d2e807d30ed653fa15b7721b5ecdbe8f08f0849": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "onboarding checklist handoff message",
+    "attribute": "document_link_present",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "slack_message",
+        "observation_id": "enterprise_partial_lineage:slack_message:claim:2"
+      }
+    ]
+  },
+  "sha256:f65146b88614e02e0f28c1bac8916df1848907614b47f83a32847807bbef9724": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Alder CS-8 production customer chat transcripts",
+    "attribute": "default_retention_days",
+    "value": 90,
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "drive_document_2",
+        "observation_id": "enterprise_partial_lineage:drive_document_2"
+      },
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "email",
+        "observation_id": "enterprise_partial_lineage:email"
+      },
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "system_record",
+        "observation_id": "enterprise_partial_lineage:system_record"
+      },
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "announcement",
+        "observation_id": "enterprise_partial_lineage:announcement"
+      }
+    ]
+  },
+  "sha256:8d88c17a537ab8af41df61c27e5a3bf810ebec528afd36c8733f450a51371f0b": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Alder CS-8 production customer chat transcripts",
+    "attribute": "legal_hold_exempts_expiration",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "drive_document_2",
+        "observation_id": "enterprise_partial_lineage:drive_document_2:claim:2"
+      },
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "system_record",
+        "observation_id": "enterprise_partial_lineage:system_record:claim:2"
+      }
+    ]
+  },
+  "sha256:96a832dd4165d0e1d460b50cac7c999d84b4cfe510a9fd727bdbdf2e7aea5112": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "schedule CS-8",
+    "attribute": "signing_record",
+    "value": {
+      "signer": "Records",
+      "date": "August 4"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "drive_document_2",
+        "observation_id": "enterprise_partial_lineage:drive_document_2:claim:3"
+      }
+    ]
+  },
+  "sha256:1b5b23e5e911e67b7a8a3e179ba9ec5e354b6e9677387097c87c2ffc66bb3189": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "chat retention wiki migration",
+    "attribute": "original_page_id_retained",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "team_wiki",
+        "observation_id": "enterprise_partial_lineage:team_wiki:claim:2"
+      }
+    ]
+  },
+  "sha256:d5459709ce807163e02328e460172be1e5ea281d521b1ea41fbd59c1b98325de": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Records CS-8 email archive",
+    "attribute": "reference_precision",
+    "value": "folder-level; attachment ID absent",
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "email",
+        "observation_id": "enterprise_partial_lineage:email:claim:2"
+      }
+    ]
+  },
+  "sha256:24234b21e3580e7837771295ea1f07d85b880153b962408ed14689ed9837c7bd": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Records CS-8 announcement",
+    "attribute": "linked_artifact",
+    "value": "signed retention schedule in Drive",
+    "occurrences": [
+      {
+        "case_id": "enterprise_partial_lineage",
+        "source_id": "announcement",
+        "observation_id": "enterprise_partial_lineage:announcement:claim:2"
+      }
+    ]
+  },
+  "sha256:734790bc3a1f4f6e9893cff9b84a3ba4d7965fb660b054274d7ecbfb9886bcd5": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Larch TR-17 domestic employee meals",
+    "attribute": "receipt_required_at_or_above_usd",
+    "value": 40,
+    "occurrences": [
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "policy_record",
+        "observation_id": "enterprise_policy_copy_chain:policy_record"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "hr_system",
+        "observation_id": "enterprise_policy_copy_chain:hr_system"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "policy_changelog",
+        "observation_id": "enterprise_policy_copy_chain:policy_changelog"
+      }
+    ]
+  },
+  "sha256:af8373af7a8a8574162ef0735df0e09f6f2ab49e0c6e05cdb717e3dae5f4c8c5": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Larch TR-17 domestic employee meals",
+    "attribute": "threshold_effective_date",
+    "value": "July 1",
+    "occurrences": [
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "policy_record",
+        "observation_id": "enterprise_policy_copy_chain:policy_record:claim:2"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "hr_system",
+        "observation_id": "enterprise_policy_copy_chain:hr_system:claim:2"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "policy_changelog",
+        "observation_id": "enterprise_policy_copy_chain:policy_changelog:claim:2"
+      }
+    ]
+  },
+  "sha256:d832fca57195bbadd23a48ebe8b7cfcb6ec99d6bf989abc55dd3bf99b99d340a": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Larch TR-17 domestic employee meals",
+    "attribute": "below_threshold_requirement",
+    "value": {
+      "condition": "amount below 40 USD",
+      "required": "business purpose"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "policy_record",
+        "observation_id": "enterprise_policy_copy_chain:policy_record:claim:3"
+      }
+    ]
+  },
+  "sha256:531a9fb8ed2907bac940fb7170ad5626475aaf6cd96db7e4cc4e107882ca9adc": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Larch TR-17 domestic employee meals",
+    "attribute": "receipt_required_at_or_above_usd",
+    "value": 75,
+    "occurrences": [
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "confluence_page",
+        "observation_id": "enterprise_policy_copy_chain:confluence_page"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "team_wiki",
+        "observation_id": "enterprise_policy_copy_chain:team_wiki"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "slack_message",
+        "observation_id": "enterprise_policy_copy_chain:slack_message"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "drive_document",
+        "observation_id": "enterprise_policy_copy_chain:drive_document"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "email_summary",
+        "observation_id": "enterprise_policy_copy_chain:email_summary"
+      },
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "manager_note",
+        "observation_id": "enterprise_policy_copy_chain:manager_note"
+      }
+    ]
+  },
+  "sha256:746817b82c7cb70e8831b378cc6ba33a20a53e08747d0ca47c946b9c44564cea": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "travel desk briefing",
+    "attribute": "briefing_revision",
+    "value": 6,
+    "occurrences": [
+      {
+        "case_id": "enterprise_policy_copy_chain",
+        "source_id": "confluence_page",
+        "observation_id": "enterprise_policy_copy_chain:confluence_page:claim:2"
+      }
+    ]
+  },
+  "sha256:be303e7330b9d8190402c988caeb19dc26bfa067149490fd98473a9314083287": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "AC-9 contractor production VPN offboarding",
+    "attribute": "revocation_deadline",
+    "value": {
+      "duration": 4,
+      "unit": "hours",
+      "anchor": "engagement end timestamp"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "policy",
+        "observation_id": "enterprise_semantic_distractors:policy"
+      },
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "hr_record",
+        "observation_id": "enterprise_semantic_distractors:hr_record"
+      },
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "operations_doc",
+        "observation_id": "enterprise_semantic_distractors:operations_doc"
+      },
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "system_record",
+        "observation_id": "enterprise_semantic_distractors:system_record"
+      }
+    ]
+  },
+  "sha256:6ea30755b1c7f7c6a0e1e5ce494bbc42ff4b14e1d0de74898b4b78def28d286d": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "AC-9 contractor production VPN offboarding",
+    "attribute": "offboarding_request_owner",
+    "value": "project owner",
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "policy",
+        "observation_id": "enterprise_semantic_distractors:policy:claim:2"
+      }
+    ]
+  },
+  "sha256:8b78d00168299ac53ac25309f3797632cf12766eb8b26ed66df85d79606f0901": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "employee payroll benefit access",
+    "attribute": "access_retention_after_employment_end",
+    "value": {
+      "duration": 30,
+      "unit": "days"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "policy_2",
+        "observation_id": "enterprise_semantic_distractors:policy_2"
+      }
+    ]
+  },
+  "sha256:74d1750e66b689835d7cc490caf98f3fd2ebef23a596ed5fcdcf34577664c993": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Iris project documentation",
+    "attribute": "archive_deadline",
+    "value": {
+      "duration": 14,
+      "unit": "days",
+      "anchor": "final milestone"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "project_doc",
+        "observation_id": "enterprise_semantic_distractors:project_doc"
+      }
+    ]
+  },
+  "sha256:1b3a4d09a9a8434689ca81eaa451c2d914ab68f6adae8c7ca267ba61ef78f53c": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Iris staging VPN",
+    "attribute": "credential_rotation_interval",
+    "value": {
+      "duration": 24,
+      "unit": "hours",
+      "condition": "during trial"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "project_doc_2",
+        "observation_id": "enterprise_semantic_distractors:project_doc_2"
+      }
+    ]
+  },
+  "sha256:f3244ac1dd66a388efe284b0097f74fe69eafe9be12a6b2a4b62b10afca3b0e6": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "contractor production VPN enrollment",
+    "attribute": "normal_enrollment_duration",
+    "value": {
+      "duration": 2,
+      "unit": "business days"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "confluence_page",
+        "observation_id": "enterprise_semantic_distractors:confluence_page"
+      }
+    ]
+  },
+  "sha256:fe0979670bc857f4234d7870053a0926e5edc67a2e7beb1d457fb374e47364d1": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Iris production deployment",
+    "attribute": "deploy_window_after_approval",
+    "value": {
+      "duration": 4,
+      "unit": "hours"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "slack_message",
+        "observation_id": "enterprise_semantic_distractors:slack_message"
+      }
+    ]
+  },
+  "sha256:4eb946afd9982a34a6ff790ca9648af40952f301ace49b11a1279f442bc0906d": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "contractor VPN equipment",
+    "attribute": "hardware_token_return_deadline",
+    "value": {
+      "duration": 7,
+      "unit": "days",
+      "anchor": "engagement end"
+    },
+    "occurrences": [
+      {
+        "case_id": "enterprise_semantic_distractors",
+        "source_id": "drive_document",
+        "observation_id": "enterprise_semantic_distractors:drive_document"
+      }
+    ]
+  },
+  "sha256:a328457a932c9f56fdfb0e12b2e34d537f0671a12e8a8c7e92d0571bcb36a8ff": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Cedar full-time volunteer leave; 2024 materials",
+    "attribute": "paid_days_per_calendar_year",
+    "value": 2,
+    "occurrences": [
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "archived_handbook",
+        "observation_id": "enterprise_stale_handbook:archived_handbook"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "old_team_page",
+        "observation_id": "enterprise_stale_handbook:old_team_page"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "drive_document",
+        "observation_id": "enterprise_stale_handbook:drive_document"
+      }
+    ]
+  },
+  "sha256:dc63927195a02c134c128d94f689d6880d6c3e2231d24af2f3d7defafdc6f768": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Engineering volunteer leave onboarding page",
+    "attribute": "last_reviewed_year",
+    "value": 2024,
+    "occurrences": [
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "old_team_page",
+        "observation_id": "enterprise_stale_handbook:old_team_page:claim:2"
+      }
+    ]
+  },
+  "sha256:2f204f1c868a55b3e395dc02d897f7c404d348d04273ab18b6185bff7f2d95dd": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Cedar full-time volunteer leave; 2026 plan",
+    "attribute": "paid_days_per_calendar_year",
+    "value": 4,
+    "occurrences": [
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "current_policy",
+        "observation_id": "enterprise_stale_handbook:current_policy"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "hr_system",
+        "observation_id": "enterprise_stale_handbook:hr_system"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "announcement",
+        "observation_id": "enterprise_stale_handbook:announcement"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "confluence_page",
+        "observation_id": "enterprise_stale_handbook:confluence_page"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "policy_changelog",
+        "observation_id": "enterprise_stale_handbook:policy_changelog"
+      }
+    ]
+  },
+  "sha256:bc09c108147138a030e2ab785fcfeb21b71bc1c77fb1beeeb1dbe07b43388fca": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Cedar full-time volunteer leave; 2026 plan",
+    "attribute": "effective_date",
+    "value": "2026-01-01",
+    "occurrences": [
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "current_policy",
+        "observation_id": "enterprise_stale_handbook:current_policy:claim:2"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "hr_system",
+        "observation_id": "enterprise_stale_handbook:hr_system:claim:2"
+      },
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "policy_changelog",
+        "observation_id": "enterprise_stale_handbook:policy_changelog:claim:2"
+      }
+    ]
+  },
+  "sha256:417429a4251e37c07c1bf071a92107340e734b43403254021c1b6e02a40b0fd7": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Cedar full-time volunteer leave; 2026 plan",
+    "attribute": "effective_month",
+    "value": "2026-01",
+    "occurrences": [
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "announcement",
+        "observation_id": "enterprise_stale_handbook:announcement:claim:2"
+      }
+    ]
+  },
+  "sha256:27203f79fdb330293268bdae5585a26ca8717538e0fd8749572682447620d5e7": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Cedar full-time volunteer leave; 2026 plan",
+    "attribute": "previous_paid_days_per_calendar_year",
+    "value": 2,
+    "occurrences": [
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "policy_changelog",
+        "observation_id": "enterprise_stale_handbook:policy_changelog:claim:3"
+      }
+    ]
+  },
+  "sha256:f208db3ed8526f07a621e302616d668fe3b8a64e47b438b3864b656c1e76329d": {
+    "entity_namespace": "enterprise_policy",
+    "entity": "Cedar full-time volunteer leave; 2026 plan",
+    "attribute": "part_time_proration_changed",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "enterprise_stale_handbook",
+        "source_id": "policy_changelog",
+        "observation_id": "enterprise_stale_handbook:policy_changelog:claim:4"
+      }
+    ]
+  },
+  "sha256:3dc0450f48da3c3ad7a8bf432fb399d88e1e45f801b566f34033dec8528fe0a9": {
+    "entity_namespace": "release",
+    "entity": "Aster build 118",
+    "attribute": "asserted_production_approval",
+    "value": "approved",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_feedback_loop:researcher_agent"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "analyst_agent",
+        "observation_id": "multi_agent_feedback_loop:analyst_agent"
+      }
+    ]
+  },
+  "sha256:fefabba0679087f8d24d59c2bfc5ecefa181085fbd0dbce2585f0372d74a05a6": {
+    "entity_namespace": "release",
+    "entity": "researcher note r118",
+    "attribute": "note_revision",
+    "value": 3,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_feedback_loop:researcher_agent:claim:2"
+      }
+    ]
+  },
+  "sha256:89018ffe89818af33accab060e5be3a14ac2210cbe89e30df6f5f8d27829597e": {
+    "entity_namespace": "release",
+    "entity": "researcher note r118",
+    "attribute": "reviewer_link_timing",
+    "value": "added after initial handoff",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_feedback_loop:researcher_agent:claim:3"
+      }
+    ]
+  },
+  "sha256:c6bf5aca74db1bace97e4f34f78f90bee1e2c47981005d25ff2215ba4006b9ba": {
+    "entity_namespace": "release",
+    "entity": "analyst note a118",
+    "attribute": "gate_api_request_attached",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "analyst_agent",
+        "observation_id": "multi_agent_feedback_loop:analyst_agent:claim:2"
+      }
+    ]
+  },
+  "sha256:351931fef5a1d703de86bd70e2f6bff39e0fa4c5a596716d6ce2f807bd2855f2": {
+    "entity_namespace": "release",
+    "entity": "Aster build 118",
+    "attribute": "approval_recommendation",
+    "value": {
+      "action": "approve Aster 118",
+      "basis": "analyst a118"
+    },
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "reviewer_agent",
+        "observation_id": "multi_agent_feedback_loop:reviewer_agent"
+      }
+    ]
+  },
+  "sha256:b02185d7369eb3769d7704a377f5e4c150d08683801111df02045e5192346275": {
+    "entity_namespace": "release",
+    "entity": "Aster build 118 release gate RG-2",
+    "attribute": "gate_status",
+    "value": "blocked",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_feedback_loop:tool_result"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_feedback_loop:database_result"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "web_result",
+        "observation_id": "multi_agent_feedback_loop:web_result"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "verifier_agent",
+        "observation_id": "multi_agent_feedback_loop:verifier_agent:claim:2"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_feedback_loop:api_result"
+      }
+    ]
+  },
+  "sha256:3c265aa77c094258e4f0c06c51981df37fb85c431136472300cdd62477dd53f9": {
+    "entity_namespace": "release",
+    "entity": "Aster build 118 release gate RG-2",
+    "attribute": "failed_check",
+    "value": "load_test",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_feedback_loop:tool_result:claim:2"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "web_result",
+        "observation_id": "multi_agent_feedback_loop:web_result:claim:2"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_feedback_loop:api_result:claim:2"
+      }
+    ]
+  },
+  "sha256:2db4f41e72c00a860c16723663c3ec325d7cfd49b5ee69052264ba1be16f8a99": {
+    "entity_namespace": "release",
+    "entity": "Aster build 118 load_test",
+    "attribute": "check_result",
+    "value": "failed",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_feedback_loop:tool_result:claim:3"
+      }
+    ]
+  },
+  "sha256:4f8f4c50b93cd159cc1aa511489ae798f96da369b5a1572f03d5a92ad7d20989": {
+    "entity_namespace": "release",
+    "entity": "Aster build 118 release gate RG-2",
+    "attribute": "override_id",
+    "value": null,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_feedback_loop:database_result:claim:2"
+      },
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_feedback_loop:api_result:claim:3"
+      }
+    ]
+  },
+  "sha256:5ccaf836f10f971c8a5434081a1fbfdce968a954e525be2a87ca9ee8f0d2c296": {
+    "entity_namespace": "release",
+    "entity": "Aster build 118",
+    "attribute": "production_approval_recorded",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_feedback_loop",
+        "source_id": "verifier_agent",
+        "observation_id": "multi_agent_feedback_loop:verifier_agent"
+      }
+    ]
+  },
+  "sha256:e1943d14496c60a95e262c09078c433a6ed204d17ee90958110966093b3c9837": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "interpreted_delay_seconds",
+    "value": 0.12,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_independent_error:researcher_agent"
+      },
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "analyst_agent",
+        "observation_id": "multi_agent_independent_error:analyst_agent"
+      }
+    ]
+  },
+  "sha256:4d82bf39d79651cd853fe631b7de5d2291e52ed8a7e355e1310224d40dddabdc": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "assumed_numeric_retry_after_unit",
+    "value": "milliseconds",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_independent_error:researcher_agent:claim:2"
+      },
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "analyst_agent",
+        "observation_id": "multi_agent_independent_error:analyst_agent:claim:2"
+      }
+    ]
+  },
+  "sha256:d08a97dca503354938fdc7fc2dbbbd38864d66d328b435a00625e0fe613ec735": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "recommended_retry_delay_seconds",
+    "value": 0.12,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_independent_error:researcher_agent:claim:3"
+      },
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "specialist_agent",
+        "observation_id": "multi_agent_independent_error:specialist_agent"
+      }
+    ]
+  },
+  "sha256:266b7f035effe1682a0dc4275ec022e6868704b274505db887e48bd1d42fa592": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "numeric_retry_after_unit",
+    "value": "seconds",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_independent_error:tool_result"
+      },
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_independent_error:api_result"
+      }
+    ]
+  },
+  "sha256:6d8aff6eaa4b43de2d4a45a5aba8f9d1ee5070eef210ac91b2f48f5713ba9a72": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "observed_timer_seconds",
+    "value": {
+      "numeric_retry_after": 120,
+      "timer_seconds": 120
+    },
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_independent_error:tool_result:claim:2"
+      }
+    ]
+  },
+  "sha256:834e71346015737c83d19be572fda2e932cc3c9f60ef2ffaa3f5a49703c78328": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "required_retry_delay",
+    "value": {
+      "condition": "numeric Retry-After value is 120",
+      "duration": 120,
+      "unit": "seconds"
+    },
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_independent_error:api_result:claim:2"
+      }
+    ]
+  },
+  "sha256:368647e7edfce313f6e845c330ff198c060304802c96cf86254d19416f7c73bf": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "retry_after_encodings",
+    "value": [
+      "delay-seconds",
+      "HTTP date"
+    ],
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_independent_error:api_result:claim:3"
+      }
+    ]
+  },
+  "sha256:34a43995c84c5211410ee8ac8ec972428af864840c43b387f8db1dbb710f98cf": {
+    "entity_namespace": "http",
+    "entity": "EU invoice API response with Retry-After 120",
+    "attribute": "observed_retry_timing",
+    "value": {
+      "response_status": 429,
+      "received_at": "10:00:00Z",
+      "retry_after": 120,
+      "next_allowed_at": "10:02:00Z",
+      "delta_seconds": 120
+    },
+    "occurrences": [
+      {
+        "case_id": "multi_agent_independent_error",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_independent_error:database_result"
+      }
+    ]
+  },
+  "sha256:208758bd942a3a720b483f9461a83c35421f888b264e9d1c31c47fbda85bfeeb": {
+    "entity_namespace": "storage",
+    "entity": "Helix signed download URL",
+    "attribute": "expiration_hours",
+    "value": 24,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_relevant_wrong_task:researcher_agent"
+      },
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "reviewer_agent",
+        "observation_id": "multi_agent_relevant_wrong_task:reviewer_agent"
+      }
+    ]
+  },
+  "sha256:816101f365fa64357025037c0b2032d117650bb78af332ad2469f430078c938c": {
+    "entity_namespace": "storage",
+    "entity": "Helix staging multipart uploads",
+    "attribute": "abort_unfinished_multipart_after_hours",
+    "value": 2,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "code_agent",
+        "observation_id": "multi_agent_relevant_wrong_task:code_agent"
+      }
+    ]
+  },
+  "sha256:949237c49f4e0aeef304f80850e121608fa71be27526f83b6c91ccc267c02685": {
+    "entity_namespace": "storage",
+    "entity": "Helix completed-upload warehouse events",
+    "attribute": "audit_event_retention_hours",
+    "value": 720,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "data_agent",
+        "observation_id": "multi_agent_relevant_wrong_task:data_agent"
+      }
+    ]
+  },
+  "sha256:0f75fff34ed1dca8fb6f94dd724ccd9e54fe433c49e395e851d8b674f7557448": {
+    "entity_namespace": "storage",
+    "entity": "Helix production multipart uploads",
+    "attribute": "abort_unfinished_multipart_after_hours",
+    "value": 48,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "operations_agent",
+        "observation_id": "multi_agent_relevant_wrong_task:operations_agent"
+      },
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_relevant_wrong_task:tool_result"
+      },
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_relevant_wrong_task:api_result"
+      },
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_relevant_wrong_task:database_result"
+      }
+    ]
+  },
+  "sha256:dea2f6fc8092923556b0439a87cd3cd5df75b86578e8fc1b0f3c59c43fb5a67f": {
+    "entity_namespace": "storage",
+    "entity": "Helix production multipart uploads",
+    "attribute": "abort_rule_enabled",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_relevant_wrong_task:tool_result:claim:2"
+      }
+    ]
+  },
+  "sha256:296c50b874a0ce94b20fe32ae4a1feaef5244f00c6325b45b831d3ac4c3dfa2a": {
+    "entity_namespace": "storage",
+    "entity": "Helix bearer upload token",
+    "attribute": "ttl_hours",
+    "value": 1,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "tool_result_2",
+        "observation_id": "multi_agent_relevant_wrong_task:tool_result_2"
+      }
+    ]
+  },
+  "sha256:610ec265ac691ddf4a0ba7df2f68476fa3b7b3cd0ff6b97ae5699a8dc0a4332b": {
+    "entity_namespace": "storage",
+    "entity": "Helix bearer upload token",
+    "attribute": "expiration_effect",
+    "value": "prevents additional requests",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "tool_result_2",
+        "observation_id": "multi_agent_relevant_wrong_task:tool_result_2:claim:2"
+      }
+    ]
+  },
+  "sha256:af2db8636871d3b5a430bb5359fabe7fcad6e8eb71561f7002d800c83417eb37": {
+    "entity_namespace": "storage",
+    "entity": "Helix production storage lifecycle",
+    "attribute": "completed_objects_use_separate_retention_rule",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "api_result",
+        "observation_id": "multi_agent_relevant_wrong_task:api_result:claim:2"
+      }
+    ]
+  },
+  "sha256:17f5bf6e9ad9a0726f9a3d5904db3cac827a8ed766ed9eddff50fd6c47f677b7": {
+    "entity_namespace": "storage",
+    "entity": "Helix production multipart uploads",
+    "attribute": "cleanup_eligibility_anchor",
+    "value": "created_at",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_relevant_wrong_task",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_relevant_wrong_task:database_result:claim:2"
+      }
+    ]
+  },
+  "sha256:912fb2668955a73f8b5d055c00b3c249e63e1c754a09c98442d470e6d19f9fe6": {
+    "entity_namespace": "fulfillment",
+    "entity": "OR-821",
+    "attribute": "planned_dispatch_date",
+    "value": "2026-08-22",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_repeated_subagent:researcher_agent"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "analyst_agent_2",
+        "observation_id": "multi_agent_repeated_subagent:analyst_agent_2"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_repeated_subagent:database_result"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "web_result",
+        "observation_id": "multi_agent_repeated_subagent:web_result"
+      }
+    ]
+  },
+  "sha256:cc75f26fbd348b85492dec725a8f409d4eec810f140cbc19ee11b792f29425bd": {
+    "entity_namespace": "fulfillment",
+    "entity": "OR-821",
+    "attribute": "dispatch_date",
+    "value": "2026-08-22",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "researcher_agent",
+        "observation_id": "multi_agent_repeated_subagent:researcher_agent:claim:2"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "analyst_agent",
+        "observation_id": "multi_agent_repeated_subagent:analyst_agent"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "summary_agent",
+        "observation_id": "multi_agent_repeated_subagent:summary_agent"
+      }
+    ]
+  },
+  "sha256:19b0efbc8a08675808ae3ba7ce2394e9ed0abbad2bc35fff30526a61d8c63028": {
+    "entity_namespace": "fulfillment",
+    "entity": "OR-821",
+    "attribute": "dispatch_date",
+    "value": "2026-08-19",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_repeated_subagent:tool_result"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_repeated_subagent:database_result:claim:2"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "verifier_agent",
+        "observation_id": "multi_agent_repeated_subagent:verifier_agent"
+      }
+    ]
+  },
+  "sha256:67a3e9165784e6e6e768a0b7ff233cf7067b8286cddeddcffab142de5e3418ec": {
+    "entity_namespace": "fulfillment",
+    "entity": "OR-821",
+    "attribute": "recorded_dispatch_timestamp",
+    "value": "2026-08-19T16:42:00Z",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_repeated_subagent:tool_result:claim:2"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_repeated_subagent:database_result:claim:3"
+      }
+    ]
+  },
+  "sha256:0115538ebd2792039d20ee89b16436c55a9b9509202662b77b2c18169876f7b7": {
+    "entity_namespace": "fulfillment",
+    "entity": "OR-821",
+    "attribute": "dispatch_status",
+    "value": "dispatched",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_repeated_subagent:tool_result:claim:3"
+      },
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "database_result",
+        "observation_id": "multi_agent_repeated_subagent:database_result:claim:4"
+      }
+    ]
+  },
+  "sha256:15677f89032c1794c08db726a3c34fc6401a640aa509dd67fd4427b80e828571": {
+    "entity_namespace": "fulfillment",
+    "entity": "OR-821",
+    "attribute": "handoff_depot",
+    "value": "D4",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "tool_result",
+        "observation_id": "multi_agent_repeated_subagent:tool_result:claim:4"
+      }
+    ]
+  },
+  "sha256:6f140c32f8e4d1b297e48c74fd66948552b9b57ef894c8551fe1a3eb70bd8d1e": {
+    "entity_namespace": "fulfillment",
+    "entity": "OR-821",
+    "attribute": "dispatch_field_kind",
+    "value": "scheduling estimate",
+    "occurrences": [
+      {
+        "case_id": "multi_agent_repeated_subagent",
+        "source_id": "web_result",
+        "observation_id": "multi_agent_repeated_subagent:web_result:claim:2"
+      }
+    ]
+  },
+  "sha256:f2afad8578cb02f0a04afcf9f007b67a21ae935be0ba1742fd73966812330f8f": {
+    "entity_namespace": "infrastructure",
+    "entity": "Eastbank pedestrian bridge",
+    "attribute": "public_pedestrian_opening_date",
+    "value": "2026-06-14",
+    "occurrences": [
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "primary_record",
+        "observation_id": "research_clean_consensus:primary_record"
+      },
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "report",
+        "observation_id": "research_clean_consensus:report"
+      },
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "report_2",
+        "observation_id": "research_clean_consensus:report_2"
+      },
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "dataset",
+        "observation_id": "research_clean_consensus:dataset"
+      },
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "filing",
+        "observation_id": "research_clean_consensus:filing"
+      },
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "analysis",
+        "observation_id": "research_clean_consensus:analysis"
+      },
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "publication",
+        "observation_id": "research_clean_consensus:publication"
+      }
+    ]
+  },
+  "sha256:61320b548c21790b3e31b7195836abdf8951421b2002e919081b740a2bd29371": {
+    "entity_namespace": "infrastructure",
+    "entity": "Eastbank pedestrian bridge",
+    "attribute": "public_pedestrian_opening_local_time",
+    "value": "09:00",
+    "occurrences": [
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "primary_record",
+        "observation_id": "research_clean_consensus:primary_record:claim:2"
+      }
+    ]
+  },
+  "sha256:82e5ba7f8f10356ee6997d7cee4d5f35ff6e59fb7fc25e16cf74711c916481c4": {
+    "entity_namespace": "infrastructure",
+    "entity": "Eastbank pedestrian bridge",
+    "attribute": "opening_day_crossing_observed",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "report",
+        "observation_id": "research_clean_consensus:report:claim:2"
+      }
+    ]
+  },
+  "sha256:c0de76bb04296577f3378df1ba377c74982be9a81eae913d242893649b79590d": {
+    "entity_namespace": "infrastructure",
+    "entity": "Eastbank pedestrian bridge",
+    "attribute": "barriers_removed_for_public_opening",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "report_2",
+        "observation_id": "research_clean_consensus:report_2:claim:2"
+      }
+    ]
+  },
+  "sha256:ff7460a547d7976a926d389161f102d2dc750b2c6813fcd012c2040bbecb9af3": {
+    "entity_namespace": "infrastructure",
+    "entity": "Eastbank pedestrian bridge",
+    "attribute": "public_crossing_count_start_date",
+    "value": "2026-06-14",
+    "occurrences": [
+      {
+        "case_id": "research_clean_consensus",
+        "source_id": "analysis",
+        "observation_id": "research_clean_consensus:analysis:claim:2"
+      }
+    ]
+  },
+  "sha256:19b93b3d3113837c0f8e21cd2fc3e88c6c1339016da80dd4a07437e96ca6fbd6": {
+    "entity_namespace": "land_use",
+    "entity": "Maren district forest cover; 2025",
+    "attribute": "net_change_hectares",
+    "value": 120,
+    "occurrences": [
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "report",
+        "observation_id": "research_conflicting_reports:report"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "news_article",
+        "observation_id": "research_conflicting_reports:news_article"
+      }
+    ]
+  },
+  "sha256:edab0d34bb9f9b59bf0c7af93de863b338f1bf1b8cdacb6fcd0101f8c994e847": {
+    "entity_namespace": "land_use",
+    "entity": "Maren district forest cover; 2025",
+    "attribute": "gross_additions_hectares",
+    "value": 120,
+    "occurrences": [
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "report",
+        "observation_id": "research_conflicting_reports:report:claim:2"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "report_2",
+        "observation_id": "research_conflicting_reports:report_2:claim:2"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "primary_publication",
+        "observation_id": "research_conflicting_reports:primary_publication:claim:2"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "dataset",
+        "observation_id": "research_conflicting_reports:dataset:claim:2"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "analysis",
+        "observation_id": "research_conflicting_reports:analysis:claim:2"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "web_page",
+        "observation_id": "research_conflicting_reports:web_page"
+      }
+    ]
+  },
+  "sha256:c73775082d013bf014018e3bef0ca9fad544f75f792ecdbb498458a4010bca79": {
+    "entity_namespace": "land_use",
+    "entity": "Maren district forest cover; 2025",
+    "attribute": "summary_equates_gross_additions_with_net_change",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "report",
+        "observation_id": "research_conflicting_reports:report:claim:3"
+      }
+    ]
+  },
+  "sha256:4a5f910a4e03e3d40af07ee8f53548f7e93137d8df340a7d79e1a25ea1f5432b": {
+    "entity_namespace": "land_use",
+    "entity": "Maren district forest cover; 2025",
+    "attribute": "net_change_hectares",
+    "value": -60,
+    "occurrences": [
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "report_2",
+        "observation_id": "research_conflicting_reports:report_2"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "primary_publication",
+        "observation_id": "research_conflicting_reports:primary_publication"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "dataset",
+        "observation_id": "research_conflicting_reports:dataset"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "analysis",
+        "observation_id": "research_conflicting_reports:analysis"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "filing",
+        "observation_id": "research_conflicting_reports:filing"
+      }
+    ]
+  },
+  "sha256:5a62bb8cb226331cf485f065835a43dd7c65fb5b29b01f31710b35a60c00c712": {
+    "entity_namespace": "land_use",
+    "entity": "Maren district forest cover; 2025",
+    "attribute": "gross_losses_hectares",
+    "value": 180,
+    "occurrences": [
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "report_2",
+        "observation_id": "research_conflicting_reports:report_2:claim:3"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "primary_publication",
+        "observation_id": "research_conflicting_reports:primary_publication:claim:3"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "dataset",
+        "observation_id": "research_conflicting_reports:dataset:claim:3"
+      },
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "analysis",
+        "observation_id": "research_conflicting_reports:analysis:claim:3"
+      }
+    ]
+  },
+  "sha256:b52a231b85ffcbc5b3a0eec4592c90bd98dfa37c6f9e243876a181db0fab4dbf": {
+    "entity_namespace": "land_use",
+    "entity": "Maren district forest cover; 2025",
+    "attribute": "net_change_computation",
+    "value": "120 - 180 = -60",
+    "occurrences": [
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "analysis",
+        "observation_id": "research_conflicting_reports:analysis:claim:4"
+      }
+    ]
+  },
+  "sha256:35c22832e29df087dda13390c2adfc3382d907497aa6a65bef3895ac1a4f9733": {
+    "entity_namespace": "land_use",
+    "entity": "Maren district forest cover; 2025",
+    "attribute": "gross_addition_area_definition",
+    "value": "planted and regenerated woodland area",
+    "occurrences": [
+      {
+        "case_id": "research_conflicting_reports",
+        "source_id": "web_page",
+        "observation_id": "research_conflicting_reports:web_page:claim:2"
+      }
+    ]
+  },
+  "sha256:08e0712b97f81767f4b881ecd9ec36a356c9ca3cc956d2d28783af5a1801005b": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "occupied_home_count",
+    "value": 240,
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "report",
+        "observation_id": "research_independent_false_consensus:report"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "publication",
+        "observation_id": "research_independent_false_consensus:publication"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "analysis",
+        "observation_id": "research_independent_false_consensus:analysis"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "news_article",
+        "observation_id": "research_independent_false_consensus:news_article"
+      }
+    ]
+  },
+  "sha256:9507ad1c2df00bf941d687778ed9c46338e6ebb6713b33aa0fb66a0006939651": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "site_map_home_count",
+    "value": 240,
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "report",
+        "observation_id": "research_independent_false_consensus:report:claim:2"
+      }
+    ]
+  },
+  "sha256:13273be3f85f09c921009efc2b61014bfbca074f4ebf499c95529a754440ec94": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "household_interviews_performed",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "report",
+        "observation_id": "research_independent_false_consensus:report:claim:3"
+      }
+    ]
+  },
+  "sha256:87d7df9b318eaf761302630a73b41171891db4177665a6f7cdf80f340c336730": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "count_method",
+    "value": "facade survey",
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "publication",
+        "observation_id": "research_independent_false_consensus:publication:claim:2"
+      }
+    ]
+  },
+  "sha256:508ea7294e14fd2050ae22aae2c6125433e1a6ccca007df8351c0e24eb945dab": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "count_method",
+    "value": "independently digitized parcel footprints",
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "analysis",
+        "observation_id": "research_independent_false_consensus:analysis:claim:2"
+      }
+    ]
+  },
+  "sha256:234776c282be44b4793bf2e4a2935fa1b85b36c27390fa22124072332e226cdf": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "occupied_home_count",
+    "value": 216,
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "dataset",
+        "observation_id": "research_independent_false_consensus:dataset"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "primary_record",
+        "observation_id": "research_independent_false_consensus:primary_record"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "web_page",
+        "observation_id": "research_independent_false_consensus:web_page"
+      }
+    ]
+  },
+  "sha256:68922193bbe16699434adfb2d6be782312306a82f43e69219b00dc9ce111f50a": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "vacant_home_count",
+    "value": 24,
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "dataset",
+        "observation_id": "research_independent_false_consensus:dataset:claim:2"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "primary_record",
+        "observation_id": "research_independent_false_consensus:primary_record:claim:2"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "web_page",
+        "observation_id": "research_independent_false_consensus:web_page:claim:2"
+      }
+    ]
+  },
+  "sha256:2823959c5598ea17f58b5e53d4ad8e054155b02dec9341b298cc94f5de02c122": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "total_residential_unit_count",
+    "value": 240,
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "dataset",
+        "observation_id": "research_independent_false_consensus:dataset:claim:3"
+      }
+    ]
+  },
+  "sha256:7f49b0ebf413505602a7826d9194022336d4cc8527abdc771f42f365f2793c34": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "enumeration_date",
+    "value": "August 12",
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "dataset",
+        "observation_id": "research_independent_false_consensus:dataset:claim:4"
+      },
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "primary_record",
+        "observation_id": "research_independent_false_consensus:primary_record:claim:3"
+      }
+    ]
+  },
+  "sha256:8e239bc5403354bca28692c72a22108231980350ae4123863908adf271984714": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "count_method",
+    "value": "door-number count during a separate site walk",
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "news_article",
+        "observation_id": "research_independent_false_consensus:news_article:claim:2"
+      }
+    ]
+  },
+  "sha256:c87c80681e3dd6bb47ac5bea22624d1fe26bff0e305d5f4910e390497e7f5a5a": {
+    "entity_namespace": "housing",
+    "entity": "North Quay August census",
+    "attribute": "occupancy_determination_method",
+    "value": [
+      "household contact",
+      "follow-up visits"
+    ],
+    "occurrences": [
+      {
+        "case_id": "research_independent_false_consensus",
+        "source_id": "primary_record",
+        "observation_id": "research_independent_false_consensus:primary_record:claim:4"
+      }
+    ]
+  },
+  "sha256:58d5ab4c6e4708112785ffa6efb12e7bb1d1afd5c7ff6db99cd255087d393acb": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "accepted_passenger_service_count",
+    "value": 60,
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "original_report",
+        "observation_id": "research_syndicated_reporting:original_report"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "news_article",
+        "observation_id": "research_syndicated_reporting:news_article"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "news_article_2",
+        "observation_id": "research_syndicated_reporting:news_article_2"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "news_article_3",
+        "observation_id": "research_syndicated_reporting:news_article_3"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "web_page",
+        "observation_id": "research_syndicated_reporting:web_page"
+      }
+    ]
+  },
+  "sha256:dd2a75a0f2e5b05fcb58af60a639b2a73964715fe35a34ff61821c9197834044": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "order_quantity",
+    "value": 60,
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "original_report",
+        "observation_id": "research_syndicated_reporting:original_report:claim:2"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "filing",
+        "observation_id": "research_syndicated_reporting:filing:claim:3"
+      }
+    ]
+  },
+  "sha256:6b54e69edfa141293dab0a9a3efa7ea7b8ebc1591633c8fae76c278fc57a1520": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "order_quantity_treated_as_fleet_addition",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "original_report",
+        "observation_id": "research_syndicated_reporting:original_report:claim:3"
+      }
+    ]
+  },
+  "sha256:0ab74831ca9234d86f3ceacef25ee6a95258001109447090e25f6d90ad04b2e6": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "accepted_vehicle_ids",
+    "value": {
+      "as_of": "August 18",
+      "range_start": "E001",
+      "range_end": "E036"
+    },
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "primary_record",
+        "observation_id": "research_syndicated_reporting:primary_record"
+      }
+    ]
+  },
+  "sha256:2f4a97dcb95b849c388e84109a1214d25e5afb2a6c1ae2d054e11f76a1a2e5bd": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "pending_vehicle_ids",
+    "value": {
+      "as_of": "August 18",
+      "range_start": "E037",
+      "range_end": "E060"
+    },
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "primary_record",
+        "observation_id": "research_syndicated_reporting:primary_record:claim:2"
+      }
+    ]
+  },
+  "sha256:1593ecff12fbcdab6cf3eb73998e651007def6ce53c95462d9f03851c56255cc": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "accepted_passenger_service_count",
+    "value": {
+      "as_of": "August 18",
+      "count": 36
+    },
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "independent_report",
+        "observation_id": "research_syndicated_reporting:independent_report"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "filing",
+        "observation_id": "research_syndicated_reporting:filing"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "dataset",
+        "observation_id": "research_syndicated_reporting:dataset"
+      }
+    ]
+  },
+  "sha256:049703cb5d226527904ea4672bc6c27481e9b2e24e5e94666a848869e3cb4495": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "pending_acceptance_count",
+    "value": {
+      "as_of": "August 18",
+      "count": 24
+    },
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "independent_report",
+        "observation_id": "research_syndicated_reporting:independent_report:claim:2"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "filing",
+        "observation_id": "research_syndicated_reporting:filing:claim:2"
+      },
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "dataset",
+        "observation_id": "research_syndicated_reporting:dataset:claim:2"
+      }
+    ]
+  },
+  "sha256:7ec5df6d02f8df903790ca83f7a440e713961187281683372f32e1e470493fa8": {
+    "entity_namespace": "transport",
+    "entity": "Riverton 2026 electric bus order",
+    "attribute": "order_id",
+    "value": "RV-2026",
+    "occurrences": [
+      {
+        "case_id": "research_syndicated_reporting",
+        "source_id": "dataset",
+        "observation_id": "research_syndicated_reporting:dataset:claim:3"
+      }
+    ]
+  },
+  "sha256:e666079e1ec76b3289f6122803800786269bd134a0be05defcfe843798765273": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "maintenance_recovery_instruction",
+    "value": {
+      "condition": "maintenance complete",
+      "action": "marlinctl worker resume export",
+      "verification": "pending export queue drains"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "current_runbook",
+        "observation_id": "support_clean_resolution:current_runbook"
+      },
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "kb_article",
+        "observation_id": "support_clean_resolution:kb_article"
+      }
+    ]
+  },
+  "sha256:d56c7d5dd4e371b2091827cddc8b0123ef6d724e21ae922965650b4e3bcf6e1d": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "available_resume_command",
+    "value": "marlinctl worker resume export",
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "deployment_config",
+        "observation_id": "support_clean_resolution:deployment_config"
+      },
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "service_state",
+        "observation_id": "support_clean_resolution:service_state:claim:4"
+      }
+    ]
+  },
+  "sha256:37fca0d166e5880c15ca14330f39f052ce3482f06b773747038d062e06ae4647": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "maintenance_pause_durable",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "deployment_config",
+        "observation_id": "support_clean_resolution:deployment_config:claim:2"
+      }
+    ]
+  },
+  "sha256:6d8e3f40a3a37fe4ddf3cbfc0487ea611aff47ab60a75aae7d996f066b70a08e": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "resume_command_clears_pause",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "deployment_config",
+        "observation_id": "support_clean_resolution:deployment_config:claim:3"
+      }
+    ]
+  },
+  "sha256:5aed0d333fb40113a0e629a88f2f21f8c822df32489c58c993a409f35e480c71": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "maintenance_checks_passed",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "monitoring_result",
+        "observation_id": "support_clean_resolution:monitoring_result"
+      }
+    ]
+  },
+  "sha256:25032a99258adaa0948f79334587045de588b358dc8e7ccb2ba79a803fe36b25": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "export_pool_healthy",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "monitoring_result",
+        "observation_id": "support_clean_resolution:monitoring_result:claim:2"
+      }
+    ]
+  },
+  "sha256:ab1f79c4d35b940ab43b4e32847bae0d7007ebaaa0d926bdbca1a51876853784": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "worker_paused",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "monitoring_result",
+        "observation_id": "support_clean_resolution:monitoring_result:claim:3"
+      },
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "service_state",
+        "observation_id": "support_clean_resolution:service_state"
+      }
+    ]
+  },
+  "sha256:b0b962d64e839bf8a37ad6b6d6a3f7e4da47d8678dd9397d9d25e975f2ae5f02": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "canary_recovery_result",
+    "value": {
+      "command": "marlinctl worker resume export",
+      "effect": "queued jobs drained"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "monitoring_result",
+        "observation_id": "support_clean_resolution:monitoring_result:claim:4"
+      }
+    ]
+  },
+  "sha256:e7886be6b8d4d4f0d194a389ab68392c429ad82d73f8f73f06e4ec364a84c36f": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "historical_recovery_result",
+    "value": {
+      "context": "prior scheduled maintenance",
+      "command": "marlinctl worker resume export",
+      "effects": [
+        "pause cleared",
+        "exports restored"
+      ],
+      "jobs_resubmitted": false
+    },
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "incident_record",
+        "observation_id": "support_clean_resolution:incident_record"
+      }
+    ]
+  },
+  "sha256:2fb96a2f2c2f61baeaf83002d3a9d870a36d26fb801599e32485806d0723d981": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "maintenance_complete",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "service_state",
+        "observation_id": "support_clean_resolution:service_state:claim:2"
+      },
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "change_record",
+        "observation_id": "support_clean_resolution:change_record"
+      }
+    ]
+  },
+  "sha256:fc641af20a7f499cb6f05706cfb1d0eda607db94bf89107b5273f02f15849162": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "failed_jobs",
+    "value": 0,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "service_state",
+        "observation_id": "support_clean_resolution:service_state:claim:3"
+      }
+    ]
+  },
+  "sha256:b7b0f529e91cc4d84e6283220c088898a5f1914eb23f877a653d2f0906ac0dfc": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "storage_checks_passed",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "change_record",
+        "observation_id": "support_clean_resolution:change_record:claim:2"
+      }
+    ]
+  },
+  "sha256:eab5e15ea5f1925b0bbf9afc02fbb46abfcedafff1543fe2696211d2063dbfd7": {
+    "entity_namespace": "operations",
+    "entity": "Marlin export worker",
+    "attribute": "final_operator_step",
+    "value": "marlinctl worker resume export",
+    "occurrences": [
+      {
+        "case_id": "support_clean_resolution",
+        "source_id": "change_record",
+        "observation_id": "support_clean_resolution:change_record:claim:3"
+      }
+    ]
+  },
+  "sha256:3076bae2e20e19b7e5081a4344155c2decf00b29d4946b1e4078b8fc26c1b585": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "unapplied_recovery_suggestion",
+    "value": "disable upstream TLS verification",
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "ticket",
+        "observation_id": "support_resolution_conflict:ticket"
+      }
+    ]
+  },
+  "sha256:dff48c43cd435ef85610ad046f57822efe69e109e2e8fe4fe5358c018973bc31": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "suggestion_applied",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "ticket",
+        "observation_id": "support_resolution_conflict:ticket:claim:2"
+      }
+    ]
+  },
+  "sha256:dcb7259a45e9b0ce95682d1122578b746310c897b1166ed26ea0413289999e70": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "rollback_recommendation",
+    "value": {
+      "target_trust_bundle": "tb17",
+      "reason": "prior bundle contains required issuer; failures began with tb18"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "ticket_2",
+        "observation_id": "support_resolution_conflict:ticket_2"
+      }
+    ]
+  },
+  "sha256:2ab48aafb297407ffbb90e38b66a48742714df906c50627eb30c8d9e2711a21c": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "trust_bundle_recovery_instruction",
+    "value": {
+      "condition": "deployment removes an upstream issuer",
+      "action": "roll back to last working trust bundle",
+      "retain": "certificate verification"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "runbook",
+        "observation_id": "support_resolution_conflict:runbook"
+      }
+    ]
+  },
+  "sha256:38eb8dcd98cf33e0d5cad9933805d468b6a098fbae0985611617d8a04740ddd7": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "current_trust_bundle",
+    "value": "tb18",
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "support_resolution_conflict:deployment_config"
+      }
+    ]
+  },
+  "sha256:ba1c1ae7facc670d4779649fdd829dcad8bf4f7a6ebb8db0ecc43a2b7d72b9ed": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "upstream_tls_verification_enabled",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "support_resolution_conflict:deployment_config:claim:2"
+      }
+    ]
+  },
+  "sha256:866ca7eaca5676f0754d6afa5c354345439ec628f0c15dafc8bbc9b2eee40ab8": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "available_rollback_bundle",
+    "value": "tb17",
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "support_resolution_conflict:deployment_config:claim:3"
+      }
+    ]
+  },
+  "sha256:fae7151277f2c381f5ee75f7de6b0ef9a1e8af8d51f3f36a894d25846889bf6b": {
+    "entity_namespace": "operations",
+    "entity": "Opal trust bundle tb17",
+    "attribute": "includes_issuer_Alder_CA",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "deployment_config",
+        "observation_id": "support_resolution_conflict:deployment_config:claim:4"
+      }
+    ]
+  },
+  "sha256:a3036c04eab2f0ab88331ec42b2918e881c6438a2fa31d6a492eca33c5dde247": {
+    "entity_namespace": "operations",
+    "entity": "Opal tb18 upstream-chain validation replay",
+    "attribute": "issuer_validation_result",
+    "value": "fails",
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "monitoring_result",
+        "observation_id": "support_resolution_conflict:monitoring_result"
+      }
+    ]
+  },
+  "sha256:f6706fe81e5e75b579d05cbd221029f0af9715bb46ec5430d8f87adcdafccbad": {
+    "entity_namespace": "operations",
+    "entity": "Opal tb17 upstream-chain validation replay",
+    "attribute": "issuer_validation_result",
+    "value": {
+      "result": "passes",
+      "tls_verification_enabled": true
+    },
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "monitoring_result",
+        "observation_id": "support_resolution_conflict:monitoring_result:claim:2"
+      }
+    ]
+  },
+  "sha256:3ef17629bbd86ffa5340267cf69bb0942d0ea274f860c58adf573bcaf4096f2b": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "verification_failure",
+    "value": "upstream_tls_verify_failed",
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "service_state",
+        "observation_id": "support_resolution_conflict:service_state"
+      }
+    ]
+  },
+  "sha256:58cd8489010f93781fddcc4d11b29d1817944b9307ebf74b1597299c55eef28e": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "certificate_chain_issuer",
+    "value": "Alder-CA",
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "service_state",
+        "observation_id": "support_resolution_conflict:service_state:claim:2"
+      }
+    ]
+  },
+  "sha256:27ec65522033bde7effcf32e2c4b89d9478d69e37449614e9c1166154150c230": {
+    "entity_namespace": "operations",
+    "entity": "Opal trust bundle tb18",
+    "attribute": "includes_issuer_Alder_CA",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "service_state",
+        "observation_id": "support_resolution_conflict:service_state:claim:3"
+      }
+    ]
+  },
+  "sha256:3e144e2405965c5f7968ad9e50ad3331f0fa94971855dbb83541607984aab15b": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "bundle_change",
+    "value": {
+      "from": "tb17",
+      "to": "tb18",
+      "removed_issuer": "Alder-CA"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "change_record",
+        "observation_id": "support_resolution_conflict:change_record"
+      }
+    ]
+  },
+  "sha256:dd0ff11fc75c162d85665e5aae6d0e8ea914b0d2989c989b837cf2c0133ac457": {
+    "entity_namespace": "operations",
+    "entity": "Opal production TLS incident",
+    "attribute": "rollout_coincides_with_first_failures",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_resolution_conflict",
+        "source_id": "change_record",
+        "observation_id": "support_resolution_conflict:change_record:claim:2"
+      }
+    ]
+  },
+  "sha256:c1eab5fe5261984afbf87f2706d103bd18ff0aa06a8ea02e002390da9b14f3e7": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus v3 key rotation",
+    "attribute": "credential_reload_instruction",
+    "value": {
+      "condition": "after signing-key rotation",
+      "action": "restart gateway pods"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "old_runbook",
+        "observation_id": "support_stale_runbook:old_runbook"
+      },
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "kb_article",
+        "observation_id": "support_stale_runbook:kb_article"
+      },
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "ticket",
+        "observation_id": "support_stale_runbook:ticket"
+      }
+    ]
+  },
+  "sha256:2acd1329b4b1ac43be0127faef1cd78ab8c7be242f7a3a268039c31255de7d3e": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus v3 key rotation",
+    "attribute": "keys_read_timing",
+    "value": "startup only",
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "kb_article",
+        "observation_id": "support_stale_runbook:kb_article:claim:2"
+      }
+    ]
+  },
+  "sha256:717131f405195acc476eec117c2054bfc7fb8cbdcac648e8951a5f8c1e8ab520": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus v5 production",
+    "attribute": "key_reload_mode",
+    "value": "watch",
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "deployment_config",
+        "observation_id": "support_stale_runbook:deployment_config"
+      },
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "change_record",
+        "observation_id": "support_stale_runbook:change_record"
+      }
+    ]
+  },
+  "sha256:608803f96d5e387be1d266398bcb42aa8d14ae85fb69dc8415047bcff4a147db": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus v5",
+    "attribute": "credential_refresh_endpoint_effect",
+    "value": {
+      "method": "POST",
+      "endpoint": "/admin/keys/refresh",
+      "effect": "immediate credential-cache refresh"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "deployment_config",
+        "observation_id": "support_stale_runbook:deployment_config:claim:2"
+      }
+    ]
+  },
+  "sha256:5806f6c0764b447d7b26709a4c42fef25e8c7f0668f55a1844c606ace823d7ee": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus v5",
+    "attribute": "credential_refresh_incident_result",
+    "value": {
+      "incident": "N-510",
+      "context": "key rotation left one cache behind",
+      "request": {
+        "method": "POST",
+        "endpoint": "/admin/keys/refresh"
+      },
+      "effects": [
+        "current key reloaded",
+        "authentication recovered"
+      ],
+      "rollout_required": false
+    },
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "incident_record",
+        "observation_id": "support_stale_runbook:incident_record"
+      }
+    ]
+  },
+  "sha256:7ac123b950bc8a318f6ce608afb36ca3f4c4ab2a15425a2238f5b7042a9dd2a5": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus live service",
+    "attribute": "version",
+    "value": "5.2",
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "service_state",
+        "observation_id": "support_stale_runbook:service_state"
+      }
+    ]
+  },
+  "sha256:aa43c5400c49750df81e14b5f1e3ced2af4d57840d2a8d198f1e0122c4328424": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus 5.2 live service",
+    "attribute": "refresh_endpoint_enabled",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "service_state",
+        "observation_id": "support_stale_runbook:service_state:claim:2"
+      }
+    ]
+  },
+  "sha256:13a1fb86492678e6aeae30c665be7add1f51d92d865531aeabe997aaeab40b25": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus 5.2 live service",
+    "attribute": "active_key_mount_present",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "service_state",
+        "observation_id": "support_stale_runbook:service_state:claim:3"
+      }
+    ]
+  },
+  "sha256:78e69bd7be7362943fbf5e32c88c9adfc69bc26425fff59120fd6a5b4e2eb3ea": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus 5.2 live service",
+    "attribute": "restarted_since_deployment",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "service_state",
+        "observation_id": "support_stale_runbook:service_state:claim:4"
+      }
+    ]
+  },
+  "sha256:ef69c3c70a692436ed3091384ee832888db0b9ae8b6d81309f9d43419da73fec": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus v5",
+    "attribute": "optional_refresh_instruction",
+    "value": {
+      "action": {
+        "method": "POST",
+        "endpoint": "/admin/keys/refresh"
+      },
+      "modality": "operators may force refresh"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "change_record",
+        "observation_id": "support_stale_runbook:change_record:claim:2"
+      }
+    ]
+  },
+  "sha256:9892ac41e1abea07f08548014c3771eefca3b2d6557082bd95bbcea087a71d7e": {
+    "entity_namespace": "operations",
+    "entity": "Nimbus v5",
+    "attribute": "credential_refresh_instruction",
+    "value": {
+      "condition": "after routine signing-key rotation",
+      "action": {
+        "method": "POST",
+        "endpoint": "/admin/keys/refresh"
+      },
+      "verification": "confirm loaded key ID"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_stale_runbook",
+        "source_id": "current_runbook",
+        "observation_id": "support_stale_runbook:current_runbook"
+      }
+    ]
+  },
+  "sha256:e8cf8c627389399b54ff30101d85f11ad550b1ae36b1a7cf81ccbc232ef712db": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "recommended_backlog_action",
+    "value": "purge ingest queue",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "ticket",
+        "observation_id": "support_ticket_reference_loop:ticket"
+      },
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "kb_article",
+        "observation_id": "support_ticket_reference_loop:kb_article"
+      },
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "incident_record",
+        "observation_id": "support_ticket_reference_loop:incident_record"
+      }
+    ]
+  },
+  "sha256:883015ac7e73b222d5bce4bceea8eac3fe3e6a0c4bb9a6df8f4eedd85ff41282": {
+    "entity_namespace": "operations",
+    "entity": "ticket VG-88",
+    "attribute": "cited_artifact",
+    "value": "KB-12",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "ticket",
+        "observation_id": "support_ticket_reference_loop:ticket:claim:2"
+      }
+    ]
+  },
+  "sha256:b6b8a86ffbc5420f8b03f3435fa7b0d30fb358fa6a7fd74ec2e48f53e3110efe": {
+    "entity_namespace": "operations",
+    "entity": "ticket VG-88",
+    "attribute": "listed_as_precedent_in",
+    "value": "incident VG-71",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "ticket",
+        "observation_id": "support_ticket_reference_loop:ticket:claim:3"
+      }
+    ]
+  },
+  "sha256:0bde80181061d1dc3da6616377044af32f709fcda212911e39ef14e570ff5995": {
+    "entity_namespace": "operations",
+    "entity": "KB-12",
+    "attribute": "cited_artifact",
+    "value": "incident VG-71",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "kb_article",
+        "observation_id": "support_ticket_reference_loop:kb_article:claim:2"
+      }
+    ]
+  },
+  "sha256:7c8c41dd2368910bde7fc7f3f78a28237f38f07be1c04665d9524926fd713d69": {
+    "entity_namespace": "operations",
+    "entity": "incident VG-71",
+    "attribute": "revised_after",
+    "value": "ticket VG-88",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "incident_record",
+        "observation_id": "support_ticket_reference_loop:incident_record:claim:2"
+      }
+    ]
+  },
+  "sha256:8c2bc4c4e223fe9133b26b2b6c4430c35013c40a5c3202263a0b80c76a1c9179": {
+    "entity_namespace": "operations",
+    "entity": "incident VG-71",
+    "attribute": "evidence_link",
+    "value": "ticket VG-88",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "incident_record",
+        "observation_id": "support_ticket_reference_loop:incident_record:claim:3"
+      }
+    ]
+  },
+  "sha256:a4a064b45d92e67b017116525172cd4c79a2967d3912bd05550e329ff9e4ac08": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "consumer_paused",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "service_state",
+        "observation_id": "support_ticket_reference_loop:service_state"
+      },
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "monitoring_result",
+        "observation_id": "support_ticket_reference_loop:monitoring_result:claim:2"
+      }
+    ]
+  },
+  "sha256:486b7057c4b45522aef64a3379c2845a101dcda17e57e1c4fc87d1d4f43d5c84": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "queue_depth",
+    "value": 18000,
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "service_state",
+        "observation_id": "support_ticket_reference_loop:service_state:claim:2"
+      }
+    ]
+  },
+  "sha256:abd3e6cd899250ad0c8b0230d08877b86b2ffa7868f2889671f6480d9ccb9079": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "storage_health",
+    "value": "ok",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "service_state",
+        "observation_id": "support_ticket_reference_loop:service_state:claim:3"
+      }
+    ]
+  },
+  "sha256:8c69d2c7297946b21ab399a70d432b7d8f825ec5c244017206fb218a97fc06da": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "corrupt_messages_reported",
+    "value": false,
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "service_state",
+        "observation_id": "support_ticket_reference_loop:service_state:claim:4"
+      }
+    ]
+  },
+  "sha256:9b87d48385f5c390e7dfc86dba74b7de1fc9254c81bf6a69d3a74b43244aa40a": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "resume_operation_available",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "service_state",
+        "observation_id": "support_ticket_reference_loop:service_state:claim:5"
+      }
+    ]
+  },
+  "sha256:d024c299d43db730628f3f4d52bb88a322966576825af0cca6281392c646ae1c": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "available_resume_endpoint",
+    "value": {
+      "method": "POST",
+      "endpoint": "/consumers/ingest/resume"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "deployment_config",
+        "observation_id": "support_ticket_reference_loop:deployment_config"
+      }
+    ]
+  },
+  "sha256:cccfe2939823459773d3a1ddb4142cf5c9b04952bddff84a1f134a9f7f77c487": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "pause_persists_across_restarts",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "deployment_config",
+        "observation_id": "support_ticket_reference_loop:deployment_config:claim:2"
+      }
+    ]
+  },
+  "sha256:631370b2d5dce34ea5fc2b10ad22500535ae90fb1a1ce7d5917d87e77e14f548": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "purge_effect",
+    "value": "pending records discarded",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "deployment_config",
+        "observation_id": "support_ticket_reference_loop:deployment_config:claim:3"
+      }
+    ]
+  },
+  "sha256:2f9519b7a18db8df6fffde80b2cfb9b8295ce7701c36a4b7690e4b682d403d4a": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "backlog_recovery_instruction",
+    "value": {
+      "condition": {
+        "consumer": "paused",
+        "storage": "healthy"
+      },
+      "action": "resume ingest consumer",
+      "verification": "observe queue drain",
+      "ordering": "observe drain before any destructive queue action"
+    },
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "runbook",
+        "observation_id": "support_ticket_reference_loop:runbook"
+      }
+    ]
+  },
+  "sha256:a726b152d84937496d40f92926d2b8b69f730f340ee9b16971b22bdf8df6fcd8": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "storage_writes_pass",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "monitoring_result",
+        "observation_id": "support_ticket_reference_loop:monitoring_result"
+      }
+    ]
+  },
+  "sha256:79b456327797b895ef6dc7c76291389f7d5582df31dad0c201ce9007bc78bfe6": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "resumed_canary_result",
+    "value": "queued records processed successfully",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "monitoring_result",
+        "observation_id": "support_ticket_reference_loop:monitoring_result:claim:3"
+      }
+    ]
+  },
+  "sha256:00e1e471b10163ba6cbe152b8637ee1c956711ddde16f226f1cf33403f84d266": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "maintenance_complete",
+    "value": true,
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "change_record",
+        "observation_id": "support_ticket_reference_loop:change_record"
+      }
+    ]
+  },
+  "sha256:12b4b55a3031477653a9e9914e2ab15785300b395dab7c6ef6ee5696f703aafa": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "recorded_followup_action",
+    "value": "resume ingest consumer",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "change_record",
+        "observation_id": "support_ticket_reference_loop:change_record:claim:2"
+      }
+    ]
+  },
+  "sha256:f5bb45dfcb7bab36327ce84a30688942580c9f2fec6e217b1759c2993b261fc5": {
+    "entity_namespace": "operations",
+    "entity": "Vega ingest backlog",
+    "attribute": "pause_reason",
+    "value": "maintenance",
+    "occurrences": [
+      {
+        "case_id": "support_ticket_reference_loop",
+        "source_id": "change_record",
+        "observation_id": "support_ticket_reference_loop:change_record:claim:3"
+      }
+    ]
+  }
+}

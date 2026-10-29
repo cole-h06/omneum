@@ -1,0 +1,98 @@
+[
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "maximum_absolute_difference": 2.7755575615628914e-17
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "maximum_absolute_difference": 5.551115123125783e-17
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "maximum_absolute_difference": 6.938893903907228e-18
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "maximum_absolute_difference": 2.7755575615628914e-17
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "maximum_absolute_difference": 2.7755575615628914e-17
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "maximum_absolute_difference": 0.0
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "maximum_absolute_difference": 0.0
+  }
+]

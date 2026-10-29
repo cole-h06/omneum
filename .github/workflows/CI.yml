@@ -158,6 +158,14 @@ jobs:
         # These example tests import LangGraph during collection. Keep that
         # framework and the development-only PostgreSQL driver out of public deps.
         run: uv run --locked --group langgraph --group auth-test pytest
+      - name: Verify benchmark artifacts and offline contracts
+        if: needs.changes.outputs.full_ci == 'true' && matrix.python == '3.13'
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+          HF_HUB_OFFLINE: '1'
+          TRANSFORMERS_OFFLINE: '1'
+        run: uv run --locked --group benchmarks python tools/run_context_evaluation_tests.py --unit-only -q
       - name: Test Rust
         if: needs.changes.outputs.full_ci == 'true'
         run: |

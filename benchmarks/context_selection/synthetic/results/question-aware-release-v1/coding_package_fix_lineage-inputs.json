@@ -1,0 +1,473 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"disable connection reuse\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "issue-origin-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/repo/issues/1842",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-02 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"disable connection reuse\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "issue-comment-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [
+        "issue-origin-fix"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/repo/issues/1910#comment-4",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-05 11:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://benchmark.example/repo/issues/1842",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://benchmark.example/repo/issues/1842",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"disable connection reuse\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "community-note-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [
+        "issue-origin-fix"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/community/pool-workaround",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-07 14:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"bound idle connections and evict expired entries\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "repository-code-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/repo/blob/v4.2/client/pool.py",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-15 16:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"bound idle connections and evict expired entries\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "release-notes-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/releases/v4.2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-16 10:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"bound idle connections and evict expired entries\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "package-docs-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/docs/v4.2/connection-pools",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-16 12:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"bound idle connections and evict expired entries\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "test-output-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/ci/runs/4821/pool-regression",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-17 08:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"bound idle connections and evict expired entries\"'",
+        "attribute": "connection_pool_fix",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c22636c69656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "pull-request-fix",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://benchmark.example/repo/pull/2037",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-14 18:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "issue-origin-fix",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-02 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://benchmark.example/repo/issues/1842",
+          "kind": "web_document"
+        },
+        "source_id": "issue_origin",
+        "text": "A workaround for connection-pool exhaustion is to disable connection reuse.",
+        "value": "disable connection reuse"
+      },
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "issue-comment-fix",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [
+            "issue-origin-fix"
+          ],
+          "source_modified_at": "2026-08-05 11:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://benchmark.example/repo/issues/1842",
+              "kind": "web_document"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://benchmark.example/repo/issues/1910#comment-4",
+          "kind": "web_document"
+        },
+        "source_id": "issue_comment",
+        "text": "Disabling connection reuse resolves the pool exhaustion problem.",
+        "value": "disable connection reuse"
+      },
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "community-note-fix",
+          "cited_sources": [
+            {
+              "identifier": "https://benchmark.example/repo/issues/1842",
+              "kind": "web_document"
+            }
+          ],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [
+            "issue-origin-fix"
+          ],
+          "source_modified_at": "2026-08-07 14:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://benchmark.example/community/pool-workaround",
+          "kind": "web_document"
+        },
+        "source_id": "community_note",
+        "text": "The recommended fix is to turn off connection reuse.",
+        "value": "disable connection reuse"
+      },
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "repository-code-fix",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-15 16:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://benchmark.example/repo/blob/v4.2/client/pool.py",
+          "kind": "web_document"
+        },
+        "source_id": "repository_code",
+        "text": "The current client bounds idle connections and evicts expired entries while keeping connection reuse enabled.",
+        "value": "bound idle connections and evict expired entries"
+      },
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "release-notes-fix",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-16 10:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://benchmark.example/releases/v4.2",
+          "kind": "web_document"
+        },
+        "source_id": "release_notes",
+        "text": "Version 4.2 fixes pool exhaustion by bounding idle connections and evicting expired entries; connection reuse remains enabled.",
+        "value": "bound idle connections and evict expired entries"
+      },
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "package-docs-fix",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-16 12:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://benchmark.example/docs/v4.2/connection-pools",
+          "kind": "web_document"
+        },
+        "source_id": "package_docs",
+        "text": "Connection reuse should remain enabled under normal operation. Pool size and idle-entry eviction are bounded by the client.",
+        "value": "bound idle connections and evict expired entries"
+      },
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "test-output-fix",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-17 08:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://benchmark.example/ci/runs/4821/pool-regression",
+          "kind": "web_document"
+        },
+        "source_id": "test_output",
+        "text": "The pool regression test passes with reuse enabled after idle connections are bounded and expired entries are evicted.",
+        "value": "bound idle connections and evict expired entries"
+      },
+      {
+        "attribute": "connection pool fix",
+        "entity": "client",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "pull-request-fix",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-14 18:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://benchmark.example/repo/pull/2037",
+          "kind": "web_document"
+        },
+        "source_id": "pull_request",
+        "text": "This change bounds idle pool entries and evicts expired connections to eliminate pool exhaustion without disabling reuse.",
+        "value": "bound idle connections and evict expired entries"
+      }
+    ],
+    "case_id": "coding_package_fix_lineage",
+    "category": null,
+    "context_budget": 3,
+    "domain": "coding_agents",
+    "question": "How should the client fix the connection-pool exhaustion issue?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-issue_origin",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2264697361626c6520636f6e6e656374696f6e207265757365227d"
+      ],
+      "raw_text": "A workaround for connection-pool exhaustion is to disable connection reuse.",
+      "source_id": "issue_origin"
+    },
+    {
+      "chunk_id": "chunk-issue_comment",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2264697361626c6520636f6e6e656374696f6e207265757365227d"
+      ],
+      "raw_text": "Disabling connection reuse resolves the pool exhaustion problem.",
+      "source_id": "issue_comment"
+    },
+    {
+      "chunk_id": "chunk-community_note",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2264697361626c6520636f6e6e656374696f6e207265757365227d"
+      ],
+      "raw_text": "The recommended fix is to turn off connection reuse.",
+      "source_id": "community_note"
+    },
+    {
+      "chunk_id": "chunk-repository_code",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626f756e642069646c6520636f6e6e656374696f6e7320616e64206576696374206578706972656420656e7472696573227d"
+      ],
+      "raw_text": "The current client bounds idle connections and evicts expired entries while keeping connection reuse enabled.",
+      "source_id": "repository_code"
+    },
+    {
+      "chunk_id": "chunk-release_notes",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626f756e642069646c6520636f6e6e656374696f6e7320616e64206576696374206578706972656420656e7472696573227d"
+      ],
+      "raw_text": "Version 4.2 fixes pool exhaustion by bounding idle connections and evicting expired entries; connection reuse remains enabled.",
+      "source_id": "release_notes"
+    },
+    {
+      "chunk_id": "chunk-package_docs",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626f756e642069646c6520636f6e6e656374696f6e7320616e64206576696374206578706972656420656e7472696573227d"
+      ],
+      "raw_text": "Connection reuse should remain enabled under normal operation. Pool size and idle-entry eviction are bounded by the client.",
+      "source_id": "package_docs"
+    },
+    {
+      "chunk_id": "chunk-test_output",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626f756e642069646c6520636f6e6e656374696f6e7320616e64206576696374206578706972656420656e7472696573227d"
+      ],
+      "raw_text": "The pool regression test passes with reuse enabled after idle connections are bounded and expired entries are evicted.",
+      "source_id": "test_output"
+    },
+    {
+      "chunk_id": "chunk-pull_request",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e6e656374696f6e5f706f6f6c5f666978222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323733366636363734373736313732363532323263323236333663363936353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626f756e642069646c6520636f6e6e656374696f6e7320616e64206576696374206578706972656420656e7472696573227d"
+      ],
+      "raw_text": "This change bounds idle pool entries and evicts expired connections to eliminate pool exhaustion without disabling reuse.",
+      "source_id": "pull_request"
+    }
+  ],
+  "truth": {
+    "answer": "Bound idle connections and evict expired entries while keeping connection reuse enabled.",
+    "case_id": "coding_package_fix_lineage",
+    "scoring": {
+      "forbidden": [
+        "disable connection reuse",
+        "turn off connection reuse"
+      ],
+      "required": [
+        "bound idle connections",
+        "evict expired"
+      ]
+    },
+    "supporting_sources": [
+      "repository_code",
+      "release_notes",
+      "package_docs",
+      "test_output",
+      "pull_request"
+    ]
+  }
+}

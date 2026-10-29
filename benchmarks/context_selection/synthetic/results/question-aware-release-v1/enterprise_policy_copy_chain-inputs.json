@@ -1,0 +1,594 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'40'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:policy_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-01 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'75'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:confluence_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-03 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'75'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:team_wiki",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_policy_copy_chain:confluence_page"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-05 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'75'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:slack_message",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_policy_copy_chain:team_wiki"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://slack-message.benchmark.example/enterprise_policy_copy_chain/slack_message",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-06 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'40'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:hr_system",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_policy_copy_chain:policy_record"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://hr-system.benchmark.example/enterprise_policy_copy_chain/hr_system",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-01 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'75'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:drive_document",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_policy_copy_chain:team_wiki"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://drive-document.benchmark.example/enterprise_policy_copy_chain/drive_document",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-07 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'75'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:email_summary",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_policy_copy_chain:confluence_page"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://email-summary.benchmark.example/enterprise_policy_copy_chain/email_summary",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-08 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'75'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:manager_note",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_policy_copy_chain:slack_message",
+        "enterprise_policy_copy_chain:email_summary"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://manager-note.benchmark.example/enterprise_policy_copy_chain/manager_note",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-09 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://slack-message.benchmark.example/enterprise_policy_copy_chain/slack_message",
+          "kind": "web_document"
+        },
+        {
+          "identifier": "https://email-summary.benchmark.example/enterprise_policy_copy_chain/email_summary",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'40'",
+        "attribute": "receipt_threshold_usd",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224c617263682054522d313720646f6d6573746963206d65616c73225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_policy_copy_chain:policy_changelog",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:08:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://policy-changelog.benchmark.example/enterprise_policy_copy_chain/policy_changelog",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-01 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:policy_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-07-01 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record",
+          "kind": "policy_record"
+        },
+        "source_id": "policy_record",
+        "text": "Policy record TR-17, effective July 1: a receipt is required for domestic employee meals of $40 or more; lower amounts need a business purpose.",
+        "value": 40
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:confluence_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-07-03 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page",
+          "kind": "confluence_page"
+        },
+        "source_id": "confluence_page",
+        "text": "Travel Confluence FAQ: receipts are required for domestic meals at $75 or more. Published from the travel desk briefing, revision 6.",
+        "value": 75
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:team_wiki",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_policy_copy_chain:confluence_page"
+          ],
+          "source_modified_at": "2026-07-05 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page",
+              "kind": "confluence_page"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki",
+          "kind": "team_wiki"
+        },
+        "source_id": "team_wiki",
+        "text": "Sales team travel wiki: use the travel Confluence FAQ threshold of $75 for domestic meal receipts.",
+        "value": 75
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:slack_message",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_policy_copy_chain:team_wiki"
+          ],
+          "source_modified_at": "2026-07-06 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki",
+              "kind": "team_wiki"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://slack-message.benchmark.example/enterprise_policy_copy_chain/slack_message",
+          "kind": "slack_message"
+        },
+        "source_id": "slack_message",
+        "text": "Slack #field-travel: Sales wiki says attach receipts for meals at $75 and above; adding that to the trip checklist.",
+        "value": 75
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:hr_system",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_policy_copy_chain:policy_record"
+          ],
+          "source_modified_at": "2026-07-01 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record",
+              "kind": "policy_record"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://hr-system.benchmark.example/enterprise_policy_copy_chain/hr_system",
+          "kind": "hr_system"
+        },
+        "source_id": "hr_system",
+        "text": "Expense system rule TR-17-US-MEAL, effective July 1: receipt_required when amount_usd >= 40 for employee domestic meals.",
+        "value": 40
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:drive_document",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_policy_copy_chain:team_wiki"
+          ],
+          "source_modified_at": "2026-07-07 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki",
+              "kind": "team_wiki"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://drive-document.benchmark.example/enterprise_policy_copy_chain/drive_document",
+          "kind": "drive_document"
+        },
+        "source_id": "drive_document",
+        "text": "Drive trip checklist, copied from Sales wiki: domestic meal receipt threshold $75.",
+        "value": 75
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:email_summary",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_policy_copy_chain:confluence_page"
+          ],
+          "source_modified_at": "2026-07-08 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page",
+              "kind": "confluence_page"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://email-summary.benchmark.example/enterprise_policy_copy_chain/email_summary",
+          "kind": "email_summary"
+        },
+        "source_id": "email_summary",
+        "text": "Travel desk email digest reproduces the Confluence FAQ: receipts for domestic meals at $75 or more.",
+        "value": 75
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:manager_note",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_policy_copy_chain:slack_message",
+            "enterprise_policy_copy_chain:email_summary"
+          ],
+          "source_modified_at": "2026-07-09 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://slack-message.benchmark.example/enterprise_policy_copy_chain/slack_message",
+              "kind": "slack_message"
+            },
+            {
+              "identifier": "https://email-summary.benchmark.example/enterprise_policy_copy_chain/email_summary",
+              "kind": "email_summary"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://manager-note.benchmark.example/enterprise_policy_copy_chain/manager_note",
+          "kind": "manager_note"
+        },
+        "source_id": "manager_note",
+        "text": "Manager trip note combines the Slack checklist and travel desk digest: keep meal receipts at $75 and above.",
+        "value": 75
+      },
+      {
+        "attribute": "receipt threshold USD",
+        "entity": "Larch TR-17 domestic meals",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_policy_copy_chain:policy_changelog",
+          "cited_sources": [
+            {
+              "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record",
+              "kind": "policy_record"
+            }
+          ],
+          "observed_at": "2026-08-20 12:08:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-07-01 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://policy-changelog.benchmark.example/enterprise_policy_copy_chain/policy_changelog",
+          "kind": "policy_changelog"
+        },
+        "source_id": "policy_changelog",
+        "text": "TR-17 change log entry signed July 1: domestic employee meal receipt threshold set to $40.",
+        "value": 40
+      }
+    ],
+    "case_id": "enterprise_policy_copy_chain",
+    "category": null,
+    "context_budget": 3,
+    "domain": "enterprise_rag",
+    "question": "Under Larch policy TR-17, what receipt threshold applies to domestic meals for employees in August 2026?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-policy_record",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a34307d"
+      ],
+      "raw_text": "Policy record TR-17, effective July 1: a receipt is required for domestic employee meals of $40 or more; lower amounts need a business purpose.",
+      "source_id": "policy_record"
+    },
+    {
+      "chunk_id": "chunk-confluence_page",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a37357d"
+      ],
+      "raw_text": "Travel Confluence FAQ: receipts are required for domestic meals at $75 or more. Published from the travel desk briefing, revision 6.",
+      "source_id": "confluence_page"
+    },
+    {
+      "chunk_id": "chunk-team_wiki",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a37357d"
+      ],
+      "raw_text": "Sales team travel wiki: use the travel Confluence FAQ threshold of $75 for domestic meal receipts.",
+      "source_id": "team_wiki"
+    },
+    {
+      "chunk_id": "chunk-slack_message",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a37357d"
+      ],
+      "raw_text": "Slack #field-travel: Sales wiki says attach receipts for meals at $75 and above; adding that to the trip checklist.",
+      "source_id": "slack_message"
+    },
+    {
+      "chunk_id": "chunk-hr_system",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a34307d"
+      ],
+      "raw_text": "Expense system rule TR-17-US-MEAL, effective July 1: receipt_required when amount_usd >= 40 for employee domestic meals.",
+      "source_id": "hr_system"
+    },
+    {
+      "chunk_id": "chunk-drive_document",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a37357d"
+      ],
+      "raw_text": "Drive trip checklist, copied from Sales wiki: domestic meal receipt threshold $75.",
+      "source_id": "drive_document"
+    },
+    {
+      "chunk_id": "chunk-email_summary",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a37357d"
+      ],
+      "raw_text": "Travel desk email digest reproduces the Confluence FAQ: receipts for domestic meals at $75 or more.",
+      "source_id": "email_summary"
+    },
+    {
+      "chunk_id": "chunk-manager_note",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a37357d"
+      ],
+      "raw_text": "Manager trip note combines the Slack checklist and travel desk digest: keep meal receipts at $75 and above.",
+      "source_id": "manager_note"
+    },
+    {
+      "chunk_id": "chunk-policy_changelog",
+      "claim_ids": [
+        "7b22617474726962757465223a22726563656970745f7468726573686f6c645f757364222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323463363137323633363832303534353232643331333732303634366636643635373337343639363332303664363536313663373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a34307d"
+      ],
+      "raw_text": "TR-17 change log entry signed July 1: domestic employee meal receipt threshold set to $40.",
+      "source_id": "policy_changelog"
+    }
+  ],
+  "truth": {
+    "answer": "Receipts are required for domestic employee meals of $40 or more.",
+    "case_id": "enterprise_policy_copy_chain",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "40"
+      ]
+    },
+    "supporting_sources": [
+      "policy_record",
+      "hr_system",
+      "policy_changelog"
+    ]
+  }
+}

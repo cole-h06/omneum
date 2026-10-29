@@ -1,0 +1,414 @@
+{
+  "id": "enterprise_partial_lineage",
+  "domain": "enterprise_rag",
+  "question": "What retention period should the Alder team apply to production customer chat transcripts under schedule CS-8?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "drive_document",
+      "source": {
+        "kind": "drive_document",
+        "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document"
+      },
+      "text": "Drive onboarding checklist: production customer chat transcripts are retained for 180 days. Document imported from a departmental folder; revision history was not retained.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:drive_document",
+        "observed_at": "2026-08-20T12:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 180,
+          "claim_id": "sha256:b59a6b794e38700335c0531f94b67bbcb7e02f765c8e9c9d638c65555fbfc01a",
+          "observation_id": "enterprise_partial_lineage:drive_document",
+          "evidence": [
+            {
+              "source_id": "drive_document",
+              "start": 0,
+              "end": 172,
+              "text": "Drive onboarding checklist: production customer chat transcripts are retained for 180 days. Document imported from a departmental folder; revision history was not retained."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "departmental onboarding checklist",
+          "attribute": "revision_history_retained",
+          "value": false,
+          "claim_id": "sha256:3bb9bed5ce13229c149ee67ecd3601976084811bb82b88c4b25d0e2be04d206c",
+          "observation_id": "enterprise_partial_lineage:drive_document:claim:2",
+          "evidence": [
+            {
+              "source_id": "drive_document",
+              "start": 0,
+              "end": 172,
+              "text": "Drive onboarding checklist: production customer chat transcripts are retained for 180 days. Document imported from a departmental folder; revision history was not retained."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "confluence_page",
+      "source": {
+        "kind": "confluence_page",
+        "identifier": "https://confluence-page.benchmark.example/enterprise_partial_lineage/confluence_page"
+      },
+      "text": "Confluence mirror of the onboarding checklist: retain production chat transcripts for 180 days.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:confluence_page",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-11T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "drive_document",
+            "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 180,
+          "claim_id": "sha256:b59a6b794e38700335c0531f94b67bbcb7e02f765c8e9c9d638c65555fbfc01a",
+          "observation_id": "enterprise_partial_lineage:confluence_page",
+          "evidence": [
+            {
+              "source_id": "confluence_page",
+              "start": 0,
+              "end": 95,
+              "text": "Confluence mirror of the onboarding checklist: retain production chat transcripts for 180 days."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "slack_message",
+      "source": {
+        "kind": "slack_message",
+        "identifier": "https://slack-message.benchmark.example/enterprise_partial_lineage/slack_message"
+      },
+      "text": "Slack support handoff: our onboarding checklist says chat transcripts stay for 180 days. The pasted message has no document link.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:slack_message",
+        "observed_at": "2026-08-20T12:02:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 180,
+          "claim_id": "sha256:b59a6b794e38700335c0531f94b67bbcb7e02f765c8e9c9d638c65555fbfc01a",
+          "observation_id": "enterprise_partial_lineage:slack_message",
+          "evidence": [
+            {
+              "source_id": "slack_message",
+              "start": 0,
+              "end": 129,
+              "text": "Slack support handoff: our onboarding checklist says chat transcripts stay for 180 days. The pasted message has no document link."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "onboarding checklist handoff message",
+          "attribute": "document_link_present",
+          "value": false,
+          "claim_id": "sha256:351a83979067d6bd35556b168d2e807d30ed653fa15b7721b5ecdbe8f08f0849",
+          "observation_id": "enterprise_partial_lineage:slack_message:claim:2",
+          "evidence": [
+            {
+              "source_id": "slack_message",
+              "start": 0,
+              "end": 129,
+              "text": "Slack support handoff: our onboarding checklist says chat transcripts stay for 180 days. The pasted message has no document link."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "drive_document_2",
+      "source": {
+        "kind": "drive_document",
+        "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2"
+      },
+      "text": "Drive schedule CS-8, signed by Records on August 4: production customer chat transcripts expire after 90 days; legal holds are excluded.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:drive_document_2",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-04T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 90,
+          "claim_id": "sha256:f65146b88614e02e0f28c1bac8916df1848907614b47f83a32847807bbef9724",
+          "observation_id": "enterprise_partial_lineage:drive_document_2",
+          "evidence": [
+            {
+              "source_id": "drive_document_2",
+              "start": 0,
+              "end": 136,
+              "text": "Drive schedule CS-8, signed by Records on August 4: production customer chat transcripts expire after 90 days; legal holds are excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "legal_hold_exempts_expiration",
+          "value": true,
+          "claim_id": "sha256:8d88c17a537ab8af41df61c27e5a3bf810ebec528afd36c8733f450a51371f0b",
+          "observation_id": "enterprise_partial_lineage:drive_document_2:claim:2",
+          "evidence": [
+            {
+              "source_id": "drive_document_2",
+              "start": 0,
+              "end": 136,
+              "text": "Drive schedule CS-8, signed by Records on August 4: production customer chat transcripts expire after 90 days; legal holds are excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "schedule CS-8",
+          "attribute": "signing_record",
+          "value": {
+            "signer": "Records",
+            "date": "August 4"
+          },
+          "claim_id": "sha256:96a832dd4165d0e1d460b50cac7c999d84b4cfe510a9fd727bdbdf2e7aea5112",
+          "observation_id": "enterprise_partial_lineage:drive_document_2:claim:3",
+          "evidence": [
+            {
+              "source_id": "drive_document_2",
+              "start": 0,
+              "end": 136,
+              "text": "Drive schedule CS-8, signed by Records on August 4: production customer chat transcripts expire after 90 days; legal holds are excluded."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "team_wiki",
+      "source": {
+        "kind": "team_wiki",
+        "identifier": "https://team-wiki.benchmark.example/enterprise_partial_lineage/team_wiki"
+      },
+      "text": "Team wiki: chat retention is 180 days. The migration footer points to the onboarding Confluence space, with the original page ID lost.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:team_wiki",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "cited_sources": [
+          {
+            "kind": "confluence_page",
+            "identifier": "https://confluence-page.benchmark.example/enterprise_partial_lineage/confluence_page"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 180,
+          "claim_id": "sha256:b59a6b794e38700335c0531f94b67bbcb7e02f765c8e9c9d638c65555fbfc01a",
+          "observation_id": "enterprise_partial_lineage:team_wiki",
+          "evidence": [
+            {
+              "source_id": "team_wiki",
+              "start": 0,
+              "end": 134,
+              "text": "Team wiki: chat retention is 180 days. The migration footer points to the onboarding Confluence space, with the original page ID lost."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "chat retention wiki migration",
+          "attribute": "original_page_id_retained",
+          "value": false,
+          "claim_id": "sha256:1b5b23e5e911e67b7a8a3e179ba9ec5e354b6e9677387097c87c2ffc66bb3189",
+          "observation_id": "enterprise_partial_lineage:team_wiki:claim:2",
+          "evidence": [
+            {
+              "source_id": "team_wiki",
+              "start": 0,
+              "end": 134,
+              "text": "Team wiki: chat retention is 180 days. The migration footer points to the onboarding Confluence space, with the original page ID lost."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "email",
+      "source": {
+        "kind": "email",
+        "identifier": "https://email.benchmark.example/enterprise_partial_lineage/email"
+      },
+      "text": "Records email: apply 90 days to production chat transcripts under CS-8. The mail archive retained a folder-level reference to the onboarding materials, not the attachment ID.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:email",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-05T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "drive_document",
+            "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 90,
+          "claim_id": "sha256:f65146b88614e02e0f28c1bac8916df1848907614b47f83a32847807bbef9724",
+          "observation_id": "enterprise_partial_lineage:email",
+          "evidence": [
+            {
+              "source_id": "email",
+              "start": 0,
+              "end": 174,
+              "text": "Records email: apply 90 days to production chat transcripts under CS-8. The mail archive retained a folder-level reference to the onboarding materials, not the attachment ID."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Records CS-8 email archive",
+          "attribute": "reference_precision",
+          "value": "folder-level; attachment ID absent",
+          "claim_id": "sha256:d5459709ce807163e02328e460172be1e5ea281d521b1ea41fbd59c1b98325de",
+          "observation_id": "enterprise_partial_lineage:email:claim:2",
+          "evidence": [
+            {
+              "source_id": "email",
+              "start": 0,
+              "end": 174,
+              "text": "Records email: apply 90 days to production chat transcripts under CS-8. The mail archive retained a folder-level reference to the onboarding materials, not the attachment ID."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "system_record",
+      "source": {
+        "kind": "system_record",
+        "identifier": "https://system-record.benchmark.example/enterprise_partial_lineage/system_record"
+      },
+      "text": "Retention service record cs8-prod: ttl_days=90; scope=customer_chat_transcript; legal_hold bypass enabled.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:system_record",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-06T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "drive_document",
+            "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 90,
+          "claim_id": "sha256:f65146b88614e02e0f28c1bac8916df1848907614b47f83a32847807bbef9724",
+          "observation_id": "enterprise_partial_lineage:system_record",
+          "evidence": [
+            {
+              "source_id": "system_record",
+              "start": 0,
+              "end": 106,
+              "text": "Retention service record cs8-prod: ttl_days=90; scope=customer_chat_transcript; legal_hold bypass enabled."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "legal_hold_exempts_expiration",
+          "value": true,
+          "claim_id": "sha256:8d88c17a537ab8af41df61c27e5a3bf810ebec528afd36c8733f450a51371f0b",
+          "observation_id": "enterprise_partial_lineage:system_record:claim:2",
+          "evidence": [
+            {
+              "source_id": "system_record",
+              "start": 0,
+              "end": 106,
+              "text": "Retention service record cs8-prod: ttl_days=90; scope=customer_chat_transcript; legal_hold bypass enabled."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "announcement",
+      "source": {
+        "kind": "announcement",
+        "identifier": "https://announcement.benchmark.example/enterprise_partial_lineage/announcement"
+      },
+      "text": "Records announcement: CS-8 production chat retention is 90 days. Link: signed retention schedule in Drive.",
+      "provenance": {
+        "assertion_id": "enterprise_partial_lineage:announcement",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-07T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "drive_document",
+            "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Alder CS-8 production customer chat transcripts",
+          "attribute": "default_retention_days",
+          "value": 90,
+          "claim_id": "sha256:f65146b88614e02e0f28c1bac8916df1848907614b47f83a32847807bbef9724",
+          "observation_id": "enterprise_partial_lineage:announcement",
+          "evidence": [
+            {
+              "source_id": "announcement",
+              "start": 0,
+              "end": 106,
+              "text": "Records announcement: CS-8 production chat retention is 90 days. Link: signed retention schedule in Drive."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Records CS-8 announcement",
+          "attribute": "linked_artifact",
+          "value": "signed retention schedule in Drive",
+          "claim_id": "sha256:24234b21e3580e7837771295ea1f07d85b880153b962408ed14689ed9837c7bd",
+          "observation_id": "enterprise_partial_lineage:announcement:claim:2",
+          "evidence": [
+            {
+              "source_id": "announcement",
+              "start": 0,
+              "end": 106,
+              "text": "Records announcement: CS-8 production chat retention is 90 days. Link: signed retention schedule in Drive."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

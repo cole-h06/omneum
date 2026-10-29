@@ -1,0 +1,429 @@
+{
+  "id": "research_independent_false_consensus",
+  "domain": "research_analysis_agents",
+  "question": "How many occupied homes were in the North Quay pilot at the August 2026 census, excluding vacant units?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "report",
+      "source": {
+        "kind": "report",
+        "identifier": "https://report.benchmark.example/research_independent_false_consensus/report"
+      },
+      "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed.",
+      "provenance": {
+        "assertion_id": "research_independent_false_consensus:report",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupied_home_count",
+          "value": 240,
+          "claim_id": "sha256:08e0712b97f81767f4b881ecd9ec36a356c9ca3cc956d2d28783af5a1801005b",
+          "observation_id": "research_independent_false_consensus:report",
+          "evidence": [
+            {
+              "source_id": "report",
+              "start": 0,
+              "end": 145,
+              "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "site_map_home_count",
+          "value": 240,
+          "claim_id": "sha256:9507ad1c2df00bf941d687778ed9c46338e6ebb6713b33aa0fb66a0006939651",
+          "observation_id": "research_independent_false_consensus:report:claim:2",
+          "evidence": [
+            {
+              "source_id": "report",
+              "start": 0,
+              "end": 145,
+              "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "household_interviews_performed",
+          "value": false,
+          "claim_id": "sha256:13273be3f85f09c921009efc2b61014bfbca074f4ebf499c95529a754440ec94",
+          "observation_id": "research_independent_false_consensus:report:claim:3",
+          "evidence": [
+            {
+              "source_id": "report",
+              "start": 0,
+              "end": 145,
+              "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "publication",
+      "source": {
+        "kind": "publication",
+        "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication"
+      },
+      "text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings.",
+      "provenance": {
+        "assertion_id": "research_independent_false_consensus:publication",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupied_home_count",
+          "value": 240,
+          "claim_id": "sha256:08e0712b97f81767f4b881ecd9ec36a356c9ca3cc956d2d28783af5a1801005b",
+          "observation_id": "research_independent_false_consensus:publication",
+          "evidence": [
+            {
+              "source_id": "publication",
+              "start": 0,
+              "end": 106,
+              "text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "count_method",
+          "value": "facade survey",
+          "claim_id": "sha256:87d7df9b318eaf761302630a73b41171891db4177665a6f7cdf80f340c336730",
+          "observation_id": "research_independent_false_consensus:publication:claim:2",
+          "evidence": [
+            {
+              "source_id": "publication",
+              "start": 0,
+              "end": 106,
+              "text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "analysis",
+      "source": {
+        "kind": "analysis",
+        "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis"
+      },
+      "text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay.",
+      "provenance": {
+        "assertion_id": "research_independent_false_consensus:analysis",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupied_home_count",
+          "value": 240,
+          "claim_id": "sha256:08e0712b97f81767f4b881ecd9ec36a356c9ca3cc956d2d28783af5a1801005b",
+          "observation_id": "research_independent_false_consensus:analysis",
+          "evidence": [
+            {
+              "source_id": "analysis",
+              "start": 0,
+              "end": 118,
+              "text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "count_method",
+          "value": "independently digitized parcel footprints",
+          "claim_id": "sha256:508ea7294e14fd2050ae22aae2c6125433e1a6ccca007df8351c0e24eb945dab",
+          "observation_id": "research_independent_false_consensus:analysis:claim:2",
+          "evidence": [
+            {
+              "source_id": "analysis",
+              "start": 0,
+              "end": 118,
+              "text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dataset",
+      "source": {
+        "kind": "dataset",
+        "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset"
+      },
+      "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12.",
+      "provenance": {
+        "assertion_id": "research_independent_false_consensus:dataset",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupied_home_count",
+          "value": 216,
+          "claim_id": "sha256:234776c282be44b4793bf2e4a2935fa1b85b36c27390fa22124072332e226cdf",
+          "observation_id": "research_independent_false_consensus:dataset",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 125,
+              "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "vacant_home_count",
+          "value": 24,
+          "claim_id": "sha256:68922193bbe16699434adfb2d6be782312306a82f43e69219b00dc9ce111f50a",
+          "observation_id": "research_independent_false_consensus:dataset:claim:2",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 125,
+              "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "total_residential_unit_count",
+          "value": 240,
+          "claim_id": "sha256:2823959c5598ea17f58b5e53d4ad8e054155b02dec9341b298cc94f5de02c122",
+          "observation_id": "research_independent_false_consensus:dataset:claim:3",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 125,
+              "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "enumeration_date",
+          "value": "August 12",
+          "claim_id": "sha256:7f49b0ebf413505602a7826d9194022336d4cc8527abdc771f42f365f2793c34",
+          "observation_id": "research_independent_false_consensus:dataset:claim:4",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 125,
+              "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "news_article",
+      "source": {
+        "kind": "news_article",
+        "identifier": "https://news-article.benchmark.example/research_independent_false_consensus/news_article"
+      },
+      "text": "Quay Observer reporter counted door numbers during a separate site walk and described all 240 as occupied homes.",
+      "provenance": {
+        "assertion_id": "research_independent_false_consensus:news_article",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupied_home_count",
+          "value": 240,
+          "claim_id": "sha256:08e0712b97f81767f4b881ecd9ec36a356c9ca3cc956d2d28783af5a1801005b",
+          "observation_id": "research_independent_false_consensus:news_article",
+          "evidence": [
+            {
+              "source_id": "news_article",
+              "start": 0,
+              "end": 112,
+              "text": "Quay Observer reporter counted door numbers during a separate site walk and described all 240 as occupied homes."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "count_method",
+          "value": "door-number count during a separate site walk",
+          "claim_id": "sha256:8e239bc5403354bca28692c72a22108231980350ae4123863908adf271984714",
+          "observation_id": "research_independent_false_consensus:news_article:claim:2",
+          "evidence": [
+            {
+              "source_id": "news_article",
+              "start": 0,
+              "end": 112,
+              "text": "Quay Observer reporter counted door numbers during a separate site walk and described all 240 as occupied homes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "primary_record",
+      "source": {
+        "kind": "primary_record",
+        "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+      },
+      "text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits.",
+      "provenance": {
+        "assertion_id": "research_independent_false_consensus:primary_record",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupied_home_count",
+          "value": 216,
+          "claim_id": "sha256:234776c282be44b4793bf2e4a2935fa1b85b36c27390fa22124072332e226cdf",
+          "observation_id": "research_independent_false_consensus:primary_record",
+          "evidence": [
+            {
+              "source_id": "primary_record",
+              "start": 0,
+              "end": 139,
+              "text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "vacant_home_count",
+          "value": 24,
+          "claim_id": "sha256:68922193bbe16699434adfb2d6be782312306a82f43e69219b00dc9ce111f50a",
+          "observation_id": "research_independent_false_consensus:primary_record:claim:2",
+          "evidence": [
+            {
+              "source_id": "primary_record",
+              "start": 0,
+              "end": 139,
+              "text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "enumeration_date",
+          "value": "August 12",
+          "claim_id": "sha256:7f49b0ebf413505602a7826d9194022336d4cc8527abdc771f42f365f2793c34",
+          "observation_id": "research_independent_false_consensus:primary_record:claim:3",
+          "evidence": [
+            {
+              "source_id": "primary_record",
+              "start": 0,
+              "end": 139,
+              "text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupancy_determination_method",
+          "value": [
+            "household contact",
+            "follow-up visits"
+          ],
+          "claim_id": "sha256:c87c80681e3dd6bb47ac5bea22624d1fe26bff0e305d5f4910e390497e7f5a5a",
+          "observation_id": "research_independent_false_consensus:primary_record:claim:4",
+          "evidence": [
+            {
+              "source_id": "primary_record",
+              "start": 0,
+              "end": 139,
+              "text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "web_page",
+      "source": {
+        "kind": "web_page",
+        "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page"
+      },
+      "text": "Neighborhood association census summary: 216 homes occupied in the August enumeration; 24 were vacant.",
+      "provenance": {
+        "assertion_id": "research_independent_false_consensus:web_page",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "primary_record",
+            "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_independent_false_consensus:primary_record"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "occupied_home_count",
+          "value": 216,
+          "claim_id": "sha256:234776c282be44b4793bf2e4a2935fa1b85b36c27390fa22124072332e226cdf",
+          "observation_id": "research_independent_false_consensus:web_page",
+          "evidence": [
+            {
+              "source_id": "web_page",
+              "start": 0,
+              "end": 102,
+              "text": "Neighborhood association census summary: 216 homes occupied in the August enumeration; 24 were vacant."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "housing",
+          "entity": "North Quay August census",
+          "attribute": "vacant_home_count",
+          "value": 24,
+          "claim_id": "sha256:68922193bbe16699434adfb2d6be782312306a82f43e69219b00dc9ce111f50a",
+          "observation_id": "research_independent_false_consensus:web_page:claim:2",
+          "evidence": [
+            {
+              "source_id": "web_page",
+              "start": 0,
+              "end": 102,
+              "text": "Neighborhood association census summary: 216 homes occupied in the August enumeration; 24 were vacant."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

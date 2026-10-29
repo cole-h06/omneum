@@ -1,7 +1,6 @@
-
 # Ping
 
-`ping` checks the MCP server connection and returns the active deployment configuration.
+`ping` returns the MCP server's active deployment metadata and protocol configuration.
 
 ## Check Server Status
 
@@ -67,14 +66,9 @@ The deployment ID, key version, and fingerprint above are examples. Read the ins
 
 ## Deployment Configuration
 
-Use the returned fields when constructing direct `evaluate_voprf` or `evaluate_context` requests.
+Direct `evaluate_voprf` and `evaluate_context` requests must use the active deployment parameters returned by `ping`.
 
 ```python
-result = await session.call_tool("ping", {})
-
-if result.isError:
-    raise RuntimeError(result.content)
-
 config = result.structuredContent
 
 request_metadata = {
@@ -87,7 +81,7 @@ request_metadata = {
 }
 ```
 
-`configuration_fingerprint` identifies the public deployment configuration. Compare it with the locally trusted configuration when validating a deployment.
+`configuration_fingerprint` identifies the deployment's public configuration. Clients can compare it against a previously trusted fingerprint to detect configuration changes.
 
 `ping` does not return the VOPRF private scalar or establish that the evaluator can successfully process a blinded element.
 

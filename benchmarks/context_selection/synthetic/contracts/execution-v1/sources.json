@@ -1,0 +1,11 @@
+{
+  "benchmarks/context_selection/synthetic/tier1_benchmark.py": "9fb8abac1df97f25bb8936d18b8579952ca6600f5e248aaa244ddca361dd575e",
+  "benchmarks/context_selection/synthetic/tier1_competitors.py": "3ab8a4eb5323ac2aac605559117b3aaa9ad0d65282540975e0d90fa381ab65c9",
+  "benchmarks/context_selection/synthetic/experiments/budget_recovery.py": "0cd834becdb877a6494c6c8684f3d45ad98f0f8f9f273d496f17b006c7b201f9",
+  "benchmarks/context_selection/synthetic/experiments/analyze_budget_recovery.py": "30c1fef5affc072aa0a9c1ccbb6955479963a3ab3d933742a3b8ece44dc77b3e",
+  "benchmarks/context_selection/synthetic/analysis/tier1-competitive-analysis-20261026-v1/analyze.py": "3af8a5f57b5c4a1138dde73da1cb57621d320de1f2810c4bd37fda27cefe698f",
+  "benchmarks/context_selection/synthetic/experiments/discovery_experiment.py": "fa7ee5f93914ce78f7199789b007051ebf1743e5023a97eb3fd09aecb3a16c7b",
+  "benchmarks/context_selection/synthetic/experiments/targeted_selection.py": "f97d913293774f9655ad057cca32ed7cb99c594821d75accc73272aa52e64bdb",
+  "benchmarks/context_selection/synthetic/question_support_qualification_report.py": "f900d4065e046f998cc8f045130c11d047913c9fff7e899bc22aed33e072d529",
+  "benchmarks/context_selection/synthetic/question_support_qualification_v4_report.py": "4745f525f051f3716e04cdb14f49749974a57441dd5b8c7dee0c29bf94e43308"
+}

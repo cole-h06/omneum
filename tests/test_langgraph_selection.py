@@ -19,9 +19,9 @@ def test_context_selection(example_daemon):
         assert len(selected) == len(attributes)
         assert all(claim.independent_support >= 1.9 for claim in selected)
 
-        assert "unredacted customer content allowed" not in result["answer"]
-        assert "30 days" not in result["answer"]
-        assert "US" not in result["answer"]
+        generation = result["generation"]
+        assert generation["prepared_context"]["context"] in result["answer"]
+        assert generation["query_diagnostics"]["relevance_source"] == "bm25"
 
         assert "Selected context:" in result["answer"]
 

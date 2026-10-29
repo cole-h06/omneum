@@ -1,4 +1,6 @@
 import tomllib
+import os
+import tempfile
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,10 +27,18 @@ voprf_key_version = {config.voprf_key_version}
 voprf_public_key = "{config.voprf_public_key}"
 '''
 
-    # Initialization must not replace an existing public-key pin, even when
-    # two init processes reach this write concurrently.
-    with path.open("x", encoding="utf-8") as file:
-        file.write(toml)
+    # Publish complete, flushed bytes without replacing an existing pin. An
+    # exclusive open alone exposes an empty/partial pin to another initializer
+    # and can strand it after a failed write. link() is atomic and no-clobber.
+    descriptor, temporary = tempfile.mkstemp(prefix=".config-", dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as file:
+            file.write(toml)
+            file.flush()
+            os.fsync(file.fileno())
+        os.link(temporary, path, follow_symlinks=False)
+    finally:
+        os.unlink(temporary)
 
 
 def load_config() -> DeploymentConfig:

@@ -1,0 +1,2636 @@
+{
+  "configuration": {
+    "methods": [
+      "bge",
+      "bge_omneum",
+      "embedding",
+      "embedding_omneum",
+      "bm25",
+      "bm25_omneum"
+    ],
+    "cases": 24,
+    "budgets": [
+      64,
+      96,
+      128,
+      160,
+      192,
+      256
+    ],
+    "repeats": 5,
+    "seed": 42,
+    "expected_cells": 864,
+    "expected_measured_executions": 4320,
+    "warmup_executions": 6,
+    "conflict_aware": false,
+    "pipeline": "production prepare_context; existing complementary density hybrid configuration",
+    "source_trace": "/tmp/omneum-conflict-heldout-1792958991711192000.jsonl",
+    "source_trace_sha256": "d19860c5b0a22c3bc762e1f72a42ffe6537b71e8de9400ced90f686994f7b4c3",
+    "source_artifact_paths": {
+      "omneum/metrics.py": "a773d48866343e0e0f709a9c98fee53e59356028e4abe9b9a4ba76266fed3162",
+      "omneum/compatibility.py": "74668a14d60fa60d44f473869bfa614c5980b184ae8e6a4c9deeed423c9d312c",
+      "omneum/enrollment_api.py": "80a531f8e5c15df5e3bce0fc094552b6988675a8eba4b60cec1fbc642666c832",
+      "omneum/server.py": "404a13e586cbb52687cc91fde65e3830aa556ea93b2078a3e1e7f33ce9e6f81e",
+      "omneum/local_persistence.py": "099ddbbd76047e82c92d0c59a9a19fb47a6b9481004a283939b86bccd103d549",
+      "omneum/canonicalization.py": "decc3b0cad847582ffdd28005826cfb7bcae2f37f96a2cc199ca43cc22a4dfed",
+      "omneum/config.py": "2c66bddf7cf6a9177bfe3fc2275eb584dbd60cfbe897e5069360b775c350d31b",
+      "omneum/information.py": "2f3376726ccc56e7c71d77ddf3077631561ca582468d65d5644377cd5e9195c3",
+      "omneum/models.py": "450ca38314fdbb4a84b6a0abdb137f585e81bc7c69dc1ca9f5985a8e86bb3ae1",
+      "omneum/query_context.py": "a39e9e4962472af13677ba3817a32cfc2ec16db8753c8bc593ee81da8b6e8ceb",
+      "omneum/linkage.py": "506ebbd9ace7e1730ef34522353ce19349916afefb9d5b47577a7a88638679a4",
+      "omneum/compatibility_inference.py": "fea26b49b781e7dc98e714892a20818bdf3b82538ee747d21f1ff2ca291721a2",
+      "omneum/deployment.py": "d5a2dfed6d41581add1abed42bd2ac79485074e78afea4344085a703992502a2",
+      "omneum/paths.py": "515fc559d7fc5651b9ed66a69095718c4a7d389fdac319a462e1e91c1e4e8923",
+      "omneum/runtime_bundle.py": "93c4a20f1a560a1d8f85802a875b2133e16f9d24274b485b2c9390780deae977",
+      "omneum/oprf.py": "487d25cb5a2cef82faffa8592a8d1bcebfd3e15adba6edf68c60bc97bd1268f2",
+      "omneum/explanations.py": "4698527f4c2550aa4dda5572d401e6eb3818e645011b15cf8fbf9ed80fa01304",
+      "omneum/proxy.py": "b65e79993e0a386c697f4296b404227aa840554f05e84928bb53c1db1daef49a",
+      "omneum/observations.py": "683e8dab4152db14c4820de75033042b9a78444774b3b5cdece3a5bf3c8005a6",
+      "omneum/onboarding.py": "ca117a1ccd619d25c21e20202aa5e149437e4ec7369886154a2f92d5cea8acde",
+      "omneum/engine_graph.py": "f1c94393dfc05f8283d39afc0e2abed4de1331f3da31dfa2616fccb7c9807d6e",
+      "omneum/installation.py": "86c8b56cc14309fa76ca17580e8b35db9b106e7b413f5182e18b3fb8717508a7",
+      "omneum/client.py": "33ce3f317c7d5591a386acec5f962aed40595b424513c0444c996373c7fcda5a",
+      "omneum/base64url.py": "3658160ee973f498b56f524458015fc87b07250ee13cd9977cfdce96d397e369",
+      "omneum/records.py": "d9df95db99cf14dc2f9f2a93a7d68146bc5779617a8fdd5b6ccbddea2df9fab7",
+      "omneum/__init__.py": "0944e8f83dc3627e51e738ccf455736976c702d81f7e0c8b5a5503a9acc6460e",
+      "omneum/_crypto.py": "04fa51bfc1b48e8492e9d5ca2ec319711dceca786435b48c9d7485104a586100",
+      "omneum/keys.py": "cd23f77f2b1121c8ec11a26ef0c426a229bb25ce8a401ff41ff45783a91c48ff",
+      "omneum/_extraction_verification.py": "2dd8f080c6c41c1038aaefc36a0f0b1b03c454926a42c069dbe5ade2f4701845",
+      "omneum/network_deploy.py": "c1ba6b282d40cd152fe93550510aa281de555d97474bda1f272520137145b949",
+      "omneum/initialization.py": "dca0530259110acadedf178d48c248683c0f972988ffb050f386e46f92c7eaa7",
+      "omneum/sources.py": "cf8029f3baae289ff299102770458ccd7685d46f7305fc116425247b0f1fb649",
+      "omneum/cli.py": "3a45fe6742d0be1bc1bab4c5498e2853d97c34958f5945ca39e00511aeab6add",
+      "omneum/extraction.py": "4c3fc41cbc87d031e0dfd8f5761c1f2159e399ec4776d3038514818cce81ae48",
+      "omneum/provision.py": "0ccbbc11954e1bb8ea0d9e222b4db1d68b1d11d870da6ad078816f88d2cbe4cd",
+      "omneum/context_selection.py": "7704994521b3e558461aa43dfa7a649c1c89a2da31f456c70b804d0d183c1130",
+      "omneum/dependency.py": "49360efbbc551254eda717867de63df96ebcd5759e9afa22e58f93db0f143954",
+      "omneum/contributor.py": "acd0534c8578e440319fb05929709e1d2169ff22f390c00cc9c0682428c5e362",
+      "omneum/enrollment.py": "541f807c32fac56edb10d369b3fc3b6907ffacb18a5c5b75ccc7f0f81a00e741",
+      "omneum/conformance.py": "823c00fc837d2d08d07adf4297253dcc135145f5498b5245bb72581f6e227457",
+      "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+      "omneum/_numeric.py": "829c5792a0763751bd17260973853846b96039283aa4b74e765484b1400758b2",
+      "omneum/network_operator.py": "0cdce7c94071f8a155f9f34614a17ebff7170e11834752788e0827027cceba33",
+      "omneum/agent_result.py": "fb29e3269b4da601eb2dff5ddd81fcba66475bfee69fb7ab72df44500abedff6",
+      "omneum/demo.py": "007789a721fd95e13a953e8527e6b5a1857a615a8f226137db8cba90cf0d8d3a",
+      "omneum/normalization.py": "45dd4435938b65656d517a3d292bd072b037e1b9539e5f04b865c3dfbb181436",
+      "omneum/mapping.py": "0052b33a3c2e13519873f1d3fed9010bdb526859458eb352afc34f14ff7a53e3",
+      "omneum/network_api.py": "4ea8751cd7640ca53c0b3f8621af522c44290ad0a9d36fc641d28fda0e33f3ba",
+      "omneum/network_acceptance.py": "95e00063299ca69877e833ea4b794b849ce0ddc37e43b4f6af8e8be7dc9f0a23",
+      "omneum/network_release.py": "4b91e387db371b5d129a48fd206ed0bd363751d63cdf2870b2f712097a54d812",
+      "omneum/serialization.py": "9ea47e8b3c60cbf95c10657bd213c70e5b3a6e49846c92af0cd6d9a2ceadce54",
+      "omneum/daemon.py": "22bc492ae5006c1590db60f72a1e04b11948a8e474f1b94b908249636140ae11",
+      "omneum/research_telemetry.py": "9893b7dbbbb30a508ac7eb7c5a3b31ea265216ecefd166af4185b12b952adf26",
+      "omneum/question_selection.py": "631b6a7aaf32c6699a342e089d2a0ee8cf710dc6b0865a313cd0adecb79f3670",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_metric_definition_conflict/ground_truth.json": "b5157322a805be084a945d7054338b797fe906a2f482162b9f6c74e9455fe4dd",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_metric_definition_conflict/case.json": "841818ac3bdf255a8c7fe56b58c04454c1a92eb6dcf5cfc5abcc3b8b9a3c9b81",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_syndicated_reporting/ground_truth.json": "52fb1f81ec19a1a10546c4975dee9ee154f8ba74cbaba12f7d78a45e5e0fd299",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_syndicated_reporting/case.json": "4ee12af2805f82651cd55d1370f27ea6f45668987415300a009421da6a6212f8",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_stale_runbook/ground_truth.json": "7d1bd2b1fbec17023cf110ac73d403bc9f4bd73b66bc0c0e8a637494538368ff",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_stale_runbook/case.json": "1ee81875a47bcb532786493b8ef18fafad267278f6b8805ce7aac2f317484063",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_stale_handbook/ground_truth.json": "777af9d1e1b186f9266d5f3d96dc69924b7f799572dd7c7b0806471414844a0e",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_stale_handbook/case.json": "4e5e73bea05faddd041c59ef6297b19ca4068293120cb7e39851cd48ebb3feca",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_semantic_distractors/ground_truth.json": "6df65cd6662dfe11c20b3c126c83799d12c9877d5f9f071c25ac9163520cc3a0",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_semantic_distractors/case.json": "cc6ddaaf114568481f324e113c1823927d10b2cdf259bb36308d52c4b060cb52",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_feedback_loop/ground_truth.json": "7d9bc787769eed93379caa7b7ac21f04ce13a1e82419ed07115e5d3d4708aa23",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_feedback_loop/case.json": "fe74f2c6cb49c9a3f7ce5737cc609796f17eb9e6627da126359120d5ad92c58e",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_relevant_wrong_task/ground_truth.json": "8b688fab36f1f5813073ca56bf136e45a66962fb469548abd114165a1b2de0bd",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_relevant_wrong_task/case.json": "24a907045ce845d8273199e33ce5f432fb455a6ecbfa8ff4bab60a9a6890018d",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_partial_lineage/ground_truth.json": "d9c64d9de26639269b2b755bf768918d6c1d5ab109d70722f87f7b574ed199ad",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_partial_lineage/case.json": "aa1d3ed58bf1961604b6a82cb057979292aeb3671072b50094bb884accad2ab3",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_config_conflict/ground_truth.json": "cf83de7c6d1b1fa0b0b5f578e545dd65e90249d6ae64fec94efe38650ebb00b5",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_config_conflict/case.json": "9d2155d4d58d70e1a7e1c77e4f87f6c60f67890e3347c0a760bbfe91c11f5744",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_clean_consensus/ground_truth.json": "3b0d045f1ebae1bf53d27a0519fce4ebb3b3e6d89498f425a7b62ff0b5708af1",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_clean_consensus/case.json": "0011785ab11f0b20039d08916e9a78b802555b13732e3348c96f97ba294bd79f",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_clean_resolution/ground_truth.json": "98049d4b8998a6a0cb6dee533118739add73d225212fccc2256b28a57e9eb71c",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_clean_resolution/case.json": "3ccb0d475fd2535b7403e324248bdd92b6e8ac2e0709d4191725c8554cd78205",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_derived_metric_cycle/ground_truth.json": "edf2ced18b0c593549d158c47b06fcca7d4fcaf7693ab4ed7e6a7d33d8c78256",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_derived_metric_cycle/case.json": "ff8ff096544f5b80ac80b9f0f471c97a318819cbf904be6d5f49d267cc1b2511",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_conflicting_reports/ground_truth.json": "a3e3950f0b3280c8f98a4e703814b6a801b47a035e5be28783e6f87527da4476",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_conflicting_reports/case.json": "5549331d6a59df719aa763ee2ca5caedd3bdf1187ed0865762826cb7577669eb",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_api_version_change/ground_truth.json": "49163680e3fb2b7ffa29061e533a28108d14e3e3ebf74d9c43d577210573ed6f",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_api_version_change/case.json": "09807e92b0d72788d4d5f4eb9f1eedd958d0544aeca623f026ee3872695efbfd",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_ticket_reference_loop/ground_truth.json": "902b2755f922eea55108f3ca8fa28157fb2f02a68884a5f02b9b621a2ce74a8c",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_ticket_reference_loop/case.json": "6ea8fdf1deb4c0c4b6c90b56f7b2dbb8a0d15a7949b7adb318bd0baeecb93f78",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_repeated_subagent/ground_truth.json": "856c643c9e380db0ac3475a0cd648f2377cbab1a3f67918943b18daeaaec522b",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_repeated_subagent/case.json": "5783135adc7cf69210dbe5d6718cb4ebaeafad7f68453a7be3de4cab62c3db69",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_resolution_conflict/ground_truth.json": "09a92b92e243b1425d0a50886dd9563ba41cd6e63376e83a34dbe95400479d39",
+      "benchmarks/context_evaluation/heldout/canonical/cases/support_resolution_conflict/case.json": "8d1e009ebd8d5018b7b58340c57ca96f05545bf4365be0f3561d219ecb7a4c7a",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_stale_dashboard/ground_truth.json": "0f5335e1b94e04a9cd46e21e58a0a72731f7ca50afc8a5170774761cfe2e6b87",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_stale_dashboard/case.json": "8bf5ff78ac5a272df49ffdf80fb6c8bc9c1223897667273e8f5b328eee31f854",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_independent_error/ground_truth.json": "d493a02472a1e07403b75c7ecf706fcd571f3890cba29bf35dfa595c8bfeef05",
+      "benchmarks/context_evaluation/heldout/canonical/cases/multi_agent_independent_error/case.json": "211c030c58db6da27570a38f08e820b0ddfbfdb9c1c5ab12cdfbc1842580a3f6",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_clean_dependency/ground_truth.json": "ebc8b31854570d9501d92e6c02d49906e9e4a8b86c08a2cb8623142a806123f9",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_clean_dependency/case.json": "d740eee4e5af6fab33c7145b5b8f146145a9aca4b6b0c814276fadcfc7a0daee",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_incomplete_lineage/ground_truth.json": "729605db48078ee9c6702bf72b8a271f28d9df64b475f1f64fbc81715ed4168f",
+      "benchmarks/context_evaluation/heldout/canonical/cases/analytics_incomplete_lineage/case.json": "8187c3c8fa23c4ea99ac887533af5b0e8f8c253a4d16e50080dc78d4599ef3d6",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_independent_false_consensus/ground_truth.json": "91c1f06c387ada2b63a3468051e1e80ed8e981a108012c2a461113d2f1ee1430",
+      "benchmarks/context_evaluation/heldout/canonical/cases/research_independent_false_consensus/case.json": "442a94cfb68ed2e19ade5c45e8650ccfbf55d6937322b389a598cd4fefa5dee8",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_policy_copy_chain/ground_truth.json": "0d261457f011ae0437b7f6dbfe87cb71c998417d9074f0bccae7ac64e3369286",
+      "benchmarks/context_evaluation/heldout/canonical/cases/enterprise_policy_copy_chain/case.json": "2e9de4169bfcb4942c67e00295f9e0c696706c203124002506805d8d2dbd889b",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_package_fix_lineage/ground_truth.json": "567adef95dada2de266a7c340259f69efcd102e40a9e1d4153a5102c2979973f",
+      "benchmarks/context_evaluation/heldout/canonical/cases/coding_package_fix_lineage/case.json": "ca12c746dcf179d97a1f36c5935b5aff4ca7e7efd2e7b8cdade8a962f1f8be44",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/enterprise_policy_copy_chain-retrieval.json": "dc1ffdc4123f160f02bac17263f21a7c90c62cdf5dc7f0462eb70e4221b68922",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/multi_agent_independent_error-retrieval.json": "3d7b5f2097d04fdd639313fe959306ac384501a5f9ec7ca0d698aafd22157c34",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/multi_agent_relevant_wrong_task-retrieval.json": "a254c532481386b262e5c8a93e0b567006e0f048e12ba2117e7f8fcc2f4c78a1",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/enterprise_semantic_distractors-retrieval.json": "1c4d308928480691916d3f9b0fb5f610b5793fa71eb46ea3958fc629b50b22a1",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/enterprise_partial_lineage-retrieval.json": "05f13e31d3aa07ec275dfa2bc7bd252b860081a2f697ee93dd01f408d50e2772",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/multi_agent_feedback_loop-retrieval.json": "cfba2a087947a478bc88825d0d55b25aa2e6e7dda57a4d201e2e7147815da235",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/support_ticket_reference_loop-retrieval.json": "e45d6ef6109ae2fa10a3f6d2cebaf79916e9341f52c9d33372158e7b491186d7",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/analytics_incomplete_lineage-retrieval.json": "28d09d5184616b3fb0d46c007c8773d7187f6831a6a161ac816df95d3ceb20aa",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/analytics_stale_dashboard-retrieval.json": "b4833c97478e904604a4712acc831ed08e8eed68af43a488253ddb923fe46868",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/coding_config_conflict-retrieval.json": "d6bd73ad749a652760e63bc1e7b385bc9578eebf2bc7befb47b3a46db00d8d96",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/research_conflicting_reports-retrieval.json": "93db7f14c24adf30fe811ec65c3edd91fbd25ee1bd80fe63a1561c222633519c",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/coding_clean_dependency-retrieval.json": "571dd110c870c3e1f49f7c0386fd44dcd72f9755aca4fc490fea26028a7c4863",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/support_clean_resolution-retrieval.json": "28186416ec961595542c02dae1c7a6b44d379f2527a29130ea70513bfef2491b",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/enterprise_stale_handbook-retrieval.json": "219cdcdc86d501ac31696b330325dd376275fae2568e30619ddf3e043d844d85",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/research_clean_consensus-retrieval.json": "887c9a0f4942993e3f424bd43a1f99997c6f3c0fe9b948383916df172ccba2b7",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/coding_package_fix_lineage-retrieval.json": "e92175618ef08c7b64053b21c145cb83db5776754e23cf14b25a800fa26eed72",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/support_stale_runbook-retrieval.json": "066660af3083c5adabe7cde2b0101dcf3195b0b4517f0664f65c87e97d8234bb",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/coding_api_version_change-retrieval.json": "7c66aeb4cdd9ac934d5e7622c3a138fa59216ae7034847c7a0718ada6b2dd185",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/analytics_derived_metric_cycle-retrieval.json": "d0721f2c0225906ddfcc35da390879d6ec68f985c71220cd16799c2d648b1e58",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/research_syndicated_reporting-retrieval.json": "0010987bc2e2ff7fabe9358b9ddf05752db6f6168b42e32bec19fd8deb3fe2b5",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/multi_agent_repeated_subagent-retrieval.json": "4cdee7a6b2d8fb1dd258017b64f32d99419c1659ef587891b43f44f2a9e16de7",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/support_resolution_conflict-retrieval.json": "1fca8a3bae05b5ff75a68b6d5f28aaec0c0bd4c3ad4dd196deb3fc0e80c26268",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/analytics_metric_definition_conflict-retrieval.json": "33f3df8d0f1539a97f79806306be856d1eb71c236f4418e13aee53f7196bd87f",
+      "benchmarks/context_evaluation/heldout/canonical/retrieval/research_independent_false_consensus-retrieval.json": "a694ad009a69b17074d464a03d191f88c96e5007cbe1c634fb14d78106c5eb2f",
+      "benchmarks/context_evaluation/heldout/query_benchmark.py": "982eeef6bfc430323e6b7398db8453702851d0c466f8c3576d892c8dbe621090",
+      "benchmarks/context_evaluation/heldout/prepare_benchmark.py": "27c2a07798aa4b786cd932e22f192931d91c615ed44e72015702edf0ff69f04f",
+      "benchmarks/context_evaluation/heldout/sdk_adapter.py": "2ae97709f6985698de451035db8f94c44159e7533f9456af012222e9f044d51b",
+      "benchmarks/context_evaluation/heldout/scoring.py": "595ed2e53084ca281c89fed1e7547677fa9f3e3651dcf3c74ded48cee57960be"
+    },
+    "dataset": "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/canonical/cases",
+    "environment": {
+      "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "cpu_count": 10,
+      "hardware": {
+        "hw.model": "Mac17,4",
+        "hw.memsize": "34359738368",
+        "machdep.cpu.brand_string": "Apple M5"
+      },
+      "packages": {
+        "omneum": "1.1.4",
+        "mcp": "1.30.0",
+        "httpx": "0.28.1",
+        "orjson": "3.12.0",
+        "numpy": "2.5.2",
+        "sentence-transformers": "5.7.0",
+        "transformers": "5.16.1"
+      },
+      "git_head": "6d430d4efd28559a262212e9f88aba63c080238a"
+    },
+    "tokenizer_endpoint": "http://127.0.0.1:59223",
+    "tokenizer": "Qwen2.5 7B GGUF sha256:2bada8a7450677000f678be90653b85d364de7db25eb5ea54136ada5f3933730; add_special=False parse_special=True",
+    "daemon": "target/test-daemon/debug/omneumd",
+    "daemon_sha256": "f544c6486543936d7151dd060edce66e0d92b74de126ed7928bb167754eb32b9",
+    "code_sha256": {
+      "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/tier1_benchmark.py": "9fb8abac1df97f25bb8936d18b8579952ca6600f5e248aaa244ddca361dd575e",
+      "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/tier1_metrics.py": "951dc43f7f2bca071ee4d49965e625fa1f1837df2cb93b2fb7c683c43019fbb1"
+    },
+    "metric_status": [
+      {
+        "number": 1,
+        "name": "Answer Accuracy",
+        "status": "skipped"
+      },
+      {
+        "number": 2,
+        "name": "Evidence Retention",
+        "status": "reconstructed and execution-validated"
+      },
+      {
+        "number": 3,
+        "name": "Actual Context Tokens",
+        "status": "reconstructed and execution-validated"
+      },
+      {
+        "number": 4,
+        "name": "Accuracy at Matched Tokens",
+        "status": "skipped"
+      },
+      {
+        "number": 5,
+        "name": "Context Reduction",
+        "status": "reconstructed"
+      },
+      {
+        "number": 6,
+        "name": "Claim Coverage",
+        "status": "partial: explicit gold-claim labels absent"
+      },
+      {
+        "number": 7,
+        "name": "Independent Evidence Coverage",
+        "status": "reconstructed from source-dependency annotations"
+      },
+      {
+        "number": 8,
+        "name": "Selection p50/p95 Latency",
+        "status": "new repeated measurements"
+      },
+      {
+        "number": 9,
+        "name": "End-to-End p50/p95 Latency",
+        "status": "skipped"
+      },
+      {
+        "number": 10,
+        "name": "Estimated API Cost",
+        "status": "local execution: 0.00 USD"
+      }
+    ],
+    "definitions": {
+      "evidence_retention": "Retained word/punctuation footprint of unioned exact evidence spans in gold supporting passages / total footprint of those spans. Headers excluded. Distinct from unweighted source recall.",
+      "actual_context_tokens": "len(re.findall(r\"\\w+|[^\\w\\s]\", rendered_context)); includes actual chunk headers.",
+      "context_reduction": "(raw_context_footprint-selected_context_footprint)/raw_context_footprint; same renderer and word/punctuation counter on both sides.",
+      "gold_claim_coverage": "Missing: no explicit required/gold claim-ID annotation exists. Null, never replaced silently.",
+      "supporting_passage_claim_coverage": "Distinct canonical claim IDs retained / union of canonical claim IDs in gold supporting passages. Existing harness definition; includes incidental facts and is not a minimal answer-fact metric.",
+      "independent_evidence_coverage": "Union of annotated root-origin units represented by retained GOLD passages / union represented by all gold supporting passages. Edges are declared upstream, citation and parent-observation references. Root cycles collapse to one unresolved origin unit. No estimator weights, temporal similarity or dependency-cluster threshold are used.",
+      "dependency_cluster_coverage": "Separate reused diagnostic: distinct required-claim/estimated-cluster pairs covered. Not independent-origin coverage.",
+      "source_metrics": "Existing score_selection precision and recall against all annotated supporting sources; unchanged denominators.",
+      "budget": "Original Qwen2.5 7B tokenizer units, exact rendered context. Word/punctuation footprint is a separate measurement and can exceed the numeric tokenizer budget.",
+      "budget_normalized_source_recall": "Reused exact rendered-subset feasibility ceiling for the recorded method-specific renderer order; never the passage-count formula.",
+      "selection_ms": "Fresh wall time after supplied relevance scores and canonical observations are available. Baselines: sorting, first-fit packing, rendering. Hybrids: full prepare_context including fresh graph evaluation, discovery, packing, reconstruction and SDK validation. No evaluation receipt reuse.",
+      "timing_exclusions": "Dataset loading, semantic model initialization AND model relevance inference excluded for every arm. Exact tokenizer counts prewarmed for every possible whole-chunk subset/order used by the harness. Local daemon startup excluded; its graph requests are included.",
+      "graph_ms": "SDK-reported server graph execution duration. MCP roundtrip and client verification inference are separate, overlapping components; do not sum them.",
+      "packing_ms": "SDK chunk_selection_latency_ms includes proposal rendering/token checks; baseline pack duration excludes sorting and final render.",
+      "percentiles": "Linear interpolation at (n-1)q over all recorded execution samples; quality metrics macro-average unique case-budget cells, not repeats.",
+      "cost": "Paid API cost for this local selection-only execution is 0.00 USD; excludes hardware/electricity and historical work."
+    },
+    "limitations": [
+      "No downstream generation or answer-accuracy claim.",
+      "Independent origins are annotation-relative; absent links do not prove real-world independence. Citation edges use the existing annotation contract, not new entailment judgments.",
+      "Gold source labels do not specify a minimal set of answer-required atomic claims.",
+      "Selection timing is post-relevance; it is not full BGE/MiniLM retrieval inference latency.",
+      "SDK runs use the supported isolated local daemon without SQLite persistence."
+    ]
+  },
+  "aggregate": {
+    "bge": {
+      "cells": 144,
+      "executions": 720,
+      "evidence_retention": 0.5884459806767961,
+      "actual_context_tokens": 112.84722222222223,
+      "raw_context_tokens": 218.41666666666666,
+      "context_reduction": 0.4758457750569332,
+      "supporting_passage_claim_coverage": 0.6875155515780516,
+      "independent_evidence_coverage": 0.7142361111111111,
+      "source_precision": 0.6329172178130511,
+      "source_recall": 0.591931216931217,
+      "tokenizer_tokens": 136.47222222222223,
+      "tokenizer_utilization": 0.9028356481481481,
+      "dependency_cluster_coverage": 0.632846628679962,
+      "budget_normalized_source_recall": 0.7490740740740741,
+      "gold_claim_coverage": null,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "estimated_api_cost_usd": 0.0,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.011624768376350403,
+        "p95": 0.017166626639664173
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.00937492586672306,
+        "p95": 0.013756286352872843
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00045821070671081543,
+        "p95": 0.0006672926247119904
+      },
+      "mcp_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "verification_inference_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      }
+    },
+    "bge_omneum": {
+      "cells": 144,
+      "executions": 720,
+      "evidence_retention": 0.5201817025679509,
+      "actual_context_tokens": 87.16666666666667,
+      "raw_context_tokens": 218.41666666666666,
+      "context_reduction": 0.5952585021436341,
+      "supporting_passage_claim_coverage": 0.704641346308013,
+      "independent_evidence_coverage": 0.7237268518518518,
+      "source_precision": 0.738343253968254,
+      "source_recall": 0.5135416666666667,
+      "tokenizer_tokens": 106.625,
+      "tokenizer_utilization": 0.7416901765046297,
+      "dependency_cluster_coverage": 0.6633443138651473,
+      "budget_normalized_source_recall": 0.6833498677248677,
+      "gold_claim_coverage": null,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "estimated_api_cost_usd": 0.0,
+      "selection_ms": {
+        "n": 720,
+        "p50": 132.42264580912888,
+        "p95": 202.582092047669
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6323750130832195,
+        "p95": 0.9546397719532251
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.06222887896001339,
+        "p95": 0.10815639980137345
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016577541828155518,
+        "p95": 0.0002081738784909248
+      },
+      "mcp_ms": {
+        "n": 720,
+        "p50": 7.280667079612613,
+        "p95": 8.111270959489048
+      },
+      "verification_inference_ms": {
+        "n": 720,
+        "p50": 0.1457706093788147,
+        "p95": 0.3835771465674036
+      },
+      "discovery_ms": {
+        "n": 720,
+        "p50": 0.907666515558958,
+        "p95": 1.4266961254179433
+      }
+    },
+    "bm25": {
+      "cells": 144,
+      "executions": 720,
+      "evidence_retention": 0.557920277183414,
+      "actual_context_tokens": 114.1875,
+      "raw_context_tokens": 218.41666666666666,
+      "context_reduction": 0.46965037072933186,
+      "supporting_passage_claim_coverage": 0.6614678531345198,
+      "independent_evidence_coverage": 0.7105324074074074,
+      "source_precision": 0.5915316358024691,
+      "source_recall": 0.55760582010582,
+      "tokenizer_tokens": 136.18055555555554,
+      "tokenizer_utilization": 0.8993453414351852,
+      "dependency_cluster_coverage": 0.6139052113010446,
+      "budget_normalized_source_recall": 0.7099537037037037,
+      "gold_claim_coverage": null,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "estimated_api_cost_usd": 0.0,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.011666445061564445,
+        "p95": 0.01675030216574669
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.00929180532693863,
+        "p95": 0.013378891162574288
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00045821070671081543,
+        "p95": 0.0006672926247119904
+      },
+      "mcp_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "verification_inference_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      }
+    },
+    "bm25_omneum": {
+      "cells": 144,
+      "executions": 720,
+      "evidence_retention": 0.4578918465452178,
+      "actual_context_tokens": 86.38888888888889,
+      "raw_context_tokens": 218.41666666666666,
+      "context_reduction": 0.6010529327387228,
+      "supporting_passage_claim_coverage": 0.6402836746586746,
+      "independent_evidence_coverage": 0.6799768518518519,
+      "source_precision": 0.6545304232804233,
+      "source_recall": 0.45578703703703705,
+      "tokenizer_tokens": 103.75694444444444,
+      "tokenizer_utilization": 0.7255732783564814,
+      "dependency_cluster_coverage": 0.6061802587844255,
+      "budget_normalized_source_recall": 0.6018683862433862,
+      "gold_claim_coverage": null,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "estimated_api_cost_usd": 0.0,
+      "selection_ms": {
+        "n": 720,
+        "p50": 131.61464594304562,
+        "p95": 200.60718299355355
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6318124942481518,
+        "p95": 0.9567497996613383
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.06266729906201363,
+        "p95": 0.1101233065128326
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016577541828155518,
+        "p95": 0.00020815059542655945
+      },
+      "mcp_ms": {
+        "n": 720,
+        "p50": 7.2619374841451645,
+        "p95": 8.031973452307284
+      },
+      "verification_inference_ms": {
+        "n": 720,
+        "p50": 0.14474964700639248,
+        "p95": 0.36115183029323805
+      },
+      "discovery_ms": {
+        "n": 720,
+        "p50": 0.8967493195086718,
+        "p95": 1.3755913358181697
+      }
+    },
+    "embedding": {
+      "cells": 144,
+      "executions": 720,
+      "evidence_retention": 0.5886015790848188,
+      "actual_context_tokens": 113.02083333333333,
+      "raw_context_tokens": 218.41666666666666,
+      "context_reduction": 0.47528748289124795,
+      "supporting_passage_claim_coverage": 0.6847029899113233,
+      "independent_evidence_coverage": 0.709375,
+      "source_precision": 0.6380263447971781,
+      "source_recall": 0.5912863756613757,
+      "tokenizer_tokens": 136.30555555555554,
+      "tokenizer_utilization": 0.8995406539351852,
+      "dependency_cluster_coverage": 0.6316120607787274,
+      "budget_normalized_source_recall": 0.7623842592592592,
+      "gold_claim_coverage": null,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "estimated_api_cost_usd": 0.0,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.011312542483210564,
+        "p95": 0.016333069652318954
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.009042210876941681,
+        "p95": 0.0132101122289896
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00045821070671081543,
+        "p95": 0.0006672926247119904
+      },
+      "mcp_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "verification_inference_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      }
+    },
+    "embedding_omneum": {
+      "cells": 144,
+      "executions": 720,
+      "evidence_retention": 0.45136084429030704,
+      "actual_context_tokens": 80.15277777777777,
+      "raw_context_tokens": 218.41666666666666,
+      "context_reduction": 0.6299849501572011,
+      "supporting_passage_claim_coverage": 0.6184407798991133,
+      "independent_evidence_coverage": 0.6375,
+      "source_precision": 0.6729497354497355,
+      "source_recall": 0.44052579365079364,
+      "tokenizer_tokens": 98.72916666666667,
+      "tokenizer_utilization": 0.6961027922453704,
+      "dependency_cluster_coverage": 0.5799338200379867,
+      "budget_normalized_source_recall": 0.5874338624338624,
+      "gold_claim_coverage": null,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "estimated_api_cost_usd": 0.0,
+      "selection_ms": {
+        "n": 720,
+        "p50": 131.4841250423342,
+        "p95": 194.2487140651789
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6331873591989279,
+        "p95": 0.9516856167465448
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.05852058529853821,
+        "p95": 0.11001867242157458
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016600824892520905,
+        "p95": 0.00020815059542655945
+      },
+      "mcp_ms": {
+        "n": 720,
+        "p50": 7.2537080850452185,
+        "p95": 8.054110384546217
+      },
+      "verification_inference_ms": {
+        "n": 720,
+        "p50": 0.145292142406106,
+        "p95": 0.41183771099895206
+      },
+      "discovery_ms": {
+        "n": 720,
+        "p50": 0.8903753478080034,
+        "p95": 1.444027060642838
+      }
+    }
+  },
+  "per_budget": {
+    "64": {
+      "bge": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.2176507126536717,
+        "actual_context_tokens": 44.208333333333336,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.7967785179390264,
+        "supporting_passage_claim_coverage": 0.36412534225034227,
+        "independent_evidence_coverage": 0.37083333333333335,
+        "source_precision": 0.6388888888888888,
+        "source_recall": 0.2296626984126984,
+        "tokenizer_tokens": 53.166666666666664,
+        "tokenizer_utilization": 0.8307291666666666,
+        "dependency_cluster_coverage": 0.27632656695156693,
+        "budget_normalized_source_recall": 0.625,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009854324162006378,
+          "p95": 0.014312891289591788
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007645692676305771,
+          "p95": 0.011518737301230429
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033294782042503357,
+          "p95": 0.00045821070671081543
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bge_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.2801909252455182,
+        "actual_context_tokens": 38.75,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.8187071893027289,
+        "supporting_passage_claim_coverage": 0.5033416814666815,
+        "independent_evidence_coverage": 0.5027777777777778,
+        "source_precision": 0.8472222222222222,
+        "source_recall": 0.28521825396825395,
+        "tokenizer_tokens": 47.291666666666664,
+        "tokenizer_utilization": 0.7389322916666666,
+        "dependency_cluster_coverage": 0.4080395299145299,
+        "budget_normalized_source_recall": 0.7708333333333334,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 130.6291874498129,
+          "p95": 201.3096941402182
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.632833456620574,
+          "p95": 0.9331812150776386
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.05287514068186283,
+          "p95": 0.06708127912133932
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.301833247765899,
+          "p95": 7.961800042539835
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.1432287972420454,
+          "p95": 0.36181611940264696
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9075202979147434,
+          "p95": 1.376539841294287
+        }
+      },
+      "bm25": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.19975344558328398,
+        "actual_context_tokens": 46.083333333333336,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.786934586098835,
+        "supporting_passage_claim_coverage": 0.3257224257224257,
+        "independent_evidence_coverage": 0.35833333333333334,
+        "source_precision": 0.5347222222222222,
+        "source_recall": 0.19771825396825396,
+        "tokenizer_tokens": 53.875,
+        "tokenizer_utilization": 0.841796875,
+        "dependency_cluster_coverage": 0.26055466524216525,
+        "budget_normalized_source_recall": 0.5625,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.010417075827717781,
+          "p95": 0.013191998004913328
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007979106158018112,
+          "p95": 0.010341359302401543
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033294782042503357,
+          "p95": 0.00045869965106248856
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bm25_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.2206629515914503,
+        "actual_context_tokens": 41.041666666666664,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.8089113975161293,
+        "supporting_passage_claim_coverage": 0.45716262903762905,
+        "independent_evidence_coverage": 0.41041666666666665,
+        "source_precision": 0.6805555555555556,
+        "source_recall": 0.22271825396825395,
+        "tokenizer_tokens": 48.083333333333336,
+        "tokenizer_utilization": 0.7513020833333334,
+        "dependency_cluster_coverage": 0.3600917022792023,
+        "budget_normalized_source_recall": 0.625,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.44608317129314,
+          "p95": 191.69933344237504
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6285835988819599,
+          "p95": 0.9745041839778423
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.05375011824071407,
+          "p95": 0.0786416931077838
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.241979008540511,
+          "p95": 7.983756577596068
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.1436250749975443,
+          "p95": 0.36871260963380337
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9089165832847357,
+          "p95": 1.343937567435205
+        }
+      },
+      "embedding": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.26028317126485395,
+        "actual_context_tokens": 43.625,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.7982331700173674,
+        "supporting_passage_claim_coverage": 0.4313185656935657,
+        "independent_evidence_coverage": 0.44027777777777777,
+        "source_precision": 0.7222222222222222,
+        "source_recall": 0.2581349206349206,
+        "tokenizer_tokens": 52.708333333333336,
+        "tokenizer_utilization": 0.8235677083333334,
+        "dependency_cluster_coverage": 0.32773771367521365,
+        "budget_normalized_source_recall": 0.7291666666666666,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009417068213224411,
+          "p95": 0.013341172598302364
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007457798346877098,
+          "p95": 0.010308693163096903
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033294782042503357,
+          "p95": 0.00045821070671081543
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "embedding_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.2508650926929178,
+        "actual_context_tokens": 38.416666666666664,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.8205283204428359,
+        "supporting_passage_claim_coverage": 0.47053363303363305,
+        "independent_evidence_coverage": 0.4263888888888889,
+        "source_precision": 0.7638888888888888,
+        "source_recall": 0.23799603174603173,
+        "tokenizer_tokens": 47.291666666666664,
+        "tokenizer_utilization": 0.7389322916666666,
+        "dependency_cluster_coverage": 0.3803997507122507,
+        "budget_normalized_source_recall": 0.6666666666666666,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.83552050031722,
+          "p95": 194.2549328319728
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6361668929457664,
+          "p95": 0.8765642996877432
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.050083501264452934,
+          "p95": 0.0748025719076395
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.260896032676101,
+          "p95": 8.23636429850012
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14279200695455074,
+          "p95": 0.4625875735655427
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.909249996766448,
+          "p95": 1.4192748116329303
+        }
+      }
+    },
+    "96": {
+      "bge": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.3703249685661233,
+        "actual_context_tokens": 70.58333333333333,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.6705532342091627,
+        "supporting_passage_claim_coverage": 0.5232872451622451,
+        "independent_evidence_coverage": 0.5298611111111111,
+        "source_precision": 0.6319444444444444,
+        "source_recall": 0.3725198412698413,
+        "tokenizer_tokens": 85.20833333333333,
+        "tokenizer_utilization": 0.8875868055555556,
+        "dependency_cluster_coverage": 0.43737980769230766,
+        "budget_normalized_source_recall": 0.6597222222222222,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01108366996049881,
+          "p95": 0.014651869423687455
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.00874977558851242,
+          "p95": 0.01200195401906967
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0003748573362827301,
+          "p95": 0.000500120222568512
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bge_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.39188287127057414,
+        "actual_context_tokens": 64.375,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.7012166934206399,
+        "supporting_passage_claim_coverage": 0.6321420477670477,
+        "independent_evidence_coverage": 0.6048611111111111,
+        "source_precision": 0.7291666666666666,
+        "source_recall": 0.3860119047619048,
+        "tokenizer_tokens": 78.58333333333333,
+        "tokenizer_utilization": 0.8185763888888888,
+        "dependency_cluster_coverage": 0.5429353632478633,
+        "budget_normalized_source_recall": 0.6736111111111112,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.32629157230258,
+          "p95": 201.91416449379176
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6573335267603397,
+          "p95": 0.9684255113825202
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.059750163927674294,
+          "p95": 0.08632524404674768
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00021110754460096348
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.277520839124918,
+          "p95": 8.078831317834556
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14483300037682056,
+          "p95": 0.36674155853688706
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9109375532716513,
+          "p95": 1.3368574902415273
+        }
+      },
+      "bm25": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.36982931045085626,
+        "actual_context_tokens": 68.5,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.6814305807704896,
+        "supporting_passage_claim_coverage": 0.5243278712028712,
+        "independent_evidence_coverage": 0.5715277777777777,
+        "source_precision": 0.6319444444444444,
+        "source_recall": 0.3686507936507937,
+        "tokenizer_tokens": 81.79166666666667,
+        "tokenizer_utilization": 0.8519965277777778,
+        "dependency_cluster_coverage": 0.4438256766381766,
+        "budget_normalized_source_recall": 0.6666666666666666,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.011062249541282654,
+          "p95": 0.014500180259346957
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008832896128296852,
+          "p95": 0.01181394327431917
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0003748573362827301,
+          "p95": 0.000500120222568512
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bm25_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.31193082180468107,
+        "actual_context_tokens": 63.375,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.7065021126837371,
+        "supporting_passage_claim_coverage": 0.5449577043327043,
+        "independent_evidence_coverage": 0.48680555555555555,
+        "source_precision": 0.6041666666666666,
+        "source_recall": 0.30198412698412697,
+        "tokenizer_tokens": 75.41666666666667,
+        "tokenizer_utilization": 0.7855902777777778,
+        "dependency_cluster_coverage": 0.4724180911680912,
+        "budget_normalized_source_recall": 0.5416666666666666,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.41431233473122,
+          "p95": 180.75922711286694
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.5911251064389944,
+          "p95": 0.9445658884942532
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06066681817173958,
+          "p95": 0.0924746273085475
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.236917037516832,
+          "p95": 7.873259065672755
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14593754895031452,
+          "p95": 0.3486666129902005
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8620412554591894,
+          "p95": 1.3720435556024295
+        }
+      },
+      "embedding": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.4112246326180264,
+        "actual_context_tokens": 67.79166666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.6842317002209544,
+        "supporting_passage_claim_coverage": 0.5277922309172309,
+        "independent_evidence_coverage": 0.54375,
+        "source_precision": 0.7013888888888888,
+        "source_recall": 0.40962301587301586,
+        "tokenizer_tokens": 82.33333333333333,
+        "tokenizer_utilization": 0.8576388888888888,
+        "dependency_cluster_coverage": 0.4442307692307692,
+        "budget_normalized_source_recall": 0.7083333333333334,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.010645482689142227,
+          "p95": 0.013961945660412312
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008333474397659302,
+          "p95": 0.011131353676319122
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0003748573362827301,
+          "p95": 0.000500120222568512
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "embedding_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.3434776803405813,
+        "actual_context_tokens": 60.833333333333336,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.7164949668924445,
+        "supporting_passage_claim_coverage": 0.5564132626632626,
+        "independent_evidence_coverage": 0.5166666666666666,
+        "source_precision": 0.6527777777777778,
+        "source_recall": 0.33839285714285716,
+        "tokenizer_tokens": 74.95833333333333,
+        "tokenizer_utilization": 0.7808159722222222,
+        "dependency_cluster_coverage": 0.47600160256410257,
+        "budget_normalized_source_recall": 0.5902777777777778,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.6309374999255,
+          "p95": 203.31911607645452
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6266457494348288,
+          "p95": 0.9387751342728734
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.05870801396667957,
+          "p95": 0.08940980769693851
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00016922131180763234
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.266458356752992,
+          "p95": 8.131858287379146
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14560390263795853,
+          "p95": 0.41294395923614496
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.89810392819345,
+          "p95": 1.3952997978776678
+        }
+      }
+    },
+    "128": {
+      "bge": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5459317371935022,
+        "actual_context_tokens": 96.25,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5515813221986025,
+        "supporting_passage_claim_coverage": 0.6643059486809487,
+        "independent_evidence_coverage": 0.7027777777777777,
+        "source_precision": 0.673611111111111,
+        "source_recall": 0.5427579365079365,
+        "tokenizer_tokens": 117.08333333333333,
+        "tokenizer_utilization": 0.9147135416666666,
+        "dependency_cluster_coverage": 0.5989138176638177,
+        "budget_normalized_source_recall": 0.7090277777777778,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.0112093985080719,
+          "p95": 0.014730868861079214
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009125098586082458,
+          "p95": 0.012058648280799387
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004163011908531189,
+          "p95": 0.0005420297384262085
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bge_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5179480239856373,
+        "actual_context_tokens": 87.375,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5931044726812575,
+        "supporting_passage_claim_coverage": 0.7156025687275688,
+        "independent_evidence_coverage": 0.7243055555555555,
+        "source_precision": 0.7118055555555556,
+        "source_recall": 0.5076388888888889,
+        "tokenizer_tokens": 106.16666666666667,
+        "tokenizer_utilization": 0.8294270833333334,
+        "dependency_cluster_coverage": 0.6757077991452991,
+        "budget_normalized_source_recall": 0.6749999999999999,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.81220786646008,
+          "p95": 203.7680393550545
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6658125203102827,
+          "p95": 0.9541098261252046
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06374972872436047,
+          "p95": 0.09468765929341316
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016600824892520905,
+          "p95": 0.00020815059542655945
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.264354033395648,
+          "p95": 8.233804744668305
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.15095830895006657,
+          "p95": 0.35885653924196925
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9079372975975275,
+          "p95": 1.3598728459328413
+        }
+      },
+      "bm25": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5190183238799373,
+        "actual_context_tokens": 97.29166666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.546196955017126,
+        "supporting_passage_claim_coverage": 0.6488242081992082,
+        "independent_evidence_coverage": 0.6645833333333333,
+        "source_precision": 0.6388888888888888,
+        "source_recall": 0.5149801587301587,
+        "tokenizer_tokens": 116.25,
+        "tokenizer_utilization": 0.908203125,
+        "dependency_cluster_coverage": 0.5803418803418804,
+        "budget_normalized_source_recall": 0.6777777777777778,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01145852729678154,
+          "p95": 0.01594012137502432
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009125098586082458,
+          "p95": 0.012658303603529928
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004172325134277344,
+          "p95": 0.0005441252142190932
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bm25_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.4677031898808023,
+        "actual_context_tokens": 89,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5876785377442648,
+        "supporting_passage_claim_coverage": 0.6564630970880971,
+        "independent_evidence_coverage": 0.7208333333333333,
+        "source_precision": 0.6458333333333334,
+        "source_recall": 0.4701388888888889,
+        "tokenizer_tokens": 105.91666666666667,
+        "tokenizer_utilization": 0.8274739583333334,
+        "dependency_cluster_coverage": 0.6210247507122507,
+        "budget_normalized_source_recall": 0.6263888888888889,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 130.3215625230223,
+          "p95": 189.98258954379705
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.5980420392006636,
+          "p95": 0.968421227298677
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.07260381244122982,
+          "p95": 0.09979375172406435
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020817387849092484
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.249103859066963,
+          "p95": 8.141730655916035
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.1440206542611122,
+          "p95": 0.3572270739823579
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8578747510910034,
+          "p95": 1.4154312433674932
+        }
+      },
+      "embedding": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5537324257000572,
+        "actual_context_tokens": 98.29166666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5421389495401375,
+        "supporting_passage_claim_coverage": 0.6366775585525586,
+        "independent_evidence_coverage": 0.6666666666666666,
+        "source_precision": 0.642361111111111,
+        "source_recall": 0.5594246031746032,
+        "tokenizer_tokens": 118.75,
+        "tokenizer_utilization": 0.927734375,
+        "dependency_cluster_coverage": 0.5862980769230769,
+        "budget_normalized_source_recall": 0.7263888888888889,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.011041993275284767,
+          "p95": 0.015210127457976341
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008728820830583572,
+          "p95": 0.012213317677378654
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004172325134277344,
+          "p95": 0.0005415873602032661
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "embedding_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.4585644245939928,
+        "actual_context_tokens": 80.25,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.6289024622153141,
+        "supporting_passage_claim_coverage": 0.6402922309172309,
+        "independent_evidence_coverage": 0.6569444444444444,
+        "source_precision": 0.6666666666666666,
+        "source_recall": 0.45128968253968255,
+        "tokenizer_tokens": 98.91666666666667,
+        "tokenizer_utilization": 0.7727864583333334,
+        "dependency_cluster_coverage": 0.6044115028490028,
+        "budget_normalized_source_recall": 0.5881944444444445,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.6394789610058,
+          "p95": 181.1528061749413
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6081666797399521,
+          "p95": 0.9513228898867965
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.062458449974656105,
+          "p95": 0.0981898745521903
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.0001671724021434784
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.257770514115691,
+          "p95": 8.128502173349261
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14920858666300774,
+          "p95": 0.4403997445479034
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8852917235344648,
+          "p95": 1.407720847055315
+        }
+      }
+    },
+    "160": {
+      "bge": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.6765326919080561,
+        "actual_context_tokens": 122.125,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.4303729123997221,
+        "supporting_passage_claim_coverage": 0.7619199087949088,
+        "independent_evidence_coverage": 0.8048611111111111,
+        "source_precision": 0.6495039682539683,
+        "source_recall": 0.6761904761904762,
+        "tokenizer_tokens": 147.83333333333334,
+        "tokenizer_utilization": 0.9239583333333333,
+        "dependency_cluster_coverage": 0.7053952991452992,
+        "budget_normalized_source_recall": 0.7513888888888889,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01195794902741909,
+          "p95": 0.016478728502988815
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.00966666266322136,
+          "p95": 0.012887571938335896
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004591420292854309,
+          "p95": 0.0006249407306313515
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bge_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.6015556542780502,
+        "actual_context_tokens": 103.66666666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5184727261819645,
+        "supporting_passage_claim_coverage": 0.7744298525548525,
+        "independent_evidence_coverage": 0.8090277777777778,
+        "source_precision": 0.7111111111111111,
+        "source_recall": 0.5931547619047619,
+        "tokenizer_tokens": 125.625,
+        "tokenizer_utilization": 0.78515625,
+        "dependency_cluster_coverage": 0.7560897435897436,
+        "budget_normalized_source_recall": 0.6583333333333333,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.6992711983621,
+          "p95": 203.25459842570126
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6276671774685383,
+          "p95": 0.9448233991861343
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06720796227455139,
+          "p95": 0.1039167633280158
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00021113082766532887
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.322916528210044,
+          "p95": 8.04855681490153
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14579156413674355,
+          "p95": 0.3707748837769029
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8992080111056566,
+          "p95": 1.4471606817096458
+        }
+      },
+      "bm25": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.6447822293223091,
+        "actual_context_tokens": 125.25,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.4157502077814541,
+        "supporting_passage_claim_coverage": 0.7406195656195657,
+        "independent_evidence_coverage": 0.8430555555555556,
+        "source_precision": 0.6203373015873016,
+        "source_recall": 0.6470238095238096,
+        "tokenizer_tokens": 149.91666666666666,
+        "tokenizer_utilization": 0.9369791666666667,
+        "dependency_cluster_coverage": 0.6967726139601139,
+        "budget_normalized_source_recall": 0.7180555555555556,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.012458069249987602,
+          "p95": 0.01683942973613739
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009958632290363312,
+          "p95": 0.013167038559913635
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004591420292854309,
+          "p95": 0.0006249407306313515
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bm25_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5526532152166344,
+        "actual_context_tokens": 99.95833333333333,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5371546348010199,
+        "supporting_passage_claim_coverage": 0.712891391016391,
+        "independent_evidence_coverage": 0.8020833333333334,
+        "source_precision": 0.6763888888888889,
+        "source_recall": 0.5500992063492064,
+        "tokenizer_tokens": 120.70833333333333,
+        "tokenizer_utilization": 0.7544270833333333,
+        "dependency_cluster_coverage": 0.709909188034188,
+        "budget_normalized_source_recall": 0.6152777777777778,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.3924165442586,
+          "p95": 203.51219959557056
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6421869620680809,
+          "p95": 0.9597542928531766
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0727709848433733,
+          "p95": 0.10761413723230362
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020908191800117493
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.296000141650438,
+          "p95": 8.01665282342583
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14547957107424736,
+          "p95": 0.3469041548669338
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8756460156291723,
+          "p95": 1.4524039113894098
+        }
+      },
+      "embedding": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.6372173987684407,
+        "actual_context_tokens": 123.16666666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.4267442220446803,
+        "supporting_passage_claim_coverage": 0.7297795954045954,
+        "independent_evidence_coverage": 0.7388888888888889,
+        "source_precision": 0.5988095238095238,
+        "source_recall": 0.6442460317460318,
+        "tokenizer_tokens": 149.16666666666666,
+        "tokenizer_utilization": 0.9322916666666666,
+        "dependency_cluster_coverage": 0.6871082621082621,
+        "budget_normalized_source_recall": 0.7152777777777778,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01237494871020317,
+          "p95": 0.016168016009032726
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009874347597360611,
+          "p95": 0.013214279897511005
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004996545612812042,
+          "p95": 0.0005830544978380203
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "embedding_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5371767877266496,
+        "actual_context_tokens": 93.83333333333333,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.565864872280771,
+        "supporting_passage_claim_coverage": 0.6788203694453695,
+        "independent_evidence_coverage": 0.7277777777777777,
+        "source_precision": 0.6652777777777777,
+        "source_recall": 0.5252976190476191,
+        "tokenizer_tokens": 115.95833333333333,
+        "tokenizer_utilization": 0.7247395833333333,
+        "dependency_cluster_coverage": 0.6642494658119658,
+        "budget_normalized_source_recall": 0.5791666666666666,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.08127138204873,
+          "p95": 188.6795355239883
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6243959069252014,
+          "p95": 0.9416957851499319
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06485451012849808,
+          "p95": 0.1115206629037857
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020817387849092484
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.235666736960411,
+          "p95": 7.897295826114714
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.148312421515584,
+          "p95": 0.3483517095446586
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8359374478459358,
+          "p95": 1.4445354230701923
+        }
+      }
+    },
+    "192": {
+      "bge": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.7939415180196877,
+        "actual_context_tokens": 150.25,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.3007843767982225,
+        "supporting_passage_claim_coverage": 0.8525112618862619,
+        "independent_evidence_coverage": 0.8979166666666667,
+        "source_precision": 0.6306051587301588,
+        "source_recall": 0.7985119047619048,
+        "tokenizer_tokens": 181.875,
+        "tokenizer_utilization": 0.947265625,
+        "dependency_cluster_coverage": 0.8317263176638177,
+        "budget_normalized_source_recall": 0.8173611111111111,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013061799108982086,
+          "p95": 0.01763361506164074
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010499265044927597,
+          "p95": 0.01458078622817993
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.000500120222568512,
+          "p95": 0.0006672926247119904
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bge_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.6472990561794336,
+        "actual_context_tokens": 110.20833333333333,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.4882405543840947,
+        "supporting_passage_claim_coverage": 0.7883187414437415,
+        "independent_evidence_coverage": 0.8506944444444444,
+        "source_precision": 0.7208333333333333,
+        "source_recall": 0.6382936507936507,
+        "tokenizer_tokens": 135.29166666666666,
+        "tokenizer_utilization": 0.7046440972222222,
+        "dependency_cluster_coverage": 0.788497150997151,
+        "budget_normalized_source_recall": 0.6513888888888889,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.87324977479875,
+          "p95": 194.8061027098447
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.5999580025672913,
+          "p95": 0.9491143515333533
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0682915560901165,
+          "p95": 0.1151353819295764
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020815059542655945
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.220395607873797,
+          "p95": 8.079865132458508
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14652102254331112,
+          "p95": 0.36869128234684434
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9095415007323027,
+          "p95": 1.3354162452742453
+        }
+      },
+      "bm25": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.7038229547978485,
+        "actual_context_tokens": 151.29166666666666,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.2959450881294268,
+        "supporting_passage_claim_coverage": 0.7820757945757946,
+        "independent_evidence_coverage": 0.8340277777777778,
+        "source_precision": 0.5592757936507936,
+        "source_recall": 0.7026785714285714,
+        "tokenizer_tokens": 180.5,
+        "tokenizer_utilization": 0.9401041666666666,
+        "dependency_cluster_coverage": 0.7560318732193733,
+        "budget_normalized_source_recall": 0.7201388888888889,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.012770527973771095,
+          "p95": 0.01786632928997278
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010146060958504677,
+          "p95": 0.014335173182189465
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0005408655852079391,
+          "p95": 0.0006688758730888366
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bm25_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.573812727001146,
+        "actual_context_tokens": 108.16666666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5019772664969797,
+        "supporting_passage_claim_coverage": 0.7198358354608355,
+        "independent_evidence_coverage": 0.8229166666666666,
+        "source_precision": 0.6597222222222222,
+        "source_recall": 0.5744047619047619,
+        "tokenizer_tokens": 130.95833333333334,
+        "tokenizer_utilization": 0.6820746527777778,
+        "dependency_cluster_coverage": 0.7185897435897436,
+        "budget_normalized_source_recall": 0.5875,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 130.39802038110793,
+          "p95": 193.94257585518062
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6277081556618214,
+          "p95": 0.9235504548996686
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0699369702488184,
+          "p95": 0.11796287726610899
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020817387849092484
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.235479773953557,
+          "p95": 8.034859667532146
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14724978245794773,
+          "p95": 0.3589359577745199
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8424369152635336,
+          "p95": 1.358070923015475
+        }
+      },
+      "embedding": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.759889060198699,
+        "actual_context_tokens": 150.125,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.3016584861529346,
+        "supporting_passage_claim_coverage": 0.8271786084286085,
+        "independent_evidence_coverage": 0.8875,
+        "source_precision": 0.5993551587301588,
+        "source_recall": 0.758234126984127,
+        "tokenizer_tokens": 180.79166666666666,
+        "tokenizer_utilization": 0.9416232638888888,
+        "dependency_cluster_coverage": 0.7952679843304843,
+        "budget_normalized_source_recall": 0.7770833333333333,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01252046786248684,
+          "p95": 0.016494654119014737
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0100000761449337,
+          "p95": 0.013835029676556587
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0005406327545642853,
+          "p95": 0.0006693182513117789
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "embedding_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5481195486694105,
+        "actual_context_tokens": 101.29166666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.534409991752303,
+        "supporting_passage_claim_coverage": 0.6788203694453695,
+        "independent_evidence_coverage": 0.7416666666666667,
+        "source_precision": 0.6444444444444445,
+        "source_recall": 0.5357142857142857,
+        "tokenizer_tokens": 124.625,
+        "tokenizer_utilization": 0.6490885416666666,
+        "dependency_cluster_coverage": 0.6694577991452991,
+        "budget_normalized_source_recall": 0.5458333333333333,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 129.97604091651738,
+          "p95": 203.24495795648545
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6645414978265762,
+          "p95": 0.9529212955385447
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06504193879663944,
+          "p95": 0.11225787457078695
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.00021113082766532887
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.262916537001729,
+          "p95": 7.979831611737609
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14497945085167885,
+          "p95": 0.4050688818097114
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8499789983034134,
+          "p95": 1.329272985458374
+        }
+      }
+    },
+    "256": {
+      "bge": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.9262942557197358,
+        "actual_context_tokens": 193.66666666666666,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.10500428679686316,
+        "supporting_passage_claim_coverage": 0.9589436026936027,
+        "independent_evidence_coverage": 0.9791666666666666,
+        "source_precision": 0.5729497354497355,
+        "source_recall": 0.9319444444444445,
+        "tokenizer_tokens": 233.66666666666666,
+        "tokenizer_utilization": 0.9127604166666666,
+        "dependency_cluster_coverage": 0.9473379629629629,
+        "budget_normalized_source_recall": 0.9319444444444445,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013083219528198242,
+          "p95": 0.018631317652761936
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010437564924359322,
+          "p95": 0.015712343156337738
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0006249174475669861,
+          "p95": 0.0007501803338527679
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bge_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.6822136844484923,
+        "actual_context_tokens": 118.625,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.4518093768911187,
+        "supporting_passage_claim_coverage": 0.8140131858881859,
+        "independent_evidence_coverage": 0.8506944444444444,
+        "source_precision": 0.709920634920635,
+        "source_recall": 0.6709325396825396,
+        "tokenizer_tokens": 146.79166666666666,
+        "tokenizer_utilization": 0.5734049479166666,
+        "dependency_cluster_coverage": 0.8087962962962963,
+        "budget_normalized_source_recall": 0.6709325396825396,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.5686040110886,
+          "p95": 203.46025440376252
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6024169269949198,
+          "p95": 0.9878769982606173
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.066353939473629,
+          "p95": 0.12412709183990955
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.0002086162567138672
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.264353567734361,
+          "p95": 8.191712270490825
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14729099348187447,
+          "p95": 0.4007807699963448
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9132709819823503,
+          "p95": 1.9466336350888014
+        }
+      },
+      "bm25": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.9103153990662484,
+        "actual_context_tokens": 196.70833333333334,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.09164480657865948,
+        "supporting_passage_claim_coverage": 0.9472372534872535,
+        "independent_evidence_coverage": 0.9916666666666667,
+        "source_precision": 0.564021164021164,
+        "source_recall": 0.9145833333333333,
+        "tokenizer_tokens": 234.75,
+        "tokenizer_utilization": 0.9169921875,
+        "dependency_cluster_coverage": 0.9459045584045584,
+        "budget_normalized_source_recall": 0.9145833333333333,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013146083801984787,
+          "p95": 0.01721938606351614
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010646181181073189,
+          "p95": 0.014006346464157104
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0006249174475669861,
+          "p95": 0.0007907161489129066
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "bm25_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.6205881737765928,
+        "actual_context_tokens": 116.79166666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.46409364719020646,
+        "supporting_passage_claim_coverage": 0.750391391016391,
+        "independent_evidence_coverage": 0.8368055555555556,
+        "source_precision": 0.660515873015873,
+        "source_recall": 0.6153769841269842,
+        "tokenizer_tokens": 141.45833333333334,
+        "tokenizer_utilization": 0.5525716145833334,
+        "dependency_cluster_coverage": 0.755048076923077,
+        "budget_normalized_source_recall": 0.6153769841269842,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.23408365249634,
+          "p95": 202.38354832399637
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6382709834724665,
+          "p95": 0.9491899982094765
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.07327040657401085,
+          "p95": 0.12243110686540604
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020815059542655945
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.25895818322897,
+          "p95": 8.062591729685664
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14483346603810787,
+          "p95": 0.4693670431151986
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9033333044499159,
+          "p95": 1.322595146484673
+        }
+      },
+      "embedding": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.9092627859588357,
+        "actual_context_tokens": 195.125,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.0987183693714134,
+        "supporting_passage_claim_coverage": 0.9554713804713805,
+        "independent_evidence_coverage": 0.9791666666666666,
+        "source_precision": 0.564021164021164,
+        "source_recall": 0.9180555555555555,
+        "tokenizer_tokens": 234.08333333333334,
+        "tokenizer_utilization": 0.9143880208333334,
+        "dependency_cluster_coverage": 0.9490295584045584,
+        "budget_normalized_source_recall": 0.9180555555555555,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013165874406695366,
+          "p95": 0.01727081835269928
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010312534868717194,
+          "p95": 0.014625024050474167
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0006249174475669861,
+          "p95": 0.0008330680429935455
+        },
+        "mcp_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "verification_inference_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        }
+      },
+      "embedding_omneum": {
+        "cells": 24,
+        "executions": 120,
+        "evidence_retention": 0.5699615317182901,
+        "actual_context_tokens": 106.29166666666667,
+        "raw_context_tokens": 218.41666666666666,
+        "context_reduction": 0.5137090873595381,
+        "supporting_passage_claim_coverage": 0.6857648138898139,
+        "independent_evidence_coverage": 0.7555555555555555,
+        "source_precision": 0.6446428571428572,
+        "source_recall": 0.5544642857142857,
+        "tokenizer_tokens": 130.625,
+        "tokenizer_utilization": 0.51025390625,
+        "dependency_cluster_coverage": 0.6850827991452991,
+        "budget_normalized_source_recall": 0.5544642857142857,
+        "gold_claim_coverage": null,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "estimated_api_cost_usd": 0.0,
+        "selection_ms": {
+          "n": 120,
+          "p50": 128.87141690589488,
+          "p95": 190.56852110661566
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.658250181004405,
+          "p95": 0.957202143035829
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06499956361949444,
+          "p95": 0.12361498083919287
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020908191800117493
+        },
+        "mcp_ms": {
+          "n": 120,
+          "p50": 7.249833550304174,
+          "p95": 7.9308603424578905
+        },
+        "verification_inference_ms": {
+          "n": 120,
+          "p50": 0.14491681940853596,
+          "p95": 0.3457413055002689
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8941038977354765,
+          "p95": 1.4523044228553772
+        }
+      }
+    }
+  }
+}

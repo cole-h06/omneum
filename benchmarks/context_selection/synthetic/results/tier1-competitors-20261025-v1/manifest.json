@@ -1,0 +1,63 @@
+{
+  "cases": 24,
+  "budgets": [
+    64,
+    96,
+    128,
+    160,
+    192,
+    256
+  ],
+  "repeats": 5,
+  "seed": 42,
+  "conflict_aware": false,
+  "previous_results": "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/results/tier1-production-20261025-v1",
+  "provider_results": "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/results/question-aware-release-v1/provider_results.jsonl",
+  "provider_sha256": "ae4af1611e5743bfeb4bfd2f1ca2c57e2722befe33aafcad9e76fbfc4a8a0b58",
+  "exact_models": {
+    "cohere": "rerank-v4.0-pro",
+    "claude": "claude-sonnet-5-5",
+    "gpt": "gpt-6-astra",
+    "gemini": "gemini-3.8-flash"
+  },
+  "environment": {
+    "python": "3.13.15 (main, Aug  5 2026, 12:25:43) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "cpu_count": 10,
+    "hardware": {
+      "hw.model": "Mac17,4",
+      "hw.memsize": "34359738368",
+      "machdep.cpu.brand_string": "Apple M5"
+    },
+    "packages": {
+      "omneum": "1.1.4",
+      "mcp": "1.30.0",
+      "httpx": "0.28.1",
+      "orjson": "3.12.0",
+      "numpy": "2.5.2",
+      "sentence-transformers": "5.7.0",
+      "transformers": "5.16.1"
+    },
+    "git_head": "6d430d4efd28559a262212e9f88aba63c080238a"
+  },
+  "budget_unit": "Original Qwen2.5 tokenizer; word/punctuation footprint separate",
+  "daemon_sha256": "f544c6486543936d7151dd060edce66e0d92b74de126ed7928bb167754eb32b9",
+  "tokenizer": "http://127.0.0.1:59223",
+  "code_sha256": {
+    "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/tier1_competitors.py": "3ab8a4eb5323ac2aac605559117b3aaa9ad0d65282540975e0d90fa381ab65c9"
+  },
+  "unsupported": {
+    "bge_embeddings": "No implemented embedding adapter, model ID or cached weights.",
+    "minilm_cross_encoder": "Only all-MiniLM-L6-v2 bi-encoder is implemented; no cross-encoder adapter, model ID or cached weights."
+  },
+  "definitions": {
+    "raw_budget": "Original retrieval order, whole-passage first-fit under the identical token budget.",
+    "raw_full": "Unfiltered unbudgeted reference, 24 cases; excluded from budgeted aggregate rankings.",
+    "omneum": "Exact production prepare_context(question=...), default lexical passage relevance, full graph. No embeddings or scorer substitutions.",
+    "cohere_omneum": "Production complementary density configuration with cached raw Cohere reranker scores, top3 plus ties, depth2.",
+    "cached_provider_latency": "Historical request samples, n=24 Cohere and n=48 per frontier judge; not repeated fresh API evaluations.",
+    "local_latency": "Post-supplied-ranking wall time; includes fresh SDK graph for Omneum. Standalone intrinsic lexical relevance is included. Model initialization/daemon startup/loading excluded.",
+    "quality": "Same tier1_metrics.measure definitions and canonical annotations as the completed local run. Strict gold-claim labels are absent; supporting-passage claim coverage is explicitly separate.",
+    "cost": "No new paid API calls. Historical inference costs remain unknown, not zero; historical pricing is not invented."
+  }
+}

@@ -1,6 +1,6 @@
 # Context Graph
 
-The Context Graph is the persistent observation layer behind Omneum. Context evaluations produce observations that can be retained across runs and linked to sources and claims already in the graph.
+The Context Graph is Omneum's persistent observation layer. Evaluations consume observations that can be retained across runs and associated with existing sources and claims.
 
 Local installations persist the graph to SQLite by default. Persistence can be disabled per client or evaluation. PostgreSQL is available as an external storage backend.
 
@@ -251,20 +251,20 @@ SQLite is the default persistence backend.
 
 ```text
 macOS
-~/Library/Application Support/Omneum/context.db
+~/Library/Application Support/Omneum/omneum.db
 
 Linux
-~/.local/share/omneum/context.db
+~/.local/share/omneum/omneum.db
 ```
 
 For a new default graph with unsafe data-directory ancestors, Omneum uses
-`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+`~/.omneum/data/omneum.db`. Existing graphs and explicit paths are never
 silently relocated; shared directory permissions are preserved.
 
 Linux honors an absolute `XDG_DATA_HOME`:
 
 ```text
-$XDG_DATA_HOME/omneum/context.db
+$XDG_DATA_HOME/omneum/omneum.db
 ```
 
 The path resolver is implemented in [`omneum/paths.py`](../omneum/paths.py).
@@ -284,7 +284,7 @@ The implementation is in [`omneum/storage/sqlite.py`](../omneum/storage/sqlite.p
 A persisted local graph contains:
 
 ```text
-context.db
+omneum.db
 ├── sources
 ├── claims
 ├── observations
@@ -294,6 +294,7 @@ context.db
 ├── observation_retrievals
 ├── source_dependencies
 ├── evaluation_runs
+├── execution_history
 ├── source_scores
 ├── claim_scores
 ├── claim_support_sources

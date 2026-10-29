@@ -1,0 +1,361 @@
+{
+  "means": {
+    "baseline": {
+      "input_tokens": 907,
+      "output_tokens": 213,
+      "context_tokens": 376,
+      "budget_utilization": 0.94,
+      "selection_seconds": 0.0358477917034179,
+      "end_to_end_seconds": 20.52430066644835,
+      "policy_field_accuracy": 0.0,
+      "action_correct": 0,
+      "task_success": 0,
+      "claim_coverage": 0.8333333333333334,
+      "redundant_claim_occurrences": 6
+    },
+    "omneum_selection": {
+      "input_tokens": 455,
+      "output_tokens": 164.66666666666666,
+      "context_tokens": 150,
+      "budget_utilization": 0.375,
+      "selection_seconds": 0.101742180219541,
+      "end_to_end_seconds": 14.214311055606231,
+      "policy_field_accuracy": 0.0,
+      "action_correct": 0,
+      "task_success": 0,
+      "claim_coverage": 1.0,
+      "redundant_claim_occurrences": 0
+    },
+    "omneum_ranked": {
+      "input_tokens": 455,
+      "output_tokens": 134,
+      "context_tokens": 150,
+      "budget_utilization": 0.375,
+      "selection_seconds": 0.101742180219541,
+      "end_to_end_seconds": 14.782122916231552,
+      "policy_field_accuracy": 0.0,
+      "action_correct": 0,
+      "task_success": 0,
+      "claim_coverage": 1.0,
+      "redundant_claim_occurrences": 0
+    }
+  },
+  "per_task": [
+    {
+      "repeat": 0,
+      "task": "return-10",
+      "arms": {
+        "omneum_selection": {
+          "input_tokens": 455,
+          "output_tokens": 165,
+          "context_tokens": 150,
+          "budget_utilization": 0.375,
+          "selection_seconds": 0.07428595796227455,
+          "end_to_end_seconds": 7.478924833005294,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 1.0,
+          "redundant_claim_occurrences": 0
+        },
+        "omneum_ranked": {
+          "input_tokens": 455,
+          "output_tokens": 134,
+          "context_tokens": 150,
+          "budget_utilization": 0.375,
+          "selection_seconds": 0.07428595796227455,
+          "end_to_end_seconds": 5.720298707019538,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 1.0,
+          "redundant_claim_occurrences": 0
+        },
+        "baseline": {
+          "input_tokens": 907,
+          "output_tokens": 213,
+          "context_tokens": 376,
+          "budget_utilization": 0.94,
+          "selection_seconds": 0.019916083198040724,
+          "end_to_end_seconds": 10.266783707309514,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 0.8333333333333334,
+          "redundant_claim_occurrences": 6
+        }
+      },
+      "identical_omneum_evidence": true,
+      "deltas_from_baseline": {
+        "omneum_selection": {
+          "input_tokens": -452,
+          "output_tokens": -48,
+          "context_tokens": -226,
+          "budget_utilization": -0.565,
+          "selection_seconds": 0.05436987476423383,
+          "end_to_end_seconds": -2.78785887430422,
+          "policy_field_accuracy": 0.0,
+          "action_correct": 0,
+          "task_success": 0,
+          "claim_coverage": 0.16666666666666663,
+          "redundant_claim_occurrences": -6
+        },
+        "omneum_ranked": {
+          "input_tokens": -452,
+          "output_tokens": -79,
+          "context_tokens": -226,
+          "budget_utilization": -0.565,
+          "selection_seconds": 0.05436987476423383,
+          "end_to_end_seconds": -4.546485000289977,
+          "policy_field_accuracy": 0.0,
+          "action_correct": 0,
+          "task_success": 0,
+          "claim_coverage": 0.16666666666666663,
+          "redundant_claim_occurrences": -6
+        }
+      },
+      "ranking_delta": {
+        "input_tokens": 0,
+        "output_tokens": -31,
+        "context_tokens": 0,
+        "budget_utilization": 0.0,
+        "selection_seconds": 0.0,
+        "end_to_end_seconds": -1.7586261259857565,
+        "policy_field_accuracy": 0.0,
+        "action_correct": 0,
+        "task_success": 0,
+        "claim_coverage": 0.0,
+        "redundant_claim_occurrences": 0
+      }
+    },
+    {
+      "repeat": 0,
+      "task": "return-20",
+      "arms": {
+        "omneum_selection": {
+          "input_tokens": 455,
+          "output_tokens": 165,
+          "context_tokens": 150,
+          "budget_utilization": 0.375,
+          "selection_seconds": 0.11716633290052414,
+          "end_to_end_seconds": 17.520800791913643,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 1.0,
+          "redundant_claim_occurrences": 0
+        },
+        "omneum_ranked": {
+          "input_tokens": 455,
+          "output_tokens": 134,
+          "context_tokens": 150,
+          "budget_utilization": 0.375,
+          "selection_seconds": 0.11716633290052414,
+          "end_to_end_seconds": 23.134750624885783,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 1.0,
+          "redundant_claim_occurrences": 0
+        },
+        "baseline": {
+          "input_tokens": 907,
+          "output_tokens": 213,
+          "context_tokens": 376,
+          "budget_utilization": 0.94,
+          "selection_seconds": 0.06668604188598692,
+          "end_to_end_seconds": 24.8348779999651,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 0.8333333333333334,
+          "redundant_claim_occurrences": 6
+        }
+      },
+      "identical_omneum_evidence": true,
+      "deltas_from_baseline": {
+        "omneum_selection": {
+          "input_tokens": -452,
+          "output_tokens": -48,
+          "context_tokens": -226,
+          "budget_utilization": -0.565,
+          "selection_seconds": 0.050480291014537215,
+          "end_to_end_seconds": -7.314077208051458,
+          "policy_field_accuracy": 0.0,
+          "action_correct": 0,
+          "task_success": 0,
+          "claim_coverage": 0.16666666666666663,
+          "redundant_claim_occurrences": -6
+        },
+        "omneum_ranked": {
+          "input_tokens": -452,
+          "output_tokens": -79,
+          "context_tokens": -226,
+          "budget_utilization": -0.565,
+          "selection_seconds": 0.050480291014537215,
+          "end_to_end_seconds": -1.7001273750793189,
+          "policy_field_accuracy": 0.0,
+          "action_correct": 0,
+          "task_success": 0,
+          "claim_coverage": 0.16666666666666663,
+          "redundant_claim_occurrences": -6
+        }
+      },
+      "ranking_delta": {
+        "input_tokens": 0,
+        "output_tokens": -31,
+        "context_tokens": 0,
+        "budget_utilization": 0.0,
+        "selection_seconds": 0.0,
+        "end_to_end_seconds": 5.613949832972139,
+        "policy_field_accuracy": 0.0,
+        "action_correct": 0,
+        "task_success": 0,
+        "claim_coverage": 0.0,
+        "redundant_claim_occurrences": 0
+      }
+    },
+    {
+      "repeat": 0,
+      "task": "return-35",
+      "arms": {
+        "baseline": {
+          "input_tokens": 907,
+          "output_tokens": 213,
+          "context_tokens": 376,
+          "budget_utilization": 0.94,
+          "selection_seconds": 0.020941250026226044,
+          "end_to_end_seconds": 26.471240292070433,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 0.8333333333333334,
+          "redundant_claim_occurrences": 6
+        },
+        "omneum_selection": {
+          "input_tokens": 455,
+          "output_tokens": 164,
+          "context_tokens": 150,
+          "budget_utilization": 0.375,
+          "selection_seconds": 0.11377424979582429,
+          "end_to_end_seconds": 17.643207541899756,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 1.0,
+          "redundant_claim_occurrences": 0
+        },
+        "omneum_ranked": {
+          "input_tokens": 455,
+          "output_tokens": 134,
+          "context_tokens": 150,
+          "budget_utilization": 0.375,
+          "selection_seconds": 0.11377424979582429,
+          "end_to_end_seconds": 15.491319416789338,
+          "policy_field_accuracy": 0.0,
+          "policy_fields_correct": {
+            "return_window": false,
+            "warranty": false,
+            "shipping_fee": false
+          },
+          "action_correct": false,
+          "citations_valid": false,
+          "task_success": false,
+          "claim_coverage": 1.0,
+          "redundant_claim_occurrences": 0
+        }
+      },
+      "identical_omneum_evidence": true,
+      "deltas_from_baseline": {
+        "omneum_selection": {
+          "input_tokens": -452,
+          "output_tokens": -49,
+          "context_tokens": -226,
+          "budget_utilization": -0.565,
+          "selection_seconds": 0.09283299976959825,
+          "end_to_end_seconds": -8.828032750170678,
+          "policy_field_accuracy": 0.0,
+          "action_correct": 0,
+          "task_success": 0,
+          "claim_coverage": 0.16666666666666663,
+          "redundant_claim_occurrences": -6
+        },
+        "omneum_ranked": {
+          "input_tokens": -452,
+          "output_tokens": -79,
+          "context_tokens": -226,
+          "budget_utilization": -0.565,
+          "selection_seconds": 0.09283299976959825,
+          "end_to_end_seconds": -10.979920875281096,
+          "policy_field_accuracy": 0.0,
+          "action_correct": 0,
+          "task_success": 0,
+          "claim_coverage": 0.16666666666666663,
+          "redundant_claim_occurrences": -6
+        }
+      },
+      "ranking_delta": {
+        "input_tokens": 0,
+        "output_tokens": -30,
+        "context_tokens": 0,
+        "budget_utilization": 0.0,
+        "selection_seconds": 0.0,
+        "end_to_end_seconds": -2.1518881251104176,
+        "policy_field_accuracy": 0.0,
+        "action_correct": 0,
+        "task_success": 0,
+        "claim_coverage": 0.0,
+        "redundant_claim_occurrences": 0
+      }
+    }
+  ],
+  "limitations": "Small synthetic fixture experiment; coverage and redundancy are claim-mapping proxies. Citation validity checks membership, not entailment. No statistical significance or generalization claim."
+}

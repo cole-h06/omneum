@@ -1,0 +1,16 @@
+{
+  "case_id": "enterprise_semantic_distractors",
+  "answer": "Revoke production VPN access within 4 hours of the contractor engagement ending.",
+  "supporting_sources": [
+    "policy",
+    "hr_record",
+    "operations_doc",
+    "system_record"
+  ],
+  "scoring": {
+    "required": [
+      "4 hours"
+    ],
+    "forbidden": []
+  }
+}

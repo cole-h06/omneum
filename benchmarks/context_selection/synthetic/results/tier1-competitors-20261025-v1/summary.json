@@ -1,0 +1,4526 @@
+{
+  "aggregate": {
+    "bge": {
+      "evidence_retention": 0.5884459806767961,
+      "actual_context_tokens": 112.84722222222223,
+      "context_reduction": 0.4758457750569332,
+      "supporting_passage_claim_coverage": 0.6875155515780516,
+      "independent_evidence_coverage": 0.7142361111111111,
+      "source_precision": 0.6329172178130511,
+      "source_recall": 0.591931216931217,
+      "tokenizer_tokens": 136.47222222222223,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.011624768376350403,
+        "p95": 0.017166626639664173
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.00937492586672306,
+        "p95": 0.013756286352872843
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00045821070671081543,
+        "p95": 0.0006672926247119904
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "bge_omneum": {
+      "evidence_retention": 0.5201817025679509,
+      "actual_context_tokens": 87.16666666666667,
+      "context_reduction": 0.5952585021436341,
+      "supporting_passage_claim_coverage": 0.704641346308013,
+      "independent_evidence_coverage": 0.7237268518518518,
+      "source_precision": 0.738343253968254,
+      "source_recall": 0.5135416666666667,
+      "tokenizer_tokens": 106.625,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 132.42264580912888,
+        "p95": 202.582092047669
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6323750130832195,
+        "p95": 0.9546397719532251
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.06222887896001339,
+        "p95": 0.10815639980137345
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016577541828155518,
+        "p95": 0.0002081738784909248
+      },
+      "discovery_ms": {
+        "n": 720,
+        "p50": 0.907666515558958,
+        "p95": 1.4266961254179433
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "bm25": {
+      "evidence_retention": 0.557920277183414,
+      "actual_context_tokens": 114.1875,
+      "context_reduction": 0.46965037072933186,
+      "supporting_passage_claim_coverage": 0.6614678531345198,
+      "independent_evidence_coverage": 0.7105324074074074,
+      "source_precision": 0.5915316358024691,
+      "source_recall": 0.55760582010582,
+      "tokenizer_tokens": 136.18055555555554,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.011666445061564445,
+        "p95": 0.01675030216574669
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.00929180532693863,
+        "p95": 0.013378891162574288
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00045821070671081543,
+        "p95": 0.0006672926247119904
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "bm25_omneum": {
+      "evidence_retention": 0.4578918465452178,
+      "actual_context_tokens": 86.38888888888889,
+      "context_reduction": 0.6010529327387228,
+      "supporting_passage_claim_coverage": 0.6402836746586746,
+      "independent_evidence_coverage": 0.6799768518518519,
+      "source_precision": 0.6545304232804233,
+      "source_recall": 0.45578703703703705,
+      "tokenizer_tokens": 103.75694444444444,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 131.61464594304562,
+        "p95": 200.60718299355355
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6318124942481518,
+        "p95": 0.9567497996613383
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.06266729906201363,
+        "p95": 0.1101233065128326
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016577541828155518,
+        "p95": 0.00020815059542655945
+      },
+      "discovery_ms": {
+        "n": 720,
+        "p50": 0.8967493195086718,
+        "p95": 1.3755913358181697
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "claude": {
+      "evidence_retention": 0.7649099987820658,
+      "actual_context_tokens": 114.11805555555556,
+      "context_reduction": 0.470609746935852,
+      "supporting_passage_claim_coverage": 0.8105078948828949,
+      "independent_evidence_coverage": 0.8289351851851852,
+      "source_precision": 0.8569416887125221,
+      "source_recall": 0.7584821428571429,
+      "tokenizer_tokens": 136.40625,
+      "cells": 288,
+      "case_budget_pairs": 144,
+      "executions": 1440,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 1440,
+        "p50": 0.009042210876941681,
+        "p95": 0.014124903827905655
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 1440,
+        "p50": 0.0077909789979457855,
+        "p95": 0.01237494871020317
+      },
+      "reconstruction_ms": {
+        "n": 1440,
+        "p50": 0.00041676685214042664,
+        "p95": 0.0006663845852017403
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 48,
+        "p50": 1.8441626245621592,
+        "p95": 3.099167645885609
+      },
+      "historical_provider_cost_usd": null
+    },
+    "cohere": {
+      "evidence_retention": 0.6439012530932492,
+      "actual_context_tokens": 112.99305555555556,
+      "context_reduction": 0.47478245264133656,
+      "supporting_passage_claim_coverage": 0.7229283255324922,
+      "independent_evidence_coverage": 0.7519675925925926,
+      "source_precision": 0.7111248897707231,
+      "source_recall": 0.6442956349206349,
+      "tokenizer_tokens": 136.71527777777777,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.009249895811080933,
+        "p95": 0.01391677651554346
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.00800006091594696,
+        "p95": 0.012126984074711798
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.0004172325134277344,
+        "p95": 0.0006663613021373749
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 24,
+        "p50": 0.17664989596232772,
+        "p95": 0.19604633110575378
+      },
+      "historical_provider_cost_usd": null
+    },
+    "cohere_omneum": {
+      "evidence_retention": 0.5541556404550869,
+      "actual_context_tokens": 85.47916666666667,
+      "context_reduction": 0.6059214696002879,
+      "supporting_passage_claim_coverage": 0.7145244801494801,
+      "independent_evidence_coverage": 0.7202546296296296,
+      "source_precision": 0.7971230158730158,
+      "source_recall": 0.5407738095238095,
+      "tokenizer_tokens": 104.22222222222223,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 133.64045857451856,
+        "p95": 205.08155026473105
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6218333728611469,
+        "p95": 0.959549518302083
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.05812477320432663,
+        "p95": 0.11443081311881541
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016624107956886292,
+        "p95": 0.0002086162567138672
+      },
+      "discovery_ms": {
+        "n": 720,
+        "p50": 0.8899166714400053,
+        "p95": 1.3624980114400382
+      },
+      "historical_provider_seconds": {
+        "n": 24,
+        "p50": 0.17664989596232772,
+        "p95": 0.19604633110575378
+      },
+      "historical_provider_cost_usd": null
+    },
+    "embedding": {
+      "evidence_retention": 0.5886015790848188,
+      "actual_context_tokens": 113.02083333333333,
+      "context_reduction": 0.47528748289124795,
+      "supporting_passage_claim_coverage": 0.6847029899113233,
+      "independent_evidence_coverage": 0.709375,
+      "source_precision": 0.6380263447971781,
+      "source_recall": 0.5912863756613757,
+      "tokenizer_tokens": 136.30555555555554,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.011312542483210564,
+        "p95": 0.016333069652318954
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.009042210876941681,
+        "p95": 0.0132101122289896
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00045821070671081543,
+        "p95": 0.0006672926247119904
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "embedding_omneum": {
+      "evidence_retention": 0.45136084429030704,
+      "actual_context_tokens": 80.15277777777777,
+      "context_reduction": 0.6299849501572011,
+      "supporting_passage_claim_coverage": 0.6184407798991133,
+      "independent_evidence_coverage": 0.6375,
+      "source_precision": 0.6729497354497355,
+      "source_recall": 0.44052579365079364,
+      "tokenizer_tokens": 98.72916666666667,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 131.4841250423342,
+        "p95": 194.2487140651789
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6331873591989279,
+        "p95": 0.9516856167465448
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.05852058529853821,
+        "p95": 0.11001867242157458
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016600824892520905,
+        "p95": 0.00020815059542655945
+      },
+      "discovery_ms": {
+        "n": 720,
+        "p50": 0.8903753478080034,
+        "p95": 1.444027060642838
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "gemini": {
+      "evidence_retention": 0.7532990149206102,
+      "actual_context_tokens": 114.19791666666667,
+      "context_reduction": 0.47019941729131387,
+      "supporting_passage_claim_coverage": 0.8011708006499674,
+      "independent_evidence_coverage": 0.8127314814814814,
+      "source_precision": 0.8380594135802469,
+      "source_recall": 0.7480654761904761,
+      "tokenizer_tokens": 136.52430555555554,
+      "cells": 288,
+      "case_budget_pairs": 144,
+      "executions": 1440,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 1440,
+        "p50": 0.009041745215654373,
+        "p95": 0.013417098671197891
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 1440,
+        "p50": 0.007792143151164055,
+        "p95": 0.011710659600794314
+      },
+      "reconstruction_ms": {
+        "n": 1440,
+        "p50": 0.00041676685214042664,
+        "p95": 0.0006668269634246826
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 48,
+        "p50": 2.0332473958842456,
+        "p95": 2.882411070750095
+      },
+      "historical_provider_cost_usd": null
+    },
+    "gpt": {
+      "evidence_retention": 0.7618085414318573,
+      "actual_context_tokens": 114.29861111111111,
+      "context_reduction": 0.4699338326740672,
+      "supporting_passage_claim_coverage": 0.8147697788322789,
+      "independent_evidence_coverage": 0.8350115740740741,
+      "source_precision": 0.8513695987654321,
+      "source_recall": 0.7532738095238095,
+      "tokenizer_tokens": 136.49305555555554,
+      "cells": 288,
+      "case_budget_pairs": 144,
+      "executions": 1440,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 1440,
+        "p50": 0.009125098586082458,
+        "p95": 0.013920897617936131
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 1440,
+        "p50": 0.007875263690948486,
+        "p95": 0.012249709106981754
+      },
+      "reconstruction_ms": {
+        "n": 1440,
+        "p50": 0.00041676685214042664,
+        "p95": 0.0006668269634246826
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 48,
+        "p50": 2.034325062064454,
+        "p95": 2.989370147557929
+      },
+      "historical_provider_cost_usd": null
+    },
+    "omneum": {
+      "evidence_retention": 0.5342491501645609,
+      "actual_context_tokens": 108.70138888888889,
+      "context_reduction": 0.4934719106028516,
+      "supporting_passage_claim_coverage": 0.7585319965528299,
+      "independent_evidence_coverage": 0.7552083333333334,
+      "source_precision": 0.6154927248677249,
+      "source_recall": 0.5264715608465609,
+      "tokenizer_tokens": 129.27083333333334,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 127.94622918590903,
+        "p95": 198.86845839209855
+      },
+      "graph_ms": {
+        "n": 720,
+        "p50": 0.6338951643556356,
+        "p95": 0.9517642902210355
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.09574997238814831,
+        "p95": 0.13650918845087284
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.00016670674085617065,
+        "p95": 0.00020908191800117493
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "raw_budget": {
+      "evidence_retention": 0.43078186407611396,
+      "actual_context_tokens": 113.58333333333333,
+      "context_reduction": 0.4726212928975795,
+      "supporting_passage_claim_coverage": 0.5850574965158298,
+      "independent_evidence_coverage": 0.6032407407407407,
+      "source_precision": 0.43327821869488536,
+      "source_recall": 0.42749669312169314,
+      "tokenizer_tokens": 136.86805555555554,
+      "cells": 144,
+      "case_budget_pairs": 144,
+      "executions": 720,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 720,
+        "p50": 0.00874977558851242,
+        "p95": 0.012711319141089914
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 720,
+        "p50": 0.008083879947662354,
+        "p95": 0.011791056022047997
+      },
+      "reconstruction_ms": {
+        "n": 720,
+        "p50": 0.0004172325134277344,
+        "p95": 0.0006274087354540806
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    },
+    "raw_full": {
+      "evidence_retention": 1.0,
+      "actual_context_tokens": 218.41666666666666,
+      "context_reduction": 0.0,
+      "supporting_passage_claim_coverage": 1.0,
+      "independent_evidence_coverage": 1.0,
+      "source_precision": 0.5575892857142857,
+      "source_recall": 1.0,
+      "tokenizer_tokens": 262.4166666666667,
+      "cells": 24,
+      "case_budget_pairs": 24,
+      "executions": 120,
+      "gold_claim_coverage": null,
+      "new_api_cost_usd": 0.0,
+      "answer_accuracy": null,
+      "accuracy_at_matched_tokens": null,
+      "end_to_end_latency": null,
+      "selection_ms": {
+        "n": 120,
+        "p50": 0.0015832483768463135,
+        "p95": 0.0033767661079764366
+      },
+      "graph_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "packing_ms": {
+        "n": 120,
+        "p50": 8.288770914077759e-05,
+        "p95": 0.00012479722499847412
+      },
+      "reconstruction_ms": {
+        "n": 120,
+        "p50": 0.0013331882655620575,
+        "p95": 0.002837274223566055
+      },
+      "discovery_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_seconds": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "historical_provider_cost_usd": null
+    }
+  },
+  "per_budget": {
+    "64": {
+      "bge": {
+        "evidence_retention": 0.2176507126536717,
+        "actual_context_tokens": 44.208333333333336,
+        "context_reduction": 0.7967785179390264,
+        "supporting_passage_claim_coverage": 0.36412534225034227,
+        "independent_evidence_coverage": 0.37083333333333335,
+        "source_precision": 0.6388888888888888,
+        "source_recall": 0.2296626984126984,
+        "tokenizer_tokens": 53.166666666666664,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009854324162006378,
+          "p95": 0.014312891289591788
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007645692676305771,
+          "p95": 0.011518737301230429
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033294782042503357,
+          "p95": 0.00045821070671081543
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bge_omneum": {
+        "evidence_retention": 0.2801909252455182,
+        "actual_context_tokens": 38.75,
+        "context_reduction": 0.8187071893027289,
+        "supporting_passage_claim_coverage": 0.5033416814666815,
+        "independent_evidence_coverage": 0.5027777777777778,
+        "source_precision": 0.8472222222222222,
+        "source_recall": 0.28521825396825395,
+        "tokenizer_tokens": 47.291666666666664,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 130.6291874498129,
+          "p95": 201.3096941402182
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.632833456620574,
+          "p95": 0.9331812150776386
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.05287514068186283,
+          "p95": 0.06708127912133932
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9075202979147434,
+          "p95": 1.376539841294287
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25": {
+        "evidence_retention": 0.19975344558328398,
+        "actual_context_tokens": 46.083333333333336,
+        "context_reduction": 0.786934586098835,
+        "supporting_passage_claim_coverage": 0.3257224257224257,
+        "independent_evidence_coverage": 0.35833333333333334,
+        "source_precision": 0.5347222222222222,
+        "source_recall": 0.19771825396825396,
+        "tokenizer_tokens": 53.875,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.010417075827717781,
+          "p95": 0.013191998004913328
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007979106158018112,
+          "p95": 0.010341359302401543
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033294782042503357,
+          "p95": 0.00045869965106248856
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25_omneum": {
+        "evidence_retention": 0.2206629515914503,
+        "actual_context_tokens": 41.041666666666664,
+        "context_reduction": 0.8089113975161293,
+        "supporting_passage_claim_coverage": 0.45716262903762905,
+        "independent_evidence_coverage": 0.41041666666666665,
+        "source_precision": 0.6805555555555556,
+        "source_recall": 0.22271825396825395,
+        "tokenizer_tokens": 48.083333333333336,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.44608317129314,
+          "p95": 191.69933344237504
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6285835988819599,
+          "p95": 0.9745041839778423
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.05375011824071407,
+          "p95": 0.0786416931077838
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9089165832847357,
+          "p95": 1.343937567435205
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "claude": {
+        "evidence_retention": 0.34637588609565645,
+        "actual_context_tokens": 44.916666666666664,
+        "context_reduction": 0.7929324568954866,
+        "supporting_passage_claim_coverage": 0.542151135901136,
+        "independent_evidence_coverage": 0.5680555555555555,
+        "source_precision": 0.9166666666666666,
+        "source_recall": 0.341468253968254,
+        "tokenizer_tokens": 53.541666666666664,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.007500173524022102,
+          "p95": 0.01134534832090139
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.006416346877813339,
+          "p95": 0.009586266241967678
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0002919696271419525,
+          "p95": 0.0003748573362827301
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 1.8441626245621592,
+          "p95": 3.099167645885609
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere": {
+        "evidence_retention": 0.28831859189635517,
+        "actual_context_tokens": 43.75,
+        "context_reduction": 0.7975386015606926,
+        "supporting_passage_claim_coverage": 0.4446808978058978,
+        "independent_evidence_coverage": 0.48194444444444445,
+        "source_precision": 0.8055555555555556,
+        "source_recall": 0.29563492063492064,
+        "tokenizer_tokens": 53.458333333333336,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.0076249707490205765,
+          "p95": 0.012348312884569165
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.006542075425386429,
+          "p95": 0.010742107406258581
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0002919696271419525,
+          "p95": 0.0003773719072341918
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere_omneum": {
+        "evidence_retention": 0.2856215520329066,
+        "actual_context_tokens": 38.625,
+        "context_reduction": 0.8182191812275272,
+        "supporting_passage_claim_coverage": 0.5259467384467384,
+        "independent_evidence_coverage": 0.50625,
+        "source_precision": 0.9097222222222222,
+        "source_recall": 0.28382936507936507,
+        "tokenizer_tokens": 47.666666666666664,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.72212508693337,
+          "p95": 205.30664436519146
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6384786684066057,
+          "p95": 0.9772736113518475
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.04791701212525368,
+          "p95": 0.06867565680295229
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020817387849092484
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8886456489562988,
+          "p95": 1.3249747222289439
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding": {
+        "evidence_retention": 0.26028317126485395,
+        "actual_context_tokens": 43.625,
+        "context_reduction": 0.7982331700173674,
+        "supporting_passage_claim_coverage": 0.4313185656935657,
+        "independent_evidence_coverage": 0.44027777777777777,
+        "source_precision": 0.7222222222222222,
+        "source_recall": 0.2581349206349206,
+        "tokenizer_tokens": 52.708333333333336,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009417068213224411,
+          "p95": 0.013341172598302364
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007457798346877098,
+          "p95": 0.010308693163096903
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033294782042503357,
+          "p95": 0.00045821070671081543
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding_omneum": {
+        "evidence_retention": 0.2508650926929178,
+        "actual_context_tokens": 38.416666666666664,
+        "context_reduction": 0.8205283204428359,
+        "supporting_passage_claim_coverage": 0.47053363303363305,
+        "independent_evidence_coverage": 0.4263888888888889,
+        "source_precision": 0.7638888888888888,
+        "source_recall": 0.23799603174603173,
+        "tokenizer_tokens": 47.291666666666664,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.83552050031722,
+          "p95": 194.2549328319728
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6361668929457664,
+          "p95": 0.8765642996877432
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.050083501264452934,
+          "p95": 0.0748025719076395
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.909249996766448,
+          "p95": 1.4192748116329303
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gemini": {
+        "evidence_retention": 0.34248619551628123,
+        "actual_context_tokens": 45.083333333333336,
+        "context_reduction": 0.7919724278803001,
+        "supporting_passage_claim_coverage": 0.5247900247900248,
+        "independent_evidence_coverage": 0.5298611111111111,
+        "source_precision": 0.8958333333333334,
+        "source_recall": 0.3345238095238095,
+        "tokenizer_tokens": 53.666666666666664,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.007562106475234032,
+          "p95": 0.01171315088868141
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.006417045369744301,
+          "p95": 0.010087108239531515
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0002919696271419525,
+          "p95": 0.00037532299757003784
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.0332473958842456,
+          "p95": 2.882411070750095
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gpt": {
+        "evidence_retention": 0.34973606606855895,
+        "actual_context_tokens": 45.291666666666664,
+        "context_reduction": 0.7913880169991653,
+        "supporting_passage_claim_coverage": 0.5406554094054095,
+        "independent_evidence_coverage": 0.575,
+        "source_precision": 0.9166666666666666,
+        "source_recall": 0.341468253968254,
+        "tokenizer_tokens": 53.666666666666664,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.007541384547948837,
+          "p95": 0.01096092164516449
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.006416579708456993,
+          "p95": 0.009262398816645142
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0002919696271419525,
+          "p95": 0.0003748573362827301
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.034325062064454,
+          "p95": 2.989370147557929
+        },
+        "historical_provider_cost_usd": null
+      },
+      "omneum": {
+        "evidence_retention": 0.26481757682171464,
+        "actual_context_tokens": 44,
+        "context_reduction": 0.7946874812753466,
+        "supporting_passage_claim_coverage": 0.5388425232175232,
+        "independent_evidence_coverage": 0.45555555555555555,
+        "source_precision": 0.7361111111111112,
+        "source_recall": 0.2564484126984127,
+        "tokenizer_tokens": 52.75,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 130.4545619059354,
+          "p95": 181.69433192815626
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.670229084789753,
+          "p95": 0.948557979427278
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0711251050233841,
+          "p95": 0.08816251065582037
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016600824892520905,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "raw_budget": {
+        "evidence_retention": 0.10697871165786915,
+        "actual_context_tokens": 44.666666666666664,
+        "context_reduction": 0.7930465622250317,
+        "supporting_passage_claim_coverage": 0.23175747863247864,
+        "independent_evidence_coverage": 0.19791666666666666,
+        "source_precision": 0.3125,
+        "source_recall": 0.10049603174603175,
+        "tokenizer_tokens": 53.791666666666664,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.00710412859916687,
+          "p95": 0.010505993850529194
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.006582820788025856,
+          "p95": 0.009719422087073326
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0002919696271419525,
+          "p95": 0.0003773486241698264
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      }
+    },
+    "96": {
+      "bge": {
+        "evidence_retention": 0.3703249685661233,
+        "actual_context_tokens": 70.58333333333333,
+        "context_reduction": 0.6705532342091627,
+        "supporting_passage_claim_coverage": 0.5232872451622451,
+        "independent_evidence_coverage": 0.5298611111111111,
+        "source_precision": 0.6319444444444444,
+        "source_recall": 0.3725198412698413,
+        "tokenizer_tokens": 85.20833333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01108366996049881,
+          "p95": 0.014651869423687455
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.00874977558851242,
+          "p95": 0.01200195401906967
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0003748573362827301,
+          "p95": 0.000500120222568512
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bge_omneum": {
+        "evidence_retention": 0.39188287127057414,
+        "actual_context_tokens": 64.375,
+        "context_reduction": 0.7012166934206399,
+        "supporting_passage_claim_coverage": 0.6321420477670477,
+        "independent_evidence_coverage": 0.6048611111111111,
+        "source_precision": 0.7291666666666666,
+        "source_recall": 0.3860119047619048,
+        "tokenizer_tokens": 78.58333333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.32629157230258,
+          "p95": 201.91416449379176
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6573335267603397,
+          "p95": 0.9684255113825202
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.059750163927674294,
+          "p95": 0.08632524404674768
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00021110754460096348
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9109375532716513,
+          "p95": 1.3368574902415273
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25": {
+        "evidence_retention": 0.36982931045085626,
+        "actual_context_tokens": 68.5,
+        "context_reduction": 0.6814305807704896,
+        "supporting_passage_claim_coverage": 0.5243278712028712,
+        "independent_evidence_coverage": 0.5715277777777777,
+        "source_precision": 0.6319444444444444,
+        "source_recall": 0.3686507936507937,
+        "tokenizer_tokens": 81.79166666666667,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.011062249541282654,
+          "p95": 0.014500180259346957
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008832896128296852,
+          "p95": 0.01181394327431917
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0003748573362827301,
+          "p95": 0.000500120222568512
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25_omneum": {
+        "evidence_retention": 0.31193082180468107,
+        "actual_context_tokens": 63.375,
+        "context_reduction": 0.7065021126837371,
+        "supporting_passage_claim_coverage": 0.5449577043327043,
+        "independent_evidence_coverage": 0.48680555555555555,
+        "source_precision": 0.6041666666666666,
+        "source_recall": 0.30198412698412697,
+        "tokenizer_tokens": 75.41666666666667,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.41431233473122,
+          "p95": 180.75922711286694
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.5911251064389944,
+          "p95": 0.9445658884942532
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06066681817173958,
+          "p95": 0.0924746273085475
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00012526288628578186,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8620412554591894,
+          "p95": 1.3720435556024295
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "claude": {
+        "evidence_retention": 0.5721089892722009,
+        "actual_context_tokens": 69.08333333333333,
+        "context_reduction": 0.6772188543243562,
+        "supporting_passage_claim_coverage": 0.6439457533207533,
+        "independent_evidence_coverage": 0.6805555555555556,
+        "source_precision": 0.96875,
+        "source_recall": 0.5641865079365079,
+        "tokenizer_tokens": 83.16666666666667,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.008125090971589088,
+          "p95": 0.011626887135207653
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.007041497156023979,
+          "p95": 0.010167970322072506
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.00033294782042503357,
+          "p95": 0.00045821070671081543
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 1.8441626245621592,
+          "p95": 3.099167645885609
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere": {
+        "evidence_retention": 0.48722252843696573,
+        "actual_context_tokens": 71.08333333333333,
+        "context_reduction": 0.6689180723807925,
+        "supporting_passage_claim_coverage": 0.6358082889332889,
+        "independent_evidence_coverage": 0.6409722222222222,
+        "source_precision": 0.8055555555555556,
+        "source_recall": 0.49503968253968256,
+        "tokenizer_tokens": 86.45833333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.008208444342017174,
+          "p95": 0.012418953701853752
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007125083357095718,
+          "p95": 0.010793330147862434
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033387914299964905,
+          "p95": 0.00046119093894958485
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere_omneum": {
+        "evidence_retention": 0.42603603470027573,
+        "actual_context_tokens": 63.666666666666664,
+        "context_reduction": 0.703980136419853,
+        "supporting_passage_claim_coverage": 0.6451451326451326,
+        "independent_evidence_coverage": 0.6138888888888889,
+        "source_precision": 0.7847222222222222,
+        "source_recall": 0.42212301587301587,
+        "tokenizer_tokens": 77.58333333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 135.20397944375873,
+          "p95": 205.6878502946347
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6047496572136879,
+          "p95": 0.9509996743872762
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.05606282502412796,
+          "p95": 0.08756488095968962
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020819716155529022
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.887083588168025,
+          "p95": 1.49988499470055
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding": {
+        "evidence_retention": 0.4112246326180264,
+        "actual_context_tokens": 67.79166666666667,
+        "context_reduction": 0.6842317002209544,
+        "supporting_passage_claim_coverage": 0.5277922309172309,
+        "independent_evidence_coverage": 0.54375,
+        "source_precision": 0.7013888888888888,
+        "source_recall": 0.40962301587301586,
+        "tokenizer_tokens": 82.33333333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.010645482689142227,
+          "p95": 0.013961945660412312
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008333474397659302,
+          "p95": 0.011131353676319122
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0003748573362827301,
+          "p95": 0.000500120222568512
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding_omneum": {
+        "evidence_retention": 0.3434776803405813,
+        "actual_context_tokens": 60.833333333333336,
+        "context_reduction": 0.7164949668924445,
+        "supporting_passage_claim_coverage": 0.5564132626632626,
+        "independent_evidence_coverage": 0.5166666666666666,
+        "source_precision": 0.6527777777777778,
+        "source_recall": 0.33839285714285716,
+        "tokenizer_tokens": 74.95833333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.6309374999255,
+          "p95": 203.31911607645452
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6266457494348288,
+          "p95": 0.9387751342728734
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.05870801396667957,
+          "p95": 0.08940980769693851
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00016922131180763234
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.89810392819345,
+          "p95": 1.3952997978776678
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gemini": {
+        "evidence_retention": 0.5644792466134053,
+        "actual_context_tokens": 70.02083333333333,
+        "context_reduction": 0.6734272251303502,
+        "supporting_passage_claim_coverage": 0.6502653596403597,
+        "independent_evidence_coverage": 0.657986111111111,
+        "source_precision": 0.9409722222222222,
+        "source_recall": 0.5641865079365079,
+        "tokenizer_tokens": 84.29166666666667,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.00833394005894661,
+          "p95": 0.01242309808731079
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.007166992872953415,
+          "p95": 0.010919012129306793
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0003334134817123413,
+          "p95": 0.00045821070671081543
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.0332473958842456,
+          "p95": 2.882411070750095
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gpt": {
+        "evidence_retention": 0.5677425484500052,
+        "actual_context_tokens": 69.47916666666667,
+        "context_reduction": 0.6758792348322966,
+        "supporting_passage_claim_coverage": 0.6535611379361379,
+        "independent_evidence_coverage": 0.6996527777777778,
+        "source_precision": 0.9548611111111112,
+        "source_recall": 0.5537698412698413,
+        "tokenizer_tokens": 83.1875,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.008166767656803131,
+          "p95": 0.012252246960997581
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.007041497156023979,
+          "p95": 0.010463315993547438
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.00033294782042503357,
+          "p95": 0.0004172325134277344
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.034325062064454,
+          "p95": 2.989370147557929
+        },
+        "historical_provider_cost_usd": null
+      },
+      "omneum": {
+        "evidence_retention": 0.36032230740073584,
+        "actual_context_tokens": 67.25,
+        "context_reduction": 0.6852931142085547,
+        "supporting_passage_claim_coverage": 0.6227660071410072,
+        "independent_evidence_coverage": 0.5729166666666666,
+        "source_precision": 0.6493055555555556,
+        "source_recall": 0.3516865079365079,
+        "tokenizer_tokens": 79.58333333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 126.78139563649893,
+          "p95": 176.34102681186044
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6567500531673431,
+          "p95": 0.9461378678679466
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.08156266994774342,
+          "p95": 0.10122323874384165
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020863953977823257
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "raw_budget": {
+        "evidence_retention": 0.21891771390872725,
+        "actual_context_tokens": 70.70833333333333,
+        "context_reduction": 0.6707182462493448,
+        "supporting_passage_claim_coverage": 0.38491242553742555,
+        "independent_evidence_coverage": 0.38819444444444445,
+        "source_precision": 0.39166666666666666,
+        "source_recall": 0.2179563492063492,
+        "tokenizer_tokens": 86,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.00785384327173233,
+          "p95": 0.011167023330926895
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.00733276829123497,
+          "p95": 0.01030659768730402
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00033387914299964905,
+          "p95": 0.0004996778443455696
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      }
+    },
+    "128": {
+      "bge": {
+        "evidence_retention": 0.5459317371935022,
+        "actual_context_tokens": 96.25,
+        "context_reduction": 0.5515813221986025,
+        "supporting_passage_claim_coverage": 0.6643059486809487,
+        "independent_evidence_coverage": 0.7027777777777777,
+        "source_precision": 0.673611111111111,
+        "source_recall": 0.5427579365079365,
+        "tokenizer_tokens": 117.08333333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.0112093985080719,
+          "p95": 0.014730868861079214
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009125098586082458,
+          "p95": 0.012058648280799387
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004163011908531189,
+          "p95": 0.0005420297384262085
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bge_omneum": {
+        "evidence_retention": 0.5179480239856373,
+        "actual_context_tokens": 87.375,
+        "context_reduction": 0.5931044726812575,
+        "supporting_passage_claim_coverage": 0.7156025687275688,
+        "independent_evidence_coverage": 0.7243055555555555,
+        "source_precision": 0.7118055555555556,
+        "source_recall": 0.5076388888888889,
+        "tokenizer_tokens": 106.16666666666667,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.81220786646008,
+          "p95": 203.7680393550545
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6658125203102827,
+          "p95": 0.9541098261252046
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06374972872436047,
+          "p95": 0.09468765929341316
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016600824892520905,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9079372975975275,
+          "p95": 1.3598728459328413
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25": {
+        "evidence_retention": 0.5190183238799373,
+        "actual_context_tokens": 97.29166666666667,
+        "context_reduction": 0.546196955017126,
+        "supporting_passage_claim_coverage": 0.6488242081992082,
+        "independent_evidence_coverage": 0.6645833333333333,
+        "source_precision": 0.6388888888888888,
+        "source_recall": 0.5149801587301587,
+        "tokenizer_tokens": 116.25,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01145852729678154,
+          "p95": 0.01594012137502432
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009125098586082458,
+          "p95": 0.012658303603529928
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004172325134277344,
+          "p95": 0.0005441252142190932
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25_omneum": {
+        "evidence_retention": 0.4677031898808023,
+        "actual_context_tokens": 89,
+        "context_reduction": 0.5876785377442648,
+        "supporting_passage_claim_coverage": 0.6564630970880971,
+        "independent_evidence_coverage": 0.7208333333333333,
+        "source_precision": 0.6458333333333334,
+        "source_recall": 0.4701388888888889,
+        "tokenizer_tokens": 105.91666666666667,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 130.3215625230223,
+          "p95": 189.98258954379705
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.5980420392006636,
+          "p95": 0.968421227298677
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.07260381244122982,
+          "p95": 0.09979375172406435
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020817387849092484
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8578747510910034,
+          "p95": 1.4154312433674932
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "claude": {
+        "evidence_retention": 0.7684334134163049,
+        "actual_context_tokens": 97.95833333333333,
+        "context_reduction": 0.5435846372067628,
+        "supporting_passage_claim_coverage": 0.7859535140785141,
+        "independent_evidence_coverage": 0.8340277777777778,
+        "source_precision": 0.9375,
+        "source_recall": 0.7517857142857143,
+        "tokenizer_tokens": 116.64583333333333,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.008708564564585686,
+          "p95": 0.012352666817605489
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.0075409188866615295,
+          "p95": 0.01070881262421608
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.00037532299757003784,
+          "p95": 0.000500120222568512
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 1.8441626245621592,
+          "p95": 3.099167645885609
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere": {
+        "evidence_retention": 0.5971563173782818,
+        "actual_context_tokens": 96.875,
+        "context_reduction": 0.5463187913697469,
+        "supporting_passage_claim_coverage": 0.7037926194176194,
+        "independent_evidence_coverage": 0.71875,
+        "source_precision": 0.71875,
+        "source_recall": 0.5962301587301587,
+        "tokenizer_tokens": 117.54166666666667,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009228941053152084,
+          "p95": 0.013375189155340195
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.00800006091594696,
+          "p95": 0.011752080172300339
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004163011908531189,
+          "p95": 0.0005420297384262085
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere_omneum": {
+        "evidence_retention": 0.551511210242895,
+        "actual_context_tokens": 84.20833333333333,
+        "context_reduction": 0.6093730740509803,
+        "supporting_passage_claim_coverage": 0.7088139869389869,
+        "independent_evidence_coverage": 0.7263888888888889,
+        "source_precision": 0.7708333333333334,
+        "source_recall": 0.5354166666666667,
+        "tokenizer_tokens": 102.20833333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.54964554309845,
+          "p95": 203.58976889401674
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.5977705586701632,
+          "p95": 0.9574756026268005
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06170850247144699,
+          "p95": 0.10102507658302784
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.0002076849341392517
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8936044760048389,
+          "p95": 1.3810583157464846
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding": {
+        "evidence_retention": 0.5537324257000572,
+        "actual_context_tokens": 98.29166666666667,
+        "context_reduction": 0.5421389495401375,
+        "supporting_passage_claim_coverage": 0.6366775585525586,
+        "independent_evidence_coverage": 0.6666666666666666,
+        "source_precision": 0.642361111111111,
+        "source_recall": 0.5594246031746032,
+        "tokenizer_tokens": 118.75,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.011041993275284767,
+          "p95": 0.015210127457976341
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008728820830583572,
+          "p95": 0.012213317677378654
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004172325134277344,
+          "p95": 0.0005415873602032661
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding_omneum": {
+        "evidence_retention": 0.4585644245939928,
+        "actual_context_tokens": 80.25,
+        "context_reduction": 0.6289024622153141,
+        "supporting_passage_claim_coverage": 0.6402922309172309,
+        "independent_evidence_coverage": 0.6569444444444444,
+        "source_precision": 0.6666666666666666,
+        "source_recall": 0.45128968253968255,
+        "tokenizer_tokens": 98.91666666666667,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.6394789610058,
+          "p95": 181.1528061749413
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6081666797399521,
+          "p95": 0.9513228898867965
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.062458449974656105,
+          "p95": 0.0981898745521903
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.0001671724021434784
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8852917235344648,
+          "p95": 1.407720847055315
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gemini": {
+        "evidence_retention": 0.7571366007438034,
+        "actual_context_tokens": 97.64583333333333,
+        "context_reduction": 0.5446779183817818,
+        "supporting_passage_claim_coverage": 0.7982641201391202,
+        "independent_evidence_coverage": 0.8166666666666667,
+        "source_precision": 0.9236111111111112,
+        "source_recall": 0.7413690476190476,
+        "tokenizer_tokens": 116.72916666666667,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.008729519322514534,
+          "p95": 0.012627127580344677
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.007437076419591904,
+          "p95": 0.010836124420166016
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.00037532299757003784,
+          "p95": 0.000500120222568512
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.0332473958842456,
+          "p95": 2.882411070750095
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gpt": {
+        "evidence_retention": 0.7688213962182137,
+        "actual_context_tokens": 97.91666666666667,
+        "context_reduction": 0.5436083374043218,
+        "supporting_passage_claim_coverage": 0.8224222536722536,
+        "independent_evidence_coverage": 0.8270833333333333,
+        "source_precision": 0.9375,
+        "source_recall": 0.7517857142857143,
+        "tokenizer_tokens": 116.89583333333333,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.008916947990655899,
+          "p95": 0.012668967247009277
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.007646158337593079,
+          "p95": 0.011004437692463396
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.00037532299757003784,
+          "p95": 0.0004996778443455696
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.034325062064454,
+          "p95": 2.989370147557929
+        },
+        "historical_provider_cost_usd": null
+      },
+      "omneum": {
+        "evidence_retention": 0.4816640516172437,
+        "actual_context_tokens": 95.5,
+        "context_reduction": 0.5526097618845246,
+        "supporting_passage_claim_coverage": 0.7209271053021054,
+        "independent_evidence_coverage": 0.7152777777777778,
+        "source_precision": 0.5944444444444444,
+        "source_recall": 0.47192460317460316,
+        "tokenizer_tokens": 113.875,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 129.29312488995492,
+          "p95": 178.18941478617484
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6140414625406265,
+          "p95": 0.9611393790692091
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.09468803182244301,
+          "p95": 0.12345402501523493
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.00020908191800117493
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "raw_budget": {
+        "evidence_retention": 0.3354426248041682,
+        "actual_context_tokens": 98.20833333333333,
+        "context_reduction": 0.54316446374379,
+        "supporting_passage_claim_coverage": 0.5311188811188812,
+        "independent_evidence_coverage": 0.5736111111111111,
+        "source_precision": 0.4236111111111111,
+        "source_recall": 0.33402777777777776,
+        "tokenizer_tokens": 118.33333333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.008603790774941444,
+          "p95": 0.011633569374680519
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.007979338988661766,
+          "p95": 0.010683573782443999
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00041583552956581116,
+          "p95": 0.000500120222568512
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      }
+    },
+    "160": {
+      "bge": {
+        "evidence_retention": 0.6765326919080561,
+        "actual_context_tokens": 122.125,
+        "context_reduction": 0.4303729123997221,
+        "supporting_passage_claim_coverage": 0.7619199087949088,
+        "independent_evidence_coverage": 0.8048611111111111,
+        "source_precision": 0.6495039682539683,
+        "source_recall": 0.6761904761904762,
+        "tokenizer_tokens": 147.83333333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01195794902741909,
+          "p95": 0.016478728502988815
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.00966666266322136,
+          "p95": 0.012887571938335896
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004591420292854309,
+          "p95": 0.0006249407306313515
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bge_omneum": {
+        "evidence_retention": 0.6015556542780502,
+        "actual_context_tokens": 103.66666666666667,
+        "context_reduction": 0.5184727261819645,
+        "supporting_passage_claim_coverage": 0.7744298525548525,
+        "independent_evidence_coverage": 0.8090277777777778,
+        "source_precision": 0.7111111111111111,
+        "source_recall": 0.5931547619047619,
+        "tokenizer_tokens": 125.625,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.6992711983621,
+          "p95": 203.25459842570126
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6276671774685383,
+          "p95": 0.9448233991861343
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06720796227455139,
+          "p95": 0.1039167633280158
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00021113082766532887
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8992080111056566,
+          "p95": 1.4471606817096458
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25": {
+        "evidence_retention": 0.6447822293223091,
+        "actual_context_tokens": 125.25,
+        "context_reduction": 0.4157502077814541,
+        "supporting_passage_claim_coverage": 0.7406195656195657,
+        "independent_evidence_coverage": 0.8430555555555556,
+        "source_precision": 0.6203373015873016,
+        "source_recall": 0.6470238095238096,
+        "tokenizer_tokens": 149.91666666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.012458069249987602,
+          "p95": 0.01683942973613739
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009958632290363312,
+          "p95": 0.013167038559913635
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004591420292854309,
+          "p95": 0.0006249407306313515
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25_omneum": {
+        "evidence_retention": 0.5526532152166344,
+        "actual_context_tokens": 99.95833333333333,
+        "context_reduction": 0.5371546348010199,
+        "supporting_passage_claim_coverage": 0.712891391016391,
+        "independent_evidence_coverage": 0.8020833333333334,
+        "source_precision": 0.6763888888888889,
+        "source_recall": 0.5500992063492064,
+        "tokenizer_tokens": 120.70833333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.3924165442586,
+          "p95": 203.51219959557056
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6421869620680809,
+          "p95": 0.9597542928531766
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0727709848433733,
+          "p95": 0.10761413723230362
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020908191800117493
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8756460156291723,
+          "p95": 1.4524039113894098
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "claude": {
+        "evidence_retention": 0.9178858597523882,
+        "actual_context_tokens": 124.125,
+        "context_reduction": 0.42329990366287445,
+        "supporting_passage_claim_coverage": 0.909479871979872,
+        "independent_evidence_coverage": 0.91875,
+        "source_precision": 0.9041666666666667,
+        "source_recall": 0.9123015873015873,
+        "tokenizer_tokens": 148.75,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.009416136890649796,
+          "p95": 0.01392716076225042
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.008124858140945435,
+          "p95": 0.01200009137392044
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0004577450454235077,
+          "p95": 0.0005420297384262085
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 1.8441626245621592,
+          "p95": 3.099167645885609
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere": {
+        "evidence_retention": 0.7312472027598065,
+        "actual_context_tokens": 122.95833333333333,
+        "context_reduction": 0.4266613760175613,
+        "supporting_passage_claim_coverage": 0.775301319051319,
+        "independent_evidence_coverage": 0.8222222222222222,
+        "source_precision": 0.7029761904761904,
+        "source_recall": 0.727579365079365,
+        "tokenizer_tokens": 149.125,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009396113455295563,
+          "p95": 0.013717380352318287
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008082948625087738,
+          "p95": 0.011944235302507876
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004577450454235077,
+          "p95": 0.0005440786480903624
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere_omneum": {
+        "evidence_retention": 0.6275417981067151,
+        "actual_context_tokens": 97.58333333333333,
+        "context_reduction": 0.5495190531632881,
+        "supporting_passage_claim_coverage": 0.7741939773189773,
+        "independent_evidence_coverage": 0.7763888888888889,
+        "source_precision": 0.7708333333333334,
+        "source_recall": 0.6094246031746031,
+        "tokenizer_tokens": 119.33333333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.26327090524137,
+          "p95": 193.38347702287135
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6225421093404293,
+          "p95": 0.9597474709153175
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06197905167937279,
+          "p95": 0.11267904192209244
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.00020908191800117493
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8969793561846018,
+          "p95": 1.3839099323377007
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding": {
+        "evidence_retention": 0.6372173987684407,
+        "actual_context_tokens": 123.16666666666667,
+        "context_reduction": 0.4267442220446803,
+        "supporting_passage_claim_coverage": 0.7297795954045954,
+        "independent_evidence_coverage": 0.7388888888888889,
+        "source_precision": 0.5988095238095238,
+        "source_recall": 0.6442460317460318,
+        "tokenizer_tokens": 149.16666666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01237494871020317,
+          "p95": 0.016168016009032726
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009874347597360611,
+          "p95": 0.013214279897511005
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004996545612812042,
+          "p95": 0.0005830544978380203
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding_omneum": {
+        "evidence_retention": 0.5371767877266496,
+        "actual_context_tokens": 93.83333333333333,
+        "context_reduction": 0.565864872280771,
+        "supporting_passage_claim_coverage": 0.6788203694453695,
+        "independent_evidence_coverage": 0.7277777777777777,
+        "source_precision": 0.6652777777777777,
+        "source_recall": 0.5252976190476191,
+        "tokenizer_tokens": 115.95833333333333,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.08127138204873,
+          "p95": 188.6795355239883
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6243959069252014,
+          "p95": 0.9416957851499319
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06485451012849808,
+          "p95": 0.1115206629037857
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020817387849092484
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8359374478459358,
+          "p95": 1.4445354230701923
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gemini": {
+        "evidence_retention": 0.8815112258369979,
+        "actual_context_tokens": 124.75,
+        "context_reduction": 0.4195870997319587,
+        "supporting_passage_claim_coverage": 0.8658100001850002,
+        "independent_evidence_coverage": 0.9048611111111111,
+        "source_precision": 0.8575396825396825,
+        "source_recall": 0.8775793650793651,
+        "tokenizer_tokens": 148.625,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.00929180532693863,
+          "p95": 0.013425387442111966
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.008082948625087738,
+          "p95": 0.011837063357234
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0004577450454235077,
+          "p95": 0.0005830544978380203
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.0332473958842456,
+          "p95": 2.882411070750095
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gpt": {
+        "evidence_retention": 0.909844336912171,
+        "actual_context_tokens": 124.39583333333333,
+        "context_reduction": 0.4219063249989696,
+        "supporting_passage_claim_coverage": 0.902962777962778,
+        "independent_evidence_coverage": 0.9256944444444445,
+        "source_precision": 0.89375,
+        "source_recall": 0.9018849206349207,
+        "tokenizer_tokens": 148.70833333333334,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.009416602551937103,
+          "p95": 0.013145920820534222
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.008187256753444672,
+          "p95": 0.011499971151351929
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0004577450454235077,
+          "p95": 0.0005830079317092896
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.034325062064454,
+          "p95": 2.989370147557929
+        },
+        "historical_provider_cost_usd": null
+      },
+      "omneum": {
+        "evidence_retention": 0.6057344511107906,
+        "actual_context_tokens": 123.5,
+        "context_reduction": 0.4233839639477288,
+        "supporting_passage_claim_coverage": 0.829080525955526,
+        "independent_evidence_coverage": 0.86875,
+        "source_precision": 0.5821428571428572,
+        "source_recall": 0.6032738095238095,
+        "tokenizer_tokens": 146.58333333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 129.9624373205006,
+          "p95": 192.9831814719364
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6691045127809048,
+          "p95": 0.9629537351429462
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.10541686788201332,
+          "p95": 0.14068062882870436
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.00020908191800117493
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "raw_budget": {
+        "evidence_retention": 0.4522512826047165,
+        "actual_context_tokens": 124.625,
+        "context_reduction": 0.42027787321580157,
+        "supporting_passage_claim_coverage": 0.654146201021201,
+        "independent_evidence_coverage": 0.6805555555555556,
+        "source_precision": 0.43561507936507937,
+        "source_recall": 0.441765873015873,
+        "tokenizer_tokens": 149.95833333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009333482012152672,
+          "p95": 0.012514786794781685
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008624978363513947,
+          "p95": 0.011601601727306841
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00045797787606716156,
+          "p95": 0.0005830079317092896
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      }
+    },
+    "192": {
+      "bge": {
+        "evidence_retention": 0.7939415180196877,
+        "actual_context_tokens": 150.25,
+        "context_reduction": 0.3007843767982225,
+        "supporting_passage_claim_coverage": 0.8525112618862619,
+        "independent_evidence_coverage": 0.8979166666666667,
+        "source_precision": 0.6306051587301588,
+        "source_recall": 0.7985119047619048,
+        "tokenizer_tokens": 181.875,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013061799108982086,
+          "p95": 0.01763361506164074
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010499265044927597,
+          "p95": 0.01458078622817993
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.000500120222568512,
+          "p95": 0.0006672926247119904
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bge_omneum": {
+        "evidence_retention": 0.6472990561794336,
+        "actual_context_tokens": 110.20833333333333,
+        "context_reduction": 0.4882405543840947,
+        "supporting_passage_claim_coverage": 0.7883187414437415,
+        "independent_evidence_coverage": 0.8506944444444444,
+        "source_precision": 0.7208333333333333,
+        "source_recall": 0.6382936507936507,
+        "tokenizer_tokens": 135.29166666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 131.87324977479875,
+          "p95": 194.8061027098447
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.5999580025672913,
+          "p95": 0.9491143515333533
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0682915560901165,
+          "p95": 0.1151353819295764
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9095415007323027,
+          "p95": 1.3354162452742453
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25": {
+        "evidence_retention": 0.7038229547978485,
+        "actual_context_tokens": 151.29166666666666,
+        "context_reduction": 0.2959450881294268,
+        "supporting_passage_claim_coverage": 0.7820757945757946,
+        "independent_evidence_coverage": 0.8340277777777778,
+        "source_precision": 0.5592757936507936,
+        "source_recall": 0.7026785714285714,
+        "tokenizer_tokens": 180.5,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.012770527973771095,
+          "p95": 0.01786632928997278
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010146060958504677,
+          "p95": 0.014335173182189465
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0005408655852079391,
+          "p95": 0.0006688758730888366
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25_omneum": {
+        "evidence_retention": 0.573812727001146,
+        "actual_context_tokens": 108.16666666666667,
+        "context_reduction": 0.5019772664969797,
+        "supporting_passage_claim_coverage": 0.7198358354608355,
+        "independent_evidence_coverage": 0.8229166666666666,
+        "source_precision": 0.6597222222222222,
+        "source_recall": 0.5744047619047619,
+        "tokenizer_tokens": 130.95833333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 130.39802038110793,
+          "p95": 193.94257585518062
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6277081556618214,
+          "p95": 0.9235504548996686
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0699369702488184,
+          "p95": 0.11796287726610899
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020817387849092484
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8424369152635336,
+          "p95": 1.358070923015475
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "claude": {
+        "evidence_retention": 0.9846558441558442,
+        "actual_context_tokens": 152.45833333333334,
+        "context_reduction": 0.291884448806987,
+        "supporting_passage_claim_coverage": 0.981517094017094,
+        "independent_evidence_coverage": 0.9722222222222222,
+        "source_precision": 0.7937996031746032,
+        "source_recall": 0.9811507936507936,
+        "tokenizer_tokens": 181.83333333333334,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.00997958704829216,
+          "p95": 0.014710449613630772
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.008750474080443382,
+          "p95": 0.012809550389647477
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.000500120222568512,
+          "p95": 0.0006659422069787979
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 1.8441626245621592,
+          "p95": 3.099167645885609
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere": {
+        "evidence_retention": 0.7973506599127255,
+        "actual_context_tokens": 148.58333333333334,
+        "context_reduction": 0.3082251062814772,
+        "supporting_passage_claim_coverage": 0.8266189828689828,
+        "independent_evidence_coverage": 0.8618055555555556,
+        "source_precision": 0.6389384920634921,
+        "source_recall": 0.7901785714285714,
+        "tokenizer_tokens": 179.75,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.009937677532434464,
+          "p95": 0.013876939192414284
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008604023605585098,
+          "p95": 0.01217094250023365
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.000500120222568512,
+          "p95": 0.0006249174475669861
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere_omneum": {
+        "evidence_retention": 0.6889907834008091,
+        "actual_context_tokens": 109.5,
+        "context_reduction": 0.49793502821020497,
+        "supporting_passage_claim_coverage": 0.8071485227735228,
+        "independent_evidence_coverage": 0.8388888888888889,
+        "source_precision": 0.7736111111111111,
+        "source_recall": 0.6712301587301587,
+        "tokenizer_tokens": 132.95833333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.57064593583345,
+          "p95": 205.53614143282175
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6301042158156633,
+          "p95": 0.9531979681923985
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06164540536701679,
+          "p95": 0.11471398174762726
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.863292021676898,
+          "p95": 1.3186916941776872
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding": {
+        "evidence_retention": 0.759889060198699,
+        "actual_context_tokens": 150.125,
+        "context_reduction": 0.3016584861529346,
+        "supporting_passage_claim_coverage": 0.8271786084286085,
+        "independent_evidence_coverage": 0.8875,
+        "source_precision": 0.5993551587301588,
+        "source_recall": 0.758234126984127,
+        "tokenizer_tokens": 180.79166666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.01252046786248684,
+          "p95": 0.016494654119014737
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.0100000761449337,
+          "p95": 0.013835029676556587
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0005406327545642853,
+          "p95": 0.0006693182513117789
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding_omneum": {
+        "evidence_retention": 0.5481195486694105,
+        "actual_context_tokens": 101.29166666666667,
+        "context_reduction": 0.534409991752303,
+        "supporting_passage_claim_coverage": 0.6788203694453695,
+        "independent_evidence_coverage": 0.7416666666666667,
+        "source_precision": 0.6444444444444445,
+        "source_recall": 0.5357142857142857,
+        "tokenizer_tokens": 124.625,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 129.97604091651738,
+          "p95": 203.24495795648545
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6645414978265762,
+          "p95": 0.9529212955385447
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06504193879663944,
+          "p95": 0.11225787457078695
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.00021113082766532887
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8499789983034134,
+          "p95": 1.329272985458374
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gemini": {
+        "evidence_retention": 0.9741808208131737,
+        "actual_context_tokens": 151.39583333333334,
+        "context_reduction": 0.2972787843386304,
+        "supporting_passage_claim_coverage": 0.9678952991452991,
+        "independent_evidence_coverage": 0.9670138888888888,
+        "source_precision": 0.7896329365079365,
+        "source_recall": 0.970734126984127,
+        "tokenizer_tokens": 181.22916666666666,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.009791459888219833,
+          "p95": 0.014046160504221914
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.00845850445330143,
+          "p95": 0.012379139661788939
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.0004996545612812042,
+          "p95": 0.0006668269634246826
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.0332473958842456,
+          "p95": 2.882411070750095
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gpt": {
+        "evidence_retention": 0.974706900942195,
+        "actual_context_tokens": 151.29166666666666,
+        "context_reduction": 0.29754228767678187,
+        "supporting_passage_claim_coverage": 0.969017094017094,
+        "independent_evidence_coverage": 0.9826388888888888,
+        "source_precision": 0.7896329365079365,
+        "source_recall": 0.970734126984127,
+        "tokenizer_tokens": 180.5,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.010104849934577942,
+          "p95": 0.01585863064974544
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.008770730346441269,
+          "p95": 0.014021573588252047
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.000500120222568512,
+          "p95": 0.0006668269634246826
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.034325062064454,
+          "p95": 2.989370147557929
+        },
+        "historical_provider_cost_usd": null
+      },
+      "omneum": {
+        "evidence_retention": 0.6820795177770683,
+        "actual_context_tokens": 145.70833333333334,
+        "context_reduction": 0.3208957846982122,
+        "supporting_passage_claim_coverage": 0.8690581409331409,
+        "independent_evidence_coverage": 0.9326388888888889,
+        "source_precision": 0.5683035714285715,
+        "source_recall": 0.6707341269841269,
+        "tokenizer_tokens": 172.54166666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 126.89002091065049,
+          "p95": 199.12474460434169
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6042288150638342,
+          "p95": 0.9442187612876296
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.10870839469134808,
+          "p95": 0.14802264049649239
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.00020908191800117493
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "raw_budget": {
+        "evidence_retention": 0.606842745381528,
+        "actual_context_tokens": 149.58333333333334,
+        "context_reduction": 0.30324687578265236,
+        "supporting_passage_claim_coverage": 0.7563116281866282,
+        "independent_evidence_coverage": 0.8013888888888889,
+        "source_precision": 0.4953869047619048,
+        "source_recall": 0.6040674603174603,
+        "tokenizer_tokens": 180.41666666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.00937492586672306,
+          "p95": 0.012837350368499756
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.008666422218084335,
+          "p95": 0.011960719712078571
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0004996545612812042,
+          "p95": 0.0006249174475669861
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      }
+    },
+    "256": {
+      "bge": {
+        "evidence_retention": 0.9262942557197358,
+        "actual_context_tokens": 193.66666666666666,
+        "context_reduction": 0.10500428679686316,
+        "supporting_passage_claim_coverage": 0.9589436026936027,
+        "independent_evidence_coverage": 0.9791666666666666,
+        "source_precision": 0.5729497354497355,
+        "source_recall": 0.9319444444444445,
+        "tokenizer_tokens": 233.66666666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013083219528198242,
+          "p95": 0.018631317652761936
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010437564924359322,
+          "p95": 0.015712343156337738
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0006249174475669861,
+          "p95": 0.0007501803338527679
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bge_omneum": {
+        "evidence_retention": 0.6822136844484923,
+        "actual_context_tokens": 118.625,
+        "context_reduction": 0.4518093768911187,
+        "supporting_passage_claim_coverage": 0.8140131858881859,
+        "independent_evidence_coverage": 0.8506944444444444,
+        "source_precision": 0.709920634920635,
+        "source_recall": 0.6709325396825396,
+        "tokenizer_tokens": 146.79166666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.5686040110886,
+          "p95": 203.46025440376252
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6024169269949198,
+          "p95": 0.9878769982606173
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.066353939473629,
+          "p95": 0.12412709183990955
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.0002086162567138672
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9132709819823503,
+          "p95": 1.9466336350888014
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25": {
+        "evidence_retention": 0.9103153990662484,
+        "actual_context_tokens": 196.70833333333334,
+        "context_reduction": 0.09164480657865948,
+        "supporting_passage_claim_coverage": 0.9472372534872535,
+        "independent_evidence_coverage": 0.9916666666666667,
+        "source_precision": 0.564021164021164,
+        "source_recall": 0.9145833333333333,
+        "tokenizer_tokens": 234.75,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013146083801984787,
+          "p95": 0.01721938606351614
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010646181181073189,
+          "p95": 0.014006346464157104
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0006249174475669861,
+          "p95": 0.0007907161489129066
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "bm25_omneum": {
+        "evidence_retention": 0.6205881737765928,
+        "actual_context_tokens": 116.79166666666667,
+        "context_reduction": 0.46409364719020646,
+        "supporting_passage_claim_coverage": 0.750391391016391,
+        "independent_evidence_coverage": 0.8368055555555556,
+        "source_precision": 0.660515873015873,
+        "source_recall": 0.6153769841269842,
+        "tokenizer_tokens": 141.45833333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 133.23408365249634,
+          "p95": 202.38354832399637
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6382709834724665,
+          "p95": 0.9491899982094765
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.07327040657401085,
+          "p95": 0.12243110686540604
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016577541828155518,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.9033333044499159,
+          "p95": 1.322595146484673
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "claude": {
+        "evidence_retention": 1.0,
+        "actual_context_tokens": 196.16666666666666,
+        "context_reduction": 0.09473818071864502,
+        "supporting_passage_claim_coverage": 1.0,
+        "independent_evidence_coverage": 1.0,
+        "source_precision": 0.6207671957671957,
+        "source_recall": 1.0,
+        "tokenizer_tokens": 234.5,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.010854564607143402,
+          "p95": 0.015254528261721132
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.009395880624651909,
+          "p95": 0.013339123688638209
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.000583939254283905,
+          "p95": 0.0007092021405696869
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 1.8441626245621592,
+          "p95": 3.099167645885609
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere": {
+        "evidence_retention": 0.9621122181753602,
+        "actual_context_tokens": 194.70833333333334,
+        "context_reduction": 0.1010327682377487,
+        "supporting_passage_claim_coverage": 0.9513678451178451,
+        "independent_evidence_coverage": 0.9861111111111112,
+        "source_precision": 0.5949735449735449,
+        "source_recall": 0.9611111111111111,
+        "tokenizer_tokens": 233.95833333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.010875053703784943,
+          "p95": 0.01534419134259224
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009458279237151146,
+          "p95": 0.01343789044767618
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0005830079317092896,
+          "p95": 0.0007112277671694754
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "cohere_omneum": {
+        "evidence_retention": 0.7452324642469202,
+        "actual_context_tokens": 119.29166666666667,
+        "context_reduction": 0.4565023445298739,
+        "supporting_passage_claim_coverage": 0.8258985227735228,
+        "independent_evidence_coverage": 0.8597222222222222,
+        "source_precision": 0.773015873015873,
+        "source_recall": 0.7226190476190476,
+        "tokenizer_tokens": 145.58333333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 132.90295843034983,
+          "p95": 187.31784215196961
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6353955250233412,
+          "p95": 0.9525395929813385
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06129196844995022,
+          "p95": 0.1281021162867546
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8903334382921457,
+          "p95": 1.3308474095538259
+        },
+        "historical_provider_seconds": {
+          "n": 24,
+          "p50": 0.17664989596232772,
+          "p95": 0.19604633110575378
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding": {
+        "evidence_retention": 0.9092627859588357,
+        "actual_context_tokens": 195.125,
+        "context_reduction": 0.0987183693714134,
+        "supporting_passage_claim_coverage": 0.9554713804713805,
+        "independent_evidence_coverage": 0.9791666666666666,
+        "source_precision": 0.564021164021164,
+        "source_recall": 0.9180555555555555,
+        "tokenizer_tokens": 234.08333333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.013165874406695366,
+          "p95": 0.01727081835269928
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.010312534868717194,
+          "p95": 0.014625024050474167
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.0006249174475669861,
+          "p95": 0.0008330680429935455
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "embedding_omneum": {
+        "evidence_retention": 0.5699615317182901,
+        "actual_context_tokens": 106.29166666666667,
+        "context_reduction": 0.5137090873595381,
+        "supporting_passage_claim_coverage": 0.6857648138898139,
+        "independent_evidence_coverage": 0.7555555555555555,
+        "source_precision": 0.6446428571428572,
+        "source_recall": 0.5544642857142857,
+        "tokenizer_tokens": 130.625,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 128.87141690589488,
+          "p95": 190.56852110661566
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.658250181004405,
+          "p95": 0.957202143035829
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.06499956361949444,
+          "p95": 0.12361498083919287
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016624107956886292,
+          "p95": 0.00020908191800117493
+        },
+        "discovery_ms": {
+          "n": 120,
+          "p50": 0.8941038977354765,
+          "p95": 1.4523044228553772
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gemini": {
+        "evidence_retention": 1.0,
+        "actual_context_tokens": 196.29166666666666,
+        "context_reduction": 0.09425304828486192,
+        "supporting_passage_claim_coverage": 1.0,
+        "independent_evidence_coverage": 1.0,
+        "source_precision": 0.6207671957671957,
+        "source_recall": 1.0,
+        "tokenizer_tokens": 234.60416666666666,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.010395888239145279,
+          "p95": 0.014971359632909294
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.009062467142939568,
+          "p95": 0.013210112228989601
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.000583939254283905,
+          "p95": 0.0007497379556298256
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.0332473958842456,
+          "p95": 2.882411070750095
+        },
+        "historical_provider_cost_usd": null
+      },
+      "gpt": {
+        "evidence_retention": 1.0,
+        "actual_context_tokens": 197.41666666666666,
+        "context_reduction": 0.08927879413286814,
+        "supporting_passage_claim_coverage": 1.0,
+        "independent_evidence_coverage": 1.0,
+        "source_precision": 0.6158068783068783,
+        "source_recall": 1.0,
+        "tokenizer_tokens": 236,
+        "cells": 48,
+        "case_budget_pairs": 24,
+        "executions": 240,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 240,
+          "p50": 0.010937219485640526,
+          "p95": 0.015420373529195784
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 240,
+          "p50": 0.00960472971200943,
+          "p95": 0.013433303683996195
+        },
+        "reconstruction_ms": {
+          "n": 240,
+          "p50": 0.000583939254283905,
+          "p95": 0.0007501803338527679
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 48,
+          "p50": 2.034325062064454,
+          "p95": 2.989370147557929
+        },
+        "historical_provider_cost_usd": null
+      },
+      "omneum": {
+        "evidence_retention": 0.8108769962598119,
+        "actual_context_tokens": 176.25,
+        "context_reduction": 0.18396135760274282,
+        "supporting_passage_claim_coverage": 0.9705176767676768,
+        "independent_evidence_coverage": 0.9861111111111112,
+        "source_precision": 0.5626488095238095,
+        "source_recall": 0.8047619047619048,
+        "tokenizer_tokens": 210.29166666666666,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 129.3485618662089,
+          "p95": 201.4155971352011
+        },
+        "graph_ms": {
+          "n": 120,
+          "p50": 0.6373124197125435,
+          "p95": 0.9373423643410206
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.11581229045987129,
+          "p95": 0.16137699130922556
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.00016670674085617065,
+          "p95": 0.00020815059542655945
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      },
+      "raw_budget": {
+        "evidence_retention": 0.8642581060996746,
+        "actual_context_tokens": 193.70833333333334,
+        "context_reduction": 0.10527373616885638,
+        "supporting_passage_claim_coverage": 0.9520983645983646,
+        "independent_evidence_coverage": 0.9777777777777777,
+        "source_precision": 0.5408895502645502,
+        "source_recall": 0.8666666666666667,
+        "tokenizer_tokens": 232.70833333333334,
+        "cells": 24,
+        "case_budget_pairs": 24,
+        "executions": 120,
+        "gold_claim_coverage": null,
+        "new_api_cost_usd": 0.0,
+        "answer_accuracy": null,
+        "accuracy_at_matched_tokens": null,
+        "end_to_end_latency": null,
+        "selection_ms": {
+          "n": 120,
+          "p50": 0.010187504813075066,
+          "p95": 0.01405153889209032
+        },
+        "graph_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "packing_ms": {
+          "n": 120,
+          "p50": 0.009353971108794212,
+          "p95": 0.013125129044055939
+        },
+        "reconstruction_ms": {
+          "n": 120,
+          "p50": 0.000583939254283905,
+          "p95": 0.0007497379556298256
+        },
+        "discovery_ms": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_seconds": {
+          "n": 0,
+          "p50": null,
+          "p95": null
+        },
+        "historical_provider_cost_usd": null
+      }
+    }
+  }
+}

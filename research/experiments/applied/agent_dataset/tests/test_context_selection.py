@@ -6,6 +6,7 @@ import pytest
 
 from omneum import Claim
 from research.experiments.applied.agent_dataset.context_selection import (
+    LEGACY_STRATEGIES,
     STRATEGIES,
     claim_id,
     map_chunks,
@@ -77,7 +78,7 @@ def test_duplicate_evidence_has_no_coverage_gain():
     assert result["covered_support"] == 13.0
 
 
-@pytest.mark.parametrize("strategy", STRATEGIES)
+@pytest.mark.parametrize("strategy", LEGACY_STRATEGIES)
 def test_budget_ties_and_reconstruction(strategy):
     mapping = map_chunks([
         {"chunk_id": "large", "raw_text": "word " * 100, "claim_ids": ["a"]},
@@ -103,6 +104,28 @@ def test_budget_ties_and_reconstruction(strategy):
         reconstruct(mapping, ["missing"])
 
 
+def test_legacy_strategies_match_saved_experiment():
+    path = Path(__file__).resolve().parents[1] / "enterprise/results/context-selection-v1.json"
+    recorded = json.loads(path.read_text())
+    assert LEGACY_STRATEGIES == tuple(item["strategy"] for item in recorded["selections"])
+    assert set(LEGACY_STRATEGIES) <= set(STRATEGIES)
+
+
+@pytest.mark.parametrize("strategy,inputs,message", [
+    ("coverage_support_query", {"claim_relevance": {"a": 1.0}}, "relevance"),
+    ("coverage_answer", {"chunk_claim_utility": {"one": {"a": 1.0}}}, "answer utility"),
+    ("coverage_support_nonlinear", {"chunk_relevance": {"one": 1.0}}, "chunk relevance"),
+])
+def test_current_strategies_require_explicit_inputs(strategy, inputs, message):
+    assert strategy in STRATEGIES and strategy not in LEGACY_STRATEGIES
+    mapping = map_chunks([{"chunk_id": "one", "raw_text": "first", "claim_ids": ["a"]}], ["a"])
+    with pytest.raises(ValueError, match=message):
+        select_chunks(mapping, {"a": 1.0}, 10, strategy)
+    result = select_chunks(mapping, {"a": 1.0}, 10, strategy, **inputs)
+    assert result["selected_chunk_ids"] == ["one"]
+    assert result["token_usage"] == token_count(result["context"]) <= 10
+
+
 def test_invalid_selection_configuration():
     mapping = map_chunks([{"chunk_id": "one", "raw_text": "first", "claim_ids": ["a"]}], ["a"])
     with pytest.raises(ValueError, match="scores and mappings disagree"):
@@ -118,7 +141,7 @@ def test_enterprise_reproducibility_and_engine_boundary(monkeypatch):
     from research.experiments.applied.agent_dataset.enterprise.context_selection import run_experiment
     from research.experiments.applied.agent_dataset.workflow import pipeline
 
-    evaluate = pipeline.evaluate_context
+    evaluate = pipeline._evaluate_context
     inputs = []
 
     def checked(observations, **kwargs):
@@ -129,7 +152,7 @@ def test_enterprise_reproducibility_and_engine_boundary(monkeypatch):
         assert all("raw_text" not in retrieval.fields for item in observations for retrieval in item.retrievals)
         return evaluate(observations, **kwargs)
 
-    monkeypatch.setattr(pipeline, "evaluate_context", checked)
+    monkeypatch.setattr(pipeline, "_evaluate_context", checked)
     first = run_experiment()
     assert first == run_experiment()
     assert inputs[0] == inputs[1]

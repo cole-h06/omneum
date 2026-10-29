@@ -52,8 +52,8 @@ class LocalPersistenceConfig:
         source_tokens: Mapping[Source, LinkageToken],
         claim_tokens: Mapping[Claim, LinkageToken],
         estimator: DependencyEstimatorConfig,
-    ) -> None:
-        self.storage.persist_context(
+    ) -> UUID:
+        return self.storage.persist_context(
             workspace_id=self.workspace_id, evaluation=evaluation, occurrences=occurrences,
             source_tokens=source_tokens, claim_tokens=claim_tokens, estimator=estimator,
         )

@@ -29,30 +29,24 @@ async def execute(scenario):
 
 
 def test_basic_workflow_regression(example_daemon, monkeypatch):
-    captured = []
-    render = basic.render_result
-
-    def capture(result):
-        captured.append(result)
-        return render(result)
-
-    monkeypatch.setattr(basic, "render_result", capture)
-
     async def run():
         workflow = basic.EnterpriseWorkflow(timeout=30)
         evidence = await workflow.retrieve(routing.StartEvent())
         assert isinstance(evidence, basic.RetrievalResultsEvent)
         assert len(evidence.results) == 17
-        answer = await workflow.run()
-        assert len(captured) == 1
-        evaluation = captured[0]
+        handler = workflow.run()
+        answer = await handler
+        evaluation = await handler.ctx.store.get("evaluation")
+        generation = await handler.ctx.store.get("generation")
+        messages = await handler.ctx.store.get("messages")
         assert len(evaluation.source_reliability) == 6
         assert len(evaluation.claim_support) == 6
         assert len(evaluation.pairwise_dependencies) == 15
         assert evaluation.evaluation_latency_ms is not None
-        assert answer == render(evaluation)
-        assert "Omneum Evaluation" in answer
-        assert "Application decision: EVALUATION COMPLETE" in answer
+        assert generation["prepared_context"]["context"] in messages[1].content
+        assert messages[1].content in answer
+        assert "Omneum Evaluation" not in messages[1].content
+        assert generation["query_diagnostics"]["relevance_source"] == "bm25"
 
     asyncio.run(run())
 
@@ -86,12 +80,13 @@ def test_routing_scenario_and_native_transitions(scenario, example_daemon):
     assert state.selected_claims == select_context(state.context_evaluation)
     assert {claim.attribute: claim.value for claim in state.selected_claims} == ROUTING_VALUES
     assert all(claim.independent_support >= RoutingPolicy().min_independent_support for claim in state.selected_claims)
-    assert state.answer == "\n".join([
-        "Application decision: EVALUATION COMPLETE", "Selected context:",
-        *(f"{attribute}: {ROUTING_VALUES[attribute]}" for attribute in REQUIRED_ATTRIBUTES),
-    ])
-    for conflicting in ("unredacted customer content allowed", "30 days", "processing_region: US"):
-        assert conflicting not in state.answer
+    assert state.generation["prepared_context"]["context"] in state.messages[1].content
+    assert state.messages[1].content in state.answer
+    for chunk in state.generation["retrieved_chunks"]:
+        if chunk["chunk_id"] in state.generation["prepared_context"]["packed_chunk_ids"]:
+            assert chunk["raw_text"] in state.messages[1].content
+        else:
+            assert chunk["raw_text"] not in state.messages[1].content
     if scenario == "resolve_conflicts":
         assert {item.claim.value for item in state.context_evaluation.claim_support} >= {"US", "30 days", "unredacted customer content allowed"}
     if scenario == "retrieve_support":

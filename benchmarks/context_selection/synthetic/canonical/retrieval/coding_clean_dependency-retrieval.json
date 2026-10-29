@@ -1,0 +1,68 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.21866208408027887,
+    "ranking": [
+      "chunk-integration_test",
+      "chunk-repository_code",
+      "chunk-release_notes",
+      "chunk-current_docs",
+      "chunk-example",
+      "chunk-unit_test",
+      "chunk-package_metadata"
+    ],
+    "raw_scores": {
+      "chunk-current_docs": 0.07745181769132614,
+      "chunk-example": 0.04355467110872269,
+      "chunk-integration_test": 0.2950264513492584,
+      "chunk-package_metadata": 0.0006353089702315629,
+      "chunk-release_notes": 0.21143211424350739,
+      "chunk-repository_code": 0.23528802394866943,
+      "chunk-unit_test": 0.0009001125581562519
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 0.00020062504336237907,
+    "ranking": [
+      "chunk-unit_test",
+      "chunk-repository_code",
+      "chunk-current_docs",
+      "chunk-integration_test",
+      "chunk-package_metadata",
+      "chunk-release_notes",
+      "chunk-example"
+    ],
+    "raw_scores": {
+      "chunk-current_docs": 3.129248831417608,
+      "chunk-example": 0.8137841067049876,
+      "chunk-integration_test": 2.9947946297244386,
+      "chunk-package_metadata": 2.254134602190675,
+      "chunk-release_notes": 1.8751927350452906,
+      "chunk-repository_code": 3.6115923931816165,
+      "chunk-unit_test": 5.096232343733277
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.042295082937926054,
+    "ranking": [
+      "chunk-release_notes",
+      "chunk-current_docs",
+      "chunk-unit_test",
+      "chunk-repository_code",
+      "chunk-integration_test",
+      "chunk-example",
+      "chunk-package_metadata"
+    ],
+    "raw_scores": {
+      "chunk-current_docs": 0.6687482595443726,
+      "chunk-example": 0.5403962135314941,
+      "chunk-integration_test": 0.5431591272354126,
+      "chunk-package_metadata": 0.3086962103843689,
+      "chunk-release_notes": 0.7641320824623108,
+      "chunk-repository_code": 0.5565974116325378,
+      "chunk-unit_test": 0.558617353439331
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

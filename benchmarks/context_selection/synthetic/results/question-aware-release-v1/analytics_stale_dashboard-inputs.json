@@ -1,0 +1,511 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'1284'",
+        "attribute": "seat_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:warehouse_table",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-12 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'1284'",
+        "attribute": "seat_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:transformation",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [
+        "analytics_stale_dashboard:warehouse_table"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://transformation.benchmark.example/analytics_stale_dashboard/transformation",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-12 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'1190'",
+        "attribute": "seat_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:dashboard_snapshot",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://dashboard-snapshot.benchmark.example/analytics_stale_dashboard/dashboard_snapshot",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-02 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'1190'",
+        "attribute": "seat_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:exported_report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [
+        "analytics_stale_dashboard:dashboard_snapshot"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://exported-report.benchmark.example/analytics_stale_dashboard/exported_report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-03 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://dashboard-snapshot.benchmark.example/analytics_stale_dashboard/dashboard_snapshot",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'1284'",
+        "attribute": "seat_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:current_query",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [
+        "analytics_stale_dashboard:warehouse_table"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://current-query.benchmark.example/analytics_stale_dashboard/current_query",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'1284'",
+        "attribute": "seat_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:metric_store",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [
+        "analytics_stale_dashboard:transformation"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://metric-store.benchmark.example/analytics_stale_dashboard/metric_store",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-12 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://transformation.benchmark.example/analytics_stale_dashboard/transformation",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"B12\"'",
+        "attribute": "partition_revision",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:data_catalog",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://data-catalog.benchmark.example/analytics_stale_dashboard/data_catalog",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-12 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'1284'",
+        "attribute": "seat_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c224d6572696469616e204a756c7920323032362070616964207365617473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_stale_dashboard:api_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [
+        "analytics_stale_dashboard:metric_store"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://api-result.benchmark.example/analytics_stale_dashboard/api_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://metric-store.benchmark.example/analytics_stale_dashboard/metric_store",
+          "kind": "web_document"
+        }
+      ]
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "seat count",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:warehouse_table",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-12 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table",
+          "kind": "warehouse_table"
+        },
+        "source_id": "warehouse_table",
+        "text": "Warehouse billing_seats partition 2026-07 after backfill batch B12: 1,284 paid seats. Partition rebuilt August 12.",
+        "value": 1284
+      },
+      {
+        "attribute": "seat count",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:transformation",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [
+            "analytics_stale_dashboard:warehouse_table"
+          ],
+          "source_modified_at": "2026-08-12 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table",
+              "kind": "warehouse_table"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://transformation.benchmark.example/analytics_stale_dashboard/transformation",
+          "kind": "transformation"
+        },
+        "source_id": "transformation",
+        "text": "July seat transformation selects active paid subscriptions and sums seats. Run B12 against billing_seats emits 1,284 for July 2026.",
+        "value": 1284
+      },
+      {
+        "attribute": "seat count",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:dashboard_snapshot",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-02 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://dashboard-snapshot.benchmark.example/analytics_stale_dashboard/dashboard_snapshot",
+          "kind": "dashboard_snapshot"
+        },
+        "source_id": "dashboard_snapshot",
+        "text": "Dashboard snapshot generated August 2 from July seat transformation run B02: July paid seats 1,190. Snapshot is stored as an image.",
+        "value": 1190
+      },
+      {
+        "attribute": "seat count",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:exported_report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [
+            "analytics_stale_dashboard:dashboard_snapshot"
+          ],
+          "source_modified_at": "2026-08-03 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://dashboard-snapshot.benchmark.example/analytics_stale_dashboard/dashboard_snapshot",
+              "kind": "dashboard_snapshot"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://exported-report.benchmark.example/analytics_stale_dashboard/exported_report",
+          "kind": "exported_report"
+        },
+        "source_id": "exported_report",
+        "text": "Board report export generated August 3 from the August 2 dashboard image: July paid seats 1,190.",
+        "value": 1190
+      },
+      {
+        "attribute": "seat count",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:current_query",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [
+            "analytics_stale_dashboard:warehouse_table"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://warehouse-table.benchmark.example/analytics_stale_dashboard/warehouse_table",
+              "kind": "warehouse_table"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://current-query.benchmark.example/analytics_stale_dashboard/current_query",
+          "kind": "current_query"
+        },
+        "source_id": "current_query",
+        "text": "Warehouse query August 18 on the rebuilt July partition: SUM(paid_seats)=1284; backfill watermark B12.",
+        "value": 1284
+      },
+      {
+        "attribute": "seat count",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:metric_store",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [
+            "analytics_stale_dashboard:transformation"
+          ],
+          "source_modified_at": "2026-08-12 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://transformation.benchmark.example/analytics_stale_dashboard/transformation",
+              "kind": "transformation"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://metric-store.benchmark.example/analytics_stale_dashboard/metric_store",
+          "kind": "metric_store"
+        },
+        "source_id": "metric_store",
+        "text": "Metric store meridian.paid_seats, period=2026-07, revision=B12, status=final: 1284.",
+        "value": 1284
+      },
+      {
+        "attribute": "partition revision",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:data_catalog",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-12 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://data-catalog.benchmark.example/analytics_stale_dashboard/data_catalog",
+          "kind": "data_catalog"
+        },
+        "source_id": "data_catalog",
+        "text": "Catalog update August 12: July billing_seats partition rebuilt for late subscription events; dashboards exported before B12 are immutable snapshots.",
+        "value": "B12"
+      },
+      {
+        "attribute": "seat count",
+        "entity": "Meridian July 2026 paid seats",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_stale_dashboard:api_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [
+            "analytics_stale_dashboard:metric_store"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://metric-store.benchmark.example/analytics_stale_dashboard/metric_store",
+              "kind": "metric_store"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://api-result.benchmark.example/analytics_stale_dashboard/api_result",
+          "kind": "api_result"
+        },
+        "source_id": "api_result",
+        "text": "Metrics API response for July 2026: paid_seats=1284, revision=B12, finalized=true.",
+        "value": 1284
+      }
+    ],
+    "case_id": "analytics_stale_dashboard",
+    "category": null,
+    "context_budget": 3,
+    "domain": "data_analytics_agents",
+    "question": "What is the finalized July 2026 paid-seat count for Meridian after the August 12 backfill?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-warehouse_table",
+      "claim_ids": [
+        "7b22617474726962757465223a22736561745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a313238347d"
+      ],
+      "raw_text": "Warehouse billing_seats partition 2026-07 after backfill batch B12: 1,284 paid seats. Partition rebuilt August 12.",
+      "source_id": "warehouse_table"
+    },
+    {
+      "chunk_id": "chunk-transformation",
+      "claim_ids": [
+        "7b22617474726962757465223a22736561745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a313238347d"
+      ],
+      "raw_text": "July seat transformation selects active paid subscriptions and sums seats. Run B12 against billing_seats emits 1,284 for July 2026.",
+      "source_id": "transformation"
+    },
+    {
+      "chunk_id": "chunk-dashboard_snapshot",
+      "claim_ids": [
+        "7b22617474726962757465223a22736561745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a313139307d"
+      ],
+      "raw_text": "Dashboard snapshot generated August 2 from July seat transformation run B02: July paid seats 1,190. Snapshot is stored as an image.",
+      "source_id": "dashboard_snapshot"
+    },
+    {
+      "chunk_id": "chunk-exported_report",
+      "claim_ids": [
+        "7b22617474726962757465223a22736561745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a313139307d"
+      ],
+      "raw_text": "Board report export generated August 3 from the August 2 dashboard image: July paid seats 1,190.",
+      "source_id": "exported_report"
+    },
+    {
+      "chunk_id": "chunk-current_query",
+      "claim_ids": [
+        "7b22617474726962757465223a22736561745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a313238347d"
+      ],
+      "raw_text": "Warehouse query August 18 on the rebuilt July partition: SUM(paid_seats)=1284; backfill watermark B12.",
+      "source_id": "current_query"
+    },
+    {
+      "chunk_id": "chunk-metric_store",
+      "claim_ids": [
+        "7b22617474726962757465223a22736561745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a313238347d"
+      ],
+      "raw_text": "Metric store meridian.paid_seats, period=2026-07, revision=B12, status=final: 1284.",
+      "source_id": "metric_store"
+    },
+    {
+      "chunk_id": "chunk-data_catalog",
+      "claim_ids": [
+        "7b22617474726962757465223a22706172746974696f6e5f7265766973696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22423132227d"
+      ],
+      "raw_text": "Catalog update August 12: July billing_seats partition rebuilt for late subscription events; dashboards exported before B12 are immutable snapshots.",
+      "source_id": "data_catalog"
+    },
+    {
+      "chunk_id": "chunk-api_result",
+      "claim_ids": [
+        "7b22617474726962757465223a22736561745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631366536313663373937343639363337333232326332323464363537323639363436393631366532303461373536633739323033323330333233363230373036313639363432303733363536313734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a313238347d"
+      ],
+      "raw_text": "Metrics API response for July 2026: paid_seats=1284, revision=B12, finalized=true.",
+      "source_id": "api_result"
+    }
+  ],
+  "truth": {
+    "answer": "The finalized July paid-seat count is 1284 after backfill B12.",
+    "case_id": "analytics_stale_dashboard",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "1284"
+      ]
+    },
+    "supporting_sources": [
+      "warehouse_table",
+      "transformation",
+      "current_query",
+      "metric_store",
+      "api_result"
+    ]
+  }
+}

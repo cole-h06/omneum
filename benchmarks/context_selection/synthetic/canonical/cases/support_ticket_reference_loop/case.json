@@ -1,0 +1,525 @@
+{
+  "id": "support_ticket_reference_loop",
+  "domain": "support_operations_agents",
+  "question": "What should support do to recover the current Vega ingest backlog when the queue consumer is paused and storage is healthy?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "ticket",
+      "source": {
+        "kind": "ticket",
+        "identifier": "https://ticket.benchmark.example/support_ticket_reference_loop/ticket"
+      },
+      "text": "Ticket VG-88 resolution note: purge the ingest queue to clear backlog; cites KB-12. This ticket is also listed as precedent in incident VG-71.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:ticket",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "kb_article",
+            "identifier": "https://kb-article.benchmark.example/support_ticket_reference_loop/kb_article"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "recommended_backlog_action",
+          "value": "purge ingest queue",
+          "claim_id": "sha256:e8cf8c627389399b54ff30101d85f11ad550b1ae36b1a7cf81ccbc232ef712db",
+          "observation_id": "support_ticket_reference_loop:ticket",
+          "evidence": [
+            {
+              "source_id": "ticket",
+              "start": 0,
+              "end": 142,
+              "text": "Ticket VG-88 resolution note: purge the ingest queue to clear backlog; cites KB-12. This ticket is also listed as precedent in incident VG-71."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "ticket VG-88",
+          "attribute": "cited_artifact",
+          "value": "KB-12",
+          "claim_id": "sha256:883015ac7e73b222d5bce4bceea8eac3fe3e6a0c4bb9a6df8f4eedd85ff41282",
+          "observation_id": "support_ticket_reference_loop:ticket:claim:2",
+          "evidence": [
+            {
+              "source_id": "ticket",
+              "start": 0,
+              "end": 142,
+              "text": "Ticket VG-88 resolution note: purge the ingest queue to clear backlog; cites KB-12. This ticket is also listed as precedent in incident VG-71."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "ticket VG-88",
+          "attribute": "listed_as_precedent_in",
+          "value": "incident VG-71",
+          "claim_id": "sha256:b6b8a86ffbc5420f8b03f3435fa7b0d30fb358fa6a7fd74ec2e48f53e3110efe",
+          "observation_id": "support_ticket_reference_loop:ticket:claim:3",
+          "evidence": [
+            {
+              "source_id": "ticket",
+              "start": 0,
+              "end": 142,
+              "text": "Ticket VG-88 resolution note: purge the ingest queue to clear backlog; cites KB-12. This ticket is also listed as precedent in incident VG-71."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "kb_article",
+      "source": {
+        "kind": "kb_article",
+        "identifier": "https://kb-article.benchmark.example/support_ticket_reference_loop/kb_article"
+      },
+      "text": "KB-12: clear Vega backlog by purging the ingest queue, following incident VG-71.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:kb_article",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "incident_record",
+            "identifier": "https://incident-record.benchmark.example/support_ticket_reference_loop/incident_record"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "recommended_backlog_action",
+          "value": "purge ingest queue",
+          "claim_id": "sha256:e8cf8c627389399b54ff30101d85f11ad550b1ae36b1a7cf81ccbc232ef712db",
+          "observation_id": "support_ticket_reference_loop:kb_article",
+          "evidence": [
+            {
+              "source_id": "kb_article",
+              "start": 0,
+              "end": 80,
+              "text": "KB-12: clear Vega backlog by purging the ingest queue, following incident VG-71."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "KB-12",
+          "attribute": "cited_artifact",
+          "value": "incident VG-71",
+          "claim_id": "sha256:0bde80181061d1dc3da6616377044af32f709fcda212911e39ef14e570ff5995",
+          "observation_id": "support_ticket_reference_loop:kb_article:claim:2",
+          "evidence": [
+            {
+              "source_id": "kb_article",
+              "start": 0,
+              "end": 80,
+              "text": "KB-12: clear Vega backlog by purging the ingest queue, following incident VG-71."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "incident_record",
+      "source": {
+        "kind": "incident_record",
+        "identifier": "https://incident-record.benchmark.example/support_ticket_reference_loop/incident_record"
+      },
+      "text": "Incident VG-71 retrospective, revised after VG-88: recommended action is to purge the ingest queue; evidence link points to ticket VG-88.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:incident_record",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "ticket",
+            "identifier": "https://ticket.benchmark.example/support_ticket_reference_loop/ticket"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "recommended_backlog_action",
+          "value": "purge ingest queue",
+          "claim_id": "sha256:e8cf8c627389399b54ff30101d85f11ad550b1ae36b1a7cf81ccbc232ef712db",
+          "observation_id": "support_ticket_reference_loop:incident_record",
+          "evidence": [
+            {
+              "source_id": "incident_record",
+              "start": 0,
+              "end": 137,
+              "text": "Incident VG-71 retrospective, revised after VG-88: recommended action is to purge the ingest queue; evidence link points to ticket VG-88."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "incident VG-71",
+          "attribute": "revised_after",
+          "value": "ticket VG-88",
+          "claim_id": "sha256:7c8c41dd2368910bde7fc7f3f78a28237f38f07be1c04665d9524926fd713d69",
+          "observation_id": "support_ticket_reference_loop:incident_record:claim:2",
+          "evidence": [
+            {
+              "source_id": "incident_record",
+              "start": 0,
+              "end": 137,
+              "text": "Incident VG-71 retrospective, revised after VG-88: recommended action is to purge the ingest queue; evidence link points to ticket VG-88."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "incident VG-71",
+          "attribute": "evidence_link",
+          "value": "ticket VG-88",
+          "claim_id": "sha256:8c2bc4c4e223fe9133b26b2b6c4430c35013c40a5c3202263a0b80c76a1c9179",
+          "observation_id": "support_ticket_reference_loop:incident_record:claim:3",
+          "evidence": [
+            {
+              "source_id": "incident_record",
+              "start": 0,
+              "end": 137,
+              "text": "Incident VG-71 retrospective, revised after VG-88: recommended action is to purge the ingest queue; evidence link points to ticket VG-88."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "service_state",
+      "source": {
+        "kind": "service_state",
+        "identifier": "https://service-state.benchmark.example/support_ticket_reference_loop/service_state"
+      },
+      "text": "Vega service state: ingest consumer paused=true; queue depth=18000; storage health=ok; no corrupt messages reported. Resume operation is available.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:service_state",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "consumer_paused",
+          "value": true,
+          "claim_id": "sha256:a4a064b45d92e67b017116525172cd4c79a2967d3912bd05550e329ff9e4ac08",
+          "observation_id": "support_ticket_reference_loop:service_state",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 147,
+              "text": "Vega service state: ingest consumer paused=true; queue depth=18000; storage health=ok; no corrupt messages reported. Resume operation is available."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "queue_depth",
+          "value": 18000,
+          "claim_id": "sha256:486b7057c4b45522aef64a3379c2845a101dcda17e57e1c4fc87d1d4f43d5c84",
+          "observation_id": "support_ticket_reference_loop:service_state:claim:2",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 147,
+              "text": "Vega service state: ingest consumer paused=true; queue depth=18000; storage health=ok; no corrupt messages reported. Resume operation is available."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "storage_health",
+          "value": "ok",
+          "claim_id": "sha256:abd3e6cd899250ad0c8b0230d08877b86b2ffa7868f2889671f6480d9ccb9079",
+          "observation_id": "support_ticket_reference_loop:service_state:claim:3",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 147,
+              "text": "Vega service state: ingest consumer paused=true; queue depth=18000; storage health=ok; no corrupt messages reported. Resume operation is available."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "corrupt_messages_reported",
+          "value": false,
+          "claim_id": "sha256:8c69d2c7297946b21ab399a70d432b7d8f825ec5c244017206fb218a97fc06da",
+          "observation_id": "support_ticket_reference_loop:service_state:claim:4",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 147,
+              "text": "Vega service state: ingest consumer paused=true; queue depth=18000; storage health=ok; no corrupt messages reported. Resume operation is available."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "resume_operation_available",
+          "value": true,
+          "claim_id": "sha256:9b87d48385f5c390e7dfc86dba74b7de1fc9254c81bf6a69d3a74b43244aa40a",
+          "observation_id": "support_ticket_reference_loop:service_state:claim:5",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 147,
+              "text": "Vega service state: ingest consumer paused=true; queue depth=18000; storage health=ok; no corrupt messages reported. Resume operation is available."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "deployment_config",
+      "source": {
+        "kind": "deployment_config",
+        "identifier": "https://deployment-config.benchmark.example/support_ticket_reference_loop/deployment_config"
+      },
+      "text": "Deployment config: ingest consumer supports POST /consumers/ingest/resume; pause persists across restarts; queue purge discards pending records.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:deployment_config",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "available_resume_endpoint",
+          "value": {
+            "method": "POST",
+            "endpoint": "/consumers/ingest/resume"
+          },
+          "claim_id": "sha256:d024c299d43db730628f3f4d52bb88a322966576825af0cca6281392c646ae1c",
+          "observation_id": "support_ticket_reference_loop:deployment_config",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 144,
+              "text": "Deployment config: ingest consumer supports POST /consumers/ingest/resume; pause persists across restarts; queue purge discards pending records."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "pause_persists_across_restarts",
+          "value": true,
+          "claim_id": "sha256:cccfe2939823459773d3a1ddb4142cf5c9b04952bddff84a1f134a9f7f77c487",
+          "observation_id": "support_ticket_reference_loop:deployment_config:claim:2",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 144,
+              "text": "Deployment config: ingest consumer supports POST /consumers/ingest/resume; pause persists across restarts; queue purge discards pending records."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "purge_effect",
+          "value": "pending records discarded",
+          "claim_id": "sha256:631370b2d5dce34ea5fc2b10ad22500535ae90fb1a1ce7d5917d87e77e14f548",
+          "observation_id": "support_ticket_reference_loop:deployment_config:claim:3",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 144,
+              "text": "Deployment config: ingest consumer supports POST /consumers/ingest/resume; pause persists across restarts; queue purge discards pending records."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "runbook",
+      "source": {
+        "kind": "runbook",
+        "identifier": "https://runbook.benchmark.example/support_ticket_reference_loop/runbook"
+      },
+      "text": "Vega runbook: with consumer paused and storage healthy, resume the ingest consumer and observe queue drain before any destructive queue action.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:runbook",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "backlog_recovery_instruction",
+          "value": {
+            "condition": {
+              "consumer": "paused",
+              "storage": "healthy"
+            },
+            "action": "resume ingest consumer",
+            "verification": "observe queue drain",
+            "ordering": "observe drain before any destructive queue action"
+          },
+          "claim_id": "sha256:2f9519b7a18db8df6fffde80b2cfb9b8295ce7701c36a4b7690e4b682d403d4a",
+          "observation_id": "support_ticket_reference_loop:runbook",
+          "evidence": [
+            {
+              "source_id": "runbook",
+              "start": 0,
+              "end": 143,
+              "text": "Vega runbook: with consumer paused and storage healthy, resume the ingest consumer and observe queue drain before any destructive queue action."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "monitoring_result",
+      "source": {
+        "kind": "monitoring_result",
+        "identifier": "https://monitoring-result.benchmark.example/support_ticket_reference_loop/monitoring_result"
+      },
+      "text": "Monitoring probe: storage writes pass; consumer pause flag set; drain test on a resumed canary consumer processes queued records successfully.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:monitoring_result",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "storage_writes_pass",
+          "value": true,
+          "claim_id": "sha256:a726b152d84937496d40f92926d2b8b69f730f340ee9b16971b22bdf8df6fcd8",
+          "observation_id": "support_ticket_reference_loop:monitoring_result",
+          "evidence": [
+            {
+              "source_id": "monitoring_result",
+              "start": 0,
+              "end": 142,
+              "text": "Monitoring probe: storage writes pass; consumer pause flag set; drain test on a resumed canary consumer processes queued records successfully."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "consumer_paused",
+          "value": true,
+          "claim_id": "sha256:a4a064b45d92e67b017116525172cd4c79a2967d3912bd05550e329ff9e4ac08",
+          "observation_id": "support_ticket_reference_loop:monitoring_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "monitoring_result",
+              "start": 0,
+              "end": 142,
+              "text": "Monitoring probe: storage writes pass; consumer pause flag set; drain test on a resumed canary consumer processes queued records successfully."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "resumed_canary_result",
+          "value": "queued records processed successfully",
+          "claim_id": "sha256:79b456327797b895ef6dc7c76291389f7d5582df31dad0c201ce9007bc78bfe6",
+          "observation_id": "support_ticket_reference_loop:monitoring_result:claim:3",
+          "evidence": [
+            {
+              "source_id": "monitoring_result",
+              "start": 0,
+              "end": 142,
+              "text": "Monitoring probe: storage writes pass; consumer pause flag set; drain test on a resumed canary consumer processes queued records successfully."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "change_record",
+      "source": {
+        "kind": "change_record",
+        "identifier": "https://change-record.benchmark.example/support_ticket_reference_loop/change_record"
+      },
+      "text": "Change VG-103 paused ingest consumer for maintenance; maintenance is complete and the recorded follow-up is to resume the consumer.",
+      "provenance": {
+        "assertion_id": "support_ticket_reference_loop:change_record",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "maintenance_complete",
+          "value": true,
+          "claim_id": "sha256:00e1e471b10163ba6cbe152b8637ee1c956711ddde16f226f1cf33403f84d266",
+          "observation_id": "support_ticket_reference_loop:change_record",
+          "evidence": [
+            {
+              "source_id": "change_record",
+              "start": 0,
+              "end": 131,
+              "text": "Change VG-103 paused ingest consumer for maintenance; maintenance is complete and the recorded follow-up is to resume the consumer."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "recorded_followup_action",
+          "value": "resume ingest consumer",
+          "claim_id": "sha256:12b4b55a3031477653a9e9914e2ab15785300b395dab7c6ef6ee5696f703aafa",
+          "observation_id": "support_ticket_reference_loop:change_record:claim:2",
+          "evidence": [
+            {
+              "source_id": "change_record",
+              "start": 0,
+              "end": 131,
+              "text": "Change VG-103 paused ingest consumer for maintenance; maintenance is complete and the recorded follow-up is to resume the consumer."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Vega ingest backlog",
+          "attribute": "pause_reason",
+          "value": "maintenance",
+          "claim_id": "sha256:f5bb45dfcb7bab36327ce84a30688942580c9f2fec6e217b1759c2993b261fc5",
+          "observation_id": "support_ticket_reference_loop:change_record:claim:3",
+          "evidence": [
+            {
+              "source_id": "change_record",
+              "start": 0,
+              "end": 131,
+              "text": "Change VG-103 paused ingest consumer for maintenance; maintenance is complete and the recorded follow-up is to resume the consumer."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

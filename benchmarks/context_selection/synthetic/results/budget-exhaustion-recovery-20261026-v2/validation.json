@@ -1,0 +1,13 @@
+{
+  "cells": 720,
+  "executions": 3600,
+  "warmups": 5,
+  "deterministic_selected_contexts_and_tokens": true,
+  "exact_budget_violations": 0,
+  "full_graph_support_matches_frozen_trace": true,
+  "protected_files": 182,
+  "changed": [],
+  "paid_api_calls": 0,
+  "downstream_generations": 0,
+  "tokenizer_requests_after_prewarm": 0
+}

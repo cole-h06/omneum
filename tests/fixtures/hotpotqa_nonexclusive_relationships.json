@@ -1,0 +1,275 @@
+[
+  {
+    "case_id": "5abfcdb55542993fe9a41e7b",
+    "passage_id": "p01",
+    "source_text": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon. Over the course of his career, he attempted more than 75 ramp-to-ramp motorcycle jumps; in 1974, he failed an attempted canyon jump across Snake River Canyon in the Skycycle X-2, a steam-powered rocket.",
+    "records": [
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "professionally_known_as",
+          "value": {
+            "assertion": "professionally Evel Knievel",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "date_of_birth",
+          "value": {
+            "assertion": "October 17, 1938",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon. Over the course of his career, he attempted more than 75 ramp-to-ramp motorcycle jumps; in 1974, he failed an attempted canyon jump across Snake River Canyon in the Skycycle X-2, a steam-powered rocket."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "date_of_death",
+          "value": {
+            "assertion": "November 30, 2007",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon. Over the course of his career, he attempted more than 75 ramp-to-ramp motorcycle jumps; in 1974, he failed an attempted canyon jump across Snake River Canyon in the Skycycle X-2, a steam-powered rocket."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "occupation",
+          "value": {
+            "assertion": "stunt performer",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "occupation",
+          "value": {
+            "assertion": "painter",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "occupation",
+          "value": {
+            "assertion": "entertainer",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "status",
+          "value": {
+            "assertion": "international icon",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Robert Craig \"Bob\" Knievel Jr.",
+          "attribute": "number_of_motorcycle_jumps_attempted",
+          "value": {
+            "assertion": "more than 75 ramp-to-ramp motorcycle jumps",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon. Over the course of his career, he attempted more than 75 ramp-to-ramp motorcycle jumps; in 1974, he failed an attempted canyon jump across Snake River Canyon in the Skycycle X-2, a steam-powered rocket."
+      },
+      {
+        "claim": {
+          "entity_namespace": "event",
+          "entity": "failed canyon jump across Snake River Canyon",
+          "attribute": "year",
+          "value": {
+            "assertion": "1974",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon. Over the course of his career, he attempted more than 75 ramp-to-ramp motorcycle jumps; in 1974, he failed an attempted canyon jump across Snake River Canyon in the Skycycle X-2, a steam-powered rocket."
+      },
+      {
+        "claim": {
+          "entity_namespace": "event",
+          "entity": "failed canyon jump across Snake River Canyon",
+          "attribute": "vehicle_used",
+          "value": {
+            "assertion": "Skycycle X-2, a steam-powered rocket",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Robert Craig \"Bob\" Knievel Jr. ( ; October 17, 1938 \u2013 November 30, 2007) professionally Evel Knievel, was an American stunt performer, painter, entertainer, and international icon. Over the course of his career, he attempted more than 75 ramp-to-ramp motorcycle jumps; in 1974, he failed an attempted canyon jump across Snake River Canyon in the Skycycle X-2, a steam-powered rocket."
+      }
+    ],
+    "identities": {
+      "p01:3": {
+        "entity_namespace": "occupation",
+        "entity": "Robert Craig \"Bob\" Knievel Jr. | stunt performer",
+        "attribute": "occupation"
+      },
+      "p01:4": {
+        "entity_namespace": "occupation",
+        "entity": "Robert Craig \"Bob\" Knievel Jr. | painter",
+        "attribute": "occupation"
+      },
+      "p01:5": {
+        "entity_namespace": "occupation",
+        "entity": "Robert Craig \"Bob\" Knievel Jr. | entertainer",
+        "attribute": "occupation"
+      }
+    }
+  },
+  {
+    "case_id": "5ab56f3e5542992aa134a317",
+    "passage_id": "p08",
+    "source_text": "Lycium ruthenicum (), is a flowering plant commonly known as Russian box thorn in the West. is a species of flowering plant in the nightshade family which can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan. Also commonly known as black fruit wolfberry, goji nero, siyah goji, kaokee, \u10d7\u10d4\u10d7\u10e0\u10d4\u10d9\u10d0\u10da\u10d0, (Tibetan name) \u201cnext to Mary\u201d, is a species of flowering plant in the nightshade family which can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan.",
+    "records": [
+      {
+        "claim": {
+          "entity_namespace": "species",
+          "entity": "Lycium ruthenicum",
+          "attribute": "common_name",
+          "value": {
+            "assertion": "is commonly known as Russian box thorn in the West",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Lycium ruthenicum (), is a flowering plant commonly known as Russian box thorn in the West."
+      },
+      {
+        "claim": {
+          "entity_namespace": "species",
+          "entity": "Lycium ruthenicum",
+          "attribute": "family",
+          "value": {
+            "assertion": "is a species of flowering plant in the nightshade family",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Lycium ruthenicum (), is a flowering plant commonly known as Russian box thorn in the West."
+      },
+      {
+        "claim": {
+          "entity_namespace": "species",
+          "entity": "Lycium ruthenicum",
+          "attribute": "common_name",
+          "value": {
+            "assertion": "is also commonly known as black fruit wolfberry, goji nero, siyah goji, kaokee, \u10d7\u10d4\u10d7\u10e0\u10d4\u10d9\u10d0\u10da\u10d0",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Lycium ruthenicum (), is a flowering plant commonly known as Russian box thorn in the West. is a species of flowering plant in the nightshade family which can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan. Also commonly known as black fruit wolfberry, goji nero, siyah goji, kaokee, \u10d7\u10d4\u10d7\u10e0\u10d4\u10d9\u10d0\u10da\u10d0, (Tibetan name) \u201cnext to Mary\u201d, is a species of flowering plant in the nightshade family which can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan."
+      },
+      {
+        "claim": {
+          "entity_namespace": "species",
+          "entity": "Lycium ruthenicum",
+          "attribute": "common_name",
+          "value": {
+            "assertion": "is known as (Tibetan name) \u201cnext to Mary\u201d",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Lycium ruthenicum (), is a flowering plant commonly known as Russian box thorn in the West. is a species of flowering plant in the nightshade family which can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan. Also commonly known as black fruit wolfberry, goji nero, siyah goji, kaokee, \u10d7\u10d4\u10d7\u10e0\u10d4\u10d9\u10d0\u10da\u10d0, (Tibetan name) \u201cnext to Mary\u201d, is a species of flowering plant in the nightshade family which can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan."
+      },
+      {
+        "claim": {
+          "entity_namespace": "species",
+          "entity": "Lycium ruthenicum",
+          "attribute": "distribution",
+          "value": {
+            "assertion": "can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Lycium ruthenicum (), is a flowering plant commonly known as Russian box thorn in the West. is a species of flowering plant in the nightshade family which can be found in Central Asia, southern part of Russia, throughout Northwest China, and Pakistan."
+      }
+    ],
+    "identities": {
+      "p08:0": {
+        "entity_namespace": "common_name",
+        "entity": "Lycium ruthenicum | Russian box thorn in the West",
+        "attribute": "common_name"
+      },
+      "p08:2": {
+        "entity_namespace": "common_name",
+        "entity": "Lycium ruthenicum | black fruit wolfberry, goji nero, siyah goji, kaokee, \u10d7\u10d4\u10d7\u10e0\u10d4\u10d9\u10d0\u10da\u10d0",
+        "attribute": "common_name"
+      },
+      "p08:3": {
+        "entity_namespace": "common_name",
+        "entity": "Lycium ruthenicum | (Tibetan name) \u201cnext to Mary\u201d",
+        "attribute": "common_name"
+      }
+    }
+  }
+]

@@ -1,0 +1,513 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'2'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:archived_handbook",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2024-01-10 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'2'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:old_team_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_stale_handbook:archived_handbook"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://old-team-page.benchmark.example/enterprise_stale_handbook/old_team_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2024-03-12 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'4'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:current_policy",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2025-12-16 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'4'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:hr_system",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://hr-system.benchmark.example/enterprise_stale_handbook/hr_system",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-01-01 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'4'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:announcement",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://announcement.benchmark.example/enterprise_stale_handbook/announcement",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2025-12-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'4'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:confluence_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_stale_handbook:current_policy"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://confluence-page.benchmark.example/enterprise_stale_handbook/confluence_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-02-05 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'2'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:drive_document",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "enterprise_stale_handbook:archived_handbook"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://drive-document.benchmark.example/enterprise_stale_handbook/drive_document",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2024-06-03 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'4'",
+        "attribute": "days_per_year",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c2243656461722066756c6c2d74696d6520766f6c756e74656572206c656176652032303236225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_stale_handbook:policy_changelog",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://policy-changelog.benchmark.example/enterprise_stale_handbook/policy_changelog",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2025-12-16 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:archived_handbook",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2024-01-10 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook",
+          "kind": "archived_handbook"
+        },
+        "source_id": "archived_handbook",
+        "text": "Archived 2024 employee handbook: full-time staff receive two paid volunteer days per calendar year.",
+        "value": 2
+      },
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:old_team_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_stale_handbook:archived_handbook"
+          ],
+          "source_modified_at": "2024-03-12 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook",
+              "kind": "archived_handbook"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://old-team-page.benchmark.example/enterprise_stale_handbook/old_team_page",
+          "kind": "old_team_page"
+        },
+        "source_id": "old_team_page",
+        "text": "Engineering onboarding page, last reviewed in 2024: the annual volunteer allowance is two days.",
+        "value": 2
+      },
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:current_policy",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2025-12-16 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+          "kind": "current_policy"
+        },
+        "source_id": "current_policy",
+        "text": "Volunteer leave policy effective January 1, 2026: full-time staff receive four paid volunteer days each calendar year.",
+        "value": 4
+      },
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:hr_system",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-01-01 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+              "kind": "current_policy"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://hr-system.benchmark.example/enterprise_stale_handbook/hr_system",
+          "kind": "hr_system"
+        },
+        "source_id": "hr_system",
+        "text": "HR leave-plan configuration VOL-FT-2026: annual entitlement 4 days for full-time employees, effective 2026-01-01.",
+        "value": 4
+      },
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:announcement",
+          "cited_sources": [
+            {
+              "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+              "kind": "current_policy"
+            }
+          ],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2025-12-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://announcement.benchmark.example/enterprise_stale_handbook/announcement",
+          "kind": "announcement"
+        },
+        "source_id": "announcement",
+        "text": "People team December announcement: the full-time volunteer allowance increases to four days from January 2026.",
+        "value": 4
+      },
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:confluence_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_stale_handbook:current_policy"
+          ],
+          "source_modified_at": "2026-02-05 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+              "kind": "current_policy"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://confluence-page.benchmark.example/enterprise_stale_handbook/confluence_page",
+          "kind": "confluence_page"
+        },
+        "source_id": "confluence_page",
+        "text": "Confluence new-starter benefits page: four paid volunteer days annually for full-time staff in the 2026 plan.",
+        "value": 4
+      },
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:drive_document",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "enterprise_stale_handbook:archived_handbook"
+          ],
+          "source_modified_at": "2024-06-03 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook",
+              "kind": "archived_handbook"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://drive-document.benchmark.example/enterprise_stale_handbook/drive_document",
+          "kind": "drive_document"
+        },
+        "source_id": "drive_document",
+        "text": "Drive benefits overview exported for the 2024 recruiting cycle: two paid volunteer days per year.",
+        "value": 2
+      },
+      {
+        "attribute": "days per year",
+        "entity": "Cedar full-time volunteer leave 2026",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_stale_handbook:policy_changelog",
+          "cited_sources": [
+            {
+              "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy",
+              "kind": "current_policy"
+            }
+          ],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2025-12-16 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://policy-changelog.benchmark.example/enterprise_stale_handbook/policy_changelog",
+          "kind": "policy_changelog"
+        },
+        "source_id": "policy_changelog",
+        "text": "Policy history V-4: replaced the two-day allowance with four days effective January 1, 2026; part-time proration unchanged.",
+        "value": 4
+      }
+    ],
+    "case_id": "enterprise_stale_handbook",
+    "category": null,
+    "context_budget": 3,
+    "domain": "enterprise_rag",
+    "question": "How many paid volunteer days may a full-time Cedar employee take in calendar year 2026?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-archived_handbook",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a327d"
+      ],
+      "raw_text": "Archived 2024 employee handbook: full-time staff receive two paid volunteer days per calendar year.",
+      "source_id": "archived_handbook"
+    },
+    {
+      "chunk_id": "chunk-old_team_page",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a327d"
+      ],
+      "raw_text": "Engineering onboarding page, last reviewed in 2024: the annual volunteer allowance is two days.",
+      "source_id": "old_team_page"
+    },
+    {
+      "chunk_id": "chunk-current_policy",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a347d"
+      ],
+      "raw_text": "Volunteer leave policy effective January 1, 2026: full-time staff receive four paid volunteer days each calendar year.",
+      "source_id": "current_policy"
+    },
+    {
+      "chunk_id": "chunk-hr_system",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a347d"
+      ],
+      "raw_text": "HR leave-plan configuration VOL-FT-2026: annual entitlement 4 days for full-time employees, effective 2026-01-01.",
+      "source_id": "hr_system"
+    },
+    {
+      "chunk_id": "chunk-announcement",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a347d"
+      ],
+      "raw_text": "People team December announcement: the full-time volunteer allowance increases to four days from January 2026.",
+      "source_id": "announcement"
+    },
+    {
+      "chunk_id": "chunk-confluence_page",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a347d"
+      ],
+      "raw_text": "Confluence new-starter benefits page: four paid volunteer days annually for full-time staff in the 2026 plan.",
+      "source_id": "confluence_page"
+    },
+    {
+      "chunk_id": "chunk-drive_document",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a327d"
+      ],
+      "raw_text": "Drive benefits overview exported for the 2024 recruiting cycle: two paid volunteer days per year.",
+      "source_id": "drive_document"
+    },
+    {
+      "chunk_id": "chunk-policy_changelog",
+      "claim_ids": [
+        "7b22617474726962757465223a22646179735f7065725f79656172222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234333635363436313732323036363735366336633264373436393664363532303736366636633735366537343635363537323230366336353631373636353230333233303332333632323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a347d"
+      ],
+      "raw_text": "Policy history V-4: replaced the two-day allowance with four days effective January 1, 2026; part-time proration unchanged.",
+      "source_id": "policy_changelog"
+    }
+  ],
+  "truth": {
+    "answer": "A full-time employee has four paid volunteer days in 2026.",
+    "case_id": "enterprise_stale_handbook",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "four"
+      ]
+    },
+    "supporting_sources": [
+      "current_policy",
+      "hr_system",
+      "announcement",
+      "confluence_page",
+      "policy_changelog"
+    ]
+  }
+}

@@ -32,7 +32,7 @@ def test_scenarios_native_runner_and_mcp_reevaluation(scenario, example_daemon, 
     async def record_client(*args):
         async with open_client(*args) as client:
             async def evaluate(observations, **kwargs):
-                result = await client.evaluate_context(observations, **kwargs)
+                result = await client._evaluate_context(observations, **kwargs)
                 evaluations.append((observations, result))
                 return result
             yield SimpleNamespace(evaluate_context=evaluate)
@@ -82,16 +82,18 @@ def test_scenarios_native_runner_and_mcp_reevaluation(scenario, example_daemon, 
     expected += ("evaluate_context", "route_context", "select_context", "generate")
     assert stages == state.stage_history == expected
     assert events[-1].is_final_response()
-    assert events[-1].content.parts[0].text == state.answer
+    assert events[-1].content is None
+    assert events[-1].actions.state_delta["generation_input"] == state.generation_content.model_dump(mode="json")
     assert state.selected_claims == select_context(state.context_evaluation)
     assert {claim.attribute: claim.value for claim in state.selected_claims} == ROUTING_VALUES
     assert all(claim.independent_support >= RoutingPolicy().min_independent_support for claim in state.selected_claims)
-    assert state.answer == "\n".join([
-        "Application decision: EVALUATION COMPLETE", "Selected context:",
-        *(f"{attribute}: {ROUTING_VALUES[attribute]}" for attribute in REQUIRED_ATTRIBUTES),
-    ])
-    for conflicting in ("unredacted customer content allowed", "30 days", "processing_region: US"):
-        assert conflicting not in state.answer
+    assert state.generation["prepared_context"]["context"] in state.generation_content.parts[0].text
+    assert state.generation_content.parts[0].text in state.answer
+    for chunk in state.generation["retrieved_chunks"]:
+        if chunk["chunk_id"] in state.generation["prepared_context"]["packed_chunk_ids"]:
+            assert chunk["raw_text"] in state.generation_content.parts[0].text
+        else:
+            assert chunk["raw_text"] not in state.generation_content.parts[0].text
     if scenario == "resolve_conflicts":
         assert {item.claim.value for item in state.context_evaluation.claim_support} >= {
             "US", "30 days", "unredacted customer content allowed",
@@ -181,37 +183,25 @@ def test_enterprise_mapping_and_mcp_regression(example_daemon, monkeypatch):
     assert isinstance(basic.evaluation_tool, FunctionTool)
     assert "evaluate_context tool" in basic.agent.instruction
     captured = []
-    render = basic.render_result
+    prepare = basic.prepare_generation
 
-    def capture(result):
+    async def capture(*args, **kwargs):
+        result = await prepare(*args, **kwargs)
         captured.append(result)
-        return render(result)
+        return result
 
-    monkeypatch.setattr(basic, "render_result", capture)
-
-    async def evaluate():
-        report = await basic.evaluation_tool.run_async(args={}, tool_context=None)
-        with basic.example_deployment() as (config, server):
-            async with basic.open_stdio_client(config, server) as client:
-                direct = await client.evaluate_context(
-                    basic.collect_observations(), estimator=basic.estimator_config(),
-                )
-        return report, direct
-
-    report, direct = asyncio.run(evaluate())
+    monkeypatch.setattr(basic, "prepare_generation", capture)
+    model_input = asyncio.run(basic.evaluation_tool.run_async(args={}, tool_context=None))
     assert len(basic.collect_observations()) == 17
     assert len(captured) == 1
     result = captured[0]
-    assert len(result.source_reliability) == 6
-    assert len(result.claim_support) == 6
-    assert len(result.pairwise_dependencies) == 15
-    assert result.evaluation_latency_ms is not None
-    assert report == render(result)
-    assert "Omneum Evaluation" in report
-    assert "Application decision: EVALUATION COMPLETE" in report
-    assert result.claim_support == direct.claim_support
-    assert result.source_reliability == direct.source_reliability
-    assert result.pairwise_dependencies == direct.pairwise_dependencies
+    assert model_input == result["messages"][1]["content"]
+    assert result["prepared_context"]["context"] in model_input
+    assert len(result["prepared_context"]["evaluation"]["source_reliability"]) == 6
+    assert len(result["prepared_context"]["evaluation"]["pairwise_dependencies"]) == 15
+    assert result["query_diagnostics"]["relevance_source"] == "bm25"
+    assert "Source references:" in model_input
+    assert "Omneum Evaluation" not in model_input
 
 
 @pytest.mark.parametrize("scenario", (*SCENARIOS, "all"))
@@ -241,13 +231,16 @@ def test_enterprise_model_configuration(monkeypatch):
     assert agent.model == "gemini-2.5-pro"
     declaration = evaluation_tool._get_declaration()
     assert declaration.name == "evaluate_context"
-    assert not declaration.parameters or not declaration.parameters.required
+    assert declaration.parameters.required == []
+    assert declaration.parameters.properties["question"].type.value == "STRING"
+    assert declaration.parameters.properties["question"].default == routing.QUESTION
 
 
 def test_enterprise_runner_tool_round_trip_with_stub_model(example_daemon, monkeypatch, capsys):
     from google.adk.models.llm_response import LlmResponse
     from google.genai import types
-    from examples.google_adk import run
+    from examples.google_adk.agent import build_agent
+    from google.adk.sessions import InMemorySessionService
 
     requests = []
 
@@ -263,13 +256,27 @@ def test_enterprise_runner_tool_round_trip_with_stub_model(example_daemon, monke
                          for part in content.parts or [] if part.function_response]
             assert len(responses) == 1
             report = responses[0].response["result"]
-            assert "Omneum Evaluation" in report
+            assert "Retrieved context:" in report
+            assert '"document"' in report or '"enterprise_controls"' in report
+            assert "Omneum Evaluation" not in report
             assert "redacted customer content only" in report
             yield LlmResponse(content=types.Content(role="model", parts=[
-                types.Part(text="Stub model received the MCP evaluation report."),
+                types.Part(text="Test model received original evidence."),
             ]))
 
     monkeypatch.setattr(Gemini, "generate_content_async", model_response)
-    asyncio.run(run.main())
+    async def run_legacy_tool_agent():
+        sessions = InMemorySessionService()
+        session = await sessions.create_session(app_name="test", user_id="test")
+        runner = Runner(agent=build_agent(), app_name=session.app_name, session_service=sessions)
+        try:
+            async for event in runner.run_async(user_id=session.user_id, session_id=session.id,
+                new_message=types.Content(role="user", parts=[types.Part(text="What are the EU copilot controls?")])):
+                if event.is_final_response() and event.content is not None:
+                    print("".join(part.text for part in event.content.parts if part.text))
+        finally:
+            await runner.close()
+
+    asyncio.run(run_legacy_tool_agent())
     assert len(requests) == 2
-    assert capsys.readouterr().out.strip() == "Stub model received the MCP evaluation report."
+    assert capsys.readouterr().out.strip() == "Test model received original evidence."

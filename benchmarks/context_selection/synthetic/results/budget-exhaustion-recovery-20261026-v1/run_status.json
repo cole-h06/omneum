@@ -1,0 +1,4 @@
+{
+  "status": "timing run interrupted intentionally",
+  "reason": "Early local timing samples overlapped regression test execution; final isolated timing run is v2. Offline alternatives remain valid."
+}

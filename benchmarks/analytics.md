@@ -1,124 +1,140 @@
 # Data Analytics Agents
 
-Context-selection benchmark for data analytics agents operating across warehouse tables, SQL queries, metric definitions, transformation outputs, dashboards, and reporting APIs.
+Data Analytics evaluation for the Omneum Cross-Domain Context Curation Benchmark.
 
-Evaluates four failure modes: circular derived-data lineage, incomplete transformation lineage, conflicting metric definitions, and stale dashboard snapshots.
+Four synthetic cases test context selection for circular reporting dependencies, incomplete transformation lineage, conflicting metric definitions, and stale dashboard snapshots.
 
-**4 held-out cases · 33 candidate sources · Claude Sonnet 5.5 generator**
+**4 cases · 33 candidate passages · 6 Qwen-token budgets · 13 budgeted configurations**
 
-[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Saved Results](context_evaluation/heldout/results/)
+[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_selection/synthetic/DATASET.md) | [Saved Results](context_selection/synthetic/results/)
+
+## Quick Start
+
+Run from the Omneum repository root.
+
+```bash
+# Run offline benchmark tests
+uv sync --locked --group benchmarks
+uv run --locked --group benchmarks python \
+  tools/run_context_evaluation_tests.py -q -p no:cacheprovider
+
+# Inspect the final benchmark results
+cat benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
+```
+
+The offline tests exercise benchmark contracts, metrics, and local integration without issuing new provider inference requests. The saved benchmark artifacts contain the recorded selections and measurements.
 
 ## Cases
 
-| Case | Candidates | Budget | Expected Answer | Failure Mode |
-|---|---:|---:|---|---|
-| [`analytics_derived_metric_cycle`](#analytics_derived_metric_cycle) | 8 | 3 | 612 accounts | Circular derived-data lineage |
-| [`analytics_incomplete_lineage`](#analytics_incomplete_lineage) | 9 | 3 | 487 parcels | Incomplete transformation lineage |
-| [`analytics_metric_definition_conflict`](#analytics_metric_definition_conflict) | 8 | 3 | 92% | Conflicting metric definitions |
-| [`analytics_stale_dashboard`](#analytics_stale_dashboard) | 8 | 3 | 1,284 seats | Stale dashboard snapshot |
+| Case | Candidates | Token Budgets | Expected Answer | Failure Mode |
+|---|---:|---|---|---|
+| [`analytics_derived_metric_cycle`](#analytics_derived_metric_cycle) | 8 | 64–256 | 612 accounts | Circular derived-data lineage |
+| [`analytics_incomplete_lineage`](#analytics_incomplete_lineage) | 9 | 64–256 | 487 parcels | Incomplete transformation lineage |
+| [`analytics_metric_definition_conflict`](#analytics_metric_definition_conflict) | 8 | 64–256 | 92% | Conflicting metric definitions |
+| [`analytics_stale_dashboard`](#analytics_stale_dashboard) | 8 | 64–256 | 1,284 seats | Stale dashboard snapshot |
 
-Each case uses a fixed candidate pool, source-level relevance labels, and a selection budget of three sources.
+Each case uses a fixed candidate pool, source-level relevance labels, canonical claims, and source-provenance annotations.
 
-## Evaluation Setup
+The six selection budgets are **64, 96, 128, 160, 192, and 256 Qwen tokens**, measured against reconstructed original passage text.
 
-BGE Reranker v2-m3 and Cohere Rerank v4.0 Pro provide the initial ranking. Each configuration then uses either a frontier LLM judge or Omneum for context selection.
+## Recorded Results
 
-Claude Sonnet 5.5 is held fixed as the downstream answer generator.
+The final benchmark evaluates production `prepare_context()` against lexical retrieval, semantic rerankers, and frontier LLM judges.
 
-| Configuration | Trials per Case |
+Omneum's provenance-aware graph inference computes source reliability and claim support, accounting for shared evidence origins and dependencies between sources. `prepare_context()` combines claim support with question relevance and incremental claim coverage to select and reconstruct original passages within the token budget.
+
+The benchmark evaluates context selection only. It does not execute downstream answer generation.
+
+### Configurations
+
+| Configuration | Selection Method |
+|---|---|
+| Original-Order RAG | `raw_budget` |
+| BM25 | `bm25` |
+| MiniLM | `embedding` |
+| BGE Reranker v2-m3 | `bge` |
+| Cohere Rerank v4.0 Pro | `cohere` |
+| Claude Sonnet 5.5 | `claude` |
+| GPT-6 Astra | `gpt` |
+| Gemini 3.8 Flash | `gemini` |
+| Omneum Standalone | `omneum` |
+| BM25 + Omneum | `bm25_omneum` |
+| MiniLM + Omneum | `embedding_omneum` |
+| BGE + Omneum | `bge_omneum` |
+| Cohere + Omneum | `cohere_omneum` |
+
+An additional unbudgeted `raw_full` configuration provides a full-context reference.
+
+All budgeted configurations use the same six Qwen-token budgets. Hybrid configurations pass external relevance rankings into Omneum's production context-selection pipeline.
+
+Selection precision and recall are computed against annotated supporting-source IDs. Additional metrics measure evidence retention, canonical claim coverage, root-origin coverage, reconstructed-context token count, and selection latency.
+
+### Semantic Reranker Comparisons
+
+The final BGE and Cohere comparisons use identical token budgets for each standalone reranker and its Omneum hybrid.
+
+| Configuration | All-Domain Precision |
 |---|---:|
-| BGE + Claude Sonnet 5.5 Judge | 1 |
-| BGE + GPT-6 Astra Judge | 10 |
-| BGE + Gemini 3.8 Flash Judge | 10 |
-| BGE + Omneum | 10 |
-| Cohere + Claude Sonnet 5.5 Judge | 1 |
-| Cohere + Omneum | 1 |
+| BGE Reranker v2-m3 | 63.29% |
+| BGE + Omneum | **71.74%** |
+| Cohere Rerank v4.0 Pro | 71.11% |
+| Cohere + Omneum | **74.88%** |
 
-BGE + Omneum results use the paired GPT-6 Astra run. The BGE + Claude and Cohere comparisons contain one trial per case.
+Across all 24 cases, BGE + Omneum improved selection precision by **8.44 percentage points** over standalone BGE, with a paired whole-case bootstrap 95% confidence interval of **+2.19 to +15.37 percentage points**.
 
-Selection precision and recall are computed against frozen source-level relevance labels. Latency is measured in seconds, with repeated-run latency reported as p50.
+Cohere + Omneum improved precision by **3.77 percentage points**, with a 95% confidence interval of **−2.49 to +10.02 percentage points**. This interval includes zero.
 
-## Results
+These are all-domain results, not Data Analytics-specific measurements.
 
-**BGE + Omneum achieved 100% selection precision across all four Data Analytics cases, matched the evaluated frontier LLM judges' selection precision and recall, and produced correctly scored downstream answers in all 40 recorded trials.**
+The final Data Analytics case-budget and domain-budget measurements are preserved in the benchmark artifacts. The earlier fixed-source-budget results are not interchangeable with the final token-budgeted evaluation.
 
-Its median selection latency ranged from 0.649s to 0.708s, compared with 2.433–3.612s for GPT-6 Astra and 2.076–3.643s for Gemini.
+### Final Evaluation Artifacts
 
-### BGE Reranker v2-m3
+```text
+benchmarks/context_selection/synthetic/
+├── results/
+│   ├── tier1-production-20261025-v1/
+│   ├── tier1-competitors-20261025-v1/
+│   └── budget-exhaustion-recovery-20261026-v2/
+└── analysis/
+    └── tier1-competitive-analysis-20261026-v1/
+```
 
-| Case | Selector | Precision | Recall | Correct Answers | Selection p50 | E2E p50 |
-|---|---|---:|---:|---:|---:|---:|
-| Derived metric cycle | Claude Judge | 100% | 100% | 1/1 | 2.008s | 3.624s |
-| | GPT-6 Judge | 100% | 100% | 10/10 | 3.165s | 4.979s |
-| | Gemini Judge | 100% | 100% | 10/10 | 2.859s | 5.005s |
-| | **Omneum** | **100%** | **100%** | **10/10** | **0.694s** | **2.567s** |
-| Incomplete lineage | Claude Judge | 100% | 75% | 1/1 | 1.987s | 4.240s |
-| | GPT-6 Judge | 100% | 75% | 10/10 | 2.657s | 4.745s |
-| | Gemini Judge | 100% | 75% | 10/10 | 2.076s | 4.240s |
-| | **Omneum** | **100%** | **75%** | **10/10** | **0.708s** | **2.855s** |
-| Metric definition conflict | Claude Judge | 100% | 100% | 1/1 | 1.651s | 3.776s |
-| | GPT-6 Judge | 100% | 100% | 10/10 | 2.433s | 4.772s |
-| | Gemini Judge | 100% | 100% | 10/10 | 2.582s | 5.117s |
-| | **Omneum** | **100%** | **100%** | **10/10** | **0.649s** | **2.919s** |
-| Stale dashboard | Claude Judge | 100% | 60% | 1/1 | 1.991s | 4.753s |
-| | GPT-6 Judge | 100% | 60% | 10/10 | 3.612s | 5.964s |
-| | Gemini Judge | 100% | 60% | 10/10 | 3.643s | 5.955s |
-| | **Omneum** | **100%** | **60%** | **10/10** | **0.662s** | **3.106s** |
+The final hybrid results incorporate corrected deferred-candidate budget-exhaustion recovery.
 
-BGE + Omneum matched the LLM judges' source-level precision and recall in every case. All configurations generated correct answers, with Omneum recording the lowest median selection and end-to-end latency in each repeated GPT-6 Astra and Gemini comparison.
+The earlier fixed-source-budget precision, recall, downstream answer scores, and latency measurements are not directly comparable to this evaluation.
 
-### Cohere Rerank v4.0 Pro
+## `analytics_derived_metric_cycle`
 
-| Case | Selector | Precision | Recall | Correct Answers | Selection | E2E |
-|---|---|---:|---:|---:|---:|---:|
-| Derived metric cycle | Claude Judge | 66.7% | 66.7% | 1/1 | 2.477s | 4.267s |
-| | **Omneum** | **66.7%** | **66.7%** | **1/1** | **2.151s** | 4.357s |
-| Incomplete lineage | Claude Judge | 100% | 75% | 1/1 | 1.832s | 3.642s |
-| | **Omneum** | **100%** | **75%** | **1/1** | **0.721s** | **2.637s** |
-| Metric definition conflict | Claude Judge | 100% | 100% | 1/1 | 10.041s | 11.906s |
-| | Omneum | 66.7% | 66.7% | 1/1 | **8.822s** | **11.305s** |
-| Stale dashboard | Claude Judge | 100% | 60% | 1/1 | 2.145s | 4.369s |
-| | **Omneum** | **100%** | **60%** | **1/1** | **0.579s** | **2.722s** |
+**Task:** Determine Solis daily active accounts for August 17 using distinct production account IDs with at least one session.
 
-Cohere + Omneum matched the Claude judge's selection precision and recall in three of four cases, with lower selection latency in all four.
+```text
+What is Solis daily active accounts for August 17,
+using distinct production account IDs with at least one session?
+```
 
-In `analytics_metric_definition_conflict`, Cohere + Omneum selected `data_catalog` instead of `warehouse_query`, reducing source-level precision and recall to 66.7%. Both configurations nevertheless generated the correct answer.
-
-All eight Cohere downstream answers were correctly scored.
-
-## Case Details
-
-### 1. Derived Metric Cycle
-
-`analytics_derived_metric_cycle`
-
-**Question:** What is Solis daily active accounts for August 17, using distinct production account IDs with at least one session?
-
-**Expected answer:** `612`
-
-#### Fixture
+### Fixture
 
 ```text
 8 candidates
-3 selected
 3 relevant
 ```
 
 The derived table reports 840 daily active accounts. Its dashboard exports the same value to CSV, which is reimported during nightly repair.
 
-The resulting dependency chain contains a cycle:
+The reporting artifacts form a dependency cycle:
 
 ```text
-derived_table
-     |
-     v
-dashboard
-     |
-     v
-csv_export
-     |
-     | nightly repair import
-     v
+derived_table (840)
+      |
+      v
+dashboard (840)
+      |
+      v
+csv_export (840)
+      |
+      | nightly repair import
+      v
 derived_table
 ```
 
@@ -142,20 +158,24 @@ Expected result:
 612
 ```
 
-#### Recorded Selections
+### Recorded Selections
 
-| Configuration | Selected Sources | Precision | Recall |
-|---|---|---:|---:|
-| BGE + Claude Judge | `source_table`, `query_result`, `source_table_2` | 100% | 100% |
-| BGE + GPT-6 Judge | `source_table`, `query_result`, `source_table_2` | 100% | 100% |
-| BGE + Gemini Judge | `source_table_2`, `source_table`, `query_result` | 100% | 100% |
-| **BGE + Omneum** | `source_table_2`, `source_table`, `query_result` | **100%** | **100%** |
-| Cohere + Claude Judge | `metric_store`, `source_table`, `query_result` | 66.7% | 66.7% |
-| Cohere + Omneum | `metric_store`, `query_result`, `source_table` | 66.7% | 66.7% |
+The three annotated supporting sources are:
 
-#### Comparative Analysis
+| Source | Evidence | Relevance |
+|---|---|---|
+| `source_table` | Production source data | Supporting |
+| `source_table_2` | Additional production source data | Supporting |
+| `query_result` | Distinct-account warehouse query | Supporting |
+| `derived_table` | Incorrect session-based aggregate | Not supporting |
+| `dashboard` | Derived metric display | Not supporting |
+| `csv_export` | Export of derived metric | Not supporting |
 
-BGE + Omneum selected all three labeled positive sources:
+The final benchmark records identify which passages each configuration retained at each token budget.
+
+### Comparative Analysis
+
+The supporting source set is:
 
 ```text
 source_table_2
@@ -163,27 +183,29 @@ source_table
 query_result
 ```
 
-These selections exclude the circularly dependent derived table, dashboard, and CSV export.
+These sources establish the distinct-account count without relying on the circularly dependent derived table, dashboard, and CSV export.
 
-Every BGE configuration achieved 100% precision and recall, and all downstream answers returned 612.
+The circular reporting chain contains three artifacts repeating the same incorrect value. Their agreement does not represent three independent measurements.
 
-Both Cohere configurations included `metric_store`, which is outside the three labeled positive count sources. Their precision and recall were therefore 66.7%.
+Omneum's provenance-aware graph inference accounts for the shared evidence origins and circular dependencies when computing source reliability and claim support. The resulting claim support contributes to passage utility during context selection.
 
-**Result:** BGE + Omneum matched the frontier LLM judges' perfect selection precision, recall, and downstream answer correctness. Its 0.694-second selection p50 was approximately 4.6× lower than GPT-6 Astra and 4.3× lower than Gemini.
+**Result:** The case evaluates whether production source data and a fresh distinct-account query survive context selection despite multiple downstream artifacts repeating the incorrect 840-session count.
 
-### 2. Incomplete Lineage
+The expected value of 612 is a fixture reference answer. The final benchmark does not score generated answers against it.
 
-`analytics_incomplete_lineage`
+## `analytics_incomplete_lineage`
 
-**Question:** How many delivered parcels belong to the Noria August 16 dispatch cohort, excluding returned parcels?
+**Task:** Determine delivered parcels in the Noria August 16 dispatch cohort, excluding returned parcels.
 
-**Expected answer:** `487`
+```text
+How many delivered parcels belong to the Noria August 16
+dispatch cohort, excluding returned parcels?
+```
 
-#### Fixture
+### Fixture
 
 ```text
 9 candidates
-3 selected
 4 relevant
 ```
 
@@ -216,59 +238,55 @@ WHERE dispatch_date = '2026-08-16'
 
 This is an illustrative query expressing the fixture's expected filtering behavior, not a verified query copied from its source files.
 
-#### Recorded Selections
+### Recorded Selections
 
-| Configuration | Selected Sources | Precision | Recall |
-|---|---|---:|---:|
-| BGE + Claude Judge | `source_table`, `source_table_2`, `query_result` | 100% | 75% |
-| BGE + GPT-6 Judge | `source_table`, `source_table_2`, `query_result` | 100% | 75% |
-| BGE + Gemini Judge | `source_table`, `source_table_2`, `query_result` (8/10); `source_table`, `source_table_2`, `metric_store` (2/10) | 100% | 75% |
-| **BGE + Omneum** | `source_table`, `source_table_2`, `metric_store` | **100%** | **75%** |
-| Cohere + Claude Judge | `source_table`, `query_result`, `source_table_2` | 100% | 75% |
-| Cohere + Omneum | `source_table`, `query_result`, `source_table_2` | 100% | 75% |
+The four annotated supporting sources are:
 
-#### Comparative Analysis
+| Source | Evidence | Relevance |
+|---|---|---|
+| `source_table` | Current dispatch records | Supporting |
+| `source_table_2` | Carrier evidence | Supporting |
+| `metric_store` | Metric definition | Supporting |
+| `query_result` | Reconciliation query | Supporting |
 
-BGE + Omneum selected:
+The migrated transformation and its downstream reporting artifacts reproduce the incorrect 520-parcel figure.
+
+The final benchmark results record which sources each selector retained at the six token budgets.
+
+### Comparative Analysis
+
+The relevant source set is:
 
 ```text
 source_table
 source_table_2
 metric_store
+query_result
 ```
 
-The selection combines dispatch records, carrier evidence, and the metric definition rather than relying on the migrated transformation or its downstream exports.
+These sources establish the current dispatch count and the filtering requirements for returned parcels.
 
-The LLM judges selected `query_result` instead of `metric_store`.
+The missing transformation lineage limits direct attribution of the 520-parcel figure to its upstream inputs.
 
-Both source sets contain three of the four labeled positive sources.
+Omneum's provenance-aware graph inference uses the available source relationships when computing source reliability and claim support. Missing provenance does not establish that sources are independent.
 
-All configurations achieved:
+**Result:** The case tests selection of current dispatch and reconciliation evidence when a migrated transformation and its downstream exports report an incorrect aggregate with incomplete provenance.
+
+The reference count is 487 delivered parcels. The final benchmark measures evidence selection rather than generated-answer correctness.
+
+## `analytics_metric_definition_conflict`
+
+**Task:** Determine Atlas July gross revenue retention under the finance definition excluding expansion.
 
 ```text
-Precision: 100%
-Recall:     75%
+What is Atlas July gross revenue retention under
+the finance definition excluding expansion?
 ```
 
-Every downstream answer returned 487.
-
-**Result:** Omneum matched the frontier LLM judges' selection precision, recall, and downstream answer correctness. Its 0.708-second selection p50 was approximately 3.8× lower than GPT-6 Astra and 3.1× lower than Gemini.
-
-The case demonstrates successful selection of current source evidence when transformation lineage is incomplete.
-
-### 3. Metric Definition Conflict
-
-`analytics_metric_definition_conflict`
-
-**Question:** What is Atlas July gross revenue retention under the finance definition excluding expansion?
-
-**Expected answer:** `92%`
-
-#### Fixture
+### Fixture
 
 ```text
 8 candidates
-3 selected
 3 relevant
 ```
 
@@ -305,8 +323,6 @@ This produces 112%.
 
 The dashboard and exported report inherit the incorrect calculation from the transformation.
 
-The two definitions can be represented as:
-
 ```text
 Finance definition
     |
@@ -327,20 +343,22 @@ Semantic layer / dbt transformation
 
 The expected answer is defined by the finance metric specification, not by the number of downstream artifacts repeating the alternative calculation.
 
-#### Recorded Selections
+### Recorded Selections
 
-| Configuration | Selected Sources | Precision | Recall |
-|---|---|---:|---:|
-| BGE + Claude Judge | `finance_report`, `metric_docs`, `warehouse_query` | 100% | 100% |
-| BGE + GPT-6 Judge | `finance_report`, `metric_docs`, `warehouse_query` | 100% | 100% |
-| BGE + Gemini Judge | `finance_report`, `metric_docs`, `warehouse_query` | 100% | 100% |
-| **BGE + Omneum** | `finance_report`, `metric_docs`, `warehouse_query` | **100%** | **100%** |
-| Cohere + Claude Judge | `metric_docs`, `finance_report`, `warehouse_query` | 100% | 100% |
-| Cohere + Omneum | `metric_docs`, `finance_report`, `data_catalog` | 66.7% | 66.7% |
+The three annotated supporting sources are:
 
-#### Comparative Analysis
+| Source | Evidence | Relevance |
+|---|---|---|
+| `finance_report` | Finance metric definition and result | Supporting |
+| `metric_docs` | Gross revenue retention specification | Supporting |
+| `warehouse_query` | Warehouse calculation excluding expansion | Supporting |
+| `data_catalog` | Alternative catalog evidence | Not supporting |
 
-All BGE configurations selected the same three labeled positive sources:
+The final benchmark selections are evaluated against the three supporting source IDs.
+
+### Comparative Analysis
+
+The relevant source set is:
 
 ```text
 finance_report
@@ -348,37 +366,31 @@ metric_docs
 warehouse_query
 ```
 
-The source set includes the finance definition, its documentation, and the warehouse query supporting the expected result.
+These sources establish the finance definition, its documentation, and the warehouse calculation supporting the expected result.
 
-BGE + Omneum matched all three frontier LLM judges at 100% precision and recall.
+The incorrect semantic-layer calculation adds expansion revenue to gross revenue retention, producing 112% instead of 92%.
 
-The Cohere + Omneum configuration selected:
+The dashboard and exported report repeat that calculation through downstream transformation lineage.
+
+Omneum's provenance-aware graph inference accounts for these shared evidence origins when computing source reliability and claim support. `prepare_context()` combines that support with question relevance and incremental claim coverage when selecting passages.
+
+The earlier fixed-source-budget evaluation exposed a Cohere + Omneum selection error involving `data_catalog` instead of `warehouse_query`. That historical observation identifies the failure mode; it is not a final token-budgeted result.
+
+**Result:** The case measures whether context selection preserves the finance metric definition and its supporting calculation despite conflicting downstream implementations.
+
+## `analytics_stale_dashboard`
+
+**Task:** Determine Meridian's finalized July 2026 paid-seat count after the August 12 backfill.
 
 ```text
-metric_docs
-finance_report
-data_catalog
+What is Meridian's finalized July 2026 paid-seat count
+after the August 12 backfill?
 ```
 
-The `data_catalog` source is not one of the three labeled positive sources, reducing precision and recall to 66.7%. Cohere + Claude selected `warehouse_query` instead and achieved 100%.
-
-Both Cohere configurations nevertheless generated the correct downstream answer.
-
-**Result:** BGE + Omneum achieved perfect selection precision and recall and generated 92% in all ten recorded trials. Its 0.649-second selection p50 was approximately 3.7× lower than GPT-6 Astra and 3.9× lower than Gemini.
-
-### 4. Stale Dashboard
-
-`analytics_stale_dashboard`
-
-**Question:** What is Meridian's finalized July 2026 paid-seat count after the August 12 backfill?
-
-**Expected answer:** `1,284`
-
-#### Fixture
+### Fixture
 
 ```text
 8 candidates
-3 selected
 5 relevant
 ```
 
@@ -430,153 +442,181 @@ The older dashboard and report are stale snapshots of the metric before the fina
 
 The current warehouse query, metric store, and API reflect the revised count.
 
-#### Recorded Selections
+### Recorded Selections
 
-| Configuration | Selected Sources | Precision | Recall |
-|---|---|---:|---:|
-| BGE + Claude Judge | `metric_store`, `api_result`, `current_query` | 100% | 60% |
-| BGE + GPT-6 Judge | `warehouse_table`, `api_result`, `metric_store` | 100% | 60% |
-| BGE + Gemini Judge | `warehouse_table`, `api_result`, `metric_store` | 100% | 60% |
-| **BGE + Omneum** | `warehouse_table`, `api_result`, `metric_store` | **100%** | **60%** |
-| Cohere + Claude Judge | `metric_store`, `api_result`, `current_query` | 100% | 60% |
-| Cohere + Omneum | `metric_store`, `warehouse_table`, `api_result` | 100% | 60% |
+The final supporting evidence includes the post-backfill warehouse and reporting sources.
 
-#### Comparative Analysis
+| Source | Evidence | Relevance |
+|---|---|---|
+| `warehouse_table` | Rebuilt July warehouse partition | Supporting |
+| `current_query` | Current warehouse query | Supporting |
+| `metric_store` | Finalized paid-seat metric | Supporting |
+| `api_result` | Current metrics API | Supporting |
+| August 2 dashboard snapshot | Earlier 1,190-seat count | Not supporting |
+| August 3 report export | Earlier 1,190-seat count | Not supporting |
 
-BGE + Omneum selected:
+The fixture contains five annotated supporting sources in total. The table identifies the named current sources established by the case description; the saved fixture defines the complete source IDs.
+
+### Comparative Analysis
+
+The supporting source set includes:
 
 ```text
 warehouse_table
 api_result
 metric_store
+current_query
 ```
 
 These sources reflect the finalized post-backfill metric rather than the stale dashboard snapshot.
 
-GPT-6 Astra and Gemini selected the same three sources.
+The warehouse partition was rebuilt by backfill `B12`, and the current query, metric store, and API reflect the revised count.
 
-Claude selected `current_query` instead of `warehouse_table`. Both selections contain three of the five labeled positive sources.
+The dashboard and report export were produced before the backfill. Their agreement on 1,190 seats does not establish the finalized count.
 
-All configurations achieved:
+The case tests whether context selection retains current post-backfill evidence rather than earlier reporting snapshots. The relevant distinction is the reporting state before and after backfill `B12`, not the frequency of the repeated 1,190-seat value.
 
-```text
-Precision: 100%
-Recall:     60%
-```
+**Result:** The case evaluates whether selected context preserves the finalized warehouse count of 1,284 paid seats instead of older, internally consistent reporting artifacts.
 
-Every downstream answer returned 1,284.
+The final benchmark does not execute a downstream generator to score that answer.
 
-**Result:** Omneum matched the frontier LLM judges' selection quality and downstream answer correctness. Its 0.662-second selection p50 was approximately 5.5× lower than GPT-6 Astra and 5.9× lower than Gemini.
+## Inspect Recorded Runs
 
-## Artifacts
+The four analytics cases are part of the frozen synthetic benchmark dataset.
 
 ### Case Fixtures
 
-The four frozen analytics cases are located under:
-
 ```text
-benchmarks/context_evaluation/heldout/cases/
-├── analytics_derived_metric_cycle/
-├── analytics_incomplete_lineage/
-├── analytics_metric_definition_conflict/
-└── analytics_stale_dashboard/
+benchmarks/context_selection/synthetic/
+├── DATASET.md
+├── tier1_benchmark.py
+├── tier1_competitors.py
+└── tier1_metrics.py
 ```
 
-List the fixture contents from the repository root:
+Inspect the dataset and benchmark implementation:
 
 ```bash
-find benchmarks/context_evaluation/heldout/cases \
-  -maxdepth 2 -path '*analytics_*' -print
+cat benchmarks/context_selection/synthetic/DATASET.md
+
+rg -n \
+  'analytics_derived_metric_cycle|analytics_incomplete_lineage|analytics_metric_definition_conflict|analytics_stale_dashboard' \
+  benchmarks/context_selection/synthetic/
 ```
 
-Each case defines a fixed candidate pool and expected evaluation outcome.
+Each case defines a fixed candidate pool, supporting-source annotations, and evaluation metadata.
 
-### Recorded Results
+### Saved Results
 
 ```text
-benchmarks/context_evaluation/heldout/results/
-├── bge-claude-vs-bge-omneum-20261008/
-├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-low-vs-bge-omneum-20261008/
-└── cohere-claude-vs-cohere-omneum-20261008/
+benchmarks/context_selection/synthetic/results/
+├── tier1-production-20261025-v1/
+├── tier1-competitors-20261025-v1/
+└── budget-exhaustion-recovery-20261026-v2/
 ```
 
-Each results directory contains `results.jsonl`.
+The production and competitor directories contain the original benchmark measurements. The recovery directory contains the final corrected hybrid selections.
 
-Inspect the BGE + GPT-6 Astra / BGE + Omneum paired run:
+Inspect the final evaluation:
 
 ```bash
-ls benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/
+cat \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
 ```
 
-Find the analytics records:
+Find the analytics case records:
 
 ```bash
 rg -n \
   'analytics_derived_metric_cycle|analytics_incomplete_lineage|analytics_metric_definition_conflict|analytics_stale_dashboard' \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/
 ```
 
-Inspect the corresponding Gemini paired run:
+Inspect the competitive analysis:
 
 ```bash
-rg -n 'analytics_' \
-  benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/results.jsonl
-```
-
-Inspect the Cohere comparison:
-
-```bash
-rg -n 'analytics_' \
-  benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/results.jsonl
+cat \
+  benchmarks/context_selection/synthetic/analysis/tier1-competitive-analysis-20261026-v1/report.md
 ```
 
 These commands inspect preserved benchmark artifacts without rerunning provider inference.
+
+### Selection Latency
+
+The final aggregate local selection timings across all six domains are:
+
+| Configuration | Selection p50 | Selection p95 |
+|---|---:|---:|
+| Omneum Standalone | 194.86ms | 451.87ms |
+| BM25 + Omneum | 207.79ms | 461.25ms |
+| MiniLM + Omneum | 203.84ms | 465.36ms |
+| BGE + Omneum | 200.63ms | 430.51ms |
+| Cohere + Omneum | 206.89ms | 480.37ms |
+
+These are benchmark-wide measurements, not Data Analytics-specific latency percentiles.
+
+The local selection interval excludes external ranking inference and structured observation extraction. Frontier LLM judges have different inference and timing boundaries.
 
 ## Evaluation Notes
 
 | Setting | Value |
 |---|---|
 | Cases | 4 |
-| Candidate sources | 33 total |
-| Candidate pools | 8–9 sources per case |
-| Selection budget | 3 sources |
-| Generator | Claude Sonnet 5.5 |
-| Initial rerankers | BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
+| Candidate passages | 33 total |
+| Candidate pools | 8–9 passages per case |
+| Selection budgets | 64, 96, 128, 160, 192, 256 Qwen tokens |
+| Tokenizer | Qwen2.5 7B GGUF |
+| Budgeted configurations | 13 |
+| Unbudgeted reference | `raw_full` |
+| Initial rankers | BM25, MiniLM, BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
 | Frontier judges | Claude Sonnet 5.5, GPT-6 Astra, Gemini 3.8 Flash |
-| BGE + GPT-6 / Gemini | 10 trials per case |
-| BGE + Omneum | 10 trials per case in each paired run |
-| Claude / Cohere comparisons | 1 trial per case |
-| Selection scoring | Frozen source-level relevance labels |
-| Latency aggregation | Median across recorded attempts |
+| Omneum entry point | `prepare_context()` |
+| Selection objective | `coverage_support_density` |
+| Complementary evidence | `complementary_evidence=True` |
+| Token cost exponent | `token_cost_exponent=1` |
+| Discovery anchors | 3 plus relevance-score ties |
+| Discovery expansion | Depth 2 |
+| Deferred-candidate recovery | Enabled for final hybrid results |
+| Conflict-aware selection | `conflict_aware=False` |
+| Selection scoring | Annotated supporting-source IDs |
+| Evidence scoring | Retained annotated evidence |
+| Claim scoring | Canonical claims represented in supporting passages |
+| Origin scoring | Annotated root-origin units |
+| Latency aggregation | Recorded local selection p50 and p95 |
+
+Omneum's provenance-aware graph inference iteratively computes source reliability and claim support across a bipartite graph, accounting for shared evidence origins and dependencies between sources.
+
+The SDK maps finalized claim support to retrieved chunks through their associated claim IDs. `prepare_context()` uses question relevance and incremental claim coverage to select and reconstruct original passages within the configured token budget.
+
+The final hybrid results include deferred-candidate budget-exhaustion recovery. Positive-utility candidates outside the initial discovery neighborhood can be reconsidered when they satisfy the remaining token budget and marginal utility-density threshold.
 
 ### Measurement Constraints
 
 The benchmark contains four fixed synthetic analytics cases.
 
-Repeated trials measure execution variability on identical inputs, not generalization across additional questions.
+The six token budgets provide repeated measurements of the same underlying cases, not additional independent questions.
 
-Precision measures the proportion of selected sources labeled relevant. Recall measures the proportion of all labeled relevant sources selected within the selection budget.
+Precision measures the proportion of selected sources annotated as supporting. Recall measures the proportion of annotated supporting sources retained.
 
-The downstream correctness measure records whether generated answers satisfy the fixture's expected-answer check. It does not independently establish general factual correctness beyond those checks.
+Evidence retention, claim coverage, and origin coverage measure complementary properties of the selected context. Claim coverage may include incidental claims present in supporting passages, while origin coverage depends on the supplied provenance graph.
 
-The benchmark uses a fixed Claude Sonnet 5.5 answer generator, allowing the measured downstream differences to be evaluated with the same generator configuration.
+The benchmark does not measure downstream answer correctness. It evaluates selected and reconstructed context.
 
-The recorded comparisons establish selection behavior and timing for these fixtures. They do not establish universal performance across arbitrary analytics workloads.
+The production selection timings exclude external ranking inference and structured observation extraction. Comparisons with LLM judges must account for differences in information availability and timing boundaries.
+
+The selection policy was developed against the same synthetic case suite. These results support controlled evaluation and regression testing but do not independently establish generalization to unseen analytics workloads.
 
 ## Summary
 
-Across all four Data Analytics cases, **BGE + Omneum matched the frontier LLM judges' selection precision, recall, and downstream answer correctness while recording substantially lower selection latency**.
+The four Data Analytics cases evaluate distinct failure mechanisms:
 
-The results include:
+- **Derived metric cycle:** Circular reporting dependencies repeat an incorrect 840-session aggregate instead of the correct 612-account count.
+- **Incomplete lineage:** Missing transformation provenance accompanies a 520-parcel aggregate that includes 33 returned parcels; current operational evidence establishes 487 delivered parcels.
+- **Metric definition conflict:** The finance definition produces 92% gross revenue retention, while the semantic layer and downstream reports incorrectly include expansion revenue and produce 112%.
+- **Stale dashboard:** Earlier reporting snapshots show 1,190 paid seats, while the finalized post-backfill warehouse state establishes 1,284.
 
-- **Derived metric cycle:** 100% precision and recall, correct answers in all ten trials, and 0.694-second selection p50.
-- **Incomplete lineage:** 100% precision, 75% recall, correct answers in all ten trials, and 0.708-second selection p50.
-- **Metric definition conflict:** 100% precision and recall, correct answers in all ten trials, and 0.649-second selection p50.
-- **Stale dashboard:** 100% precision, 60% recall, correct answers in all ten trials, and 0.662-second selection p50.
+Across the full 24-case benchmark, BGE + Omneum improved selection precision over standalone BGE by **8.44 percentage points**, with a paired 95% confidence interval of **+2.19 to +15.37 percentage points**.
 
-Omneum selected the relevant warehouse, operational, and metric-definition evidence in all four BGE configurations, including cases involving circular reporting dependencies, missing transformation lineage, inconsistent metric definitions, and stale dashboard data.
+That aggregate improvement is not a substitute for the Data Analytics-specific measurements preserved in the saved case-budget and domain-budget artifacts.
 
-Cohere + Omneum also produced correctly scored downstream answers in all four single-trial cases and matched the Claude judge's selection metrics in three of four cases.
-
-The Data Analytics results contribute to the full 24-case benchmark comparing Omneum with standalone semantic rerankers and frontier LLM judges. See the [leaderboard](leaderboard.md) for aggregate selection precision, recall, answer accuracy, latency, token usage, and cost.
+See the [Leaderboard](leaderboard.md) for aggregate comparisons across all six domains.

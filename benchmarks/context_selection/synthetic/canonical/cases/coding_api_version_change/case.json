@@ -1,0 +1,466 @@
+{
+  "id": "coding_api_version_change",
+  "domain": "coding_agents",
+  "question": "The lockfile pins LedgerKit 3.0. How should the export job submit a CSV export using that installed API?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "old_api_docs",
+      "source": {
+        "kind": "old_api_docs",
+        "identifier": "https://old-api-docs.benchmark.example/coding_api_version_change/old_api_docs"
+      },
+      "text": "LedgerKit 2.6 API reference: submit a CSV export with client.export_csv(account_id). The method returns a job ID.",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:old_api_docs",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2025-11-04T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 2.6 CSV exports",
+          "attribute": "submission_call",
+          "value": "client.export_csv(account_id)",
+          "claim_id": "sha256:93b4b7e90fdf1869a4fc211d34e182dea45123394f91cc3efcea02c156d54b26",
+          "observation_id": "coding_api_version_change:old_api_docs",
+          "evidence": [
+            {
+              "source_id": "old_api_docs",
+              "start": 0,
+              "end": 113,
+              "text": "LedgerKit 2.6 API reference: submit a CSV export with client.export_csv(account_id). The method returns a job ID."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 2.6 CSV exports",
+          "attribute": "return_type",
+          "value": "job ID",
+          "claim_id": "sha256:80ebc17f67af96768039a8280bb81ea626a8c62d0632711074a62587dcf19631",
+          "observation_id": "coding_api_version_change:old_api_docs:claim:2",
+          "evidence": [
+            {
+              "source_id": "old_api_docs",
+              "start": 0,
+              "end": 113,
+              "text": "LedgerKit 2.6 API reference: submit a CSV export with client.export_csv(account_id). The method returns a job ID."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "old_example",
+      "source": {
+        "kind": "old_example",
+        "identifier": "https://old-example.benchmark.example/coding_api_version_change/old_example"
+      },
+      "text": "Example pinned to ledgerkit==2.6: job = client.export_csv(account_id). Poll job.status until complete.",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:old_example",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2025-11-08T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "old_api_docs",
+            "identifier": "https://old-api-docs.benchmark.example/coding_api_version_change/old_api_docs"
+          }
+        ],
+        "parent_assertion_ids": [
+          "coding_api_version_change:old_api_docs"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 2.6 CSV exports",
+          "attribute": "submission_call",
+          "value": "client.export_csv(account_id)",
+          "claim_id": "sha256:93b4b7e90fdf1869a4fc211d34e182dea45123394f91cc3efcea02c156d54b26",
+          "observation_id": "coding_api_version_change:old_example",
+          "evidence": [
+            {
+              "source_id": "old_example",
+              "start": 0,
+              "end": 102,
+              "text": "Example pinned to ledgerkit==2.6: job = client.export_csv(account_id). Poll job.status until complete."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 2.6 CSV exports",
+          "attribute": "completion_poll",
+          "value": "job.status",
+          "claim_id": "sha256:79e128803f9e1fbaba5f094557ad9ea01cbbd3764b5b3ad5347cdfdd92e7dcb1",
+          "observation_id": "coding_api_version_change:old_example:claim:2",
+          "evidence": [
+            {
+              "source_id": "old_example",
+              "start": 0,
+              "end": 102,
+              "text": "Example pinned to ledgerkit==2.6: job = client.export_csv(account_id). Poll job.status until complete."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "current_api_docs",
+      "source": {
+        "kind": "current_api_docs",
+        "identifier": "https://current-api-docs.benchmark.example/coding_api_version_change/current_api_docs"
+      },
+      "text": "LedgerKit 3.0 API: client.exports.create(account_id=account_id, format=\"csv\") submits an export and returns ExportJob.",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:current_api_docs",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-12T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 CSV exports",
+          "attribute": "submission_call",
+          "value": "client.exports.create(account_id=account_id, format=\"csv\")",
+          "claim_id": "sha256:20856b581f702a191298d0e6d73e80ed871e6513fdfc8e0634553880ac1034cf",
+          "observation_id": "coding_api_version_change:current_api_docs",
+          "evidence": [
+            {
+              "source_id": "current_api_docs",
+              "start": 0,
+              "end": 118,
+              "text": "LedgerKit 3.0 API: client.exports.create(account_id=account_id, format=\"csv\") submits an export and returns ExportJob."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 CSV exports",
+          "attribute": "return_type",
+          "value": "ExportJob",
+          "claim_id": "sha256:3b581e6fcacbc2a9f4be795cf865beaf6cc225df0cda10e3fb1a61643e87c22f",
+          "observation_id": "coding_api_version_change:current_api_docs:claim:2",
+          "evidence": [
+            {
+              "source_id": "current_api_docs",
+              "start": 0,
+              "end": 118,
+              "text": "LedgerKit 3.0 API: client.exports.create(account_id=account_id, format=\"csv\") submits an export and returns ExportJob."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "changelog",
+      "source": {
+        "kind": "changelog",
+        "identifier": "https://changelog.benchmark.example/coding_api_version_change/changelog"
+      },
+      "text": "3.0 changelog: export_csv was removed. Export submission moved to client.exports.create with an explicit format.",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:changelog",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-10T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 exports",
+          "attribute": "export_csv_removed",
+          "value": true,
+          "claim_id": "sha256:7588602a9f0e1e7107b10de15d34089b6127323765eabde1b2f89b831cb302ac",
+          "observation_id": "coding_api_version_change:changelog",
+          "evidence": [
+            {
+              "source_id": "changelog",
+              "start": 0,
+              "end": 112,
+              "text": "3.0 changelog: export_csv was removed. Export submission moved to client.exports.create with an explicit format."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 exports",
+          "attribute": "submission_method",
+          "value": "client.exports.create",
+          "claim_id": "sha256:cb9435691967df497e9140240602af05e576bb4ab5a1cbf5d857adceb28285e6",
+          "observation_id": "coding_api_version_change:changelog:claim:2",
+          "evidence": [
+            {
+              "source_id": "changelog",
+              "start": 0,
+              "end": 112,
+              "text": "3.0 changelog: export_csv was removed. Export submission moved to client.exports.create with an explicit format."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 exports",
+          "attribute": "explicit_format_required",
+          "value": true,
+          "claim_id": "sha256:1ad309e89cdecd1304f2bc5938083aebfe6221adba1cd91d252ebfec81bbd506",
+          "observation_id": "coding_api_version_change:changelog:claim:3",
+          "evidence": [
+            {
+              "source_id": "changelog",
+              "start": 0,
+              "end": 112,
+              "text": "3.0 changelog: export_csv was removed. Export submission moved to client.exports.create with an explicit format."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "repository_code",
+      "source": {
+        "kind": "repository_code",
+        "identifier": "https://repository-code.benchmark.example/coding_api_version_change/repository_code"
+      },
+      "text": "Installed ledgerkit/exports.py, version 3.0: Exports.create(self, *, account_id, format) posts to /exports. Client initializes self.exports = Exports(transport).",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:repository_code",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-10T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 exports",
+          "attribute": "submission_method_signature",
+          "value": "Exports.create(self, *, account_id, format)",
+          "claim_id": "sha256:7cfc68d0f8bdbb4eda8cd858e3ac3c1ff4565babfa88bfce499d99b55a5c0670",
+          "observation_id": "coding_api_version_change:repository_code",
+          "evidence": [
+            {
+              "source_id": "repository_code",
+              "start": 0,
+              "end": 161,
+              "text": "Installed ledgerkit/exports.py, version 3.0: Exports.create(self, *, account_id, format) posts to /exports. Client initializes self.exports = Exports(transport)."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 exports",
+          "attribute": "submission_http_request",
+          "value": {
+            "method": "POST",
+            "endpoint": "/exports"
+          },
+          "claim_id": "sha256:792cdabb4bb53fd56af4c5a2087ba95c614f8a46aa0ca6994ad9c832ba9a8136",
+          "observation_id": "coding_api_version_change:repository_code:claim:2",
+          "evidence": [
+            {
+              "source_id": "repository_code",
+              "start": 0,
+              "end": 161,
+              "text": "Installed ledgerkit/exports.py, version 3.0: Exports.create(self, *, account_id, format) posts to /exports. Client initializes self.exports = Exports(transport)."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 exports",
+          "attribute": "client_exports_binding",
+          "value": "Exports(transport)",
+          "claim_id": "sha256:a022399bef301009c0bab29b56d61c2c74be015f9bb6222e860b0ef18027ebde",
+          "observation_id": "coding_api_version_change:repository_code:claim:3",
+          "evidence": [
+            {
+              "source_id": "repository_code",
+              "start": 0,
+              "end": 161,
+              "text": "Installed ledgerkit/exports.py, version 3.0: Exports.create(self, *, account_id, format) posts to /exports. Client initializes self.exports = Exports(transport)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "package_metadata",
+      "source": {
+        "kind": "package_metadata",
+        "identifier": "https://package-metadata.benchmark.example/coding_api_version_change/package_metadata"
+      },
+      "text": "uv.lock resolves ledgerkit 3.0.0 for the export worker; requires Python >=3.11.",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:package_metadata",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-16T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit export worker",
+          "attribute": "locked_version",
+          "value": "3.0.0",
+          "claim_id": "sha256:4b14f33bcbc88bd8eb43b5b82108ae745dc3bcbd3cbfcfaabaeb10ac1fef0554",
+          "observation_id": "coding_api_version_change:package_metadata",
+          "evidence": [
+            {
+              "source_id": "package_metadata",
+              "start": 0,
+              "end": 79,
+              "text": "uv.lock resolves ledgerkit 3.0.0 for the export worker; requires Python >=3.11."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit export worker",
+          "attribute": "minimum_python_version",
+          "value": "3.11",
+          "claim_id": "sha256:9f03c1d1c87d39ebbf03d03c9f8c8281f13b55f237d2d6b41945ffb7b542ffad",
+          "observation_id": "coding_api_version_change:package_metadata:claim:2",
+          "evidence": [
+            {
+              "source_id": "package_metadata",
+              "start": 0,
+              "end": 79,
+              "text": "uv.lock resolves ledgerkit 3.0.0 for the export worker; requires Python >=3.11."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "test_output",
+      "source": {
+        "kind": "test_output",
+        "identifier": "https://test-output.benchmark.example/coding_api_version_change/test_output"
+      },
+      "text": "CI export smoke test on the lockfile environment: client.exports.create(account_id=\"acct_9\", format=\"csv\") returned a queued ExportJob.",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:test_output",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "repository_code",
+            "identifier": "https://repository-code.benchmark.example/coding_api_version_change/repository_code"
+          }
+        ],
+        "parent_assertion_ids": [
+          "coding_api_version_change:repository_code"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 CSV exports",
+          "attribute": "submission_call",
+          "value": "client.exports.create(account_id=account_id, format=\"csv\")",
+          "claim_id": "sha256:20856b581f702a191298d0e6d73e80ed871e6513fdfc8e0634553880ac1034cf",
+          "observation_id": "coding_api_version_change:test_output",
+          "evidence": [
+            {
+              "source_id": "test_output",
+              "start": 0,
+              "end": 135,
+              "text": "CI export smoke test on the lockfile environment: client.exports.create(account_id=\"acct_9\", format=\"csv\") returned a queued ExportJob."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit lockfile-environment CSV export smoke test",
+          "attribute": "observed_return_state",
+          "value": "queued ExportJob",
+          "claim_id": "sha256:3f767ce5bbd028f0705da020ecbe356978a4f37a50b448927d24bb910f82b296",
+          "observation_id": "coding_api_version_change:test_output:claim:2",
+          "evidence": [
+            {
+              "source_id": "test_output",
+              "start": 0,
+              "end": 135,
+              "text": "CI export smoke test on the lockfile environment: client.exports.create(account_id=\"acct_9\", format=\"csv\") returned a queued ExportJob."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit lockfile-environment CSV export smoke test",
+          "attribute": "observed_call_arguments",
+          "value": {
+            "account_id": "acct_9",
+            "format": "csv"
+          },
+          "claim_id": "sha256:f85db6ca225214e637e6b0b32f247ab6cce1193fdfe38e3e311ca549866cfde2",
+          "observation_id": "coding_api_version_change:test_output:claim:3",
+          "evidence": [
+            {
+              "source_id": "test_output",
+              "start": 0,
+              "end": 135,
+              "text": "CI export smoke test on the lockfile environment: client.exports.create(account_id=\"acct_9\", format=\"csv\") returned a queued ExportJob."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "migration_guide",
+      "source": {
+        "kind": "migration_guide",
+        "identifier": "https://migration-guide.benchmark.example/coding_api_version_change/migration_guide"
+      },
+      "text": "Migration 2.x to 3.0: replace export_csv(id) with client.exports.create(account_id=id, format=\"csv\"). CSV output is unchanged.",
+      "provenance": {
+        "assertion_id": "coding_api_version_change:migration_guide",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-13T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "current_api_docs",
+            "identifier": "https://current-api-docs.benchmark.example/coding_api_version_change/current_api_docs"
+          },
+          {
+            "kind": "changelog",
+            "identifier": "https://changelog.benchmark.example/coding_api_version_change/changelog"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 3.0 CSV exports",
+          "attribute": "submission_call",
+          "value": "client.exports.create(account_id=account_id, format=\"csv\")",
+          "claim_id": "sha256:20856b581f702a191298d0e6d73e80ed871e6513fdfc8e0634553880ac1034cf",
+          "observation_id": "coding_api_version_change:migration_guide",
+          "evidence": [
+            {
+              "source_id": "migration_guide",
+              "start": 0,
+              "end": 126,
+              "text": "Migration 2.x to 3.0: replace export_csv(id) with client.exports.create(account_id=id, format=\"csv\"). CSV output is unchanged."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "LedgerKit 2.x to 3.0 migration",
+          "attribute": "csv_output_changed",
+          "value": false,
+          "claim_id": "sha256:5a92ee428de0236247f596ebcae253c7da59a72cb117c7644093311b2cc78e03",
+          "observation_id": "coding_api_version_change:migration_guide:claim:2",
+          "evidence": [
+            {
+              "source_id": "migration_guide",
+              "start": 0,
+              "end": 126,
+              "text": "Migration 2.x to 3.0: replace export_csv(id) with client.exports.create(account_id=id, format=\"csv\"). CSV output is unchanged."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

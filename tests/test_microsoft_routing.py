@@ -40,7 +40,7 @@ def test_scenarios_native_transitions_and_reevaluation(scenario, example_daemon,
     async def record_client(*args):
         async with open_client(*args) as client:
             async def evaluate(observations, **kwargs):
-                result = await client.evaluate_context(observations, **kwargs)
+                result = await client._evaluate_context(observations, **kwargs)
                 evaluations.append((observations, result))
                 return result
             yield SimpleNamespace(evaluate_context=evaluate)
@@ -60,17 +60,18 @@ def test_scenarios_native_transitions_and_reevaluation(scenario, example_daemon,
     expected = ["load_evidence"]
     for route in state.routing_history[:-1]:
         expected.extend(["evaluate_context", "route_context", route])
-    expected.extend(["evaluate_context", "route_context", "select_claims", "generate_answer"])
+    expected.extend(["evaluate_context", "route_context", "select_claims", "prepare_context", "generate_answer"])
     assert invoked == expected
     assert state.selected_claims == select_context(state.context_evaluation)
     assert {claim.attribute: claim.value for claim in state.selected_claims} == ROUTING_VALUES
     assert all(claim.independent_support >= RoutingPolicy().min_independent_support for claim in state.selected_claims)
-    assert state.answer == "\n".join([
-        "Application decision: EVALUATION COMPLETE", "Selected context:",
-        *(f"{attribute}: {ROUTING_VALUES[attribute]}" for attribute in REQUIRED_ATTRIBUTES),
-    ])
-    for conflicting in ("unredacted customer content allowed", "30 days", "processing_region: US"):
-        assert conflicting not in state.answer
+    assert state.generation["prepared_context"]["context"] in state.generation_messages[1].text
+    assert state.generation_messages[1].text in state.answer
+    for chunk in state.generation["retrieved_chunks"]:
+        if chunk["chunk_id"] in state.generation["prepared_context"]["packed_chunk_ids"]:
+            assert chunk["raw_text"] in state.generation_messages[1].text
+        else:
+            assert chunk["raw_text"] not in state.generation_messages[1].text
     if scenario == "resolve_conflicts":
         assert {item.claim.value for item in state.context_evaluation.claim_support} >= {
             "US", "30 days", "unredacted customer content allowed",
@@ -152,37 +153,25 @@ def test_basic_agent_mapping_and_mcp_regression(example_daemon, monkeypatch):
     assert basic.agent.name == "Enterprise AI Assistant"
     assert [tool.name for tool in basic.agent.default_options["tools"]] == ["evaluate_context"]
     assert "evaluate_context tool" in basic.agent.default_options["instructions"]
+    from examples.microsoft import tools
     captured = []
-    render = basic.render_result
+    prepare = tools.prepare_generation
 
-    def capture(result):
+    async def capture(*args, **kwargs):
+        result = await prepare(*args, **kwargs)
         captured.append(result)
-        return render(result)
+        return result
 
-    monkeypatch.setattr(basic, "render_result", capture)
-    report = asyncio.run(basic.evaluate_context())
-    assert len(basic.collect_observations()) == 17
+    monkeypatch.setattr(tools, "prepare_generation", capture)
+    model_input = asyncio.run(basic.evaluate_context())
     assert len(captured) == 1
     result = captured[0]
-    assert len(result.source_reliability) == 6
-    assert len(result.claim_support) == 6
-    assert len(result.pairwise_dependencies) == 15
-    assert result.evaluation_latency_ms is not None
-    assert report == render(result)
-    assert "Omneum Evaluation" in report
-    assert "Application decision: EVALUATION COMPLETE" in report
-
-    async def direct_evaluation():
-        with basic.example_deployment() as (config, server):
-            async with basic.open_stdio_client(config, server) as client:
-                return await client.evaluate_context(
-                    basic.collect_observations(), estimator=basic.estimator_config(),
-                )
-
-    direct = asyncio.run(direct_evaluation())
-    assert result.claim_support == direct.claim_support
-    assert result.source_reliability == direct.source_reliability
-    assert result.pairwise_dependencies == direct.pairwise_dependencies
+    assert model_input == result["messages"][1]["content"]
+    assert result["prepared_context"]["context"] in model_input
+    assert len(result["prepared_context"]["evaluation"]["source_reliability"]) == 6
+    assert len(result["prepared_context"]["evaluation"]["pairwise_dependencies"]) == 15
+    assert "Source references:" in model_input
+    assert "Omneum Evaluation" not in model_input
 
 
 @pytest.mark.parametrize("scenario", (*SCENARIOS, "all"))
@@ -204,3 +193,37 @@ def test_cli_without_openai(scenario, example_daemon, monkeypatch, capsys):
     assert "Claim support:" in output
     assert "independent=" in output
     assert "Selected context:" in output
+
+
+def test_agent_receives_original_tool_context(example_daemon, monkeypatch):
+    from agent_framework import ChatResponse, Content, Message
+    from examples.microsoft.tools import evaluate_context
+
+    requests = []
+
+    async def respond(self, *, messages, options, **kwargs):
+        requests.append(messages)
+        if len(requests) == 1:
+            return ChatResponse(messages=Message("assistant", contents=[
+                Content.from_function_call(
+                    "prepare-evidence", "evaluate_context",
+                    arguments={"question": "What are the EU copilot controls?"},
+                ),
+            ]))
+        results = [content.result for message in messages for content in message.contents
+                   if content.type == "function_result"]
+        assert len(results) == 1
+        assert "Retrieved context:" in results[0]
+        assert '"document"' in results[0] or '"enterprise_controls"' in results[0]
+        assert "Source references:" in results[0]
+        assert "Omneum Evaluation" not in results[0]
+        return ChatResponse(messages=Message("assistant", contents=["Test model received evidence."]))
+
+    monkeypatch.setattr(OpenAIChatClient, "_inner_get_response", respond)
+    agent = Agent(
+        client=OpenAIChatClient(api_key="unused-test-key", model="test-model"),
+        tools=[evaluate_context],
+    )
+    result = asyncio.run(agent.run("What are the EU copilot controls?"))
+    assert len(requests) == 2
+    assert result.text == "Test model received evidence."

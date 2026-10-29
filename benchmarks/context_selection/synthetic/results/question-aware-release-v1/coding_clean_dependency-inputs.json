@@ -1,0 +1,417 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"unique event_id in the balance transaction\"'",
+        "attribute": "replay_handling",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c225361626c65206576656e7420636f6e73756d6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_clean_dependency:repository_code",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"unique event_id in the balance transaction\"'",
+        "attribute": "replay_handling",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c225361626c65206576656e7420636f6e73756d6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_clean_dependency:unit_test",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://unit-test.benchmark.example/coding_clean_dependency/unit_test",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"unique event_id in the balance transaction\"'",
+        "attribute": "replay_handling",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c225361626c65206576656e7420636f6e73756d6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_clean_dependency:integration_test",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://integration-test.benchmark.example/coding_clean_dependency/integration_test",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"unique event_id in the balance transaction\"'",
+        "attribute": "replay_handling",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c225361626c65206576656e7420636f6e73756d6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_clean_dependency:current_docs",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"unique event_id in the balance transaction\"'",
+        "attribute": "replay_handling",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c225361626c65206576656e7420636f6e73756d6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_clean_dependency:release_notes",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://release-notes.benchmark.example/coding_clean_dependency/release_notes",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"PostgreSQL >=15\"'",
+        "attribute": "database_requirement",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c225361626c65206576656e7420636f6e73756d6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_clean_dependency:package_metadata",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://package-metadata.benchmark.example/coding_clean_dependency/package_metadata",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"unique event_id in the balance transaction\"'",
+        "attribute": "replay_handling",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c225361626c65206576656e7420636f6e73756d6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_clean_dependency:example",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "coding_clean_dependency:current_docs"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://example.benchmark.example/coding_clean_dependency/example",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs",
+          "kind": "web_document"
+        }
+      ]
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "replay handling",
+        "entity": "Sable event consumer",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_clean_dependency:repository_code",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code",
+          "kind": "repository_code"
+        },
+        "source_id": "repository_code",
+        "text": "consumer.py opens one database transaction, inserts event_id into processed_events, and applies the balance update only if the insert succeeds. Both writes commit together.",
+        "value": "unique event_id in the balance transaction"
+      },
+      {
+        "attribute": "replay handling",
+        "entity": "Sable event consumer",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_clean_dependency:unit_test",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://unit-test.benchmark.example/coding_clean_dependency/unit_test",
+          "kind": "unit_test"
+        },
+        "source_id": "unit_test",
+        "text": "Unit test replays event evt_47 twice: the second processed_events insert conflicts; apply_balance is called once.",
+        "value": "unique event_id in the balance transaction"
+      },
+      {
+        "attribute": "replay handling",
+        "entity": "Sable event consumer",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_clean_dependency:integration_test",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://integration-test.benchmark.example/coding_clean_dependency/integration_test",
+          "kind": "integration_test"
+        },
+        "source_id": "integration_test",
+        "text": "Integration test kills the worker before commit and replays evt_47. A unique constraint on processed_events.event_id plus the shared balance transaction leaves one committed balance update.",
+        "value": "unique event_id in the balance transaction"
+      },
+      {
+        "attribute": "replay handling",
+        "entity": "Sable event consumer",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_clean_dependency:current_docs",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs",
+          "kind": "current_docs"
+        },
+        "source_id": "current_docs",
+        "text": "Consumer guide: enforce a unique event_id in processed_events and write it in the same transaction as the balance change; a duplicate skips the change.",
+        "value": "unique event_id in the balance transaction"
+      },
+      {
+        "attribute": "replay handling",
+        "entity": "Sable event consumer",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_clean_dependency:release_notes",
+          "cited_sources": [
+            {
+              "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code",
+              "kind": "repository_code"
+            }
+          ],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://release-notes.benchmark.example/coding_clean_dependency/release_notes",
+          "kind": "release_notes"
+        },
+        "source_id": "release_notes",
+        "text": "Sable 1.8 release notes: replay handling uses a unique processed_events.event_id and an atomic balance transaction.",
+        "value": "unique event_id in the balance transaction"
+      },
+      {
+        "attribute": "database requirement",
+        "entity": "Sable event consumer",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_clean_dependency:package_metadata",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://package-metadata.benchmark.example/coding_clean_dependency/package_metadata",
+          "kind": "package_metadata"
+        },
+        "source_id": "package_metadata",
+        "text": "Package metadata: sable-consumer 1.8 targets PostgreSQL 15 or later and ships schema migrations.",
+        "value": "PostgreSQL >=15"
+      },
+      {
+        "attribute": "replay handling",
+        "entity": "Sable event consumer",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_clean_dependency:example",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "coding_clean_dependency:current_docs"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs",
+              "kind": "current_docs"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://example.benchmark.example/coding_clean_dependency/example",
+          "kind": "example"
+        },
+        "source_id": "example",
+        "text": "Example transaction: INSERT INTO processed_events(event_id) ... ON CONFLICT DO NOTHING RETURNING event_id; if a row was returned, update balances before COMMIT.",
+        "value": "unique event_id in the balance transaction"
+      }
+    ],
+    "case_id": "coding_clean_dependency",
+    "category": null,
+    "context_budget": 3,
+    "domain": "coding_agents",
+    "question": "How should the Sable event consumer make replayed event IDs idempotent while committing the balance update?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-repository_code",
+      "claim_ids": [
+        "7b22617474726962757465223a227265706c61795f68616e646c696e67222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323533363136323663363532303635373636353665373432303633366636653733373536643635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22756e69717565206576656e745f696420696e207468652062616c616e6365207472616e73616374696f6e227d"
+      ],
+      "raw_text": "consumer.py opens one database transaction, inserts event_id into processed_events, and applies the balance update only if the insert succeeds. Both writes commit together.",
+      "source_id": "repository_code"
+    },
+    {
+      "chunk_id": "chunk-unit_test",
+      "claim_ids": [
+        "7b22617474726962757465223a227265706c61795f68616e646c696e67222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323533363136323663363532303635373636353665373432303633366636653733373536643635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22756e69717565206576656e745f696420696e207468652062616c616e6365207472616e73616374696f6e227d"
+      ],
+      "raw_text": "Unit test replays event evt_47 twice: the second processed_events insert conflicts; apply_balance is called once.",
+      "source_id": "unit_test"
+    },
+    {
+      "chunk_id": "chunk-integration_test",
+      "claim_ids": [
+        "7b22617474726962757465223a227265706c61795f68616e646c696e67222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323533363136323663363532303635373636353665373432303633366636653733373536643635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22756e69717565206576656e745f696420696e207468652062616c616e6365207472616e73616374696f6e227d"
+      ],
+      "raw_text": "Integration test kills the worker before commit and replays evt_47. A unique constraint on processed_events.event_id plus the shared balance transaction leaves one committed balance update.",
+      "source_id": "integration_test"
+    },
+    {
+      "chunk_id": "chunk-current_docs",
+      "claim_ids": [
+        "7b22617474726962757465223a227265706c61795f68616e646c696e67222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323533363136323663363532303635373636353665373432303633366636653733373536643635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22756e69717565206576656e745f696420696e207468652062616c616e6365207472616e73616374696f6e227d"
+      ],
+      "raw_text": "Consumer guide: enforce a unique event_id in processed_events and write it in the same transaction as the balance change; a duplicate skips the change.",
+      "source_id": "current_docs"
+    },
+    {
+      "chunk_id": "chunk-release_notes",
+      "claim_ids": [
+        "7b22617474726962757465223a227265706c61795f68616e646c696e67222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323533363136323663363532303635373636353665373432303633366636653733373536643635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22756e69717565206576656e745f696420696e207468652062616c616e6365207472616e73616374696f6e227d"
+      ],
+      "raw_text": "Sable 1.8 release notes: replay handling uses a unique processed_events.event_id and an atomic balance transaction.",
+      "source_id": "release_notes"
+    },
+    {
+      "chunk_id": "chunk-package_metadata",
+      "claim_ids": [
+        "7b22617474726962757465223a2264617461626173655f726571756972656d656e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323533363136323663363532303635373636353665373432303633366636653733373536643635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22506f737467726553514c203e3d3135227d"
+      ],
+      "raw_text": "Package metadata: sable-consumer 1.8 targets PostgreSQL 15 or later and ships schema migrations.",
+      "source_id": "package_metadata"
+    },
+    {
+      "chunk_id": "chunk-example",
+      "claim_ids": [
+        "7b22617474726962757465223a227265706c61795f68616e646c696e67222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323533363136323663363532303635373636353665373432303633366636653733373536643635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22756e69717565206576656e745f696420696e207468652062616c616e6365207472616e73616374696f6e227d"
+      ],
+      "raw_text": "Example transaction: INSERT INTO processed_events(event_id) ... ON CONFLICT DO NOTHING RETURNING event_id; if a row was returned, update balances before COMMIT.",
+      "source_id": "example"
+    }
+  ],
+  "truth": {
+    "answer": "Use a unique event_id in processed_events in the same transaction as the balance update; skip duplicate events.",
+    "case_id": "coding_clean_dependency",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "unique",
+        "event_id",
+        "transaction"
+      ]
+    },
+    "supporting_sources": [
+      "repository_code",
+      "unit_test",
+      "integration_test",
+      "current_docs",
+      "release_notes",
+      "example"
+    ]
+  }
+}

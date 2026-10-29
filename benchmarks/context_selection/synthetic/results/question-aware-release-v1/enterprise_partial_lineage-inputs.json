@@ -1,0 +1,490 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'180'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:drive_document",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": null,
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'180'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:confluence_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://confluence-page.benchmark.example/enterprise_partial_lineage/confluence_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-11 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'180'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:slack_message",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://slack-message.benchmark.example/enterprise_partial_lineage/slack_message",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": null,
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'90'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:drive_document_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-04 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://confluence-page.benchmark.example/enterprise_partial_lineage/confluence_page",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'180'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:team_wiki",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://team-wiki.benchmark.example/enterprise_partial_lineage/team_wiki",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": null,
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'90'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:email",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://email.benchmark.example/enterprise_partial_lineage/email",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-05 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'90'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:system_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://system-record.benchmark.example/enterprise_partial_lineage/system_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-06 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'90'",
+        "attribute": "retention_days",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22416c6465722043532d382063686174207472616e73637269707473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_partial_lineage:announcement",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://announcement.benchmark.example/enterprise_partial_lineage/announcement",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-07 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:drive_document",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": null,
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document",
+          "kind": "drive_document"
+        },
+        "source_id": "drive_document",
+        "text": "Drive onboarding checklist: production customer chat transcripts are retained for 180 days. Document imported from a departmental folder; revision history was not retained.",
+        "value": 180
+      },
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:confluence_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-11 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document",
+              "kind": "drive_document"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://confluence-page.benchmark.example/enterprise_partial_lineage/confluence_page",
+          "kind": "confluence_page"
+        },
+        "source_id": "confluence_page",
+        "text": "Confluence mirror of the onboarding checklist: retain production chat transcripts for 180 days.",
+        "value": 180
+      },
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:slack_message",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": null,
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://slack-message.benchmark.example/enterprise_partial_lineage/slack_message",
+          "kind": "slack_message"
+        },
+        "source_id": "slack_message",
+        "text": "Slack support handoff: our onboarding checklist says chat transcripts stay for 180 days. The pasted message has no document link.",
+        "value": 180
+      },
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:drive_document_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-04 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2",
+          "kind": "drive_document"
+        },
+        "source_id": "drive_document_2",
+        "text": "Drive schedule CS-8, signed by Records on August 4: production customer chat transcripts expire after 90 days; legal holds are excluded.",
+        "value": 90
+      },
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:team_wiki",
+          "cited_sources": [
+            {
+              "identifier": "https://confluence-page.benchmark.example/enterprise_partial_lineage/confluence_page",
+              "kind": "confluence_page"
+            }
+          ],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": null,
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://team-wiki.benchmark.example/enterprise_partial_lineage/team_wiki",
+          "kind": "team_wiki"
+        },
+        "source_id": "team_wiki",
+        "text": "Team wiki: chat retention is 180 days. The migration footer points to the onboarding Confluence space, with the original page ID lost.",
+        "value": 180
+      },
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:email",
+          "cited_sources": [
+            {
+              "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document",
+              "kind": "drive_document"
+            }
+          ],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-05 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://email.benchmark.example/enterprise_partial_lineage/email",
+          "kind": "email"
+        },
+        "source_id": "email",
+        "text": "Records email: apply 90 days to production chat transcripts under CS-8. The mail archive retained a folder-level reference to the onboarding materials, not the attachment ID.",
+        "value": 90
+      },
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:system_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-06 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2",
+              "kind": "drive_document"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://system-record.benchmark.example/enterprise_partial_lineage/system_record",
+          "kind": "system_record"
+        },
+        "source_id": "system_record",
+        "text": "Retention service record cs8-prod: ttl_days=90; scope=customer_chat_transcript; legal_hold bypass enabled.",
+        "value": 90
+      },
+      {
+        "attribute": "retention days",
+        "entity": "Alder CS-8 chat transcripts",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_partial_lineage:announcement",
+          "cited_sources": [
+            {
+              "identifier": "https://drive-document.benchmark.example/enterprise_partial_lineage/drive_document_2",
+              "kind": "drive_document"
+            }
+          ],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-07 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://announcement.benchmark.example/enterprise_partial_lineage/announcement",
+          "kind": "announcement"
+        },
+        "source_id": "announcement",
+        "text": "Records announcement: CS-8 production chat retention is 90 days. Link: signed retention schedule in Drive.",
+        "value": 90
+      }
+    ],
+    "case_id": "enterprise_partial_lineage",
+    "category": null,
+    "context_budget": 3,
+    "domain": "enterprise_rag",
+    "question": "What retention period should the Alder team apply to production customer chat transcripts under schedule CS-8?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-drive_document",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3138307d"
+      ],
+      "raw_text": "Drive onboarding checklist: production customer chat transcripts are retained for 180 days. Document imported from a departmental folder; revision history was not retained.",
+      "source_id": "drive_document"
+    },
+    {
+      "chunk_id": "chunk-confluence_page",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3138307d"
+      ],
+      "raw_text": "Confluence mirror of the onboarding checklist: retain production chat transcripts for 180 days.",
+      "source_id": "confluence_page"
+    },
+    {
+      "chunk_id": "chunk-slack_message",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3138307d"
+      ],
+      "raw_text": "Slack support handoff: our onboarding checklist says chat transcripts stay for 180 days. The pasted message has no document link.",
+      "source_id": "slack_message"
+    },
+    {
+      "chunk_id": "chunk-drive_document_2",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a39307d"
+      ],
+      "raw_text": "Drive schedule CS-8, signed by Records on August 4: production customer chat transcripts expire after 90 days; legal holds are excluded.",
+      "source_id": "drive_document_2"
+    },
+    {
+      "chunk_id": "chunk-team_wiki",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3138307d"
+      ],
+      "raw_text": "Team wiki: chat retention is 180 days. The migration footer points to the onboarding Confluence space, with the original page ID lost.",
+      "source_id": "team_wiki"
+    },
+    {
+      "chunk_id": "chunk-email",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a39307d"
+      ],
+      "raw_text": "Records email: apply 90 days to production chat transcripts under CS-8. The mail archive retained a folder-level reference to the onboarding materials, not the attachment ID.",
+      "source_id": "email"
+    },
+    {
+      "chunk_id": "chunk-system_record",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a39307d"
+      ],
+      "raw_text": "Retention service record cs8-prod: ttl_days=90; scope=customer_chat_transcript; legal_hold bypass enabled.",
+      "source_id": "system_record"
+    },
+    {
+      "chunk_id": "chunk-announcement",
+      "claim_ids": [
+        "7b22617474726962757465223a22726574656e74696f6e5f64617973222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234313663363436353732323034333533326433383230363336383631373432303734373236313665373336333732363937303734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a39307d"
+      ],
+      "raw_text": "Records announcement: CS-8 production chat retention is 90 days. Link: signed retention schedule in Drive.",
+      "source_id": "announcement"
+    }
+  ],
+  "truth": {
+    "answer": "Apply 90 days to production customer chat transcripts, excluding legal holds.",
+    "case_id": "enterprise_partial_lineage",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "90"
+      ]
+    },
+    "supporting_sources": [
+      "drive_document_2",
+      "email",
+      "system_record",
+      "announcement"
+    ]
+  }
+}

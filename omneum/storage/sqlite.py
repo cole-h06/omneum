@@ -22,7 +22,7 @@ from ..canonicalization import canonicalize_source, canonicalize_entity
 from ..dependency import DependencyEstimatorConfig
 from ..information import Claim, Observation, Source
 from ..linkage import LinkagePurpose
-from .base import PersistedObservation
+from .base import EXECUTION_FIELDS, PersistedObservation, execution_values
 from .filesystem import require_local_filesystem, require_safe_acl, private_directory
 from .schema import APPLICATION_ID, MIGRATIONS
 
@@ -57,10 +57,20 @@ def _schema(connection):
     return tuple((*row[:3], None if row[3] is None else ' '.join(row[3].split())) for row in rows)
 
 
+def _harden_connection(connection):
+    # Apply before any schema access, including legacy snapshot/migration paths.
+    connection.execute('PRAGMA trusted_schema=OFF')
+    if hasattr(connection, 'enable_load_extension'):
+        connection.enable_load_extension(False)
+    if hasattr(connection, 'setconfig'):
+        connection.setconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE, True)
+
+
 @lru_cache(maxsize=len(MIGRATIONS) + 1)
 def _expected_schema(count):
     connection = sqlite3.connect(':memory:')
     try:
+        _harden_connection(connection)
         connection.execute(_MIGRATION_TABLE)
         for _, script in MIGRATIONS[:count]:
             connection.executescript(script)
@@ -108,6 +118,8 @@ class SQLiteStorage:
         if (type(timeout_seconds) not in (int, float) or not math.isfinite(timeout_seconds)
                 or timeout_seconds <= 0):
             raise ValueError("invalid SQLite busy timeout")
+        self._default_path = path is None
+        self._default_checked = False
         selected = paths.get_context_db_path() if path is None else Path(path).expanduser()
         if '..' in selected.parts:
             raise ValueError('SQLite path must not contain traversal')
@@ -148,6 +160,9 @@ class SQLiteStorage:
             with private_directory(self.path.parent, create=True) as (directory_path, directory_fd):
                 require_local_filesystem(directory_path)
                 path = directory_path / self.path.name
+                if self._default_path and not self._default_checked:
+                    self._migrate_default(path, directory_fd)
+                    self._default_checked = True
                 self._prepare_file(path, create=True)
                 for suffix in ('-wal', '-shm', '-journal'):
                     self._prepare_file(Path(str(path) + suffix))
@@ -158,13 +173,7 @@ class SQLiteStorage:
                 )
 
         try:
-            connection.execute('PRAGMA trusted_schema=OFF')
-            # Extensions are disabled by default; explicitly retain that boundary
-            # on Python builds supporting loadable extensions.
-            if hasattr(connection, 'enable_load_extension'):
-                connection.enable_load_extension(False)
-            if hasattr(connection, 'setconfig'):
-                connection.setconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE, True)
+            _harden_connection(connection)
             connection.execute('PRAGMA foreign_keys=ON')
             if connection.execute('PRAGMA foreign_keys').fetchone()[0] != 1:
                 raise RuntimeError('SQLite foreign keys unavailable')
@@ -209,6 +218,89 @@ class SQLiteStorage:
         finally:
             self._state.connection = None
             connection.close()
+
+    def _migrate_default(self, path, directory_fd):
+        legacy = path.with_name('context.db')
+        if path == legacy or not os.path.lexists(legacy):
+            return
+        lock_path = path.with_name('.database-migration.lock')
+        self._prepare_file(lock_path, create=True)
+        flags = os.O_RDWR | getattr(os, 'O_NOFOLLOW', 0)
+        with os.fdopen(os.open(lock_path, flags), 'r+b') as lock:
+            deadline = monotonic() + self.timeout_seconds
+            # A process lock covers snapshot publication and its receipt. SQLite
+            # additionally blocks legacy writers while the snapshot is copied.
+            while True:
+                try:
+                    if os.name == 'posix':
+                        import fcntl
+                        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    else:
+                        import msvcrt
+                        lock.seek(0)
+                        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError:
+                    if monotonic() >= deadline:
+                        raise TimeoutError('local database migration is busy') from None
+                    sleep(0.01)
+            self._prepare_file(legacy)
+            for suffix in ('-wal', '-shm', '-journal'):
+                self._prepare_file(Path(str(legacy) + suffix))
+            receipt = path.with_name('.context-db-migration')
+            guard = sqlite3.connect(legacy, timeout=self.timeout_seconds, isolation_level=None)
+            try:
+                _harden_connection(guard)
+                guard.execute('BEGIN IMMEDIATE')
+                source = sqlite3.connect(legacy.as_uri() + '?mode=ro', uri=True)
+                try:
+                    _harden_connection(source)
+                    source.execute('BEGIN')
+                    fingerprint = sha256(source.serialize()).hexdigest()
+                    if os.path.lexists(path):
+                        self._prepare_file(receipt)
+                        if not receipt.exists() or receipt.read_text() != fingerprint + '\n':
+                            raise ValueError('context.db and omneum.db conflict; select a database explicitly')
+                        return
+                    if os.path.lexists(receipt):
+                        raise ValueError('incomplete local database migration requires explicit recovery')
+                    temporary = path.with_name('.database-copy-' + uuid4().hex)
+                    self._prepare_file(temporary, create=True)
+                    try:
+                        destination = sqlite3.connect(temporary, isolation_level=None)
+                        try:
+                            _harden_connection(destination)
+                            source.backup(destination)
+                            destination.execute('PRAGMA journal_mode=DELETE')
+                            destination.execute('BEGIN IMMEDIATE')
+                            self._migrate(destination)
+                            if (destination.execute('PRAGMA quick_check').fetchone() != ('ok',)
+                                    or destination.execute('PRAGMA foreign_key_check').fetchone()):
+                                raise ValueError('legacy database failed integrity validation')
+                            destination.commit()
+                        finally:
+                            destination.close()
+                        with temporary.open('rb') as snapshot:
+                            os.fsync(snapshot.fileno())
+                        # Publish without overwriting. Keep the legacy database
+                        # untouched for recovery, including any active connections.
+                        os.link(temporary, path)
+                        temporary.unlink()
+                        fd = os.open(receipt, os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                                     | getattr(os, 'O_NOFOLLOW', 0), 0o600)
+                        with os.fdopen(fd, 'w') as record:
+                            record.write(fingerprint + '\n')
+                            record.flush()
+                            os.fsync(record.fileno())
+                        if directory_fd is not None:
+                            os.fsync(directory_fd)
+                    finally:
+                        temporary.unlink(missing_ok=True)
+                finally:
+                    source.close()
+            finally:
+                guard.rollback()
+                guard.close()
 
     @staticmethod
     def _prepare_file(path, *, create=False):
@@ -479,7 +571,7 @@ class SQLiteStorage:
         return UUID(run)
 
     def persist_context(self, *, evaluation, workspace_id, occurrences,
-                        source_tokens, claim_tokens, estimator) -> None:
+                        source_tokens, claim_tokens, estimator) -> UUID:
         with self.transaction() as connection:
             stored = [self.persist_observation(workspace_id=workspace_id, observation=observation,
                       source_token=source, claim_token=claim) for observation, source, claim in occurrences]
@@ -495,3 +587,18 @@ class SQLiteStorage:
                 for parent in observation.parent_observation_ids or ():
                     connection.execute('''UPDATE observation_parents SET parent_observation_id=?
                         WHERE observation_id=? AND local_parent_id=?''', (local_ids.get(parent), oid, parent))
+        return run
+
+    def persist_execution(self, *, workspace_id, evaluation_run_id, execution) -> UUID:
+        if not isinstance(workspace_id, UUID) or not isinstance(evaluation_run_id, UUID):
+            raise TypeError("workspace and evaluation run IDs must be UUIDs")
+        values = execution_values(execution)
+        identifier = uuid4()
+        columns = ', '.join(EXECUTION_FIELDS)
+        placeholders = ', '.join('?' for _ in EXECUTION_FIELDS)
+        with self.transaction() as connection:
+            connection.execute(
+                f'INSERT INTO execution_history (id, workspace_id, evaluation_run_id, {columns}) '
+                f'VALUES (?, ?, ?, {placeholders})',
+                (str(identifier), str(workspace_id), str(evaluation_run_id), *values))
+        return identifier

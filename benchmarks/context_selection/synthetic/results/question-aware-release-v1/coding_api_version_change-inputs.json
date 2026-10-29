@@ -1,0 +1,488 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"client.export_csv(account_id)\"'",
+        "attribute": "submission_api",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:old_api_docs",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://old-api-docs.benchmark.example/coding_api_version_change/old_api_docs",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2025-11-04 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"client.export_csv(account_id)\"'",
+        "attribute": "submission_api",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:old_example",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [
+        "coding_api_version_change:old_api_docs"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://old-example.benchmark.example/coding_api_version_change/old_example",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2025-11-08 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://old-api-docs.benchmark.example/coding_api_version_change/old_api_docs",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"client.exports.create\"'",
+        "attribute": "submission_api",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:current_api_docs",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://current-api-docs.benchmark.example/coding_api_version_change/current_api_docs",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-12 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"client.exports.create\"'",
+        "attribute": "submission_api",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:changelog",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://changelog.benchmark.example/coding_api_version_change/changelog",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-10 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"client.exports.create\"'",
+        "attribute": "submission_api",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:repository_code",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://repository-code.benchmark.example/coding_api_version_change/repository_code",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-10 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"3.0.0\"'",
+        "attribute": "installed_version",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:package_metadata",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://package-metadata.benchmark.example/coding_api_version_change/package_metadata",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-16 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"client.exports.create\"'",
+        "attribute": "submission_api",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:test_output",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "coding_api_version_change:repository_code"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://test-output.benchmark.example/coding_api_version_change/test_output",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-19 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://repository-code.benchmark.example/coding_api_version_change/repository_code",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://current-api-docs.benchmark.example/coding_api_version_change/current_api_docs",
+          "kind": "web_document"
+        },
+        {
+          "identifier": "https://changelog.benchmark.example/coding_api_version_change/changelog",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"client.exports.create\"'",
+        "attribute": "submission_api",
+        "entity": "heldout-entity-v1:5b22736f667477617265222c224c65646765724b6974206578706f7274206a6f62225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "coding_api_version_change:migration_guide",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://migration-guide.benchmark.example/coding_api_version_change/migration_guide",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-13 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "submission API",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:old_api_docs",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2025-11-04 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://old-api-docs.benchmark.example/coding_api_version_change/old_api_docs",
+          "kind": "old_api_docs"
+        },
+        "source_id": "old_api_docs",
+        "text": "LedgerKit 2.6 API reference: submit a CSV export with client.export_csv(account_id). The method returns a job ID.",
+        "value": "client.export_csv(account_id)"
+      },
+      {
+        "attribute": "submission API",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:old_example",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [
+            "coding_api_version_change:old_api_docs"
+          ],
+          "source_modified_at": "2025-11-08 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://old-api-docs.benchmark.example/coding_api_version_change/old_api_docs",
+              "kind": "old_api_docs"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://old-example.benchmark.example/coding_api_version_change/old_example",
+          "kind": "old_example"
+        },
+        "source_id": "old_example",
+        "text": "Example pinned to ledgerkit==2.6: job = client.export_csv(account_id). Poll job.status until complete.",
+        "value": "client.export_csv(account_id)"
+      },
+      {
+        "attribute": "submission API",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:current_api_docs",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-12 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://current-api-docs.benchmark.example/coding_api_version_change/current_api_docs",
+          "kind": "current_api_docs"
+        },
+        "source_id": "current_api_docs",
+        "text": "LedgerKit 3.0 API: client.exports.create(account_id=account_id, format=\"csv\") submits an export and returns ExportJob.",
+        "value": "client.exports.create"
+      },
+      {
+        "attribute": "submission API",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:changelog",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-10 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://changelog.benchmark.example/coding_api_version_change/changelog",
+          "kind": "changelog"
+        },
+        "source_id": "changelog",
+        "text": "3.0 changelog: export_csv was removed. Export submission moved to client.exports.create with an explicit format.",
+        "value": "client.exports.create"
+      },
+      {
+        "attribute": "submission API",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:repository_code",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-10 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://repository-code.benchmark.example/coding_api_version_change/repository_code",
+          "kind": "repository_code"
+        },
+        "source_id": "repository_code",
+        "text": "Installed ledgerkit/exports.py, version 3.0: Exports.create(self, *, account_id, format) posts to /exports. Client initializes self.exports = Exports(transport).",
+        "value": "client.exports.create"
+      },
+      {
+        "attribute": "installed version",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:package_metadata",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-16 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://package-metadata.benchmark.example/coding_api_version_change/package_metadata",
+          "kind": "package_metadata"
+        },
+        "source_id": "package_metadata",
+        "text": "uv.lock resolves ledgerkit 3.0.0 for the export worker; requires Python >=3.11.",
+        "value": "3.0.0"
+      },
+      {
+        "attribute": "submission API",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:test_output",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "coding_api_version_change:repository_code"
+          ],
+          "source_modified_at": "2026-08-19 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://repository-code.benchmark.example/coding_api_version_change/repository_code",
+              "kind": "repository_code"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://test-output.benchmark.example/coding_api_version_change/test_output",
+          "kind": "test_output"
+        },
+        "source_id": "test_output",
+        "text": "CI export smoke test on the lockfile environment: client.exports.create(account_id=\"acct_9\", format=\"csv\") returned a queued ExportJob.",
+        "value": "client.exports.create"
+      },
+      {
+        "attribute": "submission API",
+        "entity": "LedgerKit export job",
+        "entity_namespace": "software",
+        "provenance": {
+          "assertion_id": "coding_api_version_change:migration_guide",
+          "cited_sources": [
+            {
+              "identifier": "https://current-api-docs.benchmark.example/coding_api_version_change/current_api_docs",
+              "kind": "current_api_docs"
+            },
+            {
+              "identifier": "https://changelog.benchmark.example/coding_api_version_change/changelog",
+              "kind": "changelog"
+            }
+          ],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-13 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://migration-guide.benchmark.example/coding_api_version_change/migration_guide",
+          "kind": "migration_guide"
+        },
+        "source_id": "migration_guide",
+        "text": "Migration 2.x to 3.0: replace export_csv(id) with client.exports.create(account_id=id, format=\"csv\"). CSV output is unchanged.",
+        "value": "client.exports.create"
+      }
+    ],
+    "case_id": "coding_api_version_change",
+    "category": null,
+    "context_budget": 3,
+    "domain": "coding_agents",
+    "question": "The lockfile pins LedgerKit 3.0. How should the export job submit a CSV export using that installed API?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-old_api_docs",
+      "claim_ids": [
+        "7b22617474726962757465223a227375626d697373696f6e5f617069222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22636c69656e742e6578706f72745f637376286163636f756e745f696429227d"
+      ],
+      "raw_text": "LedgerKit 2.6 API reference: submit a CSV export with client.export_csv(account_id). The method returns a job ID.",
+      "source_id": "old_api_docs"
+    },
+    {
+      "chunk_id": "chunk-old_example",
+      "claim_ids": [
+        "7b22617474726962757465223a227375626d697373696f6e5f617069222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22636c69656e742e6578706f72745f637376286163636f756e745f696429227d"
+      ],
+      "raw_text": "Example pinned to ledgerkit==2.6: job = client.export_csv(account_id). Poll job.status until complete.",
+      "source_id": "old_example"
+    },
+    {
+      "chunk_id": "chunk-current_api_docs",
+      "claim_ids": [
+        "7b22617474726962757465223a227375626d697373696f6e5f617069222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22636c69656e742e6578706f7274732e637265617465227d"
+      ],
+      "raw_text": "LedgerKit 3.0 API: client.exports.create(account_id=account_id, format=\"csv\") submits an export and returns ExportJob.",
+      "source_id": "current_api_docs"
+    },
+    {
+      "chunk_id": "chunk-changelog",
+      "claim_ids": [
+        "7b22617474726962757465223a227375626d697373696f6e5f617069222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22636c69656e742e6578706f7274732e637265617465227d"
+      ],
+      "raw_text": "3.0 changelog: export_csv was removed. Export submission moved to client.exports.create with an explicit format.",
+      "source_id": "changelog"
+    },
+    {
+      "chunk_id": "chunk-repository_code",
+      "claim_ids": [
+        "7b22617474726962757465223a227375626d697373696f6e5f617069222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22636c69656e742e6578706f7274732e637265617465227d"
+      ],
+      "raw_text": "Installed ledgerkit/exports.py, version 3.0: Exports.create(self, *, account_id, format) posts to /exports. Client initializes self.exports = Exports(transport).",
+      "source_id": "repository_code"
+    },
+    {
+      "chunk_id": "chunk-package_metadata",
+      "claim_ids": [
+        "7b22617474726962757465223a22696e7374616c6c65645f76657273696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22332e302e30227d"
+      ],
+      "raw_text": "uv.lock resolves ledgerkit 3.0.0 for the export worker; requires Python >=3.11.",
+      "source_id": "package_metadata"
+    },
+    {
+      "chunk_id": "chunk-test_output",
+      "claim_ids": [
+        "7b22617474726962757465223a227375626d697373696f6e5f617069222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22636c69656e742e6578706f7274732e637265617465227d"
+      ],
+      "raw_text": "CI export smoke test on the lockfile environment: client.exports.create(account_id=\"acct_9\", format=\"csv\") returned a queued ExportJob.",
+      "source_id": "test_output"
+    },
+    {
+      "chunk_id": "chunk-migration_guide",
+      "claim_ids": [
+        "7b22617474726962757465223a227375626d697373696f6e5f617069222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373336663636373437373631373236353232326332323463363536343637363537323462363937343230363537383730366637323734323036613666363232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22636c69656e742e6578706f7274732e637265617465227d"
+      ],
+      "raw_text": "Migration 2.x to 3.0: replace export_csv(id) with client.exports.create(account_id=id, format=\"csv\"). CSV output is unchanged.",
+      "source_id": "migration_guide"
+    }
+  ],
+  "truth": {
+    "answer": "Use client.exports.create(account_id=account_id, format=\"csv\") with LedgerKit 3.0.",
+    "case_id": "coding_api_version_change",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "client.exports.create",
+        "csv"
+      ]
+    },
+    "supporting_sources": [
+      "current_api_docs",
+      "changelog",
+      "repository_code",
+      "test_output",
+      "migration_guide"
+    ]
+  }
+}

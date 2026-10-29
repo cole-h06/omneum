@@ -1,0 +1,12 @@
+{
+  "new_executions": 7320,
+  "reused_executions": 4320,
+  "new_quality_cells": 1464,
+  "reused_quality_cells": 864,
+  "warmups": 8,
+  "budget_violations": 0,
+  "repeated_selections_identical": true,
+  "paid_api_calls": 0,
+  "downstream_generations": 0,
+  "tokenizer_contexts": 26735
+}

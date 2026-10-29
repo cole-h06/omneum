@@ -1,0 +1,505 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'92'",
+        "attribute": "percentage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:warehouse_query",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://warehouse-query.benchmark.example/analytics_metric_definition_conflict/warehouse_query",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'112'",
+        "attribute": "percentage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:semantic_layer",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://semantic-layer.benchmark.example/analytics_metric_definition_conflict/semantic_layer",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'112'",
+        "attribute": "percentage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:dashboard",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [
+        "analytics_metric_definition_conflict:semantic_layer"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://dashboard.benchmark.example/analytics_metric_definition_conflict/dashboard",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://semantic-layer.benchmark.example/analytics_metric_definition_conflict/semantic_layer",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'92'",
+        "attribute": "percentage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:finance_report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://finance-report.benchmark.example/analytics_metric_definition_conflict/finance_report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://warehouse-query.benchmark.example/analytics_metric_definition_conflict/warehouse_query",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'92'",
+        "attribute": "percentage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:metric_docs",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://metric-docs.benchmark.example/analytics_metric_definition_conflict/metric_docs",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'112'",
+        "attribute": "percentage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:transformation",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://metric-docs.benchmark.example/analytics_metric_definition_conflict/metric_docs",
+          "kind": "web_document"
+        },
+        {
+          "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"expansion excluded\"'",
+        "attribute": "board_definition",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:data_catalog",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://data-catalog.benchmark.example/analytics_metric_definition_conflict/data_catalog",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'112'",
+        "attribute": "percentage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c2241746c6173204a756c792067726f737320726576656e756520726574656e74696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_metric_definition_conflict:exported_report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [
+        "analytics_metric_definition_conflict:dashboard"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://exported-report.benchmark.example/analytics_metric_definition_conflict/exported_report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://dashboard.benchmark.example/analytics_metric_definition_conflict/dashboard",
+          "kind": "web_document"
+        }
+      ]
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "percentage",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:warehouse_query",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://warehouse-query.benchmark.example/analytics_metric_definition_conflict/warehouse_query",
+          "kind": "warehouse_query"
+        },
+        "source_id": "warehouse_query",
+        "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%.",
+        "value": 92
+      },
+      {
+        "attribute": "percentage",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:semantic_layer",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation",
+              "kind": "transformation"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://semantic-layer.benchmark.example/analytics_metric_definition_conflict/semantic_layer",
+          "kind": "semantic_layer"
+        },
+        "source_id": "semantic_layer",
+        "text": "Semantic layer field labeled gross_revenue_retention uses (opening - churn - contraction + expansion) / opening and returns 112% for July.",
+        "value": 112
+      },
+      {
+        "attribute": "percentage",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:dashboard",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [
+            "analytics_metric_definition_conflict:semantic_layer"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://semantic-layer.benchmark.example/analytics_metric_definition_conflict/semantic_layer",
+              "kind": "semantic_layer"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://dashboard.benchmark.example/analytics_metric_definition_conflict/dashboard",
+          "kind": "dashboard"
+        },
+        "source_id": "dashboard",
+        "text": "Sales dashboard: July gross revenue retention 112%, sourced from the semantic layer gross_revenue_retention field.",
+        "value": 112
+      },
+      {
+        "attribute": "percentage",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:finance_report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://warehouse-query.benchmark.example/analytics_metric_definition_conflict/warehouse_query",
+              "kind": "warehouse_query"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://finance-report.benchmark.example/analytics_metric_definition_conflict/finance_report",
+          "kind": "finance_report"
+        },
+        "source_id": "finance_report",
+        "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded.",
+        "value": 92
+      },
+      {
+        "attribute": "percentage",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:metric_docs",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://metric-docs.benchmark.example/analytics_metric_definition_conflict/metric_docs",
+          "kind": "metric_docs"
+        },
+        "source_id": "metric_docs",
+        "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%.",
+        "value": 92
+      },
+      {
+        "attribute": "percentage",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:transformation",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation",
+          "kind": "transformation"
+        },
+        "source_id": "transformation",
+        "text": "dbt retention model computes (opening - churn - contraction + expansion) / opening as gross_revenue_retention; July output is 1.12.",
+        "value": 112
+      },
+      {
+        "attribute": "board definition",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:data_catalog",
+          "cited_sources": [
+            {
+              "identifier": "https://metric-docs.benchmark.example/analytics_metric_definition_conflict/metric_docs",
+              "kind": "metric_docs"
+            },
+            {
+              "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation",
+              "kind": "transformation"
+            }
+          ],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://data-catalog.benchmark.example/analytics_metric_definition_conflict/data_catalog",
+          "kind": "data_catalog"
+        },
+        "source_id": "data_catalog",
+        "text": "Catalog entry: board gross retention excludes expansion; the sales model currently includes expansion. Finance metric owner publishes board values.",
+        "value": "expansion excluded"
+      },
+      {
+        "attribute": "percentage",
+        "entity": "Atlas July gross revenue retention",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_metric_definition_conflict:exported_report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [
+            "analytics_metric_definition_conflict:dashboard"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://dashboard.benchmark.example/analytics_metric_definition_conflict/dashboard",
+              "kind": "dashboard"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://exported-report.benchmark.example/analytics_metric_definition_conflict/exported_report",
+          "kind": "exported_report"
+        },
+        "source_id": "exported_report",
+        "text": "Exported sales report: gross revenue retention July 112%, copied from the dashboard.",
+        "value": 112
+      }
+    ],
+    "case_id": "analytics_metric_definition_conflict",
+    "category": null,
+    "context_budget": 3,
+    "domain": "data_analytics_agents",
+    "question": "For the Atlas July board pack, what gross revenue retention percentage follows the finance definition that excludes expansion?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-warehouse_query",
+      "claim_ids": [
+        "7b22617474726962757465223a2270657263656e74616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a39327d"
+      ],
+      "raw_text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%.",
+      "source_id": "warehouse_query"
+    },
+    {
+      "chunk_id": "chunk-semantic_layer",
+      "claim_ids": [
+        "7b22617474726962757465223a2270657263656e74616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3131327d"
+      ],
+      "raw_text": "Semantic layer field labeled gross_revenue_retention uses (opening - churn - contraction + expansion) / opening and returns 112% for July.",
+      "source_id": "semantic_layer"
+    },
+    {
+      "chunk_id": "chunk-dashboard",
+      "claim_ids": [
+        "7b22617474726962757465223a2270657263656e74616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3131327d"
+      ],
+      "raw_text": "Sales dashboard: July gross revenue retention 112%, sourced from the semantic layer gross_revenue_retention field.",
+      "source_id": "dashboard"
+    },
+    {
+      "chunk_id": "chunk-finance_report",
+      "claim_ids": [
+        "7b22617474726962757465223a2270657263656e74616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a39327d"
+      ],
+      "raw_text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded.",
+      "source_id": "finance_report"
+    },
+    {
+      "chunk_id": "chunk-metric_docs",
+      "claim_ids": [
+        "7b22617474726962757465223a2270657263656e74616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a39327d"
+      ],
+      "raw_text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%.",
+      "source_id": "metric_docs"
+    },
+    {
+      "chunk_id": "chunk-transformation",
+      "claim_ids": [
+        "7b22617474726962757465223a2270657263656e74616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3131327d"
+      ],
+      "raw_text": "dbt retention model computes (opening - churn - contraction + expansion) / opening as gross_revenue_retention; July output is 1.12.",
+      "source_id": "transformation"
+    },
+    {
+      "chunk_id": "chunk-data_catalog",
+      "claim_ids": [
+        "7b22617474726962757465223a22626f6172645f646566696e6974696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22657870616e73696f6e206578636c75646564227d"
+      ],
+      "raw_text": "Catalog entry: board gross retention excludes expansion; the sales model currently includes expansion. Finance metric owner publishes board values.",
+      "source_id": "data_catalog"
+    },
+    {
+      "chunk_id": "chunk-exported_report",
+      "claim_ids": [
+        "7b22617474726962757465223a2270657263656e74616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232343137343663363137333230346137353663373932303637373236663733373332303732363537363635366537353635323037323635373436353665373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3131327d"
+      ],
+      "raw_text": "Exported sales report: gross revenue retention July 112%, copied from the dashboard.",
+      "source_id": "exported_report"
+    }
+  ],
+  "truth": {
+    "answer": "Gross revenue retention is 92% with expansion excluded.",
+    "case_id": "analytics_metric_definition_conflict",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "92"
+      ]
+    },
+    "supporting_sources": [
+      "warehouse_query",
+      "finance_report",
+      "metric_docs"
+    ]
+  }
+}

@@ -1,4 +1,3 @@
-
 # Canonicalization
 
 This document defines the version-1 canonicalization and linkage encoding used

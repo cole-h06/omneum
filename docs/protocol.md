@@ -1,4 +1,3 @@
-
 # Omneum Protocol
 
 The Omneum Protocol defines how clients generate privacy-preserving linkage tokens and submit assertion graphs for evaluation. Version 1 uses [RFC 9497](https://www.rfc-editor.org/rfc/rfc9497) VOPRF with the `ristretto255-SHA512` ciphersuite.
@@ -12,7 +11,7 @@ Version 1 uses the following configuration:
 | Field | Value | Description |
 |---|---|---|
 | `protocol_version` | `"v1"` | MCP request and response contract |
-| `algorithm_version` | `"omneum-v1"` | Assertion evaluation algorithm |
+| `algorithm_version` | `"omneum-v2"` | Provenance-aware graph inference version |
 | `voprf_mode` | `"voprf"` | RFC 9497 VOPRF mode |
 | `voprf_ciphersuite` | `"ristretto255-SHA512"` | Cryptographic ciphersuite |
 | `voprf_key_version` | `1..2^32-1` | Active deployment key version |
@@ -38,7 +37,7 @@ The server runs over MCP stdio:
 omneum-server
 ```
 
-The Python SDK can also invoke the local evaluation workflow without requiring an application to construct the protocol messages manually.
+The Python SDK constructs protocol requests and handles VOPRF linkage through its evaluation APIs.
 
 See [Installation](guides/installation.md) for the managed local server setup.
 
@@ -242,15 +241,16 @@ See [Canonicalization](canonicalization.md) for the full encoding specification.
 
 `evaluate_context` evaluates an opaque graph of assertions.
 
-The Python SDK exposes three interfaces:
+The Python SDK exposes two MCP evaluation interfaces:
 
 | Method | Input |
 |---|---|
-| `client.evaluate()` | `StructuredAssertion` |
-| `client.evaluate_mapped()` | Application output adapted through `ContextMapper` |
+| `client.evaluate_mapped()` | Retrieval records mapped through `ContextMapper` |
 | `client.evaluate_context()` | `Observation` objects |
 
-All three produce the same MCP evaluation contract.
+Both produce the same MCP evaluation contract.
+
+For synchronous in-process evaluation, use `omneum.evaluate(records)` without an MCP connection.
 
 The SDK canonicalizes the structured assertions and derives their linkage tokens. It also estimates source dependencies using locally available provenance.
 
@@ -271,7 +271,7 @@ Results include:
 | Contributions | Individual source contributions |
 | Conflicts | Competing claims for an attribute |
 | Independent support | Estimated independent support |
-| Dependency confidence | Confidence from observed dependency signals |
+| Weighted signal coverage | Proportion of configured dependency signal weight with observable provenance |
 | Convergence | Algorithm iteration metadata |
 
 See [`evaluate_context`](api/evaluate-context.md) for the complete request and response schema.
@@ -328,7 +328,7 @@ The `ping` configuration fingerprint can be compared across replicas to detect c
 
 The evaluator accepts only its active key version.
 
-Stale or unknown key versions are rejected without distinguishing the reason at the API boundary.
+Requests using a key version other than the active deployment version are rejected with `voprf_key_version_mismatch`.
 
 Concurrent evaluation under old and new keys is not supported. Version 1 also has no persistent rollback floor; rollback protection depends on deployment configuration controls.
 
@@ -370,7 +370,7 @@ Timed-out Python work cannot be forcibly terminated. Its execution slot remains 
 
 ## Security
 
-The evaluator is completely data-blind with respect to the original source content. It processes blinded VOPRF elements during linkage and opaque identifiers during assertion evaluation.
+The evaluator is payload-blind. It processes blinded VOPRF elements during linkage and opaque identifiers during assertion evaluation. Original source content remains on the client.
 
 The submitted graph still exposes its structure. Stable tokens also expose equality within a deployment's linkage space.
 

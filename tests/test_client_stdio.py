@@ -69,7 +69,7 @@ def test_stdio_client(tmp_path: Path) -> None:
             )
             assert len(first.value) == 64
             assert first.value == second.value
-            result = await client.evaluate_context(
+            result = await client._evaluate_context(
                 (
                     Observation(
                         observation_id="assertion-a",
@@ -224,7 +224,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
             voprf_public_key=public_key,
         )
         async with open_stdio_client(config, parameters) as client:
-            first = await client.evaluate_context(
+            first = await client._evaluate_context(
                 observations,
                 estimator=estimator,
             )
@@ -254,7 +254,7 @@ def test_stdio_enterprise(tmp_path, monkeypatch):
                     "omneum_code": "invalid_request",
                 }
                 assert "stdio-secret-marker" not in repr(rejected)
-            second = await client.evaluate_context(
+            second = await client._evaluate_context(
                 observations,
                 estimator=estimator,
             )

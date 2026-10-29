@@ -1,0 +1,383 @@
+{
+  "id": "enterprise_semantic_distractors",
+  "domain": "enterprise_rag",
+  "question": "For a contractor leaving the Iris project, what is the deadline to revoke production VPN access after the engagement ends?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "policy",
+      "source": {
+        "kind": "policy",
+        "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy"
+      },
+      "text": "Access policy AC-9: revoke contractor production VPN access within 4 hours of the engagement end timestamp. The project owner opens the offboarding request.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:policy",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "AC-9 contractor production VPN offboarding",
+          "attribute": "revocation_deadline",
+          "value": {
+            "duration": 4,
+            "unit": "hours",
+            "anchor": "engagement end timestamp"
+          },
+          "claim_id": "sha256:be303e7330b9d8190402c988caeb19dc26bfa067149490fd98473a9314083287",
+          "observation_id": "enterprise_semantic_distractors:policy",
+          "evidence": [
+            {
+              "source_id": "policy",
+              "start": 0,
+              "end": 156,
+              "text": "Access policy AC-9: revoke contractor production VPN access within 4 hours of the engagement end timestamp. The project owner opens the offboarding request."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "AC-9 contractor production VPN offboarding",
+          "attribute": "offboarding_request_owner",
+          "value": "project owner",
+          "claim_id": "sha256:6ea30755b1c7f7c6a0e1e5ce494bbc42ff4b14e1d0de74898b4b78def28d286d",
+          "observation_id": "enterprise_semantic_distractors:policy:claim:2",
+          "evidence": [
+            {
+              "source_id": "policy",
+              "start": 0,
+              "end": 156,
+              "text": "Access policy AC-9: revoke contractor production VPN access within 4 hours of the engagement end timestamp. The project owner opens the offboarding request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "policy_2",
+      "source": {
+        "kind": "policy",
+        "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy_2"
+      },
+      "text": "Employee departure policy: payroll benefit access remains available for 30 days after employment ends.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:policy_2",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "employee payroll benefit access",
+          "attribute": "access_retention_after_employment_end",
+          "value": {
+            "duration": 30,
+            "unit": "days"
+          },
+          "claim_id": "sha256:8b78d00168299ac53ac25309f3797632cf12766eb8b26ed66df85d79606f0901",
+          "observation_id": "enterprise_semantic_distractors:policy_2",
+          "evidence": [
+            {
+              "source_id": "policy_2",
+              "start": 0,
+              "end": 102,
+              "text": "Employee departure policy: payroll benefit access remains available for 30 days after employment ends."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "project_doc",
+      "source": {
+        "kind": "project_doc",
+        "identifier": "https://project-doc.benchmark.example/enterprise_semantic_distractors/project_doc"
+      },
+      "text": "Iris project closeout plan: archive project documentation within 14 days of the final milestone.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:project_doc",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Iris project documentation",
+          "attribute": "archive_deadline",
+          "value": {
+            "duration": 14,
+            "unit": "days",
+            "anchor": "final milestone"
+          },
+          "claim_id": "sha256:74d1750e66b689835d7cc490caf98f3fd2ebef23a596ed5fcdcf34577664c993",
+          "observation_id": "enterprise_semantic_distractors:project_doc",
+          "evidence": [
+            {
+              "source_id": "project_doc",
+              "start": 0,
+              "end": 96,
+              "text": "Iris project closeout plan: archive project documentation within 14 days of the final milestone."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "project_doc_2",
+      "source": {
+        "kind": "project_doc",
+        "identifier": "https://project-doc.benchmark.example/enterprise_semantic_distractors/project_doc_2"
+      },
+      "text": "Iris VPN migration plan: staging VPN credentials rotate every 24 hours during the trial.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:project_doc_2",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Iris staging VPN",
+          "attribute": "credential_rotation_interval",
+          "value": {
+            "duration": 24,
+            "unit": "hours",
+            "condition": "during trial"
+          },
+          "claim_id": "sha256:1b3a4d09a9a8434689ca81eaa451c2d914ab68f6adae8c7ca267ba61ef78f53c",
+          "observation_id": "enterprise_semantic_distractors:project_doc_2",
+          "evidence": [
+            {
+              "source_id": "project_doc_2",
+              "start": 0,
+              "end": 88,
+              "text": "Iris VPN migration plan: staging VPN credentials rotate every 24 hours during the trial."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "hr_record",
+      "source": {
+        "kind": "hr_record",
+        "identifier": "https://hr-record.benchmark.example/enterprise_semantic_distractors/hr_record"
+      },
+      "text": "Contractor HR workflow AC-9: the engagement end timestamp starts a 4-hour production VPN revocation timer.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:hr_record",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "AC-9 contractor production VPN offboarding",
+          "attribute": "revocation_deadline",
+          "value": {
+            "duration": 4,
+            "unit": "hours",
+            "anchor": "engagement end timestamp"
+          },
+          "claim_id": "sha256:be303e7330b9d8190402c988caeb19dc26bfa067149490fd98473a9314083287",
+          "observation_id": "enterprise_semantic_distractors:hr_record",
+          "evidence": [
+            {
+              "source_id": "hr_record",
+              "start": 0,
+              "end": 106,
+              "text": "Contractor HR workflow AC-9: the engagement end timestamp starts a 4-hour production VPN revocation timer."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "confluence_page",
+      "source": {
+        "kind": "confluence_page",
+        "identifier": "https://confluence-page.benchmark.example/enterprise_semantic_distractors/confluence_page"
+      },
+      "text": "Confluence contractor onboarding: production VPN enrollment requests normally complete within 2 business days.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:confluence_page",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "contractor production VPN enrollment",
+          "attribute": "normal_enrollment_duration",
+          "value": {
+            "duration": 2,
+            "unit": "business days"
+          },
+          "claim_id": "sha256:f3244ac1dd66a388efe284b0097f74fe69eafe9be12a6b2a4b62b10afca3b0e6",
+          "observation_id": "enterprise_semantic_distractors:confluence_page",
+          "evidence": [
+            {
+              "source_id": "confluence_page",
+              "start": 0,
+              "end": 110,
+              "text": "Confluence contractor onboarding: production VPN enrollment requests normally complete within 2 business days."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "slack_message",
+      "source": {
+        "kind": "slack_message",
+        "identifier": "https://slack-message.benchmark.example/enterprise_semantic_distractors/slack_message"
+      },
+      "text": "Slack Iris release channel: allow 4 hours for the production deploy window after approval.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:slack_message",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Iris production deployment",
+          "attribute": "deploy_window_after_approval",
+          "value": {
+            "duration": 4,
+            "unit": "hours"
+          },
+          "claim_id": "sha256:fe0979670bc857f4234d7870053a0926e5edc67a2e7beb1d457fb374e47364d1",
+          "observation_id": "enterprise_semantic_distractors:slack_message",
+          "evidence": [
+            {
+              "source_id": "slack_message",
+              "start": 0,
+              "end": 90,
+              "text": "Slack Iris release channel: allow 4 hours for the production deploy window after approval."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "operations_doc",
+      "source": {
+        "kind": "operations_doc",
+        "identifier": "https://operations-doc.benchmark.example/enterprise_semantic_distractors/operations_doc"
+      },
+      "text": "Operations AC-9 offboarding procedure: disable contractor production VPN within 4 hours after the recorded engagement end.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:operations_doc",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "policy",
+            "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "AC-9 contractor production VPN offboarding",
+          "attribute": "revocation_deadline",
+          "value": {
+            "duration": 4,
+            "unit": "hours",
+            "anchor": "engagement end timestamp"
+          },
+          "claim_id": "sha256:be303e7330b9d8190402c988caeb19dc26bfa067149490fd98473a9314083287",
+          "observation_id": "enterprise_semantic_distractors:operations_doc",
+          "evidence": [
+            {
+              "source_id": "operations_doc",
+              "start": 0,
+              "end": 122,
+              "text": "Operations AC-9 offboarding procedure: disable contractor production VPN within 4 hours after the recorded engagement end."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "drive_document",
+      "source": {
+        "kind": "drive_document",
+        "identifier": "https://drive-document.benchmark.example/enterprise_semantic_distractors/drive_document"
+      },
+      "text": "Drive contractor equipment guide: return the VPN hardware token within 7 days after the engagement.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:drive_document",
+        "observed_at": "2026-08-20T12:08:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "contractor VPN equipment",
+          "attribute": "hardware_token_return_deadline",
+          "value": {
+            "duration": 7,
+            "unit": "days",
+            "anchor": "engagement end"
+          },
+          "claim_id": "sha256:4eb946afd9982a34a6ff790ca9648af40952f301ace49b11a1279f442bc0906d",
+          "observation_id": "enterprise_semantic_distractors:drive_document",
+          "evidence": [
+            {
+              "source_id": "drive_document",
+              "start": 0,
+              "end": 99,
+              "text": "Drive contractor equipment guide: return the VPN hardware token within 7 days after the engagement."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "system_record",
+      "source": {
+        "kind": "system_record",
+        "identifier": "https://system-record.benchmark.example/enterprise_semantic_distractors/system_record"
+      },
+      "text": "Access scheduler policy AC-9: contractor production VPN revoke_due = engagement_end + 4 hours.",
+      "provenance": {
+        "assertion_id": "enterprise_semantic_distractors:system_record",
+        "observed_at": "2026-08-20T12:09:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "policy",
+            "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "AC-9 contractor production VPN offboarding",
+          "attribute": "revocation_deadline",
+          "value": {
+            "duration": 4,
+            "unit": "hours",
+            "anchor": "engagement end timestamp"
+          },
+          "claim_id": "sha256:be303e7330b9d8190402c988caeb19dc26bfa067149490fd98473a9314083287",
+          "observation_id": "enterprise_semantic_distractors:system_record",
+          "evidence": [
+            {
+              "source_id": "system_record",
+              "start": 0,
+              "end": 94,
+              "text": "Access scheduler policy AC-9: contractor production VPN revoke_due = engagement_end + 4 hours."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

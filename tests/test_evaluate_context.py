@@ -709,7 +709,11 @@ def test_golden():
                 EvaluateAssertionRequest.model_validate(golden_values())
             )
             assert not first.isError
-            assert first.structuredContent == second.structuredContent
+            assert first.structuredContent["evaluation_latency_ms"] >= 0
+            assert second.structuredContent["evaluation_latency_ms"] >= 0
+            assert {k: v for k, v in first.structuredContent.items() if k != "evaluation_latency_ms"} == {
+                k: v for k, v in second.structuredContent.items() if k != "evaluation_latency_ms"
+            }
             content = first.structuredContent
             assert content is not None
             assert content["summary"] == {
@@ -1038,3 +1042,33 @@ def test_exact_equivalence_reaches_inference():
                for item in result.claim_support)
     assert all(item.estimated_independent_support_count == 1.0
                for item in result.claim_support)
+
+
+def test_evaluation_latency_and_old_response_compatibility(monkeypatch):
+    from pydantic import ValidationError
+
+    clock = iter((10.0, 10.125))
+    monkeypatch.setattr(tool_module.time, "perf_counter", lambda: next(clock))
+
+    async def run():
+        service = AssertionEvaluationService(make_state())
+        try:
+            return await service.evaluate(request())
+        finally:
+            service.close()
+
+    result = asyncio.run(run())
+    content = result.structuredContent
+    assert content["evaluation_latency_ms"] == 125.0
+    assert json.loads(result.content[0].text) == content
+    assert content["source_reliability"] == [{"source_id": SOURCE_A, "reliability": 1.0}]
+    assert content["claim_support"][0]["claim_id"] == CLAIM_A
+    assert content["claim_support"][0]["support"] == 1.0
+    assert content["summary"] == {"source_count": 1, "claim_count": 1, "assertion_count": 1}
+    assert content["claim_support"][0]["estimated_independent_support_count"] == 1.0
+    assert content["metadata"]["converged"] is True
+    old = {key: value for key, value in content.items() if key != "evaluation_latency_ms"}
+    assert EvaluateAssertionResponse.model_validate(old).evaluation_latency_ms is None
+    for invalid in (-1.0, float("nan"), float("inf"), "125"):
+        with pytest.raises(ValidationError):
+            EvaluateAssertionResponse.model_validate({**content, "evaluation_latency_ms": invalid})

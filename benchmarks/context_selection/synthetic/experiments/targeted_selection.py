@@ -1,0 +1,517 @@
+"""Bounded diagnostics and isolated corrections using the production selector."""
+import argparse
+from ..execution_safety import DEFAULT_TRACE
+import ast
+import asyncio
+import csv
+import itertools
+import json
+from pathlib import Path
+import random
+from statistics import mean
+import subprocess
+import time
+from unittest.mock import patch
+
+import httpx
+
+from omneum import open_stdio_client
+from omneum import context_selection as cs, query_context as qc
+from omneum.context_selection import claim_id, reconstruct_context, _inferred_coverage_terms
+from omneum.query_context import normalize_chunk_relevance
+from benchmarks.context_selection import deployment
+from benchmarks.context_selection.config import estimator_config
+from .discovery_experiment import weights as refined_weights
+from ..tier1_benchmark import BASE, BUDGETS, prepare_cases, sha, write, environment
+from ..tier1_competitors import provider_ranks
+from ..tier1_metrics import evidence_size, measure, distribution
+from ..loader import load_ground_truth
+from ..prepare_benchmark import render
+
+
+METHODS = ('omneum', 'bge_omneum', 'embedding_omneum', 'bm25_omneum', 'cohere_omneum')
+PRIOR = BASE / 'results/tier1-competitors-20261025-v1'
+REFINED = BASE / 'results/discovery-refined-20261025-v2'
+ARMS = ('production', 'refinement_b', 'tail', 'seed', 'singleton', 'combined')
+FIELDS = ('source_precision', 'source_recall', 'evidence_retention', 'supporting_passage_claim_coverage',
+          'independent_evidence_coverage', 'actual_context_tokens', 'context_reduction', 'tokenizer_tokens',
+          'unused_tokens', 'evidence_per_100_tokens', 'nongold_selected')
+
+
+def tail_weights(scores, kind):
+    """Preserve every positive production weight; repair only positive-score zeros."""
+    raw, result = normalize_chunk_relevance(scores, list(scores), 'similarity')
+    refined_weights(scores, kind)  # Reuse the declared range and finite-value checks.
+    levels = sorted(set(raw.values()))
+    if len(levels) > 1 and levels[0] > 0:
+        low, following = levels[:2]
+        next_weight = 1 / (len(levels) - 1)
+        credit = next_weight * (low / following) / (1 + low / following)
+        for key, value in raw.items():
+            if value == low:
+                result[key] = credit
+    return result
+
+
+def objective(selected, terms, relevance):
+    """Exact integral of production's fixed claim/cluster marginal gains."""
+    represented = {}
+    for key in selected:
+        for claim, (group, mass) in terms[key].items():
+            unit = claim, group
+            represented[unit] = max(represented.get(unit, 0.0), mass * relevance[key])
+    return sum(represented.values())
+
+
+def exact_choice(subsets, eligible, budget, values):
+    """Optimize only fixed F and costs; ignore offline evidence fields."""
+    best = None
+    for row, value in zip(subsets, values):
+        if row['tokens'] > budget or not set(row['selected']) <= eligible:
+            continue
+        if best is None or value > best[1] + 1e-12 or (
+                abs(value-best[1]) <= 1e-12 and row['tokens'] < best[0]['tokens']):
+            best = row, value
+    return best
+
+
+def pack(evaluation, chunks, budget, relevance, *, count):
+    trace = []
+    options = dict(token_budget=budget, count_tokens=count, _selection_trace=trace,
+                   _allow_unmapped_claims=True)
+    options.update(strategy='coverage_support_density', complementary_evidence=True,
+                   token_cost_exponent=1,
+                   chunk_relevance={c['chunk_id']: relevance[c['chunk_id']] for c in chunks})
+    return reconstruct_context(evaluation, chunks, **options), trace
+
+
+def seed_chunks(evaluation, observations, full, eligible, budget, relevance, count):
+    """Open graph neighbors only for a stronger feasible singleton witness."""
+    _, trace = pack(evaluation, full, 0, relevance, count=count)
+    feasible = [c for c in trace[0]['candidates'] if c['proposed_context_tokens'] <= budget]
+    local = max((c['marginal_gain'] for c in feasible if c['chunk_id'] in eligible), default=0.0)
+    best = max((c['marginal_gain'] for c in feasible), default=0.0)
+    seeds = [c['chunk_id'] for c in feasible if c['marginal_gain'] >= best and
+             c['chunk_id'] not in eligible] if best > local + 1e-12 else []
+    if not seeds:
+        return set(eligible), []
+    support = {claim_id(c.claim): c.support for c in evaluation.claim_support}
+    mapping = cs.map_chunks(full, support)
+    anchors = sorted({a for c in full if c['chunk_id'] in seeds for a in c['claim_ids']})
+    reached = qc.expand_claims(observations, mapping, anchors, 2)
+    return set(eligible) | set(reached['chunk_ids']), seeds
+
+
+def singleton_witness(result, trace, budget):
+    """A singleton certificate, not a new optimizer or evidence-label heuristic."""
+    feasible = [c for c in trace[0]['candidates'] if c['proposed_context_tokens'] <= budget]
+    if not feasible:
+        return None
+    best = max(feasible, key=lambda c: (c['marginal_gain'], -c['proposed_context_tokens']))
+    current = sum(c['marginal_gain'] for c in result['selection_scores'])
+    return best['chunk_id'] if best['marginal_gain'] > current + 1e-12 else None
+
+
+def protect(out):
+    markdown = subprocess.check_output(['rg', '--files', '--hidden', '--no-ignore', '-g', '*.md',
+        '-g', '*.mdx', '-g', '!.git/**'], text=True).splitlines()
+    allowed = {Path(__file__).resolve(), Path(__file__).with_name('test_targeted_selection.py').resolve()}
+    files = {Path(p).resolve() for p in markdown}
+    for root in (Path('omneum').resolve(), BASE):
+        files.update(p for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts
+                     and out not in p.parents and p not in allowed)
+    write(out / 'protected_before.json', dict(markdown=markdown, files={str(p): sha(p) for p in sorted(files)}))
+
+
+async def diagnose(args):
+    out = args.output.resolve()
+    out.mkdir()
+    protect(out)
+    trace = [json.loads(line) for line in args.trace.open()]
+    graphs = {r['case_id']: r for r in trace if r['type'] == 'graph'}
+    cases = prepare_cases(graphs)
+    prior = json.loads((PRIOR / 'selections.json').read_text())
+    reference = {(r['case_id'], r['method'], r['budget']): r for r in prior if r['method'] in METHODS}
+    refined = json.loads((REFINED / 'selections.json').read_text())
+    old_b = {(r['case_id'], r['method'], r['budget']): r for r in refined if r['arm'] == 'B'}
+    ranks = provider_ranks(BASE / 'results/question-aware-release-v1')
+    manifest = dict(started_utc=args.started, environment=environment(), cases=24, budgets=BUDGETS,
+        methods=METHODS, original=str(PRIOR), refinement_b=str(REFINED), trace=str(args.trace),
+        trace_sha256=sha(args.trace), diagnostic_code_sha256=sha(Path(__file__)),
+        tokenizer=args.tokenizer, daemon_sha256=sha(args.daemon), conflict_aware=False,
+        objective='sum over (claim, inferred dependency cluster) of max selected converged cluster mass times fixed passage relevance',
+        attribution='Eligibility ceiling = full gold optimum minus eligible gold optimum. Utility gap = eligible gold optimum minus eligible exact-F evidence. Signed packing effect = eligible exact-F evidence minus production greedy evidence. Normalization is examined within utility, not added again.',
+        gold_use='Only offline evidence oracle and metrics; exact-F solver and runtime functions never receive labels.',
+        approximation_guarantee=None, paid_api_calls=0, downstream_generations=0)
+    write(out / 'manifest.json', manifest)
+    cache = {}
+    with httpx.Client(trust_env=False, timeout=120) as http:
+        def count(text):
+            if text not in cache:
+                body = http.post(args.tokenizer+'/tokenize', json=dict(content=text,
+                    add_special=False, parse_special=True)).raise_for_status().json()
+                cache[text] = len(body['tokens'])
+            return cache[text]
+        rows, selections, graph_runs = [], [], []
+        with patch.object(deployment, '_build_daemon', return_value=args.daemon.resolve()):
+            with deployment.benchmark_deployment() as (config, server):
+                async with open_stdio_client(config, server, local_persistence=None) as client:
+                    for cid, data in cases.items():
+                        start = time.perf_counter()
+                        evaluation = await client.evaluate_context(data['graph'], estimator=estimator_config())
+                        graph_runs.append(dict(case_id=cid, graph_sdk_ms=(time.perf_counter()-start)*1000))
+                        actual = {claim_id(c.claim): c.support for c in evaluation.claim_support}
+                        expected = {c['claim_id']: c['support'] for c in graphs[cid]['claims']}
+                        assert actual.keys() == expected.keys() and all(abs(actual[k]-expected[k]) < 1e-12 for k in actual)
+                        chunks = data['chunks']; by_id = {c['chunk_id']: c for c in chunks}
+                        terms = _inferred_coverage_terms(evaluation, chunks)
+                        raw = json.loads((BASE/'canonical/cases'/cid/'case.json').read_text())
+                        truth = load_ground_truth(BASE/'canonical/cases'/cid/'ground_truth.json')
+                        gold_sizes = {'chunk-'+c['source_id']: evidence_size(c) for c in raw['candidates'] if c['source_id'] in truth.supporting_sources}
+                        total_evidence = sum(gold_sizes.values())
+                        subsets = []
+                        count(render(chunks))
+                        for size in range(len(chunks)+1):
+                            for chosen in itertools.combinations(data['order'], size):
+                                ids = [c['chunk_id'] for c in chosen]; context = render(chosen)
+                                subsets.append(dict(selected=ids, tokens=count(context), context=context,
+                                    evidence=sum(gold_sizes.get(k, 0) for k in ids)/total_evidence))
+                        for method in METHODS:
+                            name = method.removesuffix('_omneum')
+                            scores = {} if method == 'omneum' else ranks[cid, 'cohere', 0]['scores'] if name == 'cohere' else data['scores'][name]['raw_scores']
+                            kind = 'cosine' if name == 'embedding' else 'bm25' if name == 'bm25' else 'bounded'
+                            if method == 'omneum':
+                                from omneum.question_selection import lexical_claim_relevance
+                                production = lexical_claim_relevance(data['case'].question, {c['chunk_id']:c['raw_text'] for c in chunks})
+                                norms = {'production': production}
+                            else:
+                                production = normalize_chunk_relevance(scores, list(by_id), 'similarity')[1]
+                                norms = dict(production=production, refinement_b=refined_weights(scores, kind), tail=tail_weights(scores, kind))
+                            for norm, relevance in norms.items():
+                                values = [objective(s['selected'], terms, relevance) for s in subsets]
+                                for budget in BUDGETS:
+                                    baseline = reference[cid, method, budget]
+                                    eligible = set(baseline['eligible'])
+                                    selected_chunks = [c for c in chunks if c['chunk_id'] in eligible]
+                                    result, decisions = pack(evaluation, selected_chunks, budget, relevance, count=count)
+                                    if norm == 'production':
+                                        assert (result['selected_chunk_ids'], result['context'], result['token_usage']) == (baseline['selected'], baseline['context'], baseline['tokenizer_tokens'])
+                                    if norm == 'refinement_b':
+                                        old = old_b[cid, method, budget]
+                                        assert (result['selected_chunk_ids'],result['context'],result['token_usage']) == (old['selected'],old['context'],old['tokenizer_tokens'])
+                                    value = objective(result['selected_chunk_ids'], terms, relevance)
+                                    assert abs(value-sum(s['marginal_gain'] for s in result['selection_scores'])) < 1e-12
+                                    full, _ = pack(evaluation, chunks, budget, relevance, count=count)
+                                    exact, exact_value = exact_choice(subsets, eligible, budget, values)
+                                    feasible = [s for s in subsets if s['tokens']<=budget]
+                                    restricted = [s for s in feasible if set(s['selected'])<=eligible]
+                                    gold_full = max(feasible, key=lambda s:s['evidence'])
+                                    gold_eligible = max(restricted, key=lambda s:s['evidence'])
+                                    tied = [s['evidence'] for s,v in zip(subsets,values) if s['tokens']<=budget and set(s['selected'])<=eligible and abs(v-exact_value)<1e-12]
+                                    quality = measure(raw, truth, result['selected_chunk_ids'],result['context'])
+                                    rows.append(dict(case_id=cid, domain=raw['domain'], method=method, budget=budget, normalization=norm,
+                                        selected=result['selected_chunk_ids'], eligible=sorted(eligible),
+                                        full_selected=full['selected_chunk_ids'], exact_selected=exact['selected'],
+                                        gold_full_selected=gold_full['selected'], gold_eligible_selected=gold_eligible['selected'],
+                                        greedy_value=value, exact_value=exact_value,
+                                        greedy_evidence=quality['evidence_retention'],
+                                        full_evidence=measure(raw,truth,full['selected_chunk_ids'],full['context'])['evidence_retention'],
+                                        exact_evidence=exact['evidence'], gold_full_evidence=gold_full['evidence'],
+                                        gold_eligible_evidence=gold_eligible['evidence'], exact_tie_evidence_range=[min(tied),max(tied)],
+                                        utility_trace=decisions))
+                                    selections.append(dict(case_id=cid,domain=raw['domain'],method=method,budget=budget,
+                                        normalization=norm,selected=result['selected_chunk_ids'],context=result['context'],
+                                        tokenizer_tokens=result['token_usage'],**quality))
+                        print('Diagnosed',cid,flush=True)
+        write(out/'diagnosis.json',rows);write(out/'diagnostic_selections.json',selections)
+        write(out/'graph_timings.json',graph_runs);write(out/'token_counts.json',cache)
+    print('Diagnostics complete:',out,flush=True)
+
+
+def summarize(cells, runs):
+    result = {}
+    for arm, method in sorted({(r['arm'], r['method']) for r in cells}):
+        rows = [r for r in cells if (r['arm'], r['method']) == (arm, method)]
+        samples = [r for r in runs if (r['arm'], r['method']) == (arm, method)]
+        value = {k: mean(r[k] for r in rows) for k in FIELDS}
+        value.update(cells=len(rows), budget_violations=sum(r['tokenizer_tokens']>r['budget'] for r in rows))
+        for k in ('selection_ms', 'graph_ms', 'packing_ms'):
+            value[k] = distribution([r[k] for r in samples if r.get(k) is not None])
+        result[arm+':'+method] = value
+    return result
+
+
+def frontier(points):
+    return {p for p in points if not any(q[0]<=p[0] and q[1]>=p[1] and q!=p for q in points)}
+
+
+async def evaluate(args):
+    out = args.output.resolve()
+    assert (out/'diagnosis.json').is_file()
+    dest=out/args.run_name
+    dest.mkdir()
+    trace = [json.loads(line) for line in args.trace.open()]
+    graphs = {r['case_id']:r for r in trace if r['type']=='graph'}
+    cases = prepare_cases(graphs)
+    prior = json.loads((PRIOR/'selections.json').read_text())
+    reference = {(r['case_id'],r['method'],r['budget']):r for r in prior if r['method'] in METHODS}
+    refined = json.loads((REFINED/'selections.json').read_text())
+    old_b = {(r['case_id'],r['method'],r['budget']):r for r in refined if r['arm']=='B'}
+    diagnosed = json.loads((out/'diagnostic_selections.json').read_text())
+    tail = {(r['case_id'],r['method'],r['budget']):r for r in diagnosed if r['normalization']=='tail'}
+    ranks = provider_ranks(BASE/'results/question-aware-release-v1')
+    counts = json.loads((out/'token_counts.json').read_text())
+    extended=out/'token_counts_extended.json'
+    if extended.is_file():
+        counts=json.loads(extended.read_text())
+    else:
+        with httpx.Client(trust_env=False,timeout=120) as http:
+            for data in cases.values():
+                for size in range(len(data['chunks'])+1):
+                    for chosen in itertools.combinations(data['chunks'],size):
+                        text=render(chosen)
+                        if text not in counts:
+                            body=http.post(args.tokenizer+'/tokenize',json=dict(content=text,
+                                add_special=False,parse_special=True)).raise_for_status().json()
+                            counts[text]=len(body['tokens'])
+        write(extended,counts)
+    count = counts.__getitem__
+    raw = {c:json.loads((BASE/'canonical/cases'/c/'case.json').read_text()) for c in cases}
+    truth = {c:load_ground_truth(BASE/'canonical/cases'/c/'ground_truth.json') for c in cases}
+    write(dest/'corrections.json',dict(code_sha256=sha(Path(__file__)),implementation=Path(__file__).read_text(),
+        arms=ARMS,repeats=args.repeats,seed=42,
+        tail='Only the lowest positive raw-score level changes: next production weight times low/(low+next_raw). All positive production weights remain bit-identical. Zero/negative minima remain zero; constant batches preserve production.',
+        seed_policy='Among singleton-feasible chunks, add all excluded maximal-F singleton witnesses only if they beat the best eligible singleton. Expand their exact claim/source neighborhood using production expand_claims(depth=2). No residual-capacity target or gold inputs.',
+        singleton='Return the better existing-objective value of production greedy and its best feasible singleton. No runtime exact solver.',
+        latency='Fresh prepare_context wall time, including graph and SDK verification; all token counts cached from identical original tokenizer. Two shuffled repetitions per cell. Ranking/model initialization and metrics excluded.',
+        exact_optimizer_runtime=False,paid_api_calls=0,downstream_generations=0))
+    cells, runs, seen = [], [], {}
+    original = cs.reconstruct_context
+    discover = qc.discover_chunks
+    with patch.object(deployment,'_build_daemon',return_value=args.daemon.resolve()):
+        with deployment.benchmark_deployment() as (config,server):
+            async with open_stdio_client(config,server,local_persistence=None) as client:
+                async def execute(cid,method,budget,arm):
+                    data=cases[cid];full=data['chunks'];state={}
+                    norm = 'refinement_b' if arm=='refinement_b' else 'tail' if arm in ('tail','combined') else 'production'
+                    if method=='omneum':
+                        options=dict(question=data['case'].question)
+                        from omneum.question_selection import lexical_claim_relevance
+                        relevance=lexical_claim_relevance(data['case'].question,{c['chunk_id']:c['raw_text'] for c in full})
+                    else:
+                        name=method.removesuffix('_omneum')
+                        scores=ranks[cid,'cohere',0]['scores'] if name=='cohere' else data['scores'][name]['raw_scores']
+                        kind='cosine' if name=='embedding' else 'bm25' if name=='bm25' else 'bounded'
+                        relevance=normalize_chunk_relevance(scores,list(scores),'similarity')[1]
+                        if norm=='refinement_b': relevance=refined_weights(scores,kind)
+                        if norm=='tail': relevance=tail_weights(scores,kind)
+                        options=dict(strategy='coverage_support_density',complementary_evidence=True,token_cost_exponent=1,
+                            user_query=data['case'].question,chunk_relevance=scores,
+                            relevance_score_type='reranker_score' if name in ('bge','cohere') else 'similarity',
+                            candidate_discovery='expanded',candidate_count=3,expansion_depth=2,query_evaluation='full')
+                    def discovery(*a,**kw):
+                        d=discover(*a,**kw)
+                        assert d['eligible_chunk_ids']==reference[cid,method,budget]['eligible']
+                        d['normalized_relevance_scores']=relevance
+                        return d
+                    def reconstruct(evaluation,chunks,**kw):
+                        start=time.perf_counter()
+                        actual={claim_id(c.claim):c.support for c in evaluation.claim_support}
+                        expected={c['claim_id']:c['support'] for c in graphs[cid]['claims']}
+                        assert actual.keys()==expected.keys() and all(abs(actual[k]-expected[k])<1e-12 for k in actual)
+                        eligible={c['chunk_id'] for c in chunks};seeds=[]
+                        if arm in ('seed','combined') and method!='omneum':
+                            eligible,seeds=seed_chunks(evaluation,data['graph'],full,eligible,budget,relevance,count)
+                            chunks=[c for c in full if c['chunk_id'] in eligible]
+                            kw=dict(kw,chunk_relevance={k:relevance[k] for k in eligible},_allow_unmapped_claims=True)
+                        result=original(evaluation,chunks,**kw)
+                        initial_trace=kw['_selection_trace']
+                        witness=singleton_witness(result,initial_trace,budget) if arm in ('singleton','combined') else None
+                        state.update(eligible=[c['chunk_id'] for c in full if c['chunk_id'] in eligible],seeds=seeds,
+                                     pre_guard_selected=result['selected_chunk_ids'],pre_guard_trace=list(initial_trace),
+                                     singleton_witness=witness)
+                        if witness is not None:
+                            target=[c for c in chunks if c['chunk_id']==witness]
+                            guard_options=dict(kw,_allow_unmapped_claims=True,_selection_trace=[])
+                            if guard_options.get('chunk_relevance') is not None:
+                                guard_options['chunk_relevance']={witness:relevance[witness]}
+                            better=original(evaluation,target,**guard_options)
+                            better['candidate_input_tokens']=result['candidate_input_tokens']
+                            better['candidate_scores']=result['candidate_scores']
+                            initial_trace[:]=guard_options['_selection_trace'];result=better
+                        state['packing_ms']=(time.perf_counter()-start)*1000
+                        return result
+                    diag={};start=time.perf_counter()
+                    with patch.object(qc,'discover_chunks',discovery),patch.object(cs,'reconstruct_context',reconstruct):
+                        result=await client.prepare_context(data['graph'],full,estimator=estimator_config(),
+                            token_budget=budget,count_tokens=count,query_diagnostics=diag,include_telemetry=True,**options)
+                    elapsed=(time.perf_counter()-start)*1000
+                    ids,context,tokens=result['packed_chunk_ids'],result['context'],result['selection']['selected_tokens']
+                    assert count(context)==tokens<=budget
+                    expected=reference[cid,method,budget] if arm=='production' else old_b[cid,method,budget] if arm=='refinement_b' else tail.get((cid,method,budget)) if arm=='tail' else None
+                    if method=='omneum' and arm in ('tail','seed'):
+                        expected=reference[cid,method,budget]
+                    if expected is not None:
+                        assert (ids,context,tokens)==(expected['selected'],expected['context'],expected['tokenizer_tokens'])
+                    return ids,context,tokens,state,diag,dict(selection_ms=elapsed,
+                        graph_ms=result['telemetry']['graph_evaluation_latency_ms'],packing_ms=state['packing_ms'])
+                for method in METHODS:
+                    await execute(next(iter(cases)),method,128,'production')
+                jobs=[(c,m,b,a,t) for c in cases for m in METHODS for b in BUDGETS for a in ARMS for t in range(args.repeats)]
+                random.Random(42).shuffle(jobs)
+                with (dest/'evaluation_timings.csv').open('x',newline='') as stream:
+                    writer=csv.DictWriter(stream,fieldnames=['case_id','method','budget','arm','repeat','selection_ms','graph_ms','packing_ms']);writer.writeheader()
+                    for n,(cid,method,budget,arm,repeat) in enumerate(jobs,1):
+                        ids,context,tokens,state,diag,timing=await execute(cid,method,budget,arm)
+                        key=cid,method,budget,arm;signature=ids,context,tokens,state['eligible']
+                        if key in seen: assert seen[key]==signature
+                        else:
+                            seen[key]=signature
+                            quality=measure(raw[cid],truth[cid],ids,context)
+                            cells.append(dict(case_id=cid,domain=raw[cid]['domain'],method=method,budget=budget,arm=arm,
+                                selected=ids,context=context,tokenizer_tokens=tokens,unused_tokens=budget-tokens,
+                                evidence_per_100_tokens=100*quality['retained_evidence_footprint']/max(1,quality['actual_context_tokens']),
+                                nongold_selected=sum(k.removeprefix('chunk-') not in truth[cid].supporting_sources for k in ids),
+                                eligible=state['eligible'],seed_chunk_ids=state['seeds'],singleton_witness=state['singleton_witness'],
+                                pre_guard_selected=state['pre_guard_selected'],pre_guard_trace=state['pre_guard_trace'],diagnostics=diag,**quality))
+                        row=dict(case_id=cid,method=method,budget=budget,arm=arm,repeat=repeat,**timing)
+                        runs.append(row);writer.writerow(row)
+                        if n%144==0:stream.flush();print('Evaluated',n,'of',len(jobs),flush=True)
+    write(dest/'evaluation_selections.json',cells)
+    baselines=[r for r in prior if r['method'] in ('bge','embedding','bm25','cohere')]
+    write(dest/'retriever_baselines.json',baselines)
+    finish(dest)
+    print('Corrections evaluated:',dest,flush=True)
+
+
+def reports(dest):
+    cells=json.loads((dest/'evaluation_selections.json').read_text())
+    with (dest/'evaluation_timings.csv').open() as stream:
+        runs=list(csv.DictReader(stream))
+    for row in runs:
+        row['budget']=int(row['budget'])
+        row['repeat']=int(row['repeat'])
+        for key in ('selection_ms','graph_ms','packing_ms'):row[key]=float(row[key])
+    domains={r['case_id']:r['domain'] for r in cells}
+    summary=dict(aggregate=summarize(cells,runs),
+        per_budget={str(b):summarize([r for r in cells if r['budget']==b],[r for r in runs if r['budget']==b]) for b in BUDGETS},
+        per_domain={d:summarize([r for r in cells if r['domain']==d],[r for r in runs if domains[r['case_id']]==d]) for d in sorted(set(domains.values()))})
+    return cells,runs,summary
+
+
+def finish(dest):
+    cells,runs,summary=reports(dest)
+    repeats=json.loads((dest/'corrections.json').read_text())['repeats']
+    assert len(cells)==24*6*len(METHODS)*len(ARMS) and len(runs)==len(cells)*repeats
+    assert all(r['tokenizer_tokens']<=r['budget'] for r in cells)
+    write(dest/'evaluation_summary.json',summary)
+    for name,groups in [('aggregate',[('all',summary['aggregate'])]),('budget',summary['per_budget'].items()),('domain',summary['per_domain'].items())]:
+        with (dest/('evaluation_'+name+'.csv')).open('x',newline='') as stream:
+            writer=csv.DictWriter(stream,fieldnames=['group','configuration',*FIELDS,'p50_ms','p95_ms','budget_violations']);writer.writeheader()
+            for group,configs in groups:
+                for key,v in configs.items():writer.writerow(dict(group=group,configuration=key,**{k:v[k] for k in FIELDS},p50_ms=v['selection_ms']['p50'],p95_ms=v['selection_ms']['p95'],budget_violations=v['budget_violations']))
+    write(dest/'evaluation_validation.json',dict(cells=len(cells),executions=len(runs),warmups=5,
+        baseline_cells_reproduced=720,refinement_b_cells_reproduced=720,tail_cells_match_diagnosis=576,
+        repeat_selections_identical=True,budget_violations=0,graph_support_matches_frozen_trace=True,
+        paid_api_calls=0,downstream_generations=0))
+
+
+def audit(out, dest):
+    cells,runs,summary=reports(dest)
+    assert summary==json.loads((dest/'evaluation_summary.json').read_text())
+    raw={cid:json.loads((BASE/'canonical/cases'/cid/'case.json').read_text()) for cid in {r['case_id'] for r in cells}}
+    truth={cid:load_ground_truth(BASE/'canonical/cases'/cid/'ground_truth.json') for cid in raw}
+    base=json.loads((dest/'retriever_baselines.json').read_text())
+    for r in base:
+        r.update(arm='retriever',domain=raw[r['case_id']]['domain'],unused_tokens=r['budget']-r['tokenizer_tokens'],
+            evidence_per_100_tokens=100*r['retained_evidence_footprint']/max(1,r['actual_context_tokens']),
+            nongold_selected=sum(k.removeprefix('chunk-') not in truth[r['case_id']].supporting_sources for k in r['selected']))
+    with (PRIOR/'timings.csv').open() as stream:
+        historical=[r for r in csv.DictReader(stream) if r['method'] in ('bge','embedding','bm25','cohere')]
+    for r in historical:
+        r.update(arm='retriever',budget=int(r['budget']),selection_ms=float(r['selection_ms']),
+                 packing_ms=float(r['packing_ms']),graph_ms=None)
+    all_cells=cells+base;all_runs=runs+historical
+    domains={cid:r['domain'] for cid,r in raw.items()}
+    joined=dict(aggregate=summarize(all_cells,all_runs),
+        per_budget={str(b):summarize([r for r in all_cells if r['budget']==b],[r for r in all_runs if r['budget']==b]) for b in BUDGETS},
+        per_domain={d:summarize([r for r in all_cells if r['domain']==d],[r for r in all_runs if domains[r['case_id']]==d]) for d in sorted(set(domains.values()))},
+        timing_origin={'retriever':'Reused historical Tier 1 post-score selection times','Omneum arms':'Fresh full prepare_context times, including inference and SDK verification'},
+        evidence_density='Mean retained gold evidence-span word/punctuation units per 100 rendered context units; no generation accuracy implied.')
+    write(dest/'joined_summary.json',joined)
+    reference={(r['case_id'],r['method'],r['budget']):r for r in cells if r['arm']=='production'}
+    changes=[];counts={};case_summary={}
+    for arm in ARMS:
+        selected=[r for r in cells if r['arm']==arm and r['method']!='omneum'];count=dict(improved=0,unchanged=0,regressed=0,precision_regressions=0,claim_regressions=0,origin_regressions=0,context_grows_without_coverage_gain=0)
+        for r in selected:
+            b=reference[r['case_id'],r['method'],r['budget']]
+            delta={k:r[k]-b[k] for k in FIELDS}
+            count['improved' if delta['evidence_retention']>1e-12 else 'regressed' if delta['evidence_retention']< -1e-12 else 'unchanged']+=1
+            for metric,label in [('source_precision','precision_regressions'),('supporting_passage_claim_coverage','claim_regressions'),('independent_evidence_coverage','origin_regressions')]:count[label]+=delta[metric]< -1e-12
+            count['context_grows_without_coverage_gain']+=delta['actual_context_tokens']>0 and delta['evidence_retention']<=0 and delta['supporting_passage_claim_coverage']<=0 and delta['independent_evidence_coverage']<=0
+            if arm!='production' and any(delta[k]< -1e-12 for k in FIELDS[:5]):
+                by={'chunk-'+c['source_id']:c for c in raw[r['case_id']]['candidates']}
+                claim_set=lambda ids:{a['claim_id'] for k in ids for a in by[k]['claims']}
+                changes.append(dict(case_id=r['case_id'],domain=r['domain'],method=r['method'],budget=r['budget'],arm=arm,
+                    delta=delta,added=sorted(set(r['selected'])-set(b['selected'])),removed=sorted(set(b['selected'])-set(r['selected'])),
+                    lost_mapped_claims=sorted(claim_set(b['selected'])-claim_set(r['selected'])),
+                    lost_origins=sorted({tuple(x) for x in b['retained_gold_origins']}-{tuple(x) for x in r['retained_gold_origins']})))
+        counts[arm]=count
+        for cid in raw:
+            group=[r for r in selected if r['case_id']==cid]
+            case_summary.setdefault(cid,{})[arm]={k:mean(r[k]-reference[cid,r['method'],r['budget']][k] for r in group) for k in FIELDS}
+    write(dest/'regressions.json',changes)
+    write(dest/'case_changes.json',case_summary)
+    write(dest/'comparison_counts.json',counts)
+    tradeoff={}
+    for arm in ARMS[1:]:
+        old_dominated=new_dominated=0
+        for cid in raw:
+            for method in METHODS:
+                before={(r['actual_context_tokens'],r['evidence_retention']) for r in cells if r['case_id']==cid and r['method']==method and r['arm']=='production'}
+                after={(r['actual_context_tokens'],r['evidence_retention']) for r in cells if r['case_id']==cid and r['method']==method and r['arm']==arm}
+                dominates=lambda a,b:a[0]<=b[0] and a[1]>=b[1] and a!=b
+                old_dominated+=sum(any(dominates(a,b) for a in after) for b in before)
+                new_dominated+=sum(any(dominates(b,a) for b in before) for a in after)
+        tradeoff[arm]=dict(production_points_dominated=old_dominated,new_points_dominated=new_dominated)
+    write(dest/'observed_tradeoff.json',dict(definition='Within each case and method, unique recorded (word/punctuation size, evidence retention) points across the six budgets; no interpolation, separate from equal-budget comparisons.',arms=tradeoff))
+    before=json.loads((out/'protected_before.json').read_text())
+    changed=[p for p,d in before['files'].items() if not Path(p).is_file() or sha(Path(p))!=d]
+    inventory=subprocess.check_output(['rg','--files','--hidden','--no-ignore','-g','*.md','-g','*.mdx','-g','!.git/**'],text=True).splitlines()
+    execution=json.loads((dest/'corrections.json').read_text())['implementation'];current=Path(__file__).read_text()
+    functions=lambda text:{n.name:ast.get_source_segment(text,n) for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
+    old_functions,new_functions=functions(execution),functions(current)
+    stable=all(old_functions[n]==new_functions[n] for n in ('tail_weights','seed_chunks','singleton_witness','pack','objective'))
+    write(out/'integrity_after.json',dict(protected_files=len(before['files']),changed=changed,
+        markdown_mdx_files=len(inventory),markdown_inventory_unchanged=set(inventory)==set(before['markdown']),
+        runtime_functions_unchanged_since_measurement=stable,final_code_sha256=sha(Path(__file__))))
+    assert stable and not changed and set(inventory)==set(before['markdown'])
+    print('Audit complete; all protected files unchanged')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--phase', choices=['diagnose','evaluate','summarize','verify','audit'], default='diagnose')
+    parser.add_argument('--repeats', type=int, default=2)
+    parser.add_argument('--run-name', default='evaluated-v1')
+    parser.add_argument('--tokenizer')
+    parser.add_argument('--daemon', type=Path, default=Path('target/test-daemon/debug/omneumd'))
+    parser.add_argument('--trace', type=Path, default=DEFAULT_TRACE)
+    parser.add_argument('--started', default='2026-10-26 02:54:58 UTC')
+    args = parser.parse_args()
+    if args.phase=='summarize':
+        finish(args.output/args.run_name)
+    elif args.phase=='verify':
+        dest=args.output/args.run_name
+        assert reports(dest)[2]==json.loads((dest/'evaluation_summary.json').read_text())
+        print('Summary reproduced exactly')
+    elif args.phase=='audit':
+        audit(args.output,args.output/args.run_name)
+    else:
+        assert args.tokenizer
+        asyncio.run(diagnose(args) if args.phase=='diagnose' else evaluate(args))
+
+
+if __name__ == '__main__':
+    main()

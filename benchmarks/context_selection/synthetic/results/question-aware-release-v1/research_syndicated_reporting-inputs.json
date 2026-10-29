@@ -1,0 +1,571 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'60'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:original_report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'60'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:news_article",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [
+        "research_syndicated_reporting:original_report"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'60'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:news_article_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [
+        "research_syndicated_reporting:news_article"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-19 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'60'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:news_article_3",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [
+        "research_syndicated_reporting:original_report"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article_3",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-19 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'36'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:primary_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'36'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:independent_report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://independent-report.benchmark.example/research_syndicated_reporting/independent_report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'36'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:filing",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://filing.benchmark.example/research_syndicated_reporting/filing",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'60'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:web_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [
+        "research_syndicated_reporting:news_article"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://web-page.benchmark.example/research_syndicated_reporting/web_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-19 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'36'",
+        "attribute": "accepted_into_passenger_service",
+        "entity": "heldout-entity-v1:5b227472616e73706f7274222c225269766572746f6e203230323620656c656374726963206275736573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_syndicated_reporting:dataset",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:08:00+00:00",
+      "parent_observation_ids": [
+        "research_syndicated_reporting:primary_record"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://dataset.benchmark.example/research_syndicated_reporting/dataset",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record",
+          "kind": "web_document"
+        }
+      ]
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:original_report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report",
+          "kind": "original_report"
+        },
+        "source_id": "original_report",
+        "text": "Transit Market Report: Riverton has accepted all 60 battery-electric buses into service. The report treats the order quantity as the fleet addition.",
+        "value": 60
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:news_article",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [
+            "research_syndicated_reporting:original_report"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report",
+              "kind": "original_report"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article",
+          "kind": "news_article"
+        },
+        "source_id": "news_article",
+        "text": "Metro News wire edition: Riverton adds 60 electric buses to passenger service, according to Transit Market Report.",
+        "value": 60
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:news_article_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [
+            "research_syndicated_reporting:news_article"
+          ],
+          "source_modified_at": "2026-08-19 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article",
+              "kind": "news_article"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article_2",
+          "kind": "news_article"
+        },
+        "source_id": "news_article_2",
+        "text": "Regional Daily republishes Metro News: the Riverton electric bus fleet gained 60 buses in service.",
+        "value": 60
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:news_article_3",
+          "cited_sources": [
+            {
+              "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report",
+              "kind": "original_report"
+            }
+          ],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [
+            "research_syndicated_reporting:original_report"
+          ],
+          "source_modified_at": "2026-08-19 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article_3",
+          "kind": "news_article"
+        },
+        "source_id": "news_article_3",
+        "text": "Transport Today roundup quotes Transit Market Report: Riverton now has 60 new electric buses operating.",
+        "value": 60
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:primary_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record",
+          "kind": "primary_record"
+        },
+        "source_id": "primary_record",
+        "text": "Riverton acceptance register dated August 18: units E001-E036 accepted for passenger service; E037-E060 awaiting acceptance.",
+        "value": 36
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:independent_report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://independent-report.benchmark.example/research_syndicated_reporting/independent_report",
+          "kind": "independent_report"
+        },
+        "source_id": "independent_report",
+        "text": "Independent depot inspection, August 18: 36 units carry passenger-service acceptance tags; the remaining 24 are parked pending inspection.",
+        "value": 36
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:filing",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record",
+              "kind": "primary_record"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://filing.benchmark.example/research_syndicated_reporting/filing",
+          "kind": "filing"
+        },
+        "source_id": "filing",
+        "text": "Municipal capital filing: 60 buses ordered; 36 accepted into passenger service by August 18; 24 remain on the acceptance schedule.",
+        "value": 36
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:web_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [
+            "research_syndicated_reporting:news_article"
+          ],
+          "source_modified_at": "2026-08-19 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article",
+              "kind": "news_article"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://web-page.benchmark.example/research_syndicated_reporting/web_page",
+          "kind": "web_page"
+        },
+        "source_id": "web_page",
+        "text": "City mobility landing page embeds the Metro News headline: 60 new Riverton electric buses enter service.",
+        "value": 60
+      },
+      {
+        "attribute": "accepted into passenger service",
+        "entity": "Riverton 2026 electric buses",
+        "entity_namespace": "transport",
+        "provenance": {
+          "assertion_id": "research_syndicated_reporting:dataset",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:08:00+00:00",
+          "parent_assertion_ids": [
+            "research_syndicated_reporting:primary_record"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record",
+              "kind": "primary_record"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://dataset.benchmark.example/research_syndicated_reporting/dataset",
+          "kind": "dataset"
+        },
+        "source_id": "dataset",
+        "text": "Fleet dataset export August 18: acceptance_state=passenger_service for 36 vehicle IDs in order RV-2026; 24 IDs have state=pending.",
+        "value": 36
+      }
+    ],
+    "case_id": "research_syndicated_reporting",
+    "category": null,
+    "context_budget": 3,
+    "domain": "research_analysis_agents",
+    "question": "As of August 18, how many battery-electric buses had Riverton accepted into passenger service under its 2026 order?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-original_report",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a36307d"
+      ],
+      "raw_text": "Transit Market Report: Riverton has accepted all 60 battery-electric buses into service. The report treats the order quantity as the fleet addition.",
+      "source_id": "original_report"
+    },
+    {
+      "chunk_id": "chunk-news_article",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a36307d"
+      ],
+      "raw_text": "Metro News wire edition: Riverton adds 60 electric buses to passenger service, according to Transit Market Report.",
+      "source_id": "news_article"
+    },
+    {
+      "chunk_id": "chunk-news_article_2",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a36307d"
+      ],
+      "raw_text": "Regional Daily republishes Metro News: the Riverton electric bus fleet gained 60 buses in service.",
+      "source_id": "news_article_2"
+    },
+    {
+      "chunk_id": "chunk-news_article_3",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a36307d"
+      ],
+      "raw_text": "Transport Today roundup quotes Transit Market Report: Riverton now has 60 new electric buses operating.",
+      "source_id": "news_article_3"
+    },
+    {
+      "chunk_id": "chunk-primary_record",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a33367d"
+      ],
+      "raw_text": "Riverton acceptance register dated August 18: units E001-E036 accepted for passenger service; E037-E060 awaiting acceptance.",
+      "source_id": "primary_record"
+    },
+    {
+      "chunk_id": "chunk-independent_report",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a33367d"
+      ],
+      "raw_text": "Independent depot inspection, August 18: 36 units carry passenger-service acceptance tags; the remaining 24 are parked pending inspection.",
+      "source_id": "independent_report"
+    },
+    {
+      "chunk_id": "chunk-filing",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a33367d"
+      ],
+      "raw_text": "Municipal capital filing: 60 buses ordered; 36 accepted into passenger service by August 18; 24 remain on the acceptance schedule.",
+      "source_id": "filing"
+    },
+    {
+      "chunk_id": "chunk-web_page",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a36307d"
+      ],
+      "raw_text": "City mobility landing page embeds the Metro News headline: 60 new Riverton electric buses enter service.",
+      "source_id": "web_page"
+    },
+    {
+      "chunk_id": "chunk-dataset",
+      "claim_ids": [
+        "7b22617474726962757465223a2261636365707465645f696e746f5f70617373656e6765725f73657276696365222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373437323631366537333730366637323734323232633232353236393736363537323734366636653230333233303332333632303635366336353633373437323639363332303632373537333635373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a33367d"
+      ],
+      "raw_text": "Fleet dataset export August 18: acceptance_state=passenger_service for 36 vehicle IDs in order RV-2026; 24 IDs have state=pending.",
+      "source_id": "dataset"
+    }
+  ],
+  "truth": {
+    "answer": "Riverton had accepted 36 battery-electric buses into passenger service.",
+    "case_id": "research_syndicated_reporting",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "36"
+      ]
+    },
+    "supporting_sources": [
+      "primary_record",
+      "independent_report",
+      "filing",
+      "dataset"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.19507787516340613,
+    "ranking": [
+      "chunk-analyst_agent",
+      "chunk-verifier_agent",
+      "chunk-researcher_agent",
+      "chunk-tool_result",
+      "chunk-web_result",
+      "chunk-database_result",
+      "chunk-reviewer_agent",
+      "chunk-api_result"
+    ],
+    "raw_scores": {
+      "chunk-analyst_agent": 0.9631763100624084,
+      "chunk-api_result": 0.021960590034723282,
+      "chunk-database_result": 0.19343268871307373,
+      "chunk-researcher_agent": 0.8212427496910095,
+      "chunk-reviewer_agent": 0.13878598809242249,
+      "chunk-tool_result": 0.36626172065734863,
+      "chunk-verifier_agent": 0.9057588577270508,
+      "chunk-web_result": 0.21329011023044586
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 7.49579630792141e-05,
+    "ranking": [
+      "chunk-researcher_agent",
+      "chunk-tool_result",
+      "chunk-database_result",
+      "chunk-web_result",
+      "chunk-analyst_agent",
+      "chunk-verifier_agent",
+      "chunk-api_result",
+      "chunk-reviewer_agent"
+    ],
+    "raw_scores": {
+      "chunk-analyst_agent": 4.06850408463349,
+      "chunk-api_result": 1.6407142170910103,
+      "chunk-database_result": 4.289989983380444,
+      "chunk-researcher_agent": 5.259675673504832,
+      "chunk-reviewer_agent": 0.7182318806458612,
+      "chunk-tool_result": 4.44161762193249,
+      "chunk-verifier_agent": 3.3670748556578634,
+      "chunk-web_result": 4.160044977573379
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.03404191695153713,
+    "ranking": [
+      "chunk-researcher_agent",
+      "chunk-analyst_agent",
+      "chunk-reviewer_agent",
+      "chunk-tool_result",
+      "chunk-verifier_agent",
+      "chunk-web_result",
+      "chunk-database_result",
+      "chunk-api_result"
+    ],
+    "raw_scores": {
+      "chunk-analyst_agent": 0.5479463338851929,
+      "chunk-api_result": 0.2832249402999878,
+      "chunk-database_result": 0.30642539262771606,
+      "chunk-researcher_agent": 0.6804608702659607,
+      "chunk-reviewer_agent": 0.4883520007133484,
+      "chunk-tool_result": 0.4643157422542572,
+      "chunk-verifier_agent": 0.4587913155555725,
+      "chunk-web_result": 0.4023818373680115
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

@@ -210,7 +210,12 @@ def test_metadata_and_results_over_stdio(example_daemon):
                 assert context.structuredContent["summary"] == {"source_count": 2, "claim_count": 1, "assertion_count": 2}
                 assert context.structuredContent["claim_support"][0]["estimated_independent_support_count"] == pytest.approx(1.6)
                 assert context.structuredContent["deployment_id"] == state.deployment_id
-                assert (await session.call_tool("evaluate_context", requests["evaluate_context"])).structuredContent == context.structuredContent
+                repeated = await session.call_tool("evaluate_context", requests["evaluate_context"])
+                assert repeated.structuredContent["evaluation_latency_ms"] >= 0
+                assert context.structuredContent["evaluation_latency_ms"] >= 0
+                assert {k: v for k, v in repeated.structuredContent.items() if k != "evaluation_latency_ms"} == {
+                    k: v for k, v in context.structuredContent.items() if k != "evaluation_latency_ms"
+                }
                 for name, request in requests.items():
                     for changes, code in (
                         ({"unknown": "value"}, "invalid_request"),

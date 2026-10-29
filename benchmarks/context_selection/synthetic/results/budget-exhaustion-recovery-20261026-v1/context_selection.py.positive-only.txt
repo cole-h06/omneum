@@ -1,0 +1,642 @@
+from collections.abc import Callable, Mapping, Sequence
+from functools import lru_cache
+import re
+import time
+from math import isfinite, sqrt
+from typing import Any
+
+from .canonicalization import canonicalize_entity, canonicalize_source
+from .client import ContextEvaluation
+from .metrics import _execution_telemetry
+from .information import Claim, Source, _string
+from .serialization import serialize_claim
+
+
+STRATEGIES = ("retrieval", "max_support", "mean_support", "coverage_support", "coverage_support_packed", "coverage_support_density", "coverage_support_query", "coverage_answer", "coverage_support_nonlinear")
+TOKEN_PATTERN = r"\w+|[^\w\s]"
+
+
+@lru_cache(maxsize=8192)
+def claim_id(claim: Claim) -> str:
+    return serialize_claim(
+        claim.entity_namespace,
+        canonicalize_entity(claim.entity_namespace, claim.entity),
+        claim.attribute,
+        claim.value,
+    ).hex()
+
+
+def _query_coverage_key(claim: Claim) -> tuple:
+    """Only scalar values have the existing property's exclusive-value contract.
+
+    Structured values may encode different conditions, exceptions or members
+    of a set. Do not infer that these details conflict merely from a shared
+    predicate. Exact repeated structured assertions still have one claim ID.
+    """
+    key = (claim.entity_namespace, canonicalize_entity(claim.entity_namespace, claim.entity), claim.attribute)
+    return key if type(claim.value) in (str, int, float, bool) else (*key, claim_id(claim))
+
+
+def _inferred_coverage_terms(evaluation, chunks):
+    """Allocate converged support once; never multiply independence again.
+
+    Existing inference clusters partition each claim's supporting sources. A
+    cluster's mass is the SUM of its final source contributions. Any selected
+    member represents that same mass; better relevance can improve the choice.
+    Without source associations, conservatively expose one whole-claim group.
+    """
+    by_claim = {claim_id(item.claim): item for item in evaluation.claim_support}
+    result = {chunk['chunk_id']: {} for chunk in chunks}
+    for identifier, item in by_claim.items():
+        passages = [chunk for chunk in chunks if identifier in chunk['claim_ids']]
+        sources = {_source_identity(s.source.kind, s.source.identifier): s for s in item.supporting_sources}
+        if any(type(chunk.get('source')) is not Source for chunk in passages):
+            for chunk in passages:
+                result[chunk['chunk_id']][identifier] = (('unattributed', identifier), item.support)
+            continue
+        groups = {}
+        if item.dependency_clusters is not None:
+            for cluster in item.dependency_clusters:
+                group = tuple(sorted(_source_identity(s.kind, s.identifier) for s in cluster.sources))
+                for source in group:
+                    groups[source] = group
+        else:
+            groups = {source: (source,) for source in sources}
+        masses = {}
+        for source, entry in sources.items():
+            group = groups[source]
+            masses[group] = masses.get(group, 0.0) + entry.contribution
+        if abs(sum(masses.values()) - item.support) > 1e-10:
+            raise ValueError('inferred contributions do not sum to claim support')
+        for chunk in passages:
+            source = _source_identity(chunk['source'].kind, chunk['source'].identifier)
+            if source not in groups:
+                raise ValueError('chunk source does not support its mapped claim')
+            group = groups[source]
+            result[chunk['chunk_id']][identifier] = (group, masses[group])
+    return result
+
+
+@lru_cache(maxsize=8192)
+def _source_identity(kind: str, identifier: str) -> tuple[str, str]:
+    """Memoize canonical source identities used by repeated query selections."""
+    return kind, canonicalize_source(kind, identifier)
+
+
+def map_chunks(chunks, claims, *, require_complete=True):
+    if not isinstance(chunks, Sequence) or isinstance(chunks, (str, bytes)):
+        raise TypeError("chunks must be a sequence of mappings")
+    chunk_text = {}
+    chunk_claims = {}
+    claim_chunks = {identifier: [] for identifier in claims}
+    for chunk in chunks:
+        if not isinstance(chunk, Mapping):
+            raise TypeError("chunks must contain mappings")
+        if not {"chunk_id", "raw_text", "claim_ids"} <= chunk.keys():
+            raise ValueError("chunk requires chunk_id, raw_text, and claim_ids")
+        identifier = chunk["chunk_id"]
+        _string(identifier, "chunk ID")
+        if type(chunk["raw_text"]) is not str:
+            raise TypeError("chunk text must be a string")
+        if not isinstance(chunk["claim_ids"], Sequence) or isinstance(chunk["claim_ids"], (str, bytes)):
+            raise TypeError("claim_ids must be a sequence of strings")
+        for value in chunk["claim_ids"]:
+            _string(value, "claim ID")
+        if identifier in chunk_text:
+            raise ValueError("duplicate chunk ID")
+        mapped = sorted(set(chunk["claim_ids"]))
+        if not mapped or any(value not in claim_chunks for value in mapped):
+            raise ValueError("chunk requires known claim mappings")
+        chunk_text[identifier] = chunk["raw_text"]
+        chunk_claims[identifier] = mapped
+        for value in mapped:
+            claim_chunks[value].append(identifier)
+    if require_complete and chunk_text and any(not values for values in claim_chunks.values()):
+        raise ValueError("evaluated claim has no chunk mapping")
+    return {
+        "chunk_text": chunk_text,
+        "chunk_claims": chunk_claims,
+        "claim_chunks": claim_chunks,
+        "retrieval_order": list(chunk_text),
+    }
+
+
+def token_count(text: str) -> int:
+    return len(re.findall(TOKEN_PATTERN, text))
+
+
+def validate_claim_relevance(relevance, claims):
+    if not isinstance(relevance, Mapping) or set(relevance) != set(claims):
+        raise ValueError("relevance must cover every claim ID exactly; missing scores are not inferred")
+    for value in relevance.values():
+        if type(value) not in (int, float) or not isfinite(value) or not 0 <= value <= 1:
+            raise ValueError("claim relevance must be finite and in [0, 1]")
+
+
+def reconstruct(mapping, chunk_ids):
+    selected = set(chunk_ids)
+    if not selected <= mapping["chunk_text"].keys():
+        raise ValueError("unknown selected chunk")
+    return "\n\n".join(
+        f"[{identifier}]\n{mapping['chunk_text'][identifier]}"
+        for identifier in mapping["retrieval_order"] if identifier in selected
+    )
+
+
+def select_chunks(mapping, support, token_budget, strategy, *, count_tokens=token_count, token_penalty=0.0,
+                  token_cost_exponent=None, complementary_sources=None, claim_relevance=None,
+                  claim_source_utility=None, chunk_claim_utility=None, chunk_relevance=None,
+                  selection_trace=None, covered_claim_credit=0.25,
+                  query_cost_normalization="standalone", _deferred_chunk_ids=()):
+    measurements = _execution_telemetry.get()
+    selection_started = time.perf_counter() if measurements is not None else None
+    if type(token_budget) is not int or token_budget < 0:
+        raise ValueError("token budget must be a nonnegative integer")
+    if type(token_penalty) not in (int, float) or not isfinite(token_penalty) or token_penalty < 0:
+        raise ValueError("token penalty must be finite and nonnegative")
+    if strategy not in STRATEGIES:
+        raise ValueError("unknown selection strategy")
+    coverage_strategy = strategy in ("coverage_support", "coverage_support_packed", "coverage_support_density", "coverage_support_query", "coverage_answer", "coverage_support_nonlinear")
+    nonlinear = strategy == "coverage_support_nonlinear"
+    if token_cost_exponent is None:
+        token_cost_exponent = 0.8 if nonlinear else 0.0
+    if type(covered_claim_credit) not in (int, float) or not isfinite(covered_claim_credit) or not 0 <= covered_claim_credit <= 1:
+        raise ValueError("covered claim credit must be finite and in [0, 1]")
+    if not nonlinear and covered_claim_credit != 0.25:
+        raise ValueError("covered claim credit requires coverage_support_nonlinear")
+    if nonlinear and chunk_relevance is None:
+        raise ValueError("nonlinear coverage requires normalized chunk relevance")
+    answer_weighted = strategy == "coverage_answer"
+    if answer_weighted:
+        if token_penalty or token_cost_exponent or complementary_sources is not None:
+            raise ValueError("answer coverage uses fixed density without another dependency penalty")
+        if chunk_claim_utility is None or set(chunk_claim_utility) != set(mapping["chunk_text"]):
+            raise ValueError("answer utility must cover every chunk")
+        for identifier, values in chunk_claim_utility.items():
+            if set(values) != set(mapping["chunk_claims"][identifier]):
+                raise ValueError("answer utility must cover mapped claims exactly")
+            if any(type(v) not in (int, float) or not isfinite(v) or not 0 <= v <= 1 for v in values.values()):
+                raise ValueError("answer utility must be finite and in [0, 1]")
+    elif chunk_claim_utility is not None:
+        raise ValueError("chunk claim utility requires coverage_answer")
+    if strategy == "coverage_support_query":
+        validate_claim_relevance(claim_relevance, support)
+        if query_cost_normalization not in ("standalone", "incremental", "none"):
+            raise ValueError("query cost normalization must be standalone, incremental, or none")
+        if token_penalty or token_cost_exponent or complementary_sources is not None:
+            raise ValueError("query coverage uses gamma=1, lambda=0 and distinct-claim coverage")
+    elif claim_source_utility is not None and strategy not in ("coverage_support_density", "coverage_support_nonlinear"):
+        raise ValueError("source-attributed contributions require coverage_support_query")
+    elif claim_source_utility is not None and claim_relevance is not None:
+        validate_claim_relevance(claim_relevance, support)
+    elif nonlinear and claim_relevance is not None:
+        validate_claim_relevance(claim_relevance, support)
+    elif claim_relevance is not None:
+        raise ValueError("claim relevance requires coverage_support_query")
+    if claim_source_utility is not None:
+        if set(claim_source_utility) != set(mapping["chunk_text"]):
+            raise ValueError("source-attributed claim contributions must cover every chunk")
+        for identifier, values in claim_source_utility.items():
+            if set(values) != set(mapping["chunk_claims"][identifier]):
+                raise ValueError("source contributions must cover mapped claims exactly")
+            for group, contribution in values.values():
+                if (not isinstance(group, tuple) or type(contribution) not in (int, float)
+                        or not isfinite(contribution) or contribution < 0):
+                    raise ValueError("source contributions must contain a group and finite nonnegative value")
+    if type(token_cost_exponent) not in (int, float) or not isfinite(token_cost_exponent) or token_cost_exponent < 0:
+        raise ValueError("token cost exponent must be finite and nonnegative")
+    if strategy not in ("coverage_support_density", "coverage_support_nonlinear") and (token_cost_exponent or complementary_sources is not None):
+        raise ValueError("density and complementary utility require coverage_support_density")
+    if chunk_relevance is not None:
+        if not nonlinear and (strategy not in ("coverage_support_density", "coverage_support_query") or
+                              (complementary_sources is None and claim_source_utility is None) or token_penalty):
+            raise ValueError("query-conditioned utility requires complementary density and zero token penalty")
+        if set(chunk_relevance) != set(mapping["chunk_text"]):
+            raise ValueError("chunk relevance must cover every candidate")
+        for value in chunk_relevance.values():
+            if type(value) not in (int, float) or not isfinite(value) or not 0 <= value <= 1:
+                raise ValueError("chunk relevance must be finite and in [0, 1]")
+    if set(support) != set(mapping["claim_chunks"]):
+        raise ValueError("claim scores and mappings disagree")
+
+    def usage(text):
+        count = count_tokens(text)
+        if type(count) is not int or count < 0:
+            raise ValueError("token counter must return a nonnegative integer")
+        return count
+
+    covered = set()
+    # Typed claim properties are supplied by reconstruction, never inferred
+    # from passage payloads or opaque IDs. Untyped low-level mappings retain
+    # their distinct-claim behavior.
+    properties = mapping.get("claim_properties") if strategy == "coverage_support_query" and claim_source_utility is None else None
+    if properties is not None and (set(properties) != set(support) or
+                                   any(not isinstance(p, tuple) or len(p) not in (3, 4) for p in properties.values())):
+        raise ValueError("claim properties must cover every claim with a canonical property tuple")
+    represented_properties = {}
+    selected = []
+    selection_scores = []
+    all_candidates = list(mapping["retrieval_order"])
+    deferred_ids = set(_deferred_chunk_ids)
+    if not deferred_ids <= set(all_candidates):
+        raise ValueError("deferred chunks must belong to the candidate pool")
+    if deferred_ids and strategy not in ("coverage_support_density", "coverage_support_query"):
+        raise ValueError("deferred discovery requires marginal support coverage")
+    deferred = [key for key in all_candidates if key in deferred_ids]
+    remaining = [key for key in all_candidates if key not in deferred_ids]
+    recovery_considered = []
+    selected_sources = {claim: {} for claim in support}
+    selected_claim_groups = {claim: {} for claim in support}
+    represented_utility = {claim: 0.0 for claim in support}
+    selected_utilities = {}
+    selected_passages = {claim: set() for claim in support}
+
+    attributed_query = claim_source_utility is not None
+    # These values are invariant during greedy selection. In particular, the
+    # standalone rendered token cost is used only as the query-utility
+    # denominator, so recomputing it at every round is unnecessary.
+    attributed_terms = {}
+    standalone_tokens = {}
+
+    def standalone_usage(identifier):
+        # The rendered singleton is invariant across greedy rounds. Cache only
+        # this denominator; feasibility still counts each complete proposal so
+        # tokenizer boundary effects and rendering order remain authoritative.
+        if identifier not in standalone_tokens:
+            standalone_tokens[identifier] = usage(reconstruct(mapping, [identifier]))
+        return standalone_tokens[identifier]
+
+    if attributed_query:
+        for identifier in all_candidates:
+            attributed_terms[identifier] = tuple(
+                (claim, 1.0 if claim_relevance is None else claim_relevance[claim], *claim_source_utility[identifier][claim])
+                for claim in mapping["chunk_claims"][identifier]
+            )
+            standalone_usage(identifier)
+
+    def score(identifier):
+        claims = mapping["chunk_claims"][identifier]
+        if attributed_query:
+            # A group's mass is already part of converged claim support.
+            # Selecting another source cannot count that mass again, but a
+            # more query-relevant representative can improve its coverage.
+            quality = 1.0 if chunk_relevance is None else chunk_relevance[identifier]
+            if not nonlinear:
+                return sum(relevance * max(0.0, contribution * quality -
+                           selected_claim_groups[value].get(group, 0.0))
+                           for value, relevance, group, contribution in attributed_terms[identifier])
+            gain = 0.0
+            for value, relevance, group, contribution in attributed_terms[identifier]:
+                novelty = 1.0
+                if nonlinear:
+                    passages = selected_passages[value]
+                    if mapping["chunk_text"][identifier] in passages:
+                        continue
+                    if value in covered:
+                        novelty = covered_claim_credit * 2.0 ** (1 - len(passages))
+                gain += novelty * relevance * max(0.0, contribution * quality -
+                    selected_claim_groups[value].get(group, 0.0))
+            return gain
+        if nonlinear:
+            # U(k|S) = r_k sum_c s_c q_c d(c,k,S) / max(1,T(k))**gamma - lambda*deltaT.
+            # d=1 for new claims; alpha*2**(1-n) for covered claims with n
+            # distinct selected passages. Exact text repeats earn zero per claim.
+            # The geometric tail bounds total repeated credit by 2*alpha*s_c
+            # (for unit relevance, without complementary source weighting).
+            # Optional source increments retain the existing sqrt-mass discount.
+            gain = 0.0
+            for claim in claims:
+                passages = selected_passages[claim]
+                if mapping["chunk_text"][identifier] in passages:
+                    continue
+                novelty = 1.0 if claim not in covered else covered_claim_credit * 2.0 ** (1 - len(passages))
+                if complementary_sources is not None:
+                    source, weight = complementary_sources[identifier][claim]
+                    previous = selected_sources[claim]
+                    if source in previous:
+                        continue
+                    mass = sum(previous.values())
+                    novelty *= sqrt(mass + weight) - sqrt(mass)
+                gain += support[claim] * (1.0 if claim_relevance is None else claim_relevance[claim]) * novelty
+            return gain
+        if answer_weighted:
+            # F(P) = sum_c max_{k in P, c in C(k)} a[k,c]. A weaker
+            # repetition adds zero; a better representative adds only its improvement.
+            return sum(max(0.0, value - represented_utility[claim])
+                       for claim, value in chunk_claim_utility[identifier].items())
+        if strategy == "retrieval":
+            return 0.0
+        if strategy == "max_support":
+            return max(support[value] for value in claims)
+        if strategy == "mean_support":
+            return sum(support[value] for value in claims) / len(claims)
+        if strategy == "coverage_support_query" and claim_source_utility is None:
+            if properties is not None:
+                best = {}
+                for value in claims:
+                    prop = properties[value]
+                    best[prop] = max(best.get(prop, 0.0), support[value] * claim_relevance[value])
+                return sum(max(0.0, weight - represented_properties.get(prop, 0.0))
+                           for prop, weight in best.items())
+            gain = 0.0
+            # Weight only uncovered claims: repeated assertions add no utility.
+            for value in claims:
+                if value not in covered:
+                    gain += support[value] * claim_relevance[value]
+            return gain
+        if complementary_sources is not None:
+            gain = 0.0
+            # G(P) = sum_c s_c sqrt(sum of distinct-source independence weights).
+            # Fixed inference weights discount copied sources; another chunk
+            # from the same source contributes zero for an already credited claim.
+            for value in claims:
+                source, weight = complementary_sources[identifier][value]
+                previous = selected_sources[value]
+                if source not in previous:
+                    mass = sum(previous.values())
+                    gain += support[value] * (sqrt(mass + weight) - sqrt(mass))
+            return gain
+        # ΔF(k | S) sums s_c over newly covered claims only. Previously
+        # covered claims contribute zero, even when repeated by another source.
+        return sum(support[value] for value in claims if value not in covered)
+
+    candidate_scores = {
+        identifier: sum(support[c] for c in mapping["chunk_claims"][identifier]) if coverage_strategy else score(identifier)
+        for identifier in all_candidates
+    }
+    if answer_weighted:
+        candidate_scores = {identifier: score(identifier) / max(1, standalone_usage(identifier))
+                            for identifier in remaining}
+    render_mapping = {
+        **mapping,
+        "retrieval_order": sorted(all_candidates, key=lambda identifier: -candidate_scores[identifier]),
+    }
+    current_context = reconstruct(render_mapping, selected)
+    current_tokens = usage(current_context)
+    while remaining or deferred:
+        if not remaining:
+            recovery_considered = list(deferred)
+            remaining, deferred = deferred, []
+        costs = {}
+        utilities = {}
+        proposal_contexts = {}
+        step = None if selection_trace is None else {
+            "selected": list(selected), "context_tokens": current_tokens, "candidates": []}
+
+        # ΔT(k | S) uses the complete reconstruction, including headers and
+        # separators. Tokenizer boundaries make isolated chunk costs insufficient.
+        for identifier in remaining:
+            proposed = [*selected, identifier]
+            proposal_mapping = render_mapping
+            if answer_weighted:
+                # Use actual standalone tokens for density and the whole proposed
+                # rendering for feasibility. Tokenizer costs need not be additive.
+                density = score(identifier) / max(1, standalone_usage(identifier))
+                proposed = sorted(proposed, key=lambda k: -(density if k == identifier else selected_utilities[k]))
+                proposal_mapping = {**mapping, "retrieval_order": proposed}
+            proposal_context = reconstruct(proposal_mapping, proposed)
+            tokens = usage(proposal_context)
+            proposal_contexts[identifier] = proposal_context
+            if tokens <= token_budget or selection_trace is not None:
+                marginal_gain = score(identifier)
+                utility = density if answer_weighted else marginal_gain
+                # Query relevance weights marginal G, not propagation scores.
+                # The existing G already supplies diminishing source coverage.
+                if chunk_relevance is not None and not attributed_query:
+                    utility *= chunk_relevance[identifier]
+                if coverage_strategy:
+                    if strategy in ("coverage_support_density", "coverage_support_query", "coverage_support_nonlinear"):
+                        # T(k) counts the standalone rendered chunk. Delta T
+                        # still counts the actual whole-context change. Zero-token
+                        # chunks use denominator one rather than infinite utility.
+                        standalone = standalone_usage(identifier)
+                        # T**(-gamma) avoids overflowing a positive power for
+                        # large finite gamma. Underflow means zero density.
+                        if strategy == "coverage_support_query":
+                            # Default preserves the established query selector.
+                            # Alternatives are private evaluation controls; the
+                            # inference and question relevance are unchanged.
+                            if query_cost_normalization == "standalone":
+                                utility /= max(1, standalone)
+                            elif query_cost_normalization == "incremental":
+                                utility /= max(1, tokens - current_tokens)
+                        else:
+                            utility *= max(1, standalone) ** (-token_cost_exponent)
+                    # Subtract λ ΔT from plain marginal support or its
+                    # token-normalized density, using the same exact cost.
+                    utility -= token_penalty * (tokens - current_tokens)
+                if tokens <= token_budget:
+                    costs[identifier] = tokens - current_tokens
+                    utilities[identifier] = utility
+                if selection_trace is not None:
+                    step["candidates"].append({"chunk_id": identifier, "marginal_gain": marginal_gain,
+                        "query_relevance": None if chunk_relevance is None else chunk_relevance[identifier],
+                        "utility": utility, "proposed_context_tokens": tokens,
+                        "incremental_tokens": tokens-current_tokens, "feasible": tokens <= token_budget})
+        if selection_trace is not None:
+            selection_trace.append(step)
+
+        if not utilities:
+            if deferred:
+                recovery_considered = list(deferred)
+                remaining.extend(deferred)
+                deferred = []
+                continue
+            break
+        # Packed coverage prefers lower exact ΔT for equal marginal utility.
+        # Remaining ties, and the original strategies, retain retrieval order.
+        if strategy in ("coverage_support_packed", "coverage_support_density", "coverage_support_query", "coverage_answer", "coverage_support_nonlinear"):
+            identifier = max(utilities, key=lambda key: (utilities[key], -costs[key]))
+        else:
+            identifier = max(utilities, key=utilities.get)
+        gain = score(identifier)
+        if selection_trace is not None:
+            step["best_feasible_chunk_id"] = identifier
+        # Check every feasible candidate before stopping: a nonpositive
+        # maximum offers no positive marginal utility, even with budget left.
+        if coverage_strategy and utilities[identifier] <= 0.0:
+            if deferred:
+                # Discovery is an initial search neighborhood, not evidence of
+                # zero utility outside it. Reuse the same covered cluster mass
+                # and exact proposal costs; do not reset or relax suppression.
+                recovery_considered = list(deferred)
+                remaining.extend(deferred)
+                deferred = []
+                continue
+            break
+        selected.append(identifier)
+        current_context = proposal_contexts[identifier]
+        current_tokens = costs[identifier] + current_tokens
+        selection_score = {"chunk_id": identifier, "score": gain}
+        if coverage_strategy:
+            selection_score["marginal_gain"] = gain
+            if token_penalty or strategy in ("coverage_support_density", "coverage_support_query", "coverage_answer", "coverage_support_nonlinear"):
+                selection_score["incremental_tokens"] = costs[identifier]
+                selection_score["regularized_utility"] = utilities[identifier]
+        selection_scores.append(selection_score)
+        covered.update(mapping["chunk_claims"][identifier])
+        if properties is not None:
+            for value in mapping["chunk_claims"][identifier]:
+                prop = properties[value]
+                represented_properties[prop] = max(represented_properties.get(prop, 0.0),
+                                                    support[value] * claim_relevance[value])
+        if nonlinear:
+            for claim in mapping["chunk_claims"][identifier]:
+                selected_passages[claim].add(mapping["chunk_text"][identifier])
+        if answer_weighted:
+            selected_utilities[identifier] = utilities[identifier]
+            for claim, value in chunk_claim_utility[identifier].items():
+                represented_utility[claim] = max(represented_utility[claim], value)
+            render_mapping = {**mapping, "retrieval_order": sorted(selected, key=lambda k: -selected_utilities[k])}
+        if complementary_sources is not None:
+            for value, (source, weight) in complementary_sources[identifier].items():
+                selected_sources[value][source] = weight
+        if attributed_query:
+            for value, (group, contribution) in claim_source_utility[identifier].items():
+                selected_claim_groups[value][group] = max(
+                    selected_claim_groups[value].get(group, 0.0), contribution *
+                    (1.0 if chunk_relevance is None else chunk_relevance[identifier]))
+        remaining.remove(identifier)
+
+    ordered = [identifier for identifier in render_mapping["retrieval_order"] if identifier in selected]
+    if measurements is not None:
+        measurements["chunk_selection_latency_ms"] = (time.perf_counter() - selection_started) * 1000.0
+    reconstruction_started = time.perf_counter() if measurements is not None else None
+    context = current_context if len(ordered) == len(selected) else reconstruct(render_mapping, ordered)
+    if measurements is not None:
+        measurements["context_reconstruction_latency_ms"] = (time.perf_counter() - reconstruction_started) * 1000.0
+    tokens = current_tokens if context == current_context else usage(context)
+    if tokens > token_budget:
+        raise ValueError("reconstructed context exceeds token budget")
+    return {
+        "chunks": [
+            {
+                "chunk_id": identifier,
+                "score": selected_utilities[identifier] if answer_weighted else candidate_scores[identifier],
+                "raw_text": mapping["chunk_text"][identifier],
+            }
+            for identifier in ordered
+        ],
+        "strategy": strategy,
+        "selected_chunk_ids": ordered,
+        "selection_order": selected,
+        "candidate_scores": candidate_scores,
+        "selection_scores": selection_scores,
+        "covered_claim_ids": sorted(covered),
+        "claim_coverage": {"covered": len(covered), "total": len(support)},
+        "covered_support": sum(support[value] for value in sorted(covered)),
+        "candidate_input_tokens": usage(reconstruct(mapping, mapping["retrieval_order"])),
+        "token_usage": tokens,
+        "token_budget": token_budget,
+        "context": context,
+        **({"_recovery_considered_chunk_ids": recovery_considered} if deferred_ids else {}),
+    }
+
+
+def reconstruct_context(
+    evaluation: ContextEvaluation,
+    chunks: Sequence[Mapping[str, Any]],
+    *,
+    token_budget: int,
+    strategy: str = "coverage_support",
+    count_tokens: Callable[[str], int] = token_count,
+    token_penalty: float = 0.0,
+    token_cost_exponent: float | None = None,
+    covered_claim_credit: float = 0.25,
+    complementary_evidence: bool = False,
+    claim_relevance: Mapping[str, float] | None = None,
+    question: str | None = None,
+    chunk_relevance: Mapping[str, float] | None = None,
+    _allow_unmapped_claims: bool = False,
+    _selection_trace: list[dict[str, Any]] | None = None,
+    _query_cost_normalization: str = "standalone",
+    _deferred_chunk_ids: Sequence[str] = (),
+) -> dict[str, Any]:
+    # The default budget counts Unicode word/punctuation units, including chunk headers.
+    if type(evaluation) is not ContextEvaluation:
+        raise TypeError("evaluation must be a ContextEvaluation")
+    support = {claim_id(item.claim): item.support for item in evaluation.claim_support}
+    if question is not None:
+        if type(question) is not str:
+            raise TypeError("question must be a string")
+        if not question.strip():
+            question = None
+    if question is not None:
+        from .question_selection import lexical_claim_relevance
+
+        if strategy == "coverage_support":
+            strategy = "coverage_support_query"
+        if strategy != "coverage_support_query":
+            raise ValueError("question requires default or question-aware coverage selection")
+        if claim_relevance is not None:
+            raise ValueError("provide question or claim_relevance, not both")
+        # Query relevance is client-side. Passage-specific relevance preserves
+        # distinctions between representatives of the same normalized claim;
+        # no passage payload is added to structural inference.
+        if chunk_relevance is None:
+            chunk_relevance = lexical_claim_relevance(question,
+                {chunk['chunk_id']: chunk['raw_text'] for chunk in chunks})
+        claim_relevance = dict.fromkeys(support, 1.0)
+    if type(complementary_evidence) is not bool:
+        raise TypeError("complementary evidence must be a bool")
+    if strategy == 'coverage_support_query' and claim_relevance is None and chunk_relevance is not None:
+        claim_relevance = dict.fromkeys(support, 1.0)
+    mapping = map_chunks(chunks, support, require_complete=not _allow_unmapped_claims)
+    claim_source_utility = None
+    if strategy == "coverage_support_query" or complementary_evidence:
+        claim_source_utility = _inferred_coverage_terms(evaluation, chunks)
+    chunk_claim_utility = None
+    if strategy == "coverage_answer":
+        if chunk_relevance is None or set(chunk_relevance) != set(mapping["chunk_text"]):
+            raise ValueError("answer coverage requires normalized chunk relevance")
+        reliability = {_source_identity(item.source.kind, item.source.identifier): item.reliability
+                       for item in evaluation.source_reliability}
+        supporters = {claim_id(item.claim): {_source_identity(s.source.kind, s.source.identifier)
+                       for s in item.supporting_sources} for item in evaluation.claim_support}
+        chunk_claim_utility = {}
+        for chunk in chunks:
+            source = chunk.get("source")
+            if type(source) is not Source:
+                raise ValueError("answer coverage requires each chunk's original Source")
+            key = _source_identity(source.kind, source.identifier)
+            relevance = chunk_relevance[chunk["chunk_id"]]
+            if type(relevance) not in (int, float) or not isfinite(relevance) or not 0 <= relevance <= 1:
+                raise ValueError("chunk relevance must be finite and in [0, 1]")
+            values = {}
+            for claim in mapping["chunk_claims"][chunk["chunk_id"]]:
+                if key not in supporters[claim]:
+                    raise ValueError("chunk source does not support its mapped claim")
+                # Relevance, relevance*R and relevance*s contribute equally.
+                # R and s are final inference outputs; do not discount dependence again.
+                values[claim] = relevance * (1 + reliability[key] + support[claim]) / 3
+            chunk_claim_utility[chunk["chunk_id"]] = values
+    elif chunk_relevance is not None and strategy not in ("coverage_support_density", "coverage_support_nonlinear", "coverage_support_query"):
+        raise ValueError("chunk relevance requires coverage_answer")
+    complementary_sources = None
+    if complementary_evidence:
+        if strategy not in ("coverage_support_density", "coverage_support_nonlinear"):
+            raise ValueError("complementary utility requires coverage_support_density")
+        for chunk in chunks:
+            source = chunk.get("source")
+            if type(source) is not Source:
+                raise ValueError("complementary chunks require their original Source")
+    result = select_chunks(mapping, support, token_budget, strategy, count_tokens=count_tokens,
+                           token_penalty=token_penalty, token_cost_exponent=token_cost_exponent,
+                           complementary_sources=complementary_sources, claim_relevance=claim_relevance,
+                           claim_source_utility=claim_source_utility,
+                           chunk_claim_utility=chunk_claim_utility,
+                           query_cost_normalization=_query_cost_normalization,
+                           chunk_relevance=chunk_relevance if strategy in ("coverage_support_density", "coverage_support_nonlinear", "coverage_support_query") else None,
+                           selection_trace=_selection_trace, covered_claim_credit=covered_claim_credit,
+                           _deferred_chunk_ids=_deferred_chunk_ids)
+    selected = result["selected_chunk_ids"]
+    result["mapping"] = {
+        "chunk_text": {identifier: mapping["chunk_text"][identifier] for identifier in selected},
+        "chunk_claims": {identifier: mapping["chunk_claims"][identifier] for identifier in selected},
+        "claim_chunks": {
+            value: [identifier for identifier in mapping["claim_chunks"][value] if identifier in selected]
+            for value in result["covered_claim_ids"]
+        },
+        "retrieval_order": selected,
+    }
+    return result

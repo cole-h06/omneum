@@ -1,0 +1,86 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.20422108424827456,
+    "ranking": [
+      "chunk-policy",
+      "chunk-system_record",
+      "chunk-operations_doc",
+      "chunk-hr_record",
+      "chunk-drive_document",
+      "chunk-project_doc",
+      "chunk-confluence_page",
+      "chunk-slack_message",
+      "chunk-project_doc_2",
+      "chunk-policy_2"
+    ],
+    "raw_scores": {
+      "chunk-confluence_page": 0.04154842346906662,
+      "chunk-drive_document": 0.8485678434371948,
+      "chunk-hr_record": 0.9518167972564697,
+      "chunk-operations_doc": 0.9660362005233765,
+      "chunk-policy": 0.9933586716651917,
+      "chunk-policy_2": 0.0005885869031772017,
+      "chunk-project_doc": 0.19279316067695618,
+      "chunk-project_doc_2": 0.02255604974925518,
+      "chunk-slack_message": 0.026737621054053307,
+      "chunk-system_record": 0.9771178960800171
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 8.77496786415577e-05,
+    "ranking": [
+      "chunk-policy",
+      "chunk-policy_2",
+      "chunk-slack_message",
+      "chunk-hr_record",
+      "chunk-project_doc",
+      "chunk-drive_document",
+      "chunk-operations_doc",
+      "chunk-project_doc_2",
+      "chunk-system_record",
+      "chunk-confluence_page"
+    ],
+    "raw_scores": {
+      "chunk-confluence_page": 1.5434181591036886,
+      "chunk-drive_document": 4.38382840206105,
+      "chunk-hr_record": 5.226067612876325,
+      "chunk-operations_doc": 4.176524855712002,
+      "chunk-policy": 7.704918897369858,
+      "chunk-policy_2": 5.748135900031729,
+      "chunk-project_doc": 4.572249672948939,
+      "chunk-project_doc_2": 2.955562692969112,
+      "chunk-slack_message": 5.417238892233035,
+      "chunk-system_record": 2.8649448828140636
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.03369591664522886,
+    "ranking": [
+      "chunk-policy",
+      "chunk-system_record",
+      "chunk-hr_record",
+      "chunk-operations_doc",
+      "chunk-project_doc_2",
+      "chunk-confluence_page",
+      "chunk-drive_document",
+      "chunk-slack_message",
+      "chunk-project_doc",
+      "chunk-policy_2"
+    ],
+    "raw_scores": {
+      "chunk-confluence_page": 0.5910753011703491,
+      "chunk-drive_document": 0.58282470703125,
+      "chunk-hr_record": 0.7117694020271301,
+      "chunk-operations_doc": 0.6414230465888977,
+      "chunk-policy": 0.7696967124938965,
+      "chunk-policy_2": 0.32883012294769287,
+      "chunk-project_doc": 0.4794694483280182,
+      "chunk-project_doc_2": 0.6039550304412842,
+      "chunk-slack_message": 0.5077461004257202,
+      "chunk-system_record": 0.755328893661499
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

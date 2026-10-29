@@ -1,0 +1,18 @@
+{
+  "case_id": "support_stale_runbook",
+  "answer": "POST /admin/keys/refresh, then confirm the loaded key ID.",
+  "supporting_sources": [
+    "deployment_config",
+    "incident_record",
+    "service_state",
+    "change_record",
+    "current_runbook"
+  ],
+  "scoring": {
+    "required": [
+      "POST",
+      "admin/keys/refresh"
+    ],
+    "forbidden": []
+  }
+}

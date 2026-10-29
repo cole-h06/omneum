@@ -17,13 +17,13 @@ _INTERNAL_LABELS = {
 
 
 
-def explain_evaluation(evaluation) -> str:
+def explain_evaluation(evaluation, *, concise=False) -> str:
     """Render an Omneum evaluation grouped by attribute, ranked by support."""
     latency = evaluation.evaluation_latency_ms
 
     lines = ["Omneum Evaluation"]
 
-    if latency is not None:
+    if latency is not None and not concise:
         lines.append(f"Evaluation latency: {latency:.1f} ms")
 
     groups = {}
@@ -39,6 +39,9 @@ def explain_evaluation(evaluation) -> str:
         lines.extend(("", _attribute(attribute)))
 
         for result in sorted(results, key=lambda r: r.support, reverse=True):
+            if concise:
+                lines.extend((f"  {_value(result.claim.value)}", f"  Support: {result.support:.2f}"))
+                continue
             lines.extend(
                 (
                     "",

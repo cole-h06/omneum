@@ -2,6 +2,7 @@
 
 from .mapping import ContextMapper
 from .extraction import extract_observations
+from .normalization import coalesce_observations, normalize_observations
 from .client import (
     ClaimSupportResult,
     ConflictingClaimResult,
@@ -49,7 +50,7 @@ from .observations import (
 from .records import evaluate, evaluate_records
 from .context_selection import reconstruct_context
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 __all__ = [
     "ContextMapper",
@@ -88,6 +89,8 @@ __all__ = [
     "explain_claim",
     "explain_dependency",
     "extract_observations",
+    "normalize_observations",
+    "coalesce_observations",
     "evaluate",
     "evaluate_context",
     "evaluate_records",

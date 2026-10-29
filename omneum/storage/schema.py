@@ -246,4 +246,29 @@ END;
 -- FK validation in the migration runner rejects existing orphan assertions.
 INSERT INTO assertion_observation_requirements(observation_id)
 SELECT id FROM observations WHERE observation_type='assertion';
+"""), (4, """
+CREATE TABLE execution_history (
+    id TEXT PRIMARY KEY,
+    workspace_id TEXT NOT NULL,
+    evaluation_run_id TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    sdk_end_to_end_latency_ms REAL CHECK (sdk_end_to_end_latency_ms >= 0),
+    evaluation_latency_ms REAL CHECK (evaluation_latency_ms >= 0),
+    graph_evaluation_latency_ms REAL CHECK (graph_evaluation_latency_ms >= 0),
+    mcp_roundtrip_latency_ms REAL CHECK (mcp_roundtrip_latency_ms >= 0),
+    chunk_selection_latency_ms REAL CHECK (chunk_selection_latency_ms >= 0),
+    context_reconstruction_latency_ms REAL CHECK (context_reconstruction_latency_ms >= 0),
+    local_inference_latency_ms REAL CHECK (local_inference_latency_ms >= 0),
+    cpu_time_ms REAL CHECK (cpu_time_ms >= 0),
+    peak_memory_bytes INTEGER CHECK (peak_memory_bytes >= 0),
+    input_tokens INTEGER NOT NULL CHECK (input_tokens >= 0),
+    selected_tokens INTEGER NOT NULL CHECK (selected_tokens >= 0),
+    token_budget INTEGER NOT NULL CHECK (token_budget >= 0 AND selected_tokens <= token_budget),
+    reduction_ratio REAL,
+    cpu_time_scope TEXT NOT NULL,
+    peak_memory_scope TEXT NOT NULL,
+    UNIQUE (workspace_id, evaluation_run_id),
+    FOREIGN KEY (workspace_id, evaluation_run_id)
+        REFERENCES evaluation_runs (workspace_id, id) ON DELETE CASCADE
+);
 """))

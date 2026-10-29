@@ -1,6 +1,11 @@
 """Omneum conditional routing through LlamaIndex's native typed events."""
 
+from typing import Any
+
+from llama_index.core.llms import LLM, ChatMessage
 from llama_index.core.workflow import Context, Event, StartEvent, StopEvent, Workflow, step
+
+from examples.context_preparation import PreparationOptions, collect_chunks, prepare_generation
 
 from examples.enterprise.config import example_deployment
 from examples.enterprise.workflow.run import estimator_config
@@ -52,12 +57,17 @@ def emit(ctx: Context, event: Event):
 
 
 class RoutingWorkflow(Workflow):
+    def __init__(self, *, chat_model: LLM | None = None, preparation: PreparationOptions | None = None, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.chat_model = chat_model
+        self.preparation = preparation or PreparationOptions()
+
     @step
     async def load_evidence(self, ctx: Context, event: StartEvent) -> EvidenceEvent:
         scenario = event.get("scenario", "diversify_sources")
         observations = initial_observations(scenario)
         state = RoutingState(
-            scenario=scenario,
+            scenario=scenario, preparation=self.preparation,
             initial_observation_count=len(observations),
             observations=observations,
         )
@@ -66,6 +76,7 @@ class RoutingWorkflow(Workflow):
     @step
     async def evaluate_context(self, ctx: Context, event: EvidenceEvent) -> EvaluatedEvent:
         state = event.state
+        state.retrieved_chunks = collect_chunks(state.observations)
         with example_deployment() as (config, server):
             async with open_stdio_client(config, server) as client:
                 state.context_evaluation = await client.evaluate_context(
@@ -126,16 +137,24 @@ class RoutingWorkflow(Workflow):
     async def select_claims(self, ctx: Context, event: SelectContextEvent) -> GenerateEvent:
         state = event.state
         state.selected_claims = select_context(state.context_evaluation)
+        state.generation = await prepare_generation(
+            state.observations, question=state.question, estimator=estimator_config(),
+            chunks=state.retrieved_chunks, evaluation=state.context_evaluation,
+            preparation=state.preparation,
+        )
+        state.messages = [ChatMessage(**message) for message in state.generation["messages"]]
         return emit(ctx, GenerateEvent(state=state))
 
     @step
     async def generate_answer(self, event: GenerateEvent) -> StopEvent:
         state = event.state
-        state.answer = "\n".join([
-            "Application decision: EVALUATION COMPLETE",
-            "Selected context:",
-            *(f"{claim.attribute}: {claim.value}" for claim in state.selected_claims),
-        ])
+        state.answer = (
+            "Application decision: EVALUATION COMPLETE\nSelected context:\n"
+            + state.messages[1].content
+        )
+        if self.chat_model is not None:
+            response = await self.chat_model.achat(state.messages)
+            state.answer = response.message.content
         return StopEvent(result=state)
 
     @step

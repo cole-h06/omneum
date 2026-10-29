@@ -157,7 +157,11 @@ def test_infer_stdio(tmp_path):
                     arguments,
                 )
                 assert not first.isError
-                assert first.structuredContent == second.structuredContent
+                assert first.structuredContent["evaluation_latency_ms"] >= 0
+                assert second.structuredContent["evaluation_latency_ms"] >= 0
+                assert {k: v for k, v in first.structuredContent.items() if k != "evaluation_latency_ms"} == {
+                    k: v for k, v in second.structuredContent.items() if k != "evaluation_latency_ms"
+                }
                 content = first.structuredContent
                 assert content is not None
                 assert content["summary"] == {

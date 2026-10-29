@@ -1,0 +1,480 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'120'",
+        "attribute": "net_change_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://report.benchmark.example/research_conflicting_reports/report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'-60'",
+        "attribute": "net_change_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:report_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://report.benchmark.example/research_conflicting_reports/report_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'-60'",
+        "attribute": "net_change_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:primary_publication",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://primary-publication.benchmark.example/research_conflicting_reports/primary_publication",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'-60'",
+        "attribute": "net_change_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:dataset",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://dataset.benchmark.example/research_conflicting_reports/dataset",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://report.benchmark.example/research_conflicting_reports/report",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'120'",
+        "attribute": "net_change_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:news_article",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [
+        "research_conflicting_reports:report"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://news-article.benchmark.example/research_conflicting_reports/news_article",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'-60'",
+        "attribute": "net_change_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:analysis",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://analysis.benchmark.example/research_conflicting_reports/analysis",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://dataset.benchmark.example/research_conflicting_reports/dataset",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'-60'",
+        "attribute": "net_change_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:filing",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "research_conflicting_reports:primary_publication"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://filing.benchmark.example/research_conflicting_reports/filing",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://primary-publication.benchmark.example/research_conflicting_reports/primary_publication",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'120'",
+        "attribute": "gross_gains_hectares",
+        "entity": "heldout-entity-v1:5b226c616e645f757365222c224d6172656e20646973747269637420666f7265737420636f7665722032303235225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_conflicting_reports:web_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://web-page.benchmark.example/research_conflicting_reports/web_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "net change hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://report.benchmark.example/research_conflicting_reports/report",
+          "kind": "report"
+        },
+        "source_id": "report",
+        "text": "Canopy Watch report: Maren forest cover rose 120 hectares in 2025. Its summary equates newly wooded parcels with net change.",
+        "value": 120
+      },
+      {
+        "attribute": "net change hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:report_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://report.benchmark.example/research_conflicting_reports/report_2",
+          "kind": "report"
+        },
+        "source_id": "report_2",
+        "text": "Land Review report: Maren lost a net 60 hectares in 2025 after adding 120 hectares and losing 180 hectares.",
+        "value": -60
+      },
+      {
+        "attribute": "net change hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:primary_publication",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://primary-publication.benchmark.example/research_conflicting_reports/primary_publication",
+          "kind": "primary_publication"
+        },
+        "source_id": "primary_publication",
+        "text": "Maren land office annual publication: district forest gains 120 ha; losses 180 ha; net forest-cover change -60 ha for 2025.",
+        "value": -60
+      },
+      {
+        "attribute": "net change hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:dataset",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://dataset.benchmark.example/research_conflicting_reports/dataset",
+          "kind": "dataset"
+        },
+        "source_id": "dataset",
+        "text": "District-boundary raster summary: 120 hectares converted to forest and 180 converted from forest during 2025, giving a net change of -60 hectares.",
+        "value": -60
+      },
+      {
+        "attribute": "net change hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:news_article",
+          "cited_sources": [
+            {
+              "identifier": "https://report.benchmark.example/research_conflicting_reports/report",
+              "kind": "report"
+            }
+          ],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [
+            "research_conflicting_reports:report"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://news-article.benchmark.example/research_conflicting_reports/news_article",
+          "kind": "news_article"
+        },
+        "source_id": "news_article",
+        "text": "Maren Gazette quotes Canopy Watch: a 120-hectare forest increase in 2025.",
+        "value": 120
+      },
+      {
+        "attribute": "net change hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:analysis",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://dataset.benchmark.example/research_conflicting_reports/dataset",
+              "kind": "dataset"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://analysis.benchmark.example/research_conflicting_reports/analysis",
+          "kind": "analysis"
+        },
+        "source_id": "analysis",
+        "text": "Spatial lab analysis of the district raster: 120 - 180 = -60 hectares; reporting gross additions alone omits clearing.",
+        "value": -60
+      },
+      {
+        "attribute": "net change hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:filing",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "research_conflicting_reports:primary_publication"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://primary-publication.benchmark.example/research_conflicting_reports/primary_publication",
+              "kind": "primary_publication"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://filing.benchmark.example/research_conflicting_reports/filing",
+          "kind": "filing"
+        },
+        "source_id": "filing",
+        "text": "Land office filing annex F: net district forest change in 2025 equals -60 hectares.",
+        "value": -60
+      },
+      {
+        "attribute": "gross gains hectares",
+        "entity": "Maren district forest cover 2025",
+        "entity_namespace": "land_use",
+        "provenance": {
+          "assertion_id": "research_conflicting_reports:web_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://web-page.benchmark.example/research_conflicting_reports/web_page",
+          "kind": "web_page"
+        },
+        "source_id": "web_page",
+        "text": "Regional greening campaign webpage: Maren added 120 hectares of woodland in 2025; figure measures planted and regenerated area.",
+        "value": 120
+      }
+    ],
+    "case_id": "research_conflicting_reports",
+    "category": null,
+    "context_budget": 3,
+    "domain": "research_analysis_agents",
+    "question": "What was the 2025 net forest-cover change in the Maren district, using the district boundary and accounting for both gains and losses?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-report",
+      "claim_ids": [
+        "7b22617474726962757465223a226e65745f6368616e67655f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3132307d"
+      ],
+      "raw_text": "Canopy Watch report: Maren forest cover rose 120 hectares in 2025. Its summary equates newly wooded parcels with net change.",
+      "source_id": "report"
+    },
+    {
+      "chunk_id": "chunk-report_2",
+      "claim_ids": [
+        "7b22617474726962757465223a226e65745f6368616e67655f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2d36307d"
+      ],
+      "raw_text": "Land Review report: Maren lost a net 60 hectares in 2025 after adding 120 hectares and losing 180 hectares.",
+      "source_id": "report_2"
+    },
+    {
+      "chunk_id": "chunk-primary_publication",
+      "claim_ids": [
+        "7b22617474726962757465223a226e65745f6368616e67655f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2d36307d"
+      ],
+      "raw_text": "Maren land office annual publication: district forest gains 120 ha; losses 180 ha; net forest-cover change -60 ha for 2025.",
+      "source_id": "primary_publication"
+    },
+    {
+      "chunk_id": "chunk-dataset",
+      "claim_ids": [
+        "7b22617474726962757465223a226e65745f6368616e67655f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2d36307d"
+      ],
+      "raw_text": "District-boundary raster summary: 120 hectares converted to forest and 180 converted from forest during 2025, giving a net change of -60 hectares.",
+      "source_id": "dataset"
+    },
+    {
+      "chunk_id": "chunk-news_article",
+      "claim_ids": [
+        "7b22617474726962757465223a226e65745f6368616e67655f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3132307d"
+      ],
+      "raw_text": "Maren Gazette quotes Canopy Watch: a 120-hectare forest increase in 2025.",
+      "source_id": "news_article"
+    },
+    {
+      "chunk_id": "chunk-analysis",
+      "claim_ids": [
+        "7b22617474726962757465223a226e65745f6368616e67655f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2d36307d"
+      ],
+      "raw_text": "Spatial lab analysis of the district raster: 120 - 180 = -60 hectares; reporting gross additions alone omits clearing.",
+      "source_id": "analysis"
+    },
+    {
+      "chunk_id": "chunk-filing",
+      "claim_ids": [
+        "7b22617474726962757465223a226e65745f6368616e67655f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2d36307d"
+      ],
+      "raw_text": "Land office filing annex F: net district forest change in 2025 equals -60 hectares.",
+      "source_id": "filing"
+    },
+    {
+      "chunk_id": "chunk-web_page",
+      "claim_ids": [
+        "7b22617474726962757465223a2267726f73735f6761696e735f6865637461726573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232366336313665363435663735373336353232326332323464363137323635366532303634363937333734373236393633373432303636366637323635373337343230363336663736363537323230333233303332333532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3132307d"
+      ],
+      "raw_text": "Regional greening campaign webpage: Maren added 120 hectares of woodland in 2025; figure measures planted and regenerated area.",
+      "source_id": "web_page"
+    }
+  ],
+  "truth": {
+    "answer": "The district had a net loss of 60 hectares of forest cover in 2025.",
+    "case_id": "research_conflicting_reports",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "loss",
+        "60"
+      ]
+    },
+    "supporting_sources": [
+      "report_2",
+      "primary_publication",
+      "dataset",
+      "analysis",
+      "filing"
+    ]
+  }
+}

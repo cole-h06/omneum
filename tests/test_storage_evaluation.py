@@ -52,7 +52,7 @@ def computed(tmp_path_factory):
     )
 
     async def compute():
-        evaluation = await client.evaluate_context(observations, estimator=estimator)
+        evaluation = await client._evaluate_context(observations, estimator=estimator)
         sources = {source: await client.link_source(source.kind, source.identifier)
                    for source in (a, b)}
         claims = {claim: await client.link_claim(claim.entity_namespace, claim.entity,

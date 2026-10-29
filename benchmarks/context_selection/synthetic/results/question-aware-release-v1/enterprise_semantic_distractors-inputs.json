@@ -1,0 +1,562 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"within 4 hours\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224972697320636f6e74726163746f722070726f64756374696f6e2056504e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:policy",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"30 days\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22656d706c6f79656520706179726f6c6c2062656e6566697473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:policy_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"14 days\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22497269732070726f6a65637420646f63756d656e742061726368697665225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:project_doc",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://project-doc.benchmark.example/enterprise_semantic_distractors/project_doc",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"24 hours\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22497269732073746167696e672056504e20726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:project_doc_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://project-doc.benchmark.example/enterprise_semantic_distractors/project_doc_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"within 4 hours\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224972697320636f6e74726163746f722070726f64756374696f6e2056504e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:hr_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://hr-record.benchmark.example/enterprise_semantic_distractors/hr_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"2 business days\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22636f6e74726163746f722056504e20656e726f6c6c6d656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:confluence_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://confluence-page.benchmark.example/enterprise_semantic_distractors/confluence_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"4 hours\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22497269732070726f64756374696f6e206465706c6f792077696e646f77225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:slack_message",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://slack-message.benchmark.example/enterprise_semantic_distractors/slack_message",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"within 4 hours\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224972697320636f6e74726163746f722070726f64756374696f6e2056504e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:operations_doc",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://operations-doc.benchmark.example/enterprise_semantic_distractors/operations_doc",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"7 days\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c22636f6e74726163746f722068617264776172652072657475726e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:drive_document",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:08:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://drive-document.benchmark.example/enterprise_semantic_distractors/drive_document",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"within 4 hours\"'",
+        "attribute": "revocation_deadline",
+        "entity": "heldout-entity-v1:5b22656e74657270726973655f706f6c696379222c224972697320636f6e74726163746f722070726f64756374696f6e2056504e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "enterprise_semantic_distractors:system_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:09:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://system-record.benchmark.example/enterprise_semantic_distractors/system_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy",
+          "kind": "web_document"
+        }
+      ]
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "revocation deadline",
+        "entity": "Iris contractor production VPN",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:policy",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy",
+          "kind": "policy"
+        },
+        "source_id": "policy",
+        "text": "Access policy AC-9: revoke contractor production VPN access within 4 hours of the engagement end timestamp. The project owner opens the offboarding request.",
+        "value": "within 4 hours"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "employee payroll benefits",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:policy_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy_2",
+          "kind": "policy"
+        },
+        "source_id": "policy_2",
+        "text": "Employee departure policy: payroll benefit access remains available for 30 days after employment ends.",
+        "value": "30 days"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "Iris project document archive",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:project_doc",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://project-doc.benchmark.example/enterprise_semantic_distractors/project_doc",
+          "kind": "project_doc"
+        },
+        "source_id": "project_doc",
+        "text": "Iris project closeout plan: archive project documentation within 14 days of the final milestone.",
+        "value": "14 days"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "Iris staging VPN rotation",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:project_doc_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://project-doc.benchmark.example/enterprise_semantic_distractors/project_doc_2",
+          "kind": "project_doc"
+        },
+        "source_id": "project_doc_2",
+        "text": "Iris VPN migration plan: staging VPN credentials rotate every 24 hours during the trial.",
+        "value": "24 hours"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "Iris contractor production VPN",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:hr_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://hr-record.benchmark.example/enterprise_semantic_distractors/hr_record",
+          "kind": "hr_record"
+        },
+        "source_id": "hr_record",
+        "text": "Contractor HR workflow AC-9: the engagement end timestamp starts a 4-hour production VPN revocation timer.",
+        "value": "within 4 hours"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "contractor VPN enrollment",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:confluence_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://confluence-page.benchmark.example/enterprise_semantic_distractors/confluence_page",
+          "kind": "confluence_page"
+        },
+        "source_id": "confluence_page",
+        "text": "Confluence contractor onboarding: production VPN enrollment requests normally complete within 2 business days.",
+        "value": "2 business days"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "Iris production deploy window",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:slack_message",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://slack-message.benchmark.example/enterprise_semantic_distractors/slack_message",
+          "kind": "slack_message"
+        },
+        "source_id": "slack_message",
+        "text": "Slack Iris release channel: allow 4 hours for the production deploy window after approval.",
+        "value": "4 hours"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "Iris contractor production VPN",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:operations_doc",
+          "cited_sources": [
+            {
+              "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy",
+              "kind": "policy"
+            }
+          ],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://operations-doc.benchmark.example/enterprise_semantic_distractors/operations_doc",
+          "kind": "operations_doc"
+        },
+        "source_id": "operations_doc",
+        "text": "Operations AC-9 offboarding procedure: disable contractor production VPN within 4 hours after the recorded engagement end.",
+        "value": "within 4 hours"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "contractor hardware return",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:drive_document",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:08:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://drive-document.benchmark.example/enterprise_semantic_distractors/drive_document",
+          "kind": "drive_document"
+        },
+        "source_id": "drive_document",
+        "text": "Drive contractor equipment guide: return the VPN hardware token within 7 days after the engagement.",
+        "value": "7 days"
+      },
+      {
+        "attribute": "revocation deadline",
+        "entity": "Iris contractor production VPN",
+        "entity_namespace": "enterprise_policy",
+        "provenance": {
+          "assertion_id": "enterprise_semantic_distractors:system_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:09:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://policy.benchmark.example/enterprise_semantic_distractors/policy",
+              "kind": "policy"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://system-record.benchmark.example/enterprise_semantic_distractors/system_record",
+          "kind": "system_record"
+        },
+        "source_id": "system_record",
+        "text": "Access scheduler policy AC-9: contractor production VPN revoke_due = engagement_end + 4 hours.",
+        "value": "within 4 hours"
+      }
+    ],
+    "case_id": "enterprise_semantic_distractors",
+    "category": null,
+    "context_budget": 3,
+    "domain": "enterprise_rag",
+    "question": "For a contractor leaving the Iris project, what is the deadline to revoke production VPN access after the engagement ends?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-policy",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234393732363937333230363336663665373437323631363337343666373232303730373236663634373536333734363936663665323035363530346532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2277697468696e203420686f757273227d"
+      ],
+      "raw_text": "Access policy AC-9: revoke contractor production VPN access within 4 hours of the engagement end timestamp. The project owner opens the offboarding request.",
+      "source_id": "policy"
+    },
+    {
+      "chunk_id": "chunk-policy_2",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236353665373436353732373037323639373336353566373036663663363936333739323232633232363536643730366336663739363536353230373036313739373236663663366332303632363536653635363636393734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2233302064617973227d"
+      ],
+      "raw_text": "Employee departure policy: payroll benefit access remains available for 30 days after employment ends.",
+      "source_id": "policy_2"
+    },
+    {
+      "chunk_id": "chunk-project_doc",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323439373236393733323037303732366636613635363337343230363436663633373536643635366537343230363137323633363836393736363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2231342064617973227d"
+      ],
+      "raw_text": "Iris project closeout plan: archive project documentation within 14 days of the final milestone.",
+      "source_id": "project_doc"
+    },
+    {
+      "chunk_id": "chunk-project_doc_2",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236353665373436353732373037323639373336353566373036663663363936333739323232633232343937323639373332303733373436313637363936653637323035363530346532303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323420686f757273227d"
+      ],
+      "raw_text": "Iris VPN migration plan: staging VPN credentials rotate every 24 hours during the trial.",
+      "source_id": "project_doc_2"
+    },
+    {
+      "chunk_id": "chunk-hr_record",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234393732363937333230363336663665373437323631363337343666373232303730373236663634373536333734363936663665323035363530346532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2277697468696e203420686f757273227d"
+      ],
+      "raw_text": "Contractor HR workflow AC-9: the engagement end timestamp starts a 4-hour production VPN revocation timer.",
+      "source_id": "hr_record"
+    },
+    {
+      "chunk_id": "chunk-confluence_page",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236353665373436353732373037323639373336353566373036663663363936333739323232633232363336663665373437323631363337343666373232303536353034653230363536653732366636633663366436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a223220627573696e6573732064617973227d"
+      ],
+      "raw_text": "Confluence contractor onboarding: production VPN enrollment requests normally complete within 2 business days.",
+      "source_id": "confluence_page"
+    },
+    {
+      "chunk_id": "chunk-slack_message",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323439373236393733323037303732366636343735363337343639366636653230363436353730366336663739323037373639366536343666373732323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a223420686f757273227d"
+      ],
+      "raw_text": "Slack Iris release channel: allow 4 hours for the production deploy window after approval.",
+      "source_id": "slack_message"
+    },
+    {
+      "chunk_id": "chunk-operations_doc",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234393732363937333230363336663665373437323631363337343666373232303730373236663634373536333734363936663665323035363530346532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2277697468696e203420686f757273227d"
+      ],
+      "raw_text": "Operations AC-9 offboarding procedure: disable contractor production VPN within 4 hours after the recorded engagement end.",
+      "source_id": "operations_doc"
+    },
+    {
+      "chunk_id": "chunk-drive_document",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363536653734363537323730373236393733363535663730366636633639363337393232326332323633366636653734373236313633373436663732323036383631373236343737363137323635323037323635373437353732366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22372064617973227d"
+      ],
+      "raw_text": "Drive contractor equipment guide: return the VPN hardware token within 7 days after the engagement.",
+      "source_id": "drive_document"
+    },
+    {
+      "chunk_id": "chunk-system_record",
+      "claim_ids": [
+        "7b22617474726962757465223a227265766f636174696f6e5f646561646c696e65222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323635366537343635373237303732363937333635356637303666366336393633373932323263323234393732363937333230363336663665373437323631363337343666373232303730373236663634373536333734363936663665323035363530346532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2277697468696e203420686f757273227d"
+      ],
+      "raw_text": "Access scheduler policy AC-9: contractor production VPN revoke_due = engagement_end + 4 hours.",
+      "source_id": "system_record"
+    }
+  ],
+  "truth": {
+    "answer": "Revoke production VPN access within 4 hours of the contractor engagement ending.",
+    "case_id": "enterprise_semantic_distractors",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "4 hours"
+      ]
+    },
+    "supporting_sources": [
+      "policy",
+      "hr_record",
+      "operations_doc",
+      "system_record"
+    ]
+  }
+}

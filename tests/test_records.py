@@ -4,10 +4,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from omneum import (
-    Claim, ContextEvaluation, DependencyEstimatorConfig, Observation, Source,
-    SourceReference, evaluate_context, evaluate, evaluate_records,
-)
+from omneum import Claim, ContextEvaluation, DependencyEstimatorConfig, Observation, Source, SourceReference, evaluate
+from omneum.client import _evaluate_context as evaluate_context
 from omneum.dependency import InformationGraphError
 import omneum.records as records_module
 
@@ -31,20 +29,20 @@ def estimator():
 @pytest.fixture
 def evaluation_calls(monkeypatch):
     calls = []
-    evaluate_context = records_module.evaluate_context
+    evaluate_context = records_module._evaluate_context
 
     def capture(observations, *, estimator):
         calls.append((observations, estimator))
         return evaluate_context(observations, estimator=estimator)
 
-    monkeypatch.setattr(records_module, "evaluate_context", capture)
+    monkeypatch.setattr(records_module, "_evaluate_context", capture)
     return calls
 
 
 def test_evaluate_alias():
-    assert evaluate_records is evaluate
-    assert records_module.evaluate_records is records_module.evaluate is evaluate
-    assert evaluate_records(records()) == evaluate(records())
+    import omneum
+    assert omneum.evaluate_records is evaluate
+    assert records_module.evaluate_records is evaluate
 
 
 def test_upstream_dependencies():

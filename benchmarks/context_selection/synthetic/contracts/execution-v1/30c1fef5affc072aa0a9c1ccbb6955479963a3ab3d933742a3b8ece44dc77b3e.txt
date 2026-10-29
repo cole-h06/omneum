@@ -1,0 +1,262 @@
+"""Paired analysis of a completed local budget-recovery experiment."""
+import argparse
+import csv
+import difflib
+import hashlib
+import json
+from pathlib import Path
+from collections import defaultdict, Counter
+import numpy as np
+
+from ..tier1_metrics import measure
+from ..loader import load_ground_truth
+
+BASE=Path(__file__).resolve().parents[1]
+OLD=BASE/'results/tier1-competitors-20261025-v1'
+METHODS=('omneum','bm25_omneum','embedding_omneum','bge_omneum','cohere_omneum')
+FIELDS=('source_precision','source_recall','evidence_retention','supporting_passage_claim_coverage',
+        'independent_evidence_coverage','actual_context_tokens','context_reduction','tokenizer_tokens')
+QUALITY=FIELDS[:5]
+LABEL=dict(omneum='Omneum standalone',bm25_omneum='BM25 + Omneum',embedding_omneum='MiniLM + Omneum',
+    bge_omneum='BGE + Omneum',cohere_omneum='Cohere + Omneum',raw_budget='Original-order RAG',
+    bm25='BM25',embedding='MiniLM',bge='BGE reranker',cohere='Cohere',
+    claude='Claude',gpt='GPT-6 Astra',gemini='Gemini')
+SHORT=dict(zip(FIELDS,('Precision','Recall','Evidence','Claims','Origins','Footprint','Reduction','Qwen tokens')))
+BUDGETS=(64,96,128,160,192,256)
+
+
+def read(p):return json.loads(p.read_text())
+def write(p,v):p.write_text(json.dumps(v,indent=2,allow_nan=False)+'\n')
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def csvwrite(p,rows):
+    rows=list(rows)
+    with p.open('w',newline='') as f:
+        w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+def table(headers,rows):return '\n'.join(['| '+' | '.join(headers)+' |','| '+' | '.join(['---']*len(headers))+' |']+['| '+' | '.join(map(str,r))+' |' for r in rows])
+def fmt(x,n=3):return f'{x:.{n}f}'
+
+
+def main(out):
+    old=read(OLD/'selections.json');new=read(out/'selections.json')
+    runs=list(csv.DictReader((out/'timings.csv').open()))
+    frozen=read(OLD/'summary.json')['aggregate']
+    cases={p.parent.name:read(p) for p in (BASE/'canonical/cases').glob('*/case.json')}
+    ids=sorted(cases);domains=sorted({c['domain'] for c in cases.values()})
+    assert len(new)==720 and len(runs)==3600 and read(out/'validation.json')['exact_budget_violations']==0
+    lookup={(r['case_id'],r['method'],r['budget']):r for r in new}
+    old_lookup={(r['case_id'],r['method'],r['budget']):r for r in old if r['method'] in METHODS}
+    assert len(lookup)==720
+    for r in new:
+        assert set(old_lookup[r['case_id'],r['method'],r['budget']]['selected']) <= set(r['selected'])
+        calculated=measure(cases[r['case_id']],load_ground_truth(BASE/'canonical/cases'/r['case_id']/'ground_truth.json'),r['selected'],r['context'])
+        assert all(r[k]==v for k,v in calculated.items())
+        assert r['tokenizer_tokens']<=r['budget']
+    counts=Counter((r['case_id'],r['method'],int(r['budget'])) for r in runs)
+    assert set(counts.values())=={5} and set(counts)==set(lookup)
+    def cubes(rows):
+        cells=defaultdict(list)
+        for r in rows:
+            if r['budget'] is not None:cells[r['method'],r['case_id'],r['budget']].append(r)
+        means={k:[np.mean([r[f] for r in rr]) for f in FIELDS] for k,rr in cells.items()}
+        return {m:np.array([[means[m,c,b] for b in BUDGETS] for c in ids]) for m in sorted({k[0] for k in means})}
+    prev=cubes(old);current=cubes(new)
+    aggregate=[]
+    for m in METHODS:
+        a=current[m].mean(axis=(0,1));tim=[r for r in runs if r['method']==m]
+        aggregate.append(dict(method=m,**dict(zip(FIELDS,map(float,a))),
+            local_selection_p50_ms=float(np.quantile([float(r['selection_ms']) for r in tim],.5)),
+            local_selection_p95_ms=float(np.quantile([float(r['selection_ms']) for r in tim],.95)),
+            packing_p50_ms=float(np.quantile([float(r['chunk_selection_latency_ms']) for r in tim],.5)),
+            packing_p95_ms=float(np.quantile([float(r['chunk_selection_latency_ms']) for r in tim],.95))))
+    csvwrite(out/'aggregate.csv',aggregate);ag={r['method']:r for r in aggregate}
+    seed,reps=20261026,50000;rng=np.random.default_rng(seed)
+    weights=rng.multinomial(24,np.full(24,1/24),size=reps)/24
+    strat=np.zeros((reps,24))
+    for d in domains:
+        ix=[i for i,c in enumerate(ids) if cases[c]['domain']==d]
+        strat[:,ix]=rng.multinomial(4,np.full(4,.25),size=reps)/24
+    pairs=set(('original',m,m) for m in METHODS)
+    pairs.update(('standalone',m.removesuffix('_omneum'),m) for m in METHODS if m!='omneum')
+    pairs.update(('standalone',b,'omneum') for b in ('raw_budget','bm25','embedding','bge','cohere','claude','gpt','gemini'))
+    pairs.update(('judge',b,m) for b in ('claude','gpt','gemini') for m in METHODS if m!='omneum')
+    pairrows=[];grouprows=[];case_rows=[];cell_rows=[]
+    for kind,left,right in sorted(pairs):
+        diff=current[right]-prev[left];case_diff=diff.mean(axis=1)
+        boot=weights@case_diff;sb=strat@case_diff
+        low,high=np.quantile(boot,[.025,.975],axis=0);sl,sh=np.quantile(sb,[.025,.975],axis=0)
+        for j,f in enumerate(FIELDS):
+            a,b=prev[left][:,:,j].mean(),current[right][:,:,j].mean()
+            pairrows.append(dict(reference=kind,baseline=left,corrected=right,metric=f,baseline_mean=float(a),
+                corrected_mean=float(b),delta=float(b-a),delta_pp=float((b-a)*100) if f not in ('actual_context_tokens','tokenizer_tokens') else None,
+                relative_change_pct=float((b-a)/a*100) if a else None,ci95_low=float(low[j]),ci95_high=float(high[j]),
+                stratified_ci95_low=float(sl[j]),stratified_ci95_high=float(sh[j]),
+                case_wins=int((case_diff[:,j]>1e-12).sum()),case_ties=int((abs(case_diff[:,j])<=1e-12).sum()),case_losses=int((case_diff[:,j]<-1e-12).sum()),
+                cell_wins=int((diff[:,:,j]>1e-12).sum()),cell_ties=int((abs(diff[:,:,j])<=1e-12).sum()),cell_losses=int((diff[:,:,j]<-1e-12).sum())))
+            for i,c in enumerate(ids):
+                case_rows.append(dict(reference=kind,baseline=left,corrected=right,case_id=c,domain=cases[c]['domain'],metric=f,delta=float(case_diff[i,j])))
+                for k,bu in enumerate(BUDGETS):cell_rows.append(dict(reference=kind,baseline=left,corrected=right,case_id=c,budget=bu,metric=f,delta=float(diff[i,k,j])))
+        for d in domains:
+            ix=[i for i,c in enumerate(ids) if cases[c]['domain']==d]
+            for j,f in enumerate(FIELDS):grouprows.append(dict(reference=kind,baseline=left,corrected=right,group_type='domain',group=d,metric=f,delta=float(diff[ix,:,j].mean())))
+        for k,bu in enumerate(BUDGETS):
+            lo,hi=np.quantile(weights@diff[:,k,:],[.025,.975],axis=0)
+            for j,f in enumerate(FIELDS):grouprows.append(dict(reference=kind,baseline=left,corrected=right,group_type='budget',group=bu,metric=f,delta=float(diff[:,k,j].mean()),ci95_low=float(lo[j]),ci95_high=float(hi[j])))
+    # Normalize optional columns before writing domain and budget rows together.
+    for r in grouprows:r.setdefault('ci95_low',None);r.setdefault('ci95_high',None)
+    csvwrite(out/'paired_comparisons.csv',pairrows);csvwrite(out/'paired_domain_budget.csv',grouprows)
+    csvwrite(out/'paired_cases.csv',case_rows);csvwrite(out/'paired_case_budget.csv',cell_rows)
+    pm={(r['reference'],r['baseline'],r['corrected'],r['metric']):r for r in pairrows}
+    def p(kind,left,right,f):return pm[kind,left,right,f]
+    group_levels=[]
+    for d in domains:
+        ix=[i for i,c in enumerate(ids) if cases[c]['domain']==d]
+        for m in METHODS:group_levels.append(dict(group_type='domain',group=d,method=m,**dict(zip(FIELDS,map(float,current[m][ix].mean(axis=(0,1)))))))
+    for k,bu in enumerate(BUDGETS):
+        for m in METHODS:group_levels.append(dict(group_type='budget',group=bu,method=m,**dict(zip(FIELDS,map(float,current[m][:,k].mean(axis=0))))))
+    for i,c in enumerate(ids):
+        for m in METHODS:group_levels.append(dict(group_type='case',group=c,method=m,**dict(zip(FIELDS,map(float,current[m][i].mean(axis=0))))))
+    csvwrite(out/'domain_budget_case_levels.csv',group_levels)
+    # All competing algorithms used identical frozen scores and inference.
+    alternatives=read(out/'alternatives.json')
+    positive=read(out/'positive-only-alternatives.json')
+    alternatives.extend({**r,'arm':'positive_only_recovery'} for r in positive if r['arm']=='staged_recovery')
+    armlevels=[]
+    for arm in ('original','full_pool','positive_only_recovery','staged_recovery'):
+        for m in METHODS:
+            rr=[r for r in alternatives if r['arm']==arm and r['method']==m]
+            armlevels.append(dict(arm=arm,method=m,**{f:float(np.mean([r[f] for r in rr])) for f in FIELDS}))
+    csvwrite(out/'alternative_comparison.csv',armlevels)
+    # Verify inferred source reliability against the frozen graph records too.
+    from omneum import evaluate_context
+    from omneum.canonicalization import canonicalize_source
+    from benchmarks.context_selection.config import estimator_config
+    from ..tier1_benchmark import prepare_cases
+    trace=[json.loads(l) for l in Path('/tmp/omneum-conflict-heldout-1792958991711192000.jsonl').open()]
+    graphs={r['case_id']:r for r in trace if r['type']=='graph'}
+    prepared=prepare_cases(graphs)
+    reliability=[]
+    for cid,data in prepared.items():
+        ev=evaluate_context(data['graph'],estimator=estimator_config())
+        source_ids={(c['source'].kind,canonicalize_source(c['source'].kind,c['source'].identifier)):c['source_id'] for c in data['chunks']}
+        actual={source_ids[s.source.kind,canonicalize_source(s.source.kind,s.source.identifier)]:s.reliability for s in ev.source_reliability}
+        assert actual.keys()==graphs[cid]['source_reliability'].keys()
+        assert all(abs(actual[k]-graphs[cid]['source_reliability'][k])<=1e-12 for k in actual)
+        reliability.append(dict(case_id=cid,maximum_absolute_difference=max(abs(actual[k]-graphs[cid]['source_reliability'][k]) for k in actual)))
+    write(out/'source_reliability_validation.json',reliability)
+    # A patch against task-start files avoids including unrelated user changes.
+    patch=[]
+    for name in ('client.py','context_selection.py'):
+        before=(out/(name+'.before.txt')).read_text().splitlines(True)
+        after=(Path('omneum')/name).read_text().splitlines(True)
+        patch.extend(difflib.unified_diff(before,after,fromfile='a/omneum/'+name,tofile='b/omneum/'+name))
+    (out/'production-change.patch').write_text(''.join(patch))
+    lines=[]
+    def add(s=''):lines.append(s)
+    add('# Budget-aware expanded-discovery recovery\n')
+    add('General production correction evaluated on frozen Tier 1 inputs. No hosted APIs, new retrieval scores, gold-based selection, canonical modifications, or downstream generation. The v1 timing attempt was interrupted because its early samples overlapped tests; v2 is the isolated completed run. v1 offline alternative quality remains valid and is used only to document the rejected positive-only algorithm.')
+    add('\n**Result: partial recovery, not elimination of the precision–completeness tradeoff.** All four hybrids gain aggregate evidence, claims and origins while retaining aggregate precision and token-efficiency advantages over their respective standalone rankers. Their absolute precision decreases versus the old restrictive hybrids. All 64-token outputs are unchanged; 96-token completeness does not regress. Larger-budget gaps shrink but remain, particularly for Cohere. Standalone is unchanged because it did not use restricted discovery.')
+    add('\n## Root cause and production path\n')
+    add('1. `sdk_adapter.build_observations` supplies structured claims, source identities, timestamps and provenance. `query_context.plan_context` and `dependency.estimate_dependencies` form the complete structural source/claim graph and dependency pairs. The structural service uses linked identifiers, not passage text.\n2. `inference.infer`, `_reciprocal_independence`, `_claim_scores` and `_source_update` converge dependency-aware reliability and support. Claim contributions incorporate reliability, agreement, independence and source degree. These functions are unchanged. Native graph support matches every frozen trace within 1e-12, every live SDK evaluation matches that support, and the separate 24-case source-reliability audit also matches within 1e-12.\n3. `context_selection._inferred_coverage_terms` sums final source contributions into existing per-claim dependency-cluster masses. The selector credits each cluster via its best selected relevance-weighted representative; it does not multiply independence a second time.\n4. `query_context.discover_chunks` selects top-three score anchors plus boundary ties and calls `expand_claims` at depth two. Expansion follows claim/chunk/source adjacency; it does not mean the whole dependency graph becomes eligible.\n5. Previously, `OmneumClient.prepare_context` filtered `plan["chunks"]` permanently to that expansion. `select_chunks` could only score and pack this restricted list; it stopped on no positive feasible utility and had no access to excluded candidates. This is a budget-independent discovery ceiling, not evidence that excluded passages have zero utility.\n6. `select_chunks` computes exact whole-rendered proposal costs and positive marginal support density, then `reconstruct` returns selected original passages in deterministic support order, preserving text and headers. No summaries or rewritten evidence are produced.')
+    add('\nThe frozen coding_package_fix_lineage BGE/Cohere pool contains eight passages and fits in 176 Qwen tokens. Its top-three expansion exposes only issue_origin, issue_comment and release_notes (62 tokens), excluding five chunks as outside_expansion. The saved full-graph reliability for repository_code and test_output is about 0.184868 each, versus about 0.074342 for issue_origin: the information was not absent from structural inference. The restriction occurred after that inference was planned and before packing. A separate tail issue remains: dense-rank normalization assigns the lowest distinct score exactly zero, so test_output cannot earn query-weighted utility even after it becomes searchable. Relevance normalization is deliberately unchanged in this correction.')
+    add('\n## Alternatives and selected correction\n')
+    add('Compared four deterministic variants over the same graph, scores, passages, budgets and unchanged metric definitions. Original reproduces all 720 frozen Omneum cells. Full-pool starts greedy selection over every original candidate, which changes tight-budget choices. Positive-only recovery keeps the initial selection and then admits any positive feasible marginal utility, but loses too much precision. The selected staged recovery also retains the initial selection and searches the deferred pool after the first neighborhood exhausts positive feasible utility; it requires the existing marginal utility/token to meet the weakest utility/token actually accepted during the initial stage. This derived boundary is fixed during recovery and uses no labels, answer content, new score normalization, new model or tuned constant. If the initial stage selects nothing, the boundary is zero and positive feasible evidence can still be selected.')
+    add('\nA mandatory occupancy target or raw relevance cutoff was rejected: neither establishes novel structural support. Repeatedly widening top-k and repacking was rejected because it can displace initial choices and repeats selection work unnecessarily. Recovery instead continues with the same covered cluster state and requires no additional graph inference. Existing explicit top_k remains a hard restriction; all-candidate, nonlinear, answer-coverage and question-only standalone behavior are unchanged.')
+    add('\n'+table(['Variant','Hybrid','Precision %','Evidence %','Claims %','Origins %','Qwen tokens'],[[r['arm'],LABEL[r['method']],*[fmt(r[f]*100) for f in ('source_precision','evidence_retention','supporting_passage_claim_coverage','independent_evidence_coverage')],fmt(r['tokenizer_tokens'])] for r in armlevels if r['method']!='omneum']))
+    add('\n## Before/after competitive table\n')
+    add('Quality percentages; equal mean over 24 cases and six budgets. Original competitors and judges are reused, with trial means computed within each case-budget cell. Footprint is the original word/punctuation metric; Qwen tokens enforce the exact budget.')
+    add('\nMetrics are unchanged: source precision/recall use annotated supporting-source IDs; evidence retention weights merged exact gold evidence spans by word/punctuation footprint; supporting-passage claim coverage intersects selected canonical claim IDs with the union in gold passages (including incidental facts and matching claims in non-gold passages); origins measure annotated root units represented by retained gold sources. These are distinct quantities. Strict minimal gold-claim coverage, downstream answer accuracy, end-to-end answer latency and real-world independence are not measured.')
+    rows=[]
+    for m in METHODS:
+        if m!='omneum':
+            b=m.removesuffix('_omneum');rows.append([LABEL[b]+' baseline',*[fmt(prev[b][:,:,j].mean()*100) for j in range(5)],fmt(prev[b][:,:,5].mean()),fmt(prev[b][:,:,6].mean()*100),fmt(prev[b][:,:,7].mean())])
+        for version,cube in [('Original',prev),('Corrected',current)]:rows.append([LABEL[m]+' '+version,*[fmt(cube[m][:,:,j].mean()*100) for j in range(5)],fmt(cube[m][:,:,5].mean()),fmt(cube[m][:,:,6].mean()*100),fmt(cube[m][:,:,7].mean())])
+    add('\n'+table(['Configuration','Precision','Recall','Evidence','Claims','Origins','Footprint','Reduction %','Qwen'],rows))
+    add('\n## Paired changes and uncertainty\n')
+    add('50,000 paired case-cluster bootstrap resamples (seed 20261026); all six budgets stay together and judge trials are averaged first. Domain-stratified sensitivity resamples four cases within each of six domains. These are exploratory percentile intervals, with no multiple-comparison correction. Local timing repeats are not independent cases.')
+    add('\n'+table(['Reference','Configuration','Metric','Δ pp','Relative %','95% CI pp','Case W/T/L'],[
+        [r['reference'],LABEL[r['corrected']],SHORT[r['metric']],fmt(r['delta_pp']),fmt(r['relative_change_pct']),
+         '['+fmt(r['ci95_low']*100)+', '+fmt(r['ci95_high']*100)+']','/'.join(str(r[k]) for k in ('case_wins','case_ties','case_losses'))]
+        for r in pairrows if r['reference'] in ('original','standalone') and r['metric'] in QUALITY and
+        (r['reference']=='original' or r['corrected']!='omneum')]))
+    add('\nThe MiniLM and BGE evidence/origin improvement intervals lie above zero; BM25 and Cohere completeness intervals include zero because gains are sparse. Cohere precision decreases versus its old hybrid with a 95% interval below zero. Corrected precision advantages versus standalone rankers are positive point estimates for all four hybrids, but only BGE has an ordinary case-bootstrap interval wholly above zero. The other three advantages must not be described as statistically established. The stratified sensitivity intervals are included in paired_comparisons.csv; no confirmatory significance claim follows from this designed 24-case set.')
+    add('\n## Domain and budget changes versus original Omneum\n')
+    for kind in ('domain','budget'):
+        groups=domains if kind=='domain' else BUDGETS
+        add('\n'+table([kind.title(),'Hybrid','Δ precision pp','Δ evidence pp','Δ claims pp','Δ origins pp'],[
+            [group,LABEL[m],*[fmt(next(r['delta'] for r in grouprows if r['reference']=='original' and r['corrected']==m and r['group_type']==kind and r['group']==group and r['metric']==f)*100) for f in ('source_precision','evidence_retention','supporting_passage_claim_coverage','independent_evidence_coverage')]]
+            for group in groups for m in METHODS if m!='omneum']))
+    add('\nThe paired_domain_budget.csv file includes every metric, budget-level case-bootstrap interval, and comparisons against standalone baselines and judges. Domain slices contain only four cases and should not be treated as stable population estimates.')
+    coverage=[]
+    for m in METHODS[1:]:
+        diff=current[m]-prev[m]
+        for j,f in enumerate(QUALITY):
+            ix=[i for i in range(24) if diff[i,:,j].mean()>1e-12]
+            coverage.append(dict(method=m,metric=f,improved_cases=len(ix),
+                domains_with_improved_cases=len({cases[ids[i]]['domain'] for i in ix}),
+                improved_cells=int((diff[:,:,j]>1e-12).sum())))
+    csvwrite(out/'improvement_coverage.csv',coverage)
+    add('\nChanging a case is not the same as improving evidence. Actual positive gains are concentrated as follows; unchanged cells are not counted as improvements.')
+    add('\n'+table(['Hybrid','Metric','Improved cases / 24','Domains with improving cases / 6','Improved cells / 144'],[
+        [LABEL[r['method']],SHORT[r['metric']],r['improved_cases'],r['domains_with_improved_cases'],r['improved_cells']]
+        for r in coverage if r['metric'] in ('evidence_retention','independent_evidence_coverage')]))
+    add('\n'+table(['Budget','Hybrid','Old evidence gap vs baseline pp','Corrected evidence gap pp','Old origin gap pp','Corrected origin gap pp'],[
+        [bu,LABEL[m],fmt((prev[m][:,BUDGETS.index(bu),2]-prev[m.removesuffix('_omneum')][:,BUDGETS.index(bu),2]).mean()*100),
+         fmt((current[m][:,BUDGETS.index(bu),2]-prev[m.removesuffix('_omneum')][:,BUDGETS.index(bu),2]).mean()*100),
+         fmt((prev[m][:,BUDGETS.index(bu),4]-prev[m.removesuffix('_omneum')][:,BUDGETS.index(bu),4]).mean()*100),
+         fmt((current[m][:,BUDGETS.index(bu),4]-prev[m.removesuffix('_omneum')][:,BUDGETS.index(bu),4]).mean()*100)]
+        for bu in (64,96,192,256) for m in METHODS[1:]]))
+    add('\n## coding_package_fix_lineage and residual exclusions\n')
+    for m in ('bge_omneum','cohere_omneum'):
+        r=lookup['coding_package_fix_lineage',m,256]
+        original=next(v for v in old if v['case_id']==r['case_id'] and v['method']==m and v['budget']==256)
+        add('\n'+LABEL[m]+': selected '+', '.join(r['selected'])+f". Evidence {original['evidence_retention']*100:.6f}% → {r['evidence_retention']*100:.6f}%; origins {original['independent_evidence_coverage']*100:.6f}% → {r['independent_evidence_coverage']*100:.6f}%; precision {original['source_precision']*100:.6f}% → {r['source_precision']*100:.6f}%; tokens {original['tokenizer_tokens']} → {r['tokenizer_tokens']}.")
+        add('Recovery floor '+str(r['diagnostics'].get('recovery_utility_floor'))+'. '+
+            'All formerly excluded candidates are considered. The trace records exact marginal gains, proposal token counts and passes_recovery_floor decisions. Positive utility below the density boundary is not accepted; zero-weight or already represented cluster mass is not accepted. Remaining capacity is intentional, not a reason to weaken provenance-aware suppression.')
+    add('\n## Case-level regressions and tradeoffs\n')
+    regression=[]
+    for m in METHODS:
+        diff=current[m]-prev[m]
+        for i,c in enumerate(ids):
+            d=diff[i].mean(axis=0)
+            if d[0]<-1e-12:regression.append(dict(method=m,case_id=c,precision_delta_pp=float(d[0]*100),evidence_delta_pp=float(d[2]*100),origins_delta_pp=float(d[4]*100),qwen_token_delta=float(d[7])))
+        for f in QUALITY[1:]:assert (diff[:,:,FIELDS.index(f)]>=-1e-12).all()
+    regression.sort(key=lambda r:r['precision_delta_pp'])
+    if regression:csvwrite(out/'case_precision_regressions.csv',regression)
+    add('The correction is append-only in selected passage identity after the initial neighborhood. Recall, evidence, claim and origin coverage never decrease against the old Omneum selection in any of the 720 case-budget cells. Precision and compression can regress; the complete case table is saved, and the largest precision losses are shown below. This is not a promise that every recovered passage is gold.')
+    add('\n'+table(['Hybrid','Case','Δ precision pp','Δ evidence pp','Δ origins pp','Δ Qwen'],[[LABEL[r['method']],r['case_id'],*[fmt(r[f]) for f in ('precision_delta_pp','evidence_delta_pp','origins_delta_pp','qwen_token_delta')]] for r in regression[:20]]))
+    add('\n## Timing and validation\n')
+    add('\n'+table(['Configuration','Original p50/p95 ms','Corrected p50/p95 ms','Corrected packing p50/p95 ms'],[[LABEL[m],fmt(frozen[m]['selection_ms']['p50'])+'/'+fmt(frozen[m]['selection_ms']['p95']),fmt(ag[m]['local_selection_p50_ms'])+'/'+fmt(ag[m]['local_selection_p95_ms']),fmt(ag[m]['packing_p50_ms'])+'/'+fmt(ag[m]['packing_p95_ms'])] for m in METHODS]))
+    add('\nFinal run: 720 corrected quality cells, five timing repeats each, 3,600 fresh production prepare_context executions plus five warmups. Every execution matches its native predicted selected passage IDs, exact rendered bytes and Qwen count; all full-graph support agrees with the frozen graph; no graph receipt reuse. Original 2,328 tokenized contexts were independently checked using the cached original Qwen2.5 tokenizer. Tests: 198 selection/API tests passed, including 16 recovery tests. No paid requests or downstream generations. API keys and hosted models are not used.')
+    add('\nHistorical and current wall-time distributions come from separate sessions; they cannot isolate recovery overhead. Standalone is algorithmically unchanged and serves as a warning about session-wide timing shifts. Packing-stage distributions expose the much smaller client selection work. Both sets exclude semantic ranking inference, structured extraction, startup/loading and cold tokenization. Existing remote provider latency remains historical and separate. Context efficiency remains better than each respective standalone baseline in aggregate, but weaker than the old restrictive hybrid; no claim of cost-free evidence recovery is made.')
+    add('\n## Acceptance and remaining weaknesses\n')
+    checks=[]
+    for m in METHODS[1:]:
+        b=m.removesuffix('_omneum')
+        checks.append(dict(method=m,evidence_improvement_pp=p('original',m,m,'evidence_retention')['delta_pp'],
+            origins_improvement_pp=p('original',m,m,'independent_evidence_coverage')['delta_pp'],
+            precision_advantage_vs_standalone_pp=p('standalone',b,m,'source_precision')['delta_pp'],
+            qwen_savings_vs_standalone_pct=-p('standalone',b,m,'tokenizer_tokens')['relative_change_pct'],
+            precision_change_vs_original_pp=p('original',m,m,'source_precision')['delta_pp']))
+    add('\n'+table(['Hybrid','Evidence gain pp','Origins gain pp','Precision advantage vs baseline pp','Qwen savings vs baseline %','Precision change vs old hybrid pp'],[[LABEL[r['method']],*[fmt(r[f]) for f in ('evidence_improvement_pp','origins_improvement_pp','precision_advantage_vs_standalone_pp','qwen_savings_vs_standalone_pct','precision_change_vs_original_pp')]] for r in checks]))
+    add('\nThe discovery bug is corrected within an explicit quality-preserving marginal-density policy. All four hybrids improve completeness over their original versions across multiple cases/domains, while retaining aggregate precision and token-efficiency advantages over their respective standalone baselines. Precision is not preserved at its old absolute level; this is a quantified tradeoff, not full satisfaction of a zero-sacrifice objective. Standalone does not improve because it had no expanded-discovery exclusion to repair. Some evidence remains below the density boundary or has zero normalized relevance; not all high-budget gaps disappear, and all frontier judges remain stronger on aggregate evidence. Small bootstrap gains may span zero; consult intervals rather than equating nonnegative cell changes with a statistically established population gain.')
+    add('\nNext steps: evaluate the same fixed policy on an unseen local held-out corpus; separately investigate whether ordinal zero is a justified abstention for strictly positive bounded scorer outputs; study singleton-vs-greedy budget allocation with a utility certificate; and test downstream answers while charging extraction and actual generation costs. Recovery searches the full retrieved pool and can increase greedy-packing work on much larger pools; the small synthetic pools do not establish large-pool latency. Do not tune density thresholds or inference weights to these 24 cases. No public README, leaderboard, domain Markdown report, or canonical artifact was modified.')
+    add('\n## Reproduction\n')
+    add('Runner: `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m benchmarks.context_selection.synthetic.experiments.budget_recovery --output NEW_EXPERIMENT --tokenizer ORIGINAL_QWEN_TOKENIZER`. The runner requires a protected_inputs.json and task-start source snapshots in the new directory, as documented by this experiment. It refuses to overwrite completed selections. Analyze: `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m benchmarks.context_selection.synthetic.experiments.analyze_budget_recovery --output '+str(out)+'`. The first command runs only local native/SDK inference; the second reads saved results. Production-change.patch is relative to task-start files, excluding unrelated pre-existing working-tree changes.')
+    (out/'report.md').write_text('\n'.join(lines)+'\n')
+    protected=read(out/'protected_inputs.json')
+    assert all(sha(Path(k))==v for k,v in protected.items())
+    assert all(sha(Path(k))==v for k,v in read(out/'manifest.json')['code_sha256'].items())
+    write(out/'analysis_validation.json',dict(metrics_recomputed=720,timing_samples=3600,
+        original_artifacts_preserved=True,protected_files=len(protected),bootstrap_replicates=reps,
+        bootstrap_seed=seed,paired_comparison_metric_rows=len(pairrows),
+        no_completeness_regressions_against_original=True,source_reliability_matches_frozen=True,
+        original_selected_passages_preserved_in_every_cell=True,execution_code_hashes_unchanged=True,
+        analysis_inputs_sha256={n:sha(out/n) for n in ('selections.json','timings.csv','alternatives.json','positive-only-alternatives.json','manifest.json','selection-tests-verified.log')},
+        task_production_files=['omneum/client.py','omneum/context_selection.py']))
+    write(out/'summary.json',dict(aggregate=aggregate,acceptance=checks,bootstrap_replicates=reps,bootstrap_seed=seed))
+    print('Report saved:',out/'report.md')
+
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
+    main(p.parse_args().output)

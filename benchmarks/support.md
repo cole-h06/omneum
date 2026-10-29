@@ -1,70 +1,84 @@
 # Support & Operations Agents
 
-Context-selection benchmark for support and operations agents. Evaluates incident recovery, conflicting remediation instructions, stale runbooks, and circular ticket references.
+Support and operations evaluation for the Omneum Cross-Domain Context Curation Benchmark.
 
-**4 held-out cases · 30 candidate sources · Claude Sonnet 5.5 generator**
+Four synthetic cases test context selection for incident recovery, conflicting remediation instructions, stale runbooks, and circular ticket references.
 
-[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_evaluation/heldout/DATASET.md) | [Saved Results](context_evaluation/heldout/results/)
+**4 cases · 30 candidate passages · 6 Qwen-token budgets · 13 budgeted configurations**
+
+[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_selection/synthetic/DATASET.md) | [Saved Results](context_selection/synthetic/results/)
 
 ## Quick Start
 
 Run from the Omneum repository root.
 
 ```bash
-# Validate the 24 held-out cases
-.venv/bin/python -m benchmarks.context_evaluation.heldout.validate_dataset
-
 # Run offline benchmark tests
 .venv/bin/python tools/run_context_evaluation_tests.py -q
 
-# Verify saved publication metrics
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary --check
+# Inspect the final benchmark results
+cat benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
 ```
 
-These commands validate the frozen dataset, run offline tests, and verify published metrics against saved artifacts. They do not execute new provider inference.
+The offline tests exercise benchmark components without issuing new provider inference requests. The saved benchmark artifacts contain the recorded selections and metrics.
 
 ## Cases
 
-| Case | Candidates | Budget | Expected behavior |
-|---|---:|---:|---|
-| [`support_clean_resolution`](#support_clean_resolution) | 7 | 3 | Resume the Marlin export worker |
-| [`support_resolution_conflict`](#support_resolution_conflict) | 7 | 2 | Restore the previous Opal trust bundle without disabling TLS verification |
-| [`support_stale_runbook`](#support_stale_runbook) | 8 | 3 | Refresh the Nimbus v5 credential cache |
-| [`support_ticket_reference_loop`](#support_ticket_reference_loop) | 8 | 3 | Resume the Vega ingest consumer without purging queued records |
+| Case | Candidates | Token Budgets | Expected behavior |
+|---|---:|---|---|
+| [`support_clean_resolution`](#support_clean_resolution) | 7 | 64–256 | Resume the Marlin export worker |
+| [`support_resolution_conflict`](#support_resolution_conflict) | 7 | 64–256 | Restore the previous Opal trust bundle without disabling TLS verification |
+| [`support_stale_runbook`](#support_stale_runbook) | 8 | 64–256 | Refresh the Nimbus v5 credential cache |
+| [`support_ticket_reference_loop`](#support_ticket_reference_loop) | 8 | 64–256 | Resume the Vega ingest consumer without purging queued records |
 
-Each case uses a fixed candidate pool, source-level relevance labels, and a predefined selection budget.
+Each case uses a fixed candidate pool, source-level relevance labels, canonical claims, and provenance annotations.
+
+The six budgets are **64, 96, 128, 160, 192, and 256 Qwen tokens**. Budget enforcement applies to reconstructed original passage text rather than a fixed number of selected sources.
 
 ## Recorded Results
 
-The primary BGE + Omneum measurements below use the 10-trial GPT-6 Astra paired run. Claude and Cohere comparisons use one trial per case.
+The final evaluation measures selection precision, recall, evidence retention, claim coverage, root-origin coverage, context token usage, and selection latency.
 
-| Case | BGE + Omneum Precision | Recall | Recorded Answer | Selection p50 |
-|---|---:|---:|---|---:|
-| Clean resolution | **100%** | 42.9% | 10/10 correct | **0.626s** |
-| Resolution conflict | 50% | 25% | 9/10 correct | **0.696s** |
-| Stale runbook | **100%** | 60% | 10/10 generation failures | **0.729s** |
-| Ticket reference loop | **100%** | 60% | 10/10 correct | **0.649s** |
+The following are the final corrected **Support & Operations domain averages**, aggregated across four cases and six token budgets.
 
-**BGE + Omneum achieved 100% selection precision in three of four cases, matching the evaluated frontier LLM judges' selection quality in those cases at substantially lower selection latency.**
+| Configuration | Precision ↑ | Recall ↑ | Evidence Retention ↑ | Claim Coverage ↑ | Origin Coverage ↑ | Qwen Tokens ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Omneum Standalone | **77.79%** | **56.31%** | **56.99%** | **69.25%** | **62.22%** | 128.33 |
+| BM25 + Omneum | 72.94% | 46.99% | 48.40% | 51.01% | 54.38% | 109.63 |
+| MiniLM + Omneum | 71.03% | 46.25% | 46.94% | 53.45% | 49.44% | 114.08 |
+| BGE + Omneum | 75.82% | 53.45% | 54.10% | 60.77% | 60.28% | 120.00 |
+| Cohere + Omneum | 71.32% | 43.33% | 44.37% | 41.70% | 44.31% | 107.21 |
 
-In the resolution-conflict case, BGE + Omneum produced nine correctly scored answers in ten attempts, compared with two for BGE + GPT-6 Astra. Gemini achieved higher selection precision in that case.
+These are domain-level means, not per-case results or downstream answer accuracy measurements.
 
-The stale-runbook generation failures occurred after successful context selection and affected all repeated BGE configurations. They do not establish incorrect source selection.
+Standalone Omneum recorded the highest precision, recall, evidence retention, claim coverage, and origin coverage among these five configurations. The hybrids generally used fewer context tokens but retained less annotated evidence.
+
+Relative to their corresponding standalone rankers, the final hybrid evidence-retention differences in this domain were:
+
+| Comparison | Evidence Retention Difference |
+|---|---:|
+| BM25 + Omneum vs. BM25 | −9.54 pp |
+| MiniLM + Omneum vs. MiniLM | −9.50 pp |
+| BGE + Omneum vs. BGE | −3.50 pp |
+| Cohere + Omneum vs. Cohere | −13.67 pp |
+
+The final deferred-candidate recovery improved evidence completeness most substantially for the MiniLM hybrid in this domain, but the corrected hybrids still retained less annotated evidence than their corresponding standalone rankers.
 
 ### Selection Latency
 
-Median selection latency in seconds:
+The final aggregate local selection timings across all six domains are:
 
-| Case | GPT-6 Astra Judge | Gemini 3.8 Flash Judge | Omneum |
-|---|---:|---:|---:|
-| Clean resolution | 4.016s | 2.329s | **0.626s** |
-| Resolution conflict | 6.629s | 2.324s | **0.696s** |
-| Stale runbook | 3.800s | 4.620s | **0.729s** |
-| Ticket reference loop | 7.562s | 2.050s | **0.649s** |
+| Configuration | Selection p50 | Selection p95 |
+|---|---:|---:|
+| Omneum Standalone | 194.86ms | 451.87ms |
+| BM25 + Omneum | 207.79ms | 461.25ms |
+| MiniLM + Omneum | 203.84ms | 465.36ms |
+| BGE + Omneum | 200.63ms | 430.51ms |
+| Cohere + Omneum | 206.89ms | 480.37ms |
 
-Omneum recorded lower selection latency in every comparison.
+These are benchmark-wide measurements, not Support & Operations-specific latency percentiles.
 
-These are recorded benchmark timings, not universal performance guarantees.
+The local selection interval excludes external ranking inference and structured observation extraction. Frontier LLM judges have different inference and timing boundaries.
 
 ## `support_clean_resolution`
 
@@ -79,7 +93,6 @@ worker after scheduled maintenance?
 
 ```text
 7 candidates
-3 selected
 7 relevant
 ```
 
@@ -105,20 +118,21 @@ After resuming the worker, verify that pending exports begin draining.
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `current_runbook`, `service_state`, `kb_article` | 100% | 42.9% | 1/1 correct | 2.238s |
-| BGE + GPT-6 Astra Judge | 10 | `current_runbook`, `monitoring_result`, `service_state` | 100% | 42.9% | 10/10 correct | 4.016s |
-| BGE + Gemini Judge | 10 | `current_runbook`, `kb_article`, `change_record` | 100% | 42.9% | 10/10 correct | 2.329s |
-| **BGE + Omneum** | **10** | `current_runbook`, `kb_article`, `monitoring_result` | **100%** | **42.9%** | **10/10 correct** | **0.626s** |
-| Cohere + Claude Judge | 1 | `current_runbook`, `service_state`, `change_record` | 100% | 42.9% | 1/1 correct | 2.008s |
-| Cohere + Omneum | 1 | `current_runbook`, `kb_article`, `service_state` | 100% | 42.9% | 1/1 correct | 0.544s |
+The final evaluation measures retained supporting sources under each of the six token budgets.
+
+| Source | Evidence | Relevance |
+|---|---|---|
+| `current_runbook` | Current recovery procedure | Supporting |
+| `service_state` | Worker state after maintenance | Supporting |
+| `kb_article` | Recovery instructions referencing the runbook | Supporting |
+| `monitoring_result` | Export backlog monitoring | Supporting |
+| `change_record` | Scheduled maintenance record | Supporting |
+
+The fixture contains seven annotated supporting sources in total. The table identifies the five explicitly described operational records; the saved fixture contains the remaining source IDs.
 
 ### Comparative Analysis
 
-Every configuration selected three relevant sources and generated the correct recovery action.
-
-BGE + Omneum selected:
+The earlier fixed-source-budget evaluation selected three relevant sources for every configuration. One recorded BGE + Omneum selection was:
 
 ```text
 current_runbook
@@ -128,11 +142,13 @@ monitoring_result
 
 The selection includes the current recovery procedure, its knowledge-base reference, and operational monitoring evidence.
 
-GPT-6 Astra instead selected the current runbook, monitoring result, and service state. Gemini selected the runbook, knowledge-base article, and change record.
+The knowledge-base article cites the current runbook. Omneum's provenance-aware graph inference accounts for their shared evidence origin when computing source reliability and claim support, rather than treating both passages as fully independent evidence.
 
-All three selections achieved identical relevance metrics.
+The final benchmark replaces the three-source limit with six token budgets. The number of retained passages can therefore vary with token cost and selection utility.
 
-**Result:** Omneum matched the frontier LLM judges' 100% precision, 42.9% recall, and correct recorded answers. Its 0.626-second median selection latency was approximately 6.4× lower than GPT-6 Astra and 3.9× lower than Gemini.
+**Result:** This case measures supporting-evidence retention when all candidate sources agree on the recovery action.
+
+Because every source is annotated as supporting, selection precision alone cannot distinguish the methods in this case. Recall, evidence retention, claim coverage, origin coverage, and context token usage provide additional measurements.
 
 ## `support_resolution_conflict`
 
@@ -148,7 +164,6 @@ trust-bundle deployment?
 
 ```text
 7 candidates
-2 selected
 4 relevant
 ```
 
@@ -186,20 +201,21 @@ Disabling TLS verification is not an acceptable recovery action.
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `runbook`, `service_state` | 50% | 25% | 1/1 unscored | 1.787s |
-| BGE + GPT-6 Astra Judge | 10 | Variable; usually `service_state`, `runbook` | 60% | 30% | 2/10 correct | 6.629s |
-| BGE + Gemini Judge | 10 | Usually `deployment_config`, `runbook` | 100% | 50% | 10/10 correct | 2.324s |
-| **BGE + Omneum** | **10** | `service_state`, `deployment_config` | **50%** | **25%** | **9/10 correct** | **0.696s** |
-| Cohere + Claude Judge | 1 | `runbook`, `service_state` | 50% | 25% | 1/1 unscored | 1.756s |
-| Cohere + Omneum | 1 | `service_state`, `runbook` | 50% | 25% | 1/1 unscored | 0.582s |
+The final evaluation scores selected passages against four sources annotated as supporting the prescribed recovery action.
 
-The GPT-6 Astra and Gemini selection metrics are averages across ten trials.
+| Source | Evidence | Relevance |
+|---|---|---|
+| `runbook` | Current recovery procedure | Supporting |
+| `deployment_config` | Active trust-bundle configuration | Supporting |
+| `service_state` | Missing issuer and TLS failure diagnosis | Diagnostic, not labeled supporting |
+| `OP-63` | Disable TLS verification | Not supporting |
+| `OP-64` | Roll back trust bundle | Recovery recommendation; relevance follows fixture annotation |
+
+The fixture's relevance labels distinguish diagnostic evidence from sources explicitly supporting the prescribed recovery action.
 
 ### Comparative Analysis
 
-BGE + Omneum consistently selected:
+The earlier fixed-source-budget BGE + Omneum selection was:
 
 ```text
 service_state
@@ -208,30 +224,17 @@ deployment_config
 
 The service state identifies the missing issuer. The deployment configuration provides the active trust-bundle configuration.
 
-The fixture's relevance labels distinguish diagnostic evidence from sources explicitly supporting the prescribed recovery action. Consequently, the service state does not receive a positive recovery-action relevance label.
+The service-state evidence is diagnostically useful but does not receive a positive recovery-action relevance label.
 
-Gemini achieved the highest selection precision and recall in this case.
+This distinction matters because selecting a source that accurately describes the failure is not equivalent to selecting evidence that establishes the prescribed remediation.
 
-However, the recorded downstream answer outcomes differ:
+The earlier evaluation showed that some generated responses recommended rollback without explicitly naming `tb17`. Those responses were recorded as `unscored`, not confirmed incorrect recommendations.
 
-| Configuration | Correct | Unscored |
-|---|---:|---:|
-| BGE + Claude Judge | 0 | 1 |
-| BGE + GPT-6 Astra Judge | 2 | 8 |
-| BGE + Gemini Judge | 10 | 0 |
-| **BGE + Omneum** | **9** | **1** |
-| Cohere + Claude Judge | 0 | 1 |
-| Cohere + Omneum | 0 | 1 |
+The final benchmark does not generate answers or assign downstream answer statuses.
 
-The separately executed BGE + Omneum trials paired with Gemini recorded 10/10 correct answers.
+**Result:** The case tests whether the selector retains evidence supporting rollback to `tb17` while excluding the instruction to disable TLS verification.
 
-The GPT-6-paired Omneum run recorded nine correct answers and one unscored response.
-
-Some unscored responses recommended rollback but did not explicitly identify `tb17`. An unscored result is not a confirmed incorrect remediation recommendation.
-
-**Result:** Omneum achieved nine correctly scored answers in ten trials, one fewer than Gemini's ten correctly scored answers and exceeding GPT-6 Astra's two correctly scored answers in the corresponding comparison. Omneum completed selection approximately 9.5× faster than GPT-6 Astra and 3.7× faster than Gemini.
-
-The case distinguishes diagnostic relevance from action-specific relevance. Omneum selected useful configuration and service-state evidence, while Gemini more consistently selected sources matching the fixture's recovery-action labels.
+Omneum's `prepare_context()` uses claim support from provenance-aware graph inference alongside question relevance and incremental claim coverage. A passage describing the failure may be reliable without directly supporting the requested recovery action.
 
 ## `support_stale_runbook`
 
@@ -246,7 +249,6 @@ rotation on Nimbus v5 without changing the key?
 
 ```text
 8 candidates
-3 selected
 5 relevant
 ```
 
@@ -256,10 +258,10 @@ Older instructions recommend restarting gateway pods:
 
 ```text
 Nimbus v3 runbook
-    |
-    +--> Legacy KB article
-    |
-    +--> Copied support ticket
+   |
+   +--> Legacy KB article
+   |
+   +--> Copied support ticket
 ```
 
 These documents repeat a procedure that is no longer appropriate for the installed version.
@@ -288,18 +290,21 @@ change_record
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `current_runbook`, `deployment_config`, `incident_record` | 100% | 60% | 1/1 correct | 1.931s |
-| BGE + GPT-6 Astra Judge | 10 | `current_runbook`, `incident_record`, `deployment_config` | 100% | 60% | 10/10 generation failures | 3.800s |
-| BGE + Gemini Judge | 10 | `current_runbook`, `incident_record`, `deployment_config` | 100% | 60% | 10/10 generation failures | 4.620s |
-| **BGE + Omneum** | **10** | `current_runbook`, `incident_record`, `deployment_config` | **100%** | **60%** | 10/10 generation failures | **0.729s** |
-| Cohere + Claude Judge | 1 | `current_runbook`, `deployment_config`, `incident_record` | 100% | 60% | 1/1 correct | 2.177s |
-| Cohere + Omneum | 1 | `current_runbook`, `deployment_config`, `incident_record` | 100% | 60% | 1/1 correct | 0.666s |
+The five annotated supporting sources are:
+
+| Source | Evidence | Relevance |
+|---|---|---|
+| `current_runbook` | Current Nimbus v5 procedure | Supporting |
+| `deployment_config` | Watch-mode key reload configuration | Supporting |
+| `incident_record` | Current recovery evidence | Supporting |
+| `service_state` | Current credential state | Supporting |
+| `change_record` | Signing-key rotation record | Supporting |
+
+The older Nimbus v3 runbook, legacy knowledge-base article, and copied support ticket are not annotated as supporting the Nimbus v5 recovery action.
 
 ### Comparative Analysis
 
-Every configuration selected the same three current sources, regardless of ordering:
+The earlier fixed-source-budget evaluation selected the same three current sources across all configurations:
 
 ```text
 current_runbook
@@ -307,24 +312,19 @@ incident_record
 deployment_config
 ```
 
-None selected the obsolete restart procedure.
+None of those selections included the obsolete restart procedure.
 
-All configurations achieved:
+The current evidence establishes that Nimbus v5 refreshes its credential cache through the administrative endpoint rather than restarting gateway pods.
 
-```text
-Selection precision: 100%
-Selection recall:     60%
-```
+The older instructions are linked through copied and derived documentation. Omneum's provenance-aware graph inference accounts for their shared evidence origins when computing source reliability and claim support. Repetition does not establish that the procedure applies to Nimbus v5.
 
-The repeated BGE runs encountered downstream generation failures after context selection.
+The earlier repeated BGE evaluations encountered downstream generation failures after context selection. Those failures affected multiple selector configurations and did not establish a selector-specific cause.
 
-These failures affected GPT-6 Astra, Gemini, and Omneum configurations. The single BGE + Omneum attempt in the Claude-paired comparison also failed generation.
+The final benchmark measures context selection only, so downstream generation failures are not included in its metrics.
 
-By contrast, the single-trial BGE + Claude and Cohere-based configurations generated correctly scored answers.
+**Result:** The case tests whether token-budgeted selection retains current Nimbus v5 recovery evidence instead of obsolete Nimbus v3 procedures.
 
-The recorded evidence does not establish a selector-specific cause for the repeated generation failures.
-
-**Result:** Omneum matched the LLM judges' source selections and achieved 100% precision at 0.729-second median selection latency. The repeated downstream generation failures do not invalidate the measured selection precision or recall.
+The selection must account for the installed version, question relevance, and the supporting claims represented in each passage.
 
 ## `support_ticket_reference_loop`
 
@@ -339,7 +339,6 @@ backlog when the consumer is paused and storage is healthy?
 
 ```text
 8 candidates
-3 selected
 5 relevant
 ```
 
@@ -347,17 +346,17 @@ The candidate pool contains a circular reference chain recommending a destructiv
 
 ```text
 Ticket VG-88
-    |
-    | cites
-    v
+   |
+   | cites
+   v
 KB-12
-    |
-    | cites
-    v
+   |
+   | cites
+   v
 Incident VG-71
-    |
-    | retrospective references
-    v
+   |
+   | retrospective references
+   v
 Ticket VG-88
 ```
 
@@ -399,18 +398,22 @@ change_record
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `runbook`, `service_state`, `deployment_config` | 100% | 60% | 1/1 correct | 1.868s |
-| BGE + GPT-6 Astra Judge | 10 | Usually `runbook`, `service_state`, `deployment_config` | 100% | 60% | 10/10 correct | 7.562s |
-| BGE + Gemini Judge | 10 | Usually `runbook`, `service_state`, `deployment_config` | 100% | 60% | 10/10 correct | 2.050s |
-| **BGE + Omneum** | **10** | `runbook`, `service_state`, `deployment_config` | **100%** | **60%** | **10/10 correct** | **0.649s** |
-| Cohere + Claude Judge | 1 | `runbook`, `service_state`, `deployment_config` | 100% | 60% | 1/1 correct | 10.178s |
-| Cohere + Omneum | 1 | `runbook`, `service_state`, `deployment_config` | 100% | 60% | 1/1 correct | 9.606s |
+The five annotated supporting sources are:
+
+| Source | Evidence | Relevance |
+|---|---|---|
+| `runbook` | Current consumer recovery procedure | Supporting |
+| `service_state` | Paused consumer and healthy storage | Supporting |
+| `deployment_config` | Queue preservation requirements | Supporting |
+| `monitoring_probe` | Current backlog monitoring | Supporting |
+| `change_record` | Operational change history | Supporting |
+| `VG-88` | Queue-purge recommendation | Not supporting |
+| `KB-12` | Repeated queue-purge recommendation | Not supporting |
+| `VG-71` | Circularly referenced queue-purge recommendation | Not supporting |
 
 ### Comparative Analysis
 
-All configurations selected the same three relevant sources:
+The earlier fixed-source-budget evaluation selected:
 
 ```text
 runbook
@@ -420,62 +423,64 @@ deployment_config
 
 These sources establish the appropriate recovery action without relying on the circular ticket references.
 
-All methods achieved 100% precision, 60% recall, and correct recorded answers.
+The operational state indicates that the consumer is paused, storage is healthy, and queued records remain pending.
 
-The principal measured difference was selection latency.
+The current runbook prescribes resuming the consumer. The deployment configuration identifies purging the queue as destructive.
 
-| Selector | Selection p50 |
-|---|---:|
-| GPT-6 Astra Judge | 7.562s |
-| Gemini Judge | 2.050s |
-| **Omneum** | **0.649s** |
+The ticket, knowledge-base article, and incident report form a citation cycle. Omneum's provenance-aware graph inference accounts for their shared evidence origins and dependencies when computing source reliability and claim support, rather than treating the repeated purge recommendation as independent support.
 
-**Result:** Omneum matched the frontier LLM judges' selection quality and downstream answer correctness while recording approximately 11.7× lower selection latency than GPT-6 Astra and 3.3× lower latency than Gemini.
+The final benchmark evaluates the reconstructed context at each token budget against the annotated supporting sources and evidence spans.
 
-The fixture demonstrates successful selection of current operational evidence in the presence of circularly referenced recovery instructions.
+**Result:** The case tests retention of current operational evidence in the presence of circularly referenced recovery instructions that would discard pending records.
 
 ## Inspect Recorded Runs
 
-The case fixtures and preserved execution artifacts are maintained separately.
+The final synthetic dataset and recorded execution artifacts are maintained under `benchmarks/context_selection/synthetic/`.
 
 ### Case Fixtures
 
+The benchmark dataset is documented at:
+
 ```text
-benchmarks/context_evaluation/heldout/cases/
-├── support_clean_resolution/
-│   ├── case.json
-│   └── ground_truth.json
-├── support_resolution_conflict/
-│   ├── case.json
-│   └── ground_truth.json
-├── support_stale_runbook/
-│   ├── case.json
-│   └── ground_truth.json
-└── support_ticket_reference_loop/
-    ├── case.json
-    └── ground_truth.json
+benchmarks/context_selection/synthetic/DATASET.md
 ```
 
-`case.json` contains the frozen case input and candidate context.
+The four Support & Operations case IDs are:
 
-`ground_truth.json` contains the expected evidence labels and evaluation data.
+```text
+support_clean_resolution
+support_resolution_conflict
+support_stale_runbook
+support_ticket_reference_loop
+```
+
+Find their definitions in the synthetic benchmark files:
+
+```bash
+rg -n \
+  'support_clean_resolution|support_resolution_conflict|support_stale_runbook|support_ticket_reference_loop' \
+  benchmarks/context_selection/synthetic/
+```
+
+Each case defines a fixed candidate pool, supporting-source annotations, and evaluation metadata.
 
 ### Saved Results
 
 ```text
-benchmarks/context_evaluation/heldout/results/
-├── bge-claude-vs-bge-omneum-20261008/
-├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-low-vs-bge-omneum-20261008/
-└── cohere-claude-vs-cohere-omneum-20261008/
+benchmarks/context_selection/synthetic/results/
+├── tier1-production-20261025-v1/
+├── tier1-competitors-20261025-v1/
+└── budget-exhaustion-recovery-20261026-v2/
 ```
 
-Each listed run contains recorded attempt data in `results.jsonl`.
+The final corrected hybrid results are preserved in the recovery artifact directory.
 
-Inspect the GPT-6 Astra paired run:
+Inspect the saved files:
 
 ```bash
-ls benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/
+find \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/ \
+  -maxdepth 1 -type f -print | sort
 ```
 
 Find the four support cases:
@@ -483,89 +488,102 @@ Find the four support cases:
 ```bash
 rg -n \
   'support_clean_resolution|support_resolution_conflict|support_stale_runbook|support_ticket_reference_loop' \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/
 ```
 
-Inspect the saved run summary:
-
-```bash
-.venv/bin/python -m json.tool \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/summary.json
-```
+The matching records can be used to inspect individual case-budget selections and scoring outcomes.
 
 ### Published Dashboard
 
-Inspect the benchmark-wide dashboard:
+The competitive analysis is stored under:
 
-```bash
-.venv/bin/python -m json.tool \
-  benchmarks/context_evaluation/heldout/dashboard_summary.json
+```text
+benchmarks/context_selection/synthetic/analysis/tier1-competitive-analysis-20261026-v1/
 ```
 
-Verify the published metrics:
+Inspect the analysis artifacts:
 
 ```bash
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary --check
+find \
+  benchmarks/context_selection/synthetic/analysis/tier1-competitive-analysis-20261026-v1/ \
+  -maxdepth 1 -type f -print | sort
 ```
 
-Regenerate the dashboard from saved artifacts:
-
-```bash
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary
-```
-
-This rebuilds the publication summary without rerunning provider inference.
+The final comparison uses saved selection and scoring records. Inspecting these files does not rerun external provider inference.
 
 ## Evaluation Notes
 
 | Setting | Value |
 |---|---|
 | Cases | 4 |
-| Candidate sources | 30 total |
-| Candidate pools | 7–8 sources per case |
-| Selection budgets | 2–3 sources |
-| Generator | Claude Sonnet 5.5 |
-| Initial rerankers | BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
+| Candidate passages | 30 total |
+| Candidate pools | 7–8 passages per case |
+| Selection budgets | 64, 96, 128, 160, 192, 256 Qwen tokens |
+| Tokenizer | Qwen2.5 7B GGUF |
+| Budgeted configurations | 13 |
+| Unbudgeted reference | `raw_full` |
+| Initial rankers | BM25, MiniLM, BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
 | Frontier judges | Claude Sonnet 5.5, GPT-6 Astra, Gemini 3.8 Flash |
-| BGE + GPT-6 / Gemini | 10 trials per case |
-| BGE + Omneum | 10 trials per case in each paired run |
-| Claude / Cohere extracts | 1 trial per case |
-| Selection scoring | Frozen source-level relevance labels |
-| Latency aggregation | Median across recorded attempts |
+| Omneum entry point | `prepare_context()` |
+| Selection objective | `coverage_support_density` |
+| Complementary evidence | `complementary_evidence=True` |
+| Token cost exponent | `token_cost_exponent=1` |
+| Discovery anchors | 3 plus relevance-score ties |
+| Discovery expansion | Depth 2 |
+| Deferred-candidate recovery | Enabled for final hybrid results |
+| Conflict-aware selection | `conflict_aware=False` |
+| Selection scoring | Annotated supporting-source IDs |
+| Evidence scoring | Retained annotated evidence |
+| Claim scoring | Canonical claims represented in supporting passages |
+| Origin scoring | Annotated root-origin units |
+| Latency aggregation | Recorded local selection p50 and p95 |
 
-BGE + Omneum appears in multiple paired-run artifacts. The main results table uses the GPT-6 Astra pairing rather than treating repeated executions as additional independent cases.
+Omneum's provenance-aware graph inference iteratively computes source reliability and claim support across a bipartite graph, accounting for shared evidence origins and dependencies between sources.
+
+The SDK maps finalized claim support to retrieved chunks through their associated claim IDs. `prepare_context()` uses question relevance and incremental claim coverage to select and reconstruct original passages within the configured token budget.
+
+The final hybrid results include deferred-candidate budget-exhaustion recovery. Positive-utility candidates outside the initial discovery neighborhood can be reconsidered when they satisfy the remaining token budget and marginal utility-density threshold.
 
 ### Answer Status
 
-The benchmark distinguishes:
+The earlier fixed-source-budget benchmark distinguished:
 
-- `correct`: The generated answer satisfies the frozen correctness check.
-- `unscored`: The response does not satisfy that check; it is not automatically a confirmed incorrect answer.
-- `generation_failure`: The downstream generation step failed, preventing an answer from being scored.
+- `correct`: The generated answer satisfied the frozen correctness check.
+- `unscored`: The response did not satisfy that check; it was not automatically a confirmed incorrect answer.
+- `generation_failure`: The downstream generation step failed, preventing answer scoring.
 
-Selection precision and recall are measured independently of downstream generation.
+These statuses belong to the earlier downstream-answer evaluation.
+
+The final benchmark does not execute answer generation. Its metrics are computed from selected passages and their annotations.
 
 ### Measurement Constraints
 
 The four support cases are synthetic fixtures with fixed candidate pools and relevance labels.
 
-Repeated trials measure execution behavior on identical inputs, not generalization across additional tasks.
+The six token budgets produce multiple measurements of the same cases, not independent additional tasks.
 
-Selection latency includes the measured selection stage. End-to-end latency includes downstream generation, and failed-generation timings should not be interpreted as successful answer latency.
+Selection precision measures the proportion of selected sources annotated as supporting. Recall measures the proportion of annotated supporting sources retained.
 
-The compared selectors do not necessarily receive identical structural and semantic information, even when evaluated against the same candidate pool.
+Evidence retention, claim coverage, and origin coverage measure complementary properties of the selected context.
+
+The final local selection latency excludes external ranking inference and structured observation extraction. Frontier judge inference has different information and timing boundaries.
+
+The selection policy was developed using the same synthetic case suite. These results are useful for controlled evaluation and regression testing, but do not independently establish performance on unseen support workloads.
 
 ## Summary
 
-Across the four Support & Operations cases, **BGE + Omneum matched the evaluated frontier LLM judges' selection precision and recall in three cases while recording lower selection latency in every repeated BGE comparison**.
+Across the four Support & Operations cases, **standalone Omneum achieved the highest precision, recall, evidence retention, claim coverage, and origin coverage among the five Omneum configurations**, while the hybrids generally produced smaller contexts.
 
-The results include:
+The final domain results include:
 
-- **Clean resolution:** 100% selection precision, ten correctly scored answers, and 0.626-second median selection latency.
-- **Resolution conflict:** Nine correctly scored answers in ten trials, one fewer than Gemini's ten correctly scored answers and exceeding GPT-6 Astra's two, despite lower source-level selection precision.
-- **Stale runbook:** 100% selection precision with the same current evidence selected by every evaluated judge. Repeated downstream generation failures affected all BGE configurations.
-- **Ticket reference loop:** 100% selection precision, ten correctly scored answers, and 0.649-second median selection latency.
+- **Omneum Standalone:** 77.79% precision, 56.31% recall, 56.99% evidence retention, and 128.33 mean Qwen tokens.
+- **BM25 + Omneum:** 72.94% precision, 48.40% evidence retention, and 109.63 mean Qwen tokens.
+- **MiniLM + Omneum:** 71.03% precision, 46.94% evidence retention, and 114.08 mean Qwen tokens.
+- **BGE + Omneum:** 75.82% precision, 54.10% evidence retention, and 120.00 mean Qwen tokens.
+- **Cohere + Omneum:** 71.32% precision, 44.37% evidence retention, and 107.21 mean Qwen tokens.
 
-These results demonstrate that Omneum can provide low-latency context selection for operational recovery tasks while preserving competitive evidence-selection quality against frontier LLM judges.
+The four fixtures test distinct operational failure modes: straightforward recovery, conflicting remediation instructions, obsolete version-specific procedures, and circular references supporting destructive actions.
 
-The domain results are one component of the full 24-case benchmark. See the [leaderboard](leaderboard.md) for aggregate comparisons against standalone semantic rerankers and frontier LLM judges.
+The final hybrid configurations retained less annotated evidence than their corresponding standalone rankers in this domain. That tradeoff should be evaluated alongside context-token reductions rather than described as an unqualified selection-quality improvement.
+
+These results contribute to the full 24-case cross-domain benchmark. See the [Leaderboard](leaderboard.md) for aggregate comparisons across all six domains.

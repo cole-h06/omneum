@@ -5,7 +5,8 @@ import runpy
 
 import pytest
 
-from omneum import ContextEvaluation, evaluate_context
+from omneum import ContextEvaluation
+from omneum.client import _evaluate_context as evaluate_context
 from omneum.engine_graph import AssertionTriple, SourcePair
 from omneum.engine_graph import build_graph as build_inference_graph
 from omneum.inference import InferenceResult, infer

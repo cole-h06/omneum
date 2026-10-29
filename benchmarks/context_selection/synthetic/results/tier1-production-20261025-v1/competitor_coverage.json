@@ -1,0 +1,122 @@
+{
+  "stage": "coverage audit only; no additional configurations evaluated",
+  "completed_local_executions": 4320,
+  "completed_local_cells": 864,
+  "budget_unit": "Recorded Qwen2.5 tokenizer counts; word/punctuation footprint reported separately",
+  "raw_dump_feasible_cases_by_budget": {
+    "64": 0,
+    "96": 0,
+    "128": 0,
+    "160": 0,
+    "192": 1,
+    "256": 10
+  },
+  "configurations": [
+    {
+      "category": "Raw dump / heuristic",
+      "configuration": "Raw dump",
+      "status": "reference only",
+      "available_case_budget_trial_cells": 0,
+      "notes": "Full raw dump fits only 11/144 case-budget cells: 0,0,0,0,1,10 cases at budgets 64,96,128,160,192,256. A truncated raw-order selector would be a different configuration."
+    },
+    {
+      "category": "Raw dump / heuristic",
+      "configuration": "BM25",
+      "status": "completed",
+      "available_case_budget_trial_cells": 144,
+      "notes": "Five measured local executions per cell; frozen relevance inputs."
+    },
+    {
+      "category": "Raw dump / heuristic",
+      "configuration": "MiniLM embedding ranking",
+      "status": "completed",
+      "available_case_budget_trial_cells": 144,
+      "notes": "Budgeted first-fit over the complete embedding ranking. A separately fixed-k prefix selector is not configured; k was not specified."
+    },
+    {
+      "category": "Semantic reranker",
+      "configuration": "BGE Reranker: BAAI/bge-reranker-v2-m3",
+      "status": "completed",
+      "available_case_budget_trial_cells": 144,
+      "notes": "Five measured post-relevance local executions per cell."
+    },
+    {
+      "category": "Semantic reranker",
+      "configuration": "Cohere Rerank: rerank-v4.0-pro",
+      "status": "cached replay available",
+      "available_case_budget_trial_cells": 144,
+      "notes": "24 complete historical full-pool scored rankings. New local packing can use all six budgets. Fresh provider latency/cost measurements require paid authorization."
+    },
+    {
+      "category": "Frontier LLM judge",
+      "configuration": "Claude Sonnet 5.5: claude-sonnet-5-5",
+      "status": "cached replay available",
+      "available_case_budget_trial_cells": 288,
+      "notes": "48 complete historical rankings: two trials per case. New local replay is possible; fresh repeated model execution requires paid authorization."
+    },
+    {
+      "category": "Frontier LLM judge",
+      "configuration": "GPT-6 Astra: gpt-6-astra",
+      "status": "cached replay available",
+      "available_case_budget_trial_cells": 288,
+      "notes": "48 complete historical rankings: two trials per case. New local replay is possible; fresh repeated model execution requires paid authorization."
+    },
+    {
+      "category": "Frontier LLM judge",
+      "configuration": "Gemini 3.8 Flash: gemini-3.8-flash",
+      "status": "cached replay available",
+      "available_case_budget_trial_cells": 288,
+      "notes": "48 complete historical rankings: two trials per case. New local replay is possible; fresh repeated model execution requires paid authorization."
+    },
+    {
+      "category": "Omneum",
+      "configuration": "Standalone production question-aware Omneum",
+      "status": "new local execution needed",
+      "available_case_budget_trial_cells": 0,
+      "notes": "Historical standalone uses coarse claims; canonical structural control has no question relevance. Neither substitutes for current canonical prepare_context(question=...). Installed local MiniLM enables a real local run."
+    },
+    {
+      "category": "Omneum",
+      "configuration": "BGE + Omneum",
+      "status": "completed",
+      "available_case_budget_trial_cells": 144,
+      "notes": "Production prepare_context, fresh graph evaluation in every timed repetition; conflict awareness disabled."
+    },
+    {
+      "category": "Omneum",
+      "configuration": "MiniLM + Omneum",
+      "status": "completed",
+      "available_case_budget_trial_cells": 144,
+      "notes": "Production prepare_context, fresh graph evaluation in every timed repetition; conflict awareness disabled."
+    },
+    {
+      "category": "Omneum",
+      "configuration": "BM25 + Omneum",
+      "status": "completed",
+      "available_case_budget_trial_cells": 144,
+      "notes": "Production prepare_context, fresh graph evaluation in every timed repetition; conflict awareness disabled."
+    },
+    {
+      "category": "Omneum",
+      "configuration": "Cohere + Omneum",
+      "status": "SDK supported; benchmark entry needed",
+      "available_case_budget_trial_cells": 0,
+      "notes": "24 cached Cohere score maps can feed production chunk_relevance. Existing cohere_omneum adapter is legacy passage-count selection and cannot substitute. A local SDK evaluation needs no new paid ranking calls."
+    }
+  ],
+  "source_artifacts": [
+    "benchmarks/context_selection/synthetic/results/question-aware-release-v1/provider_results.jsonl",
+    "benchmarks/context_selection/synthetic/results/question-aware-release-v1/manifest.json",
+    "benchmarks/context_selection/synthetic/results/question-aware-release-v1/selections.jsonl",
+    "benchmarks/context_selection/synthetic/canonical/cases",
+    "/tmp/omneum-conflict-heldout-1792958991711192000.jsonl"
+  ],
+  "checks": {
+    "all_24_frozen_input_dumps_match_canonical_questions_and_passages": true,
+    "all_cached_rankings_cover_complete_pool": true,
+    "exact_recorded_model_ids_verified": true,
+    "frontier_prompts_and_ranking_outputs_verified": true
+  },
+  "latency_limit": "Historical provider samples: Cohere 24, each frontier judge 48. Do not treat local replay repetitions as new API-inference latency samples.",
+  "cost_limit": "Replaying cached outputs incurs no new API cost. Historical paid inference is not zero-cost and must remain separately labeled."
+}

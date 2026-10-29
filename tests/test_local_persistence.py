@@ -48,7 +48,7 @@ def runtime(tmp_path, computed):
 def evaluate(runtime, persistence=None):
     config, evaluator, observations, estimator = runtime
     return asyncio.run(OmneumClient(config, evaluator, local_persistence=persistence)
-                       .evaluate_context(observations, estimator=estimator))
+                       ._evaluate_context(observations, estimator=estimator))
 
 
 def counts(db, ws):
@@ -233,7 +233,7 @@ def test_mapped_uses_same_persistence(db, workspace, runtime):
         observation_id="observation_id", observed_at="observed_at")
     result = asyncio.run(OmneumClient(config, evaluator,
         local_persistence=LocalPersistenceConfig(PostgresStorage(db), workspace))
-        .evaluate_mapped(observations, mapper, estimator=estimator))
+        ._evaluate_mapped(observations, mapper, estimator=estimator))
     assert len(result.claim_support) == 2
     assert counts(db, workspace)["evaluation_runs"] == 1
 
@@ -259,9 +259,9 @@ def test_real_mcp_local_persistence(db, workspace, tmp_path, computed, monkeypat
         async with open_stdio_client(config, parameters, local_persistence=local) as client:
             if mode == "failure":
                 with pytest.raises(LocalPersistenceError) as caught:
-                    await client.evaluate_context(computed[4], estimator=computed[3])
+                    await client._evaluate_context(computed[4], estimator=computed[3])
                 return caught.value.evaluation
-            return await client.evaluate_context(computed[4], estimator=computed[3])
+            return await client._evaluate_context(computed[4], estimator=computed[3])
 
     result = asyncio.run(run())
     assert len(result.claim_support) == 2
