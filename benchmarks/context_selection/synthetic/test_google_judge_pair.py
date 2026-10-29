@@ -67,7 +67,7 @@ def paired_stubs(monkeypatch):
 
     real_google_client = genai.Client
     monkeypatch.setenv("GEMINI_API_KEY", "offline-fixture")
-    monkeypatch.setattr(clients.genai, "Client", lambda **kwargs: real_google_client(
+    monkeypatch.setattr(genai, "Client", lambda **kwargs: real_google_client(
         **kwargs, http_options={"base_url": "https://offline.invalid",
                                "async_client_args": {"transport": httpx.MockTransport(google_response)}},
     ))

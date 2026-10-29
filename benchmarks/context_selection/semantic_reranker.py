@@ -2,9 +2,6 @@ import os
 from functools import lru_cache
 from time import perf_counter
 
-import cohere
-from sentence_transformers import CrossEncoder
-
 
 BGE_MODEL = "BAAI/bge-reranker-v2-m3"
 COHERE_MODEL = "rerank-v4.0-pro"
@@ -12,6 +9,8 @@ COHERE_MODEL = "rerank-v4.0-pro"
 
 @lru_cache(maxsize=1)
 def bge_model():
+    from sentence_transformers import CrossEncoder
+
     return CrossEncoder(BGE_MODEL)
 
 
@@ -45,6 +44,8 @@ def rerank_bge(query, candidates, *, top_n):
 
 
 def rerank_cohere(query, candidates, *, top_n, max_retries=None, timeout=None):
+    import cohere
+
     if top_n < 1:
         raise ValueError("top_n must be at least 1")
 

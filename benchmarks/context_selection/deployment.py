@@ -10,7 +10,7 @@ import sys
 import tempfile
 import time
 
-from mcp import StdioServerParameters
+from omneum.mcp import StdioServerParameters
 from omneum import OmneumClientConfig
 from omneum.config import VOPRF_MODE
 from omneum.daemon import DaemonServerContext, DaemonUnavailableError

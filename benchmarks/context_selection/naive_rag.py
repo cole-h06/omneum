@@ -1,9 +1,6 @@
 from pathlib import Path
 from functools import lru_cache
 
-import numpy as np
-from sentence_transformers import SentenceTransformer
-
 from .clients import generate
 
 
@@ -39,10 +36,14 @@ def load_documents(case_directory):
 
 @lru_cache(maxsize=1)
 def embedding_model():
+    from sentence_transformers import SentenceTransformer
+
     return SentenceTransformer(MODEL_NAME)
 
 
 def rank_documents(query, documents, *, top_k=5):
+    import numpy as np
+
     model = embedding_model()
     texts = [text for _, text in documents]
 

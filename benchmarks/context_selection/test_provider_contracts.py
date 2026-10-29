@@ -43,7 +43,7 @@ def test_anthropic_actual_sdk_extraction(monkeypatch, blocks, expected, schema, 
         })
 
     monkeypatch.setenv("ANTHROPIC_API_KEY", "offline-fixture")
-    monkeypatch.setattr(clients, "AsyncAnthropic", lambda: AsyncAnthropic(
+    monkeypatch.setattr("anthropic.AsyncAnthropic", lambda: AsyncAnthropic(
         api_key="offline-fixture", base_url="https://offline.invalid",
         http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
     ))
@@ -96,7 +96,7 @@ def test_google_default_does_not_retry(monkeypatch, status, schema):
     # Keep the SDK's retry defaults and replace only its HTTP transport.
     real_client = genai.Client
     monkeypatch.setenv("GEMINI_API_KEY", "offline-fixture")
-    monkeypatch.setattr(clients.genai, "Client", lambda **kwargs: real_client(
+    monkeypatch.setattr(genai, "Client", lambda **kwargs: real_client(
         **kwargs, http_options={
             "base_url": "https://offline.invalid",
             "async_client_args": {"transport": httpx.MockTransport(respond)},
@@ -127,7 +127,7 @@ def test_google_actual_sdk_schema_request(monkeypatch, schema, model, max_tokens
 
     real_client = genai.Client
     monkeypatch.setenv("GEMINI_API_KEY", "offline-fixture")
-    monkeypatch.setattr(clients.genai, "Client", lambda **kwargs: real_client(
+    monkeypatch.setattr(genai, "Client", lambda **kwargs: real_client(
         **kwargs, http_options={"base_url": "https://offline.invalid",
                                "async_client_args": {"transport": httpx.MockTransport(respond)}},
     ))
@@ -170,7 +170,7 @@ def test_openai_actual_sdk_schema_request(monkeypatch, schema, reasoning_effort)
         })
 
     monkeypatch.setenv("OPENAI_API_KEY", "offline-fixture")
-    monkeypatch.setattr(clients, "AsyncOpenAI", lambda: AsyncOpenAI(
+    monkeypatch.setattr("openai.AsyncOpenAI", lambda: AsyncOpenAI(
         api_key="offline-fixture", base_url="https://offline.invalid",
         http_client=httpx.AsyncClient(transport=httpx.MockTransport(respond)),
     ))
@@ -201,7 +201,7 @@ def test_google_unreturned_thinking_usage_is_null(monkeypatch):
 
     real_client = genai.Client
     monkeypatch.setenv("GEMINI_API_KEY", "offline-fixture")
-    monkeypatch.setattr(clients.genai, "Client", lambda **kwargs: real_client(
+    monkeypatch.setattr(genai, "Client", lambda **kwargs: real_client(
         **kwargs, http_options={"base_url": "https://offline.invalid",
                                "async_client_args": {"transport": httpx.MockTransport(respond)}},
     ))
@@ -275,7 +275,7 @@ def test_google_truncation_is_persisted_without_retry(monkeypatch, provenance):
 
     real_client = genai.Client
     monkeypatch.setenv("GEMINI_API_KEY", "offline-fixture")
-    monkeypatch.setattr(clients.genai, "Client", lambda **kwargs: real_client(
+    monkeypatch.setattr(genai, "Client", lambda **kwargs: real_client(
         **kwargs, http_options={"base_url": "https://offline.invalid",
                                "async_client_args": {"transport": httpx.MockTransport(respond)}},
     ))
