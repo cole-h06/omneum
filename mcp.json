@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "omneum": {
+      "command": "omneum-server",
+      "type": "stdio"
+    }
+  }
+}

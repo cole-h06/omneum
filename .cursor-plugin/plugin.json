@@ -1,0 +1,12 @@
+{
+  "name": "omneum",
+  "displayName": "Omneum",
+  "version": "1.1.5",
+  "description": "Provenance-aware context control plane for AI agents. Uses text-blind, graph-based analysis to select high-utility context under token budgets.",
+  "author": {
+    "name": "Omneum"
+  },
+  "license": "MIT",
+  "keywords": ["mcp", "ai-agents", "rag", "context-engineering", "context-optimization", "context-management", "retrieval", "provenance", "source-reliability", "llm"],
+  "logo": "assets/omneum-logomark-light-bg.svg"
+}
