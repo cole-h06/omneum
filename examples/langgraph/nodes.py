@@ -1,10 +1,13 @@
+from langchain_core.language_models import BaseChatModel
+
+from examples.context_preparation import collect_chunks, prepare_generation
 from examples.enterprise.agents.api import api_agent
 from examples.enterprise.agents.documents import documents_agent
 from examples.enterprise.agents.research import research_agent
 from examples.enterprise.agents.search import search_agent
 from examples.enterprise.agents.sql import sql_agent
 from examples.enterprise.config import example_deployment
-from examples.enterprise.workflow.run import estimator_config, render_result
+from examples.enterprise.workflow.run import estimator_config
 from omneum import ContextMapper, Observation, open_stdio_client
 
 from .state import ObservationBatch, WorkflowState
@@ -91,6 +94,7 @@ def merge_observations(
 
 
 async def evaluate_context(state: WorkflowState) -> dict[str, object]:
+    chunks = collect_chunks(state["observations"])
     # Reuse the deterministic deployment owned by the canonical example.
     with example_deployment() as (config, server):
         async with open_stdio_client(config, server) as client:
@@ -129,10 +133,23 @@ async def evaluate_context(state: WorkflowState) -> dict[str, object]:
                 estimator=estimator_config(),
             )
 
-    return {"context_evaluation": result}
+    return {"context_evaluation": result, "retrieved_chunks": chunks}
 
 
-def render_answer(state: WorkflowState) -> dict[str, str]:
-    return {
-        "answer": render_result(state["context_evaluation"]),
-    }
+async def prepare_context(state: WorkflowState) -> dict[str, object]:
+    generation = await prepare_generation(
+        state["observations"], question=state["question"],
+        estimator=estimator_config(), token_budget=state.get("token_budget", 600),
+        chunks=state["retrieved_chunks"], evaluation=state["context_evaluation"],
+        preparation=state.get("preparation"),
+    )
+    return {"generation": generation}
+
+
+async def render_answer(state: WorkflowState, *, model: BaseChatModel | None = None) -> dict[str, str]:
+    if model is None:
+        return {"answer": "Selected context:\n" + state["generation"]["messages"][1]["content"]}
+    response = await model.ainvoke(state["generation"]["messages"])
+    if not isinstance(response.content, str):
+        raise TypeError("The model must return text content")
+    return {"answer": response.content}

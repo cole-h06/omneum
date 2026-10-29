@@ -1,4 +1,4 @@
-"""Explicit synchronous PostgreSQL persistence using the optional psycopg extra."""
+"""Explicit synchronous PostgreSQL persistence using a caller-installed psycopg driver."""
 
 from collections.abc import Mapping
 from dataclasses import asdict
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from psycopg import Connection
 
 
-from .base import PersistedObservation
+from .base import EXECUTION_FIELDS, PersistedObservation, execution_values
 
 
 class PostgresStorage:
@@ -37,14 +37,14 @@ class PostgresStorage:
         return self.connection.transaction()
 
     def persist_context(self, *, evaluation, workspace_id, occurrences,
-                        source_tokens, claim_tokens, estimator) -> None:
+                        source_tokens, claim_tokens, estimator) -> UUID:
         with self.transaction():
             for observation, source_token, claim_token in occurrences:
                 self.persist_observation(
                     workspace_id=workspace_id, observation=observation,
                     source_token=source_token, claim_token=claim_token,
                 )
-            self.persist_evaluation(
+            return self.persist_evaluation(
                 workspace_id=workspace_id, evaluation=evaluation,
                 source_tokens=source_tokens, claim_tokens=claim_tokens, estimator=estimator,
             )
@@ -249,3 +249,19 @@ class PostgresStorage:
                         source_a_id=a, source_b_id=b,
                     )
         return run_id
+
+    def persist_execution(self, *, workspace_id, evaluation_run_id, execution) -> UUID:
+        if not isinstance(workspace_id, UUID) or not isinstance(evaluation_run_id, UUID):
+            raise TypeError("workspace and evaluation run IDs must be UUIDs")
+        from psycopg.rows import tuple_row
+
+        values = execution_values(execution)
+        columns = ', '.join(EXECUTION_FIELDS)
+        placeholders = ', '.join('%s' for _ in EXECUTION_FIELDS)
+        with self.transaction():
+            with self.connection.cursor(row_factory=tuple_row) as cursor:
+                cursor.execute(
+                    f'INSERT INTO public.execution_history (workspace_id, evaluation_run_id, {columns}) '
+                    f'VALUES (%s, %s, {placeholders}) RETURNING id',
+                    (workspace_id, evaluation_run_id, *values))
+                return cursor.fetchone()[0]

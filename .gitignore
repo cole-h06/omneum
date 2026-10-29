@@ -12,6 +12,49 @@ __pycache__/
 .env
 .env.*
 
+# Private keys and local credential stores; public test vectors remain tracked.
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+credentials.json
+/.aws/
+/.azure/
+/.ssh/
+/.config/omneum/
+/.omneum/
+/.netrc
+/.npmrc
+/.pypirc
+/config.toml
+**/local/config.toml
+
+# Local database contents and recovery sidecars are not public source files.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal
+
+# Disposable local environments, caches and temporary working directories.
+.venv-*/
+.hypothesis/
+.cache/
+/fresh/
+/tmp/
+/temp/
+
 build/
 dist/
 *.egg-info/
@@ -21,3 +64,14 @@ __pycache__/
 *.pyc
 
 .migration-backups/
+
+# Internal publication reviews and local staging inventories.
+/docs/reviews/
+/docs/reviews.zip
+/benchmarks/context_selection/STAGING_MANIFEST.json
+/benchmarks/context_selection/release_readiness/
+/tools/propose_context_selection_staging.py
+
+# Local benchmark archive and spending ledger (not release sources).
+/benchmarks.zip
+/benchmarks/context_selection/synthetic/results/.release-spending.sqlite3*

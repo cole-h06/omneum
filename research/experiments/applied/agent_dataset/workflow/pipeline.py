@@ -2,7 +2,8 @@ from typing import Annotated, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from omneum import ContextEvaluation, evaluate_context
+from omneum import ContextEvaluation
+from omneum.client import _evaluate_context
 
 from .....adapters.observations import estimator, to_observations
 from ..agents.api import api_agent
@@ -131,7 +132,7 @@ def build_pipeline(
     def evaluation_node(state):
 
         return {
-            "evaluation": evaluate_context(
+            "evaluation": _evaluate_context(
                 to_observations(state["sources"], state["observations"]),
                 estimator=estimator(weights),
             ),

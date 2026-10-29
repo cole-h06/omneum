@@ -1,4 +1,5 @@
-from omneum import ContextEvaluation, evaluate_context
+from omneum import ContextEvaluation
+from omneum.client import _evaluate_context
 
 from ....adapters.observations import estimator, source_identifier, to_observations
 from .dataset import DEPENDENCY_WEIGHTS, load_dataset
@@ -6,7 +7,7 @@ from .dataset import DEPENDENCY_WEIGHTS, load_dataset
 
 def run_experiment(weights=None):
     sources, observations = load_dataset()
-    evaluation = evaluate_context(
+    evaluation = _evaluate_context(
         to_observations(sources, observations),
         estimator=estimator(DEPENDENCY_WEIGHTS if weights is None else weights),
     )

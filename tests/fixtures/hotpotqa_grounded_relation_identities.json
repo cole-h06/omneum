@@ -1,0 +1,161 @@
+[
+  {
+    "case_id": "5ab4e48655429942dd415f9c",
+    "targets": {
+      "p00:4": {
+        "observation_id": "p00:4",
+        "claim": {
+          "entity_namespace": "river",
+          "entity": "Agri",
+          "attribute": "flow_path",
+          "value": {
+            "assertion": "The river flows south near Paterno before curving southeast",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 365,
+          "text": "The Agri is a river in the Basilicata region of southern Italy. In ancient times it was known as \"Aciris\" (Ancient greek: \"Akyris\", \"\u0391\u03ba\u03c5\u03c1\u03b7\u03c2\"). The source of the river is in the Lucan Apennines north of Monte Volturino and west of Calvello in the province of Potenza. It is near the source of the Basento. The river flows south near Paterno before curving southeast."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      },
+      "p00:5": {
+        "observation_id": "p00:5",
+        "claim": {
+          "entity_namespace": "river",
+          "entity": "Agri",
+          "attribute": "flow_path",
+          "value": {
+            "assertion": "It flows near Tramutola, Viggiano, and Grumento Nova before entering a lake",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 442,
+          "text": "The Agri is a river in the Basilicata region of southern Italy. In ancient times it was known as \"Aciris\" (Ancient greek: \"Akyris\", \"\u0391\u03ba\u03c5\u03c1\u03b7\u03c2\"). The source of the river is in the Lucan Apennines north of Monte Volturino and west of Calvello in the province of Potenza. It is near the source of the Basento. The river flows south near Paterno before curving southeast. It flows near Tramutola, Viggiano, and Grumento Nova before entering a lake."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      },
+      "p00:6": {
+        "observation_id": "p00:6",
+        "claim": {
+          "entity_namespace": "river",
+          "entity": "Agri",
+          "attribute": "flow_path",
+          "value": {
+            "assertion": "After exiting the lake, the river flows eastward near Armento, Missanello, Aliano, and Sant'Arcangelo",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 545,
+          "text": "The Agri is a river in the Basilicata region of southern Italy. In ancient times it was known as \"Aciris\" (Ancient greek: \"Akyris\", \"\u0391\u03ba\u03c5\u03c1\u03b7\u03c2\"). The source of the river is in the Lucan Apennines north of Monte Volturino and west of Calvello in the province of Potenza. It is near the source of the Basento. The river flows south near Paterno before curving southeast. It flows near Tramutola, Viggiano, and Grumento Nova before entering a lake. After exiting the lake, the river flows eastward near Armento, Missanello, Aliano, and Sant'Arcangelo."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      }
+    },
+    "identities": [
+      {
+        "entity_namespace": "river",
+        "entity": "Agri | south near Paterno before curving southeast",
+        "attribute": "flow_path",
+        "observation_id": "p00:4"
+      },
+      {
+        "entity_namespace": "river",
+        "entity": "Agri | near Tramutola, Viggiano, and Grumento Nova before entering a lake",
+        "attribute": "flow_path",
+        "observation_id": "p00:5"
+      },
+      {
+        "entity_namespace": "river",
+        "entity": "Agri | after exiting the lake, flows eastward near Armento, Missanello, Aliano, and Sant'Arcangelo",
+        "attribute": "flow_path",
+        "observation_id": "p00:6"
+      }
+    ]
+  },
+  {
+    "case_id": "5a8f38fa55429924144829f5",
+    "targets": {
+      "p03:3": {
+        "observation_id": "p03:3",
+        "claim": {
+          "entity_namespace": "language",
+          "entity": "Javanese",
+          "attribute": "word",
+          "value": {
+            "assertion": "\"Meru\" means \"mountain\"",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 289,
+          "text": "Mount Merbabu (Indonesian: \"Gunung Merbabu\" ) is a dormant stratovolcano in Central Java province on the Indonesian island of Java. The name \"Merbabu\" could be loosely translated as 'Mountain of Ash' from the Javanese combined words; \"Meru\" means \"mountain\" and \"awu\" or \"abu\" means \"ash\"."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      },
+      "p03:4": {
+        "observation_id": "p03:4",
+        "claim": {
+          "entity_namespace": "language",
+          "entity": "Javanese",
+          "attribute": "word",
+          "value": {
+            "assertion": "\"awu\" or \"abu\" means \"ash\"",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 289,
+          "text": "Mount Merbabu (Indonesian: \"Gunung Merbabu\" ) is a dormant stratovolcano in Central Java province on the Indonesian island of Java. The name \"Merbabu\" could be loosely translated as 'Mountain of Ash' from the Javanese combined words; \"Meru\" means \"mountain\" and \"awu\" or \"abu\" means \"ash\"."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      }
+    },
+    "identities": [
+      {
+        "entity_namespace": "language",
+        "entity": "Javanese | Meru",
+        "attribute": "word",
+        "observation_id": "p03:3"
+      },
+      {
+        "entity_namespace": "language",
+        "entity": "Javanese | awu or abu",
+        "attribute": "word",
+        "observation_id": "p03:4"
+      }
+    ]
+  }
+]

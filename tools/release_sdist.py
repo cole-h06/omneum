@@ -20,7 +20,12 @@ def verify(path, version):
             if not parts or parts[0] != prefix or '..' in parts or not (member.isfile() or member.isdir()):
                 raise ValueError('unsafe source distribution member')
             relative = '/'.join(parts[1:])
-            if (relative.startswith(('tools/provenance_explorer/', 'docs/reviews/', 'src/__fuzz__/'))
+            if (relative.startswith(('tools/provenance_explorer/', 'docs/reviews/', 'src/__fuzz__/',
+                                     'benchmarks/local_llm/runs/'))
+                    or relative == 'benchmarks/context_selection/STAGING_MANIFEST.json'
+                    or any(part in ('results', '__pycache__', '.pytest_cache') for part in parts)
+                    or relative.endswith(('.db', '.db-wal', '.db-shm', '.sqlite3', '.sqlite3-wal',
+                                          '.sqlite3-shm', '.pyc', '.log'))
                     or relative.endswith(('.pem', '.key', '.zip')) or any(part == '.env' or part.startswith('.env.') for part in parts)
                     or relative in ('evaluate.py', 'deploy/network/vm/production-audit.py')):
                 raise ValueError('private or unrelated source distribution member')

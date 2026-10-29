@@ -7,10 +7,11 @@ from pathlib import Path
 import sys
 import time
 
-from omneum import open_stdio_client
+from omneum import Claim, LocalPersistenceConfig, open_stdio_client
+from omneum.storage import SQLiteStorage
 from omneum.context_selection import claim_id, map_chunks, select_chunks
 
-from benchmarks.context_evaluation.deployment import benchmark_deployment
+from benchmarks.context_selection.deployment import benchmark_deployment
 from .....adapters.observations import estimator, to_observations
 from ..dataset import DEPENDENCY_WEIGHTS
 from .agents import handbook_agent, faq_agent, sql_agent, vendor_agent, research_agent
@@ -54,41 +55,41 @@ def render(chunks):
     return '\n\n'.join(f"[{item['chunk_id']}]\n{item['raw_text']}" for item in chunks)
 
 
-async def contexts(client, observations, chunks, budget, count):
+async def contexts(client, observations, chunks, budget, count, *, token_counter_name='custom'):
     if type(budget) is not int or budget < 0:
         raise ValueError('budget must be a nonnegative integer')
     started = time.perf_counter()
     mapped = to_observations(SOURCES, observations)
-    result = await client.evaluate_context_with_chunks(
+    result = await client.prepare_context(
         mapped, chunks, estimator=estimator(DEPENDENCY_WEIGHTS),
         token_budget=budget, count_tokens=count,
+        token_counter_name=token_counter_name,
     )
-    evaluation = result['evaluation']
-    support = {claim_id(item.claim): item.support for item in evaluation.claim_support}
-    mapping = map_chunks(chunks, support)
-    # Reordering can change tokenizer boundaries. Re-select once for both arms if needed.
-    selection_budget = budget
-    while True:
-        selected = set(result['selected_chunk_ids'])
-        original = [item for item in chunks if item['chunk_id'] in selected]
-        ranked = result['chunks']
-        if max(count(render(original)), count(render(ranked))) <= budget:
-            break
-        selection_budget -= 1
-        result = select_chunks(mapping, support, selection_budget, 'coverage_support', count_tokens=count)
     omneum_seconds = time.perf_counter() - started
+    json.dumps(result, allow_nan=False)
+    support = result['evaluation']['claim_support']
+    mapping = map_chunks(chunks, support)
+    selected = set(result['packed_chunk_ids'])
+    original = [item for item in chunks if item['chunk_id'] in selected]
+    original_context = render(original)
+    # This ordering-only control keeps the SDK's evidence membership unchanged.
+    # Reject an incompatible budget instead of changing production selection.
+    if count(original_context) > budget:
+        raise ValueError('retrieval-order control exceeds budget')
     started = time.perf_counter()
     baseline = select_chunks(mapping, support, budget, 'retrieval', count_tokens=count)
     baseline_seconds = time.perf_counter() - started
     return {
-        'baseline': (baseline['chunks'], baseline_seconds),
-        'omneum_selection': (original, omneum_seconds),
-        'omneum_ranked': (ranked, omneum_seconds),
+        'baseline': {'chunks': baseline['chunks'], 'context': baseline['context'],
+                     'seconds': baseline_seconds},
+        'omneum_selection': {'chunks': original, 'context': original_context,
+                             'seconds': omneum_seconds},
+        'omneum_ranked': {'chunks': result['chunks'], 'context': result['context'],
+                          'seconds': omneum_seconds},
     }, {
-        'evaluation': asdict(evaluation),
-        'selection': {key: value for key, value in result.items() if key != 'evaluation'},
-        'selection_budget': selection_budget,
-        'timing_scope': 'Omneum evaluation and selection shared by both Omneum arms; baseline selection only',
+        'sdk_result': result,
+        'assertion_observations': [asdict(item) for item in mapped],
+        'timing_scope': 'SDK evaluation, SQLite persistence and preparation shared by both Omneum arms; baseline selection only',
     }
 
 
@@ -124,18 +125,20 @@ def evaluate(answer, task, selected, all_chunks):
     by_id = {item['chunk_id']: item for item in all_chunks}
     claims = [claim for item in selected for claim in by_id[item['chunk_id']]['claim_ids']]
     all_claims = {claim for item in all_chunks for claim in item['claim_ids']}
+    required = {claim_id(Claim('agent_dataset', 'northstar_returns', key, value))
+                for key, value in GOLD.items()}
     return {
         'measured': {'policy_field_accuracy': sum(correctness.values()) / len(GOLD),
                      'policy_fields_correct': correctness, 'action_correct': correct_action,
                      'citations_valid': citations_valid,
                      'task_success': all(correctness.values()) and correct_action and citations_valid},
         'structural_proxies': {'claim_coverage': len(set(claims)) / len(all_claims),
-                               'redundant_claim_occurrences': len(claims) - len(set(claims))},
+                               'redundant_claim_occurrences': len(claims) - len(set(claims)),
+                               'required_claim_coverage': len(required & set(claims)) / len(required)},
     }
 
 
-def execute(generator, task, selected):
-    context = render(selected)
+def execute(generator, task, context):
     requests = []
     first = generator.generate(POLICY_PROMPT.format(context=context))
     requests.append(first)
@@ -159,7 +162,7 @@ def summarize(rows):
                 **row['evaluation']['structural_proxies']}
 
     numeric = (*metrics, 'policy_field_accuracy', 'action_correct', 'task_success',
-               'claim_coverage', 'redundant_claim_occurrences')
+               'claim_coverage', 'redundant_claim_occurrences', 'required_claim_coverage')
     aggregates = {}
     for arm in ARMS:
         selected = [flat(row) for row in rows if row['arm'] == arm]
@@ -185,11 +188,15 @@ def summarize(rows):
 
 
 async def run(args):
-    args.output.mkdir(parents=True, exist_ok=False)
+    args.output.mkdir(mode=0o700, parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[5]
     generator = LocalGenerator(args.model)
     manifest = {
-        'experiment': 'enterprise_agent_v1', 'model': generator.identity,
+        'experiment': 'enterprise_agent_prepare_context_v3', 'model': generator.identity,
+        'arms': {'baseline': 'existing retrieval selection',
+                 'omneum_selection': 'SDK-selected evidence restored to retrieval order; ordering control only',
+                 'omneum_ranked': 'production prepare_context result consumed directly'},
+        'persistence': 'SDK-managed SQLite in context.sqlite3; no historical score initialization',
         'options': generator.options, 'context_budget': args.token_budget,
         'sources': [item.model_dump(mode='json') for item in SOURCES],
         'estimator': asdict(estimator(DEPENDENCY_WEIGHTS)),
@@ -198,7 +205,7 @@ async def run(args):
         'gold_basis': 'Synthetic internal handbook policy; fixture oracle, not independently verified business truth',
         'prompts': {'extract': POLICY_PROMPT, 'final': FINAL_PROMPT},
         'tools': ['local document retrieval', 'in-memory SQLite', 'vendor API snapshot', 'eligibility'],
-        'execution': 'fixed retrieval -> source/claim mapping -> selection -> LLM extraction -> eligibility tool -> LLM answer',
+        'execution': 'fixed retrieval -> assertion mapping -> prepare_context over MCP -> SDK context -> LLM extraction -> eligibility tool -> LLM answer',
         'repeats': args.repeats, 'python': sys.version,
         'cache_policy': 'warm resident model; runtime prompt cache uncontrolled; rotate arm order per task/repeat',
         'timing_scope': 'end-to-end includes per-task retrieval + charged selection + two LLM calls + tool; excludes deployment/model startup',
@@ -210,24 +217,29 @@ async def run(args):
     }
     (args.output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     rows = []
+    persistence = LocalPersistenceConfig(SQLiteStorage(args.output / 'context.sqlite3'))
     with benchmark_deployment() as (config, server):
-        async with open_stdio_client(config, server, local_persistence=None) as client:
+        async with open_stdio_client(config, server, local_persistence=persistence) as client:
             for repeat in range(args.repeats):
                 for index, task in enumerate(TASKS):
                     started = time.perf_counter()
                     observations, chunks = retrieve()
                     retrieval_seconds = time.perf_counter() - started
-                    arms, telemetry = await contexts(client, observations, chunks, args.token_budget, generator.count)
+                    arms, telemetry = await contexts(client, observations, chunks, args.token_budget, generator.count,
+                                                     token_counter_name=generator.tokenizer_identity['name'])
                     inputs = {'observations': [item.model_dump(mode='json') for item in observations],
                               'chunks': chunks, 'telemetry': telemetry, 'retrieval_seconds': retrieval_seconds}
                     prefix = f"{repeat}-{task['id']}"
                     (args.output / f'{prefix}-inputs.json').write_text(json.dumps(inputs, indent=2, default=str) + '\n')
                     offset = (repeat + index) % len(ARMS)
                     for arm in ARMS[offset:] + ARMS[:offset]:
-                        selected, selection_seconds = arms[arm]
+                        prepared = arms[arm]
+                        selected = prepared['chunks']
+                        selection_seconds = prepared['seconds']
                         started = time.perf_counter()
-                        result = execute(generator, task, selected)
+                        result = execute(generator, task, prepared['context'])
                         execution_seconds = time.perf_counter() - started
+                        result['context_source'] = 'prepare_context.context' if arm == 'omneum_ranked' else arm
                         result.update(arm=arm, task=task, repeat=repeat, selected_chunks=selected,
                                       selection_seconds=selection_seconds,
                                       end_to_end_seconds=retrieval_seconds + selection_seconds + execution_seconds,

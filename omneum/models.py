@@ -282,6 +282,14 @@ class EvaluateAssertionResponse(_StrictModel):
     voprf_mode: str
     voprf_ciphersuite: str
     linkage_encoding_version: int
+    evaluation_latency_ms: float | None = Field(
+        default=None, ge=0, allow_inf_nan=False,
+        description=(
+            "Server evaluation elapsed milliseconds, including graph validation, "
+            "queue wait, inference and response validation; excludes SDK dependency "
+            "estimation, linkage, transport, persistence and reconstruction."
+        ),
+    )
     summary: Summary
     source_reliability: list[SourceReliability]
     claim_support: list[ClaimSupport]

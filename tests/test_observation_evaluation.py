@@ -65,7 +65,7 @@ def test_shared_claim(client):
                 ("load-test", "v1:11111111-1111-1111-1111-111111111111:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             )
         )
-        result = await sdk.evaluate_context(
+        result = await sdk._evaluate_context(
             observations,
             estimator=estimator(),
         )
@@ -139,7 +139,7 @@ def test_mapped_evaluation(client):
             observed_at=lambda x: now,
         )
 
-        result = await sdk.evaluate_mapped(
+        result = await sdk._evaluate_mapped(
             records,
             mapper,
             estimator=estimator(),
@@ -205,14 +205,14 @@ def test_mapped_estimator(client, mode):
             )
 
         if mode == "omitted":
-            result = await sdk.evaluate_mapped(records, mapper)
+            result = await sdk._evaluate_mapped(records, mapper)
         else:
-            result = await sdk.evaluate_mapped(
+            result = await sdk._evaluate_mapped(
                 records,
                 mapper,
                 estimator=None if mode == "none" else config,
             )
-        expected = await sdk.evaluate_context(
+        expected = await sdk._evaluate_context(
             mapper.map_many(records),
             estimator=config,
         )
@@ -282,7 +282,7 @@ def test_mapped_tool_results(client):
             metadata={"tool_name": "tool_name"},
         )
 
-        result = await sdk.evaluate_mapped(
+        result = await sdk._evaluate_mapped(
             records,
             mapper,
             estimator=estimator(),

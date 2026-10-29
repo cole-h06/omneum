@@ -2,9 +2,10 @@
 
 import json
 
-from agents import FunctionTool, RunContextWrapper, function_tool
+from agents import Agent, FunctionTool, RunContextWrapper, Runner, function_tool
 from agents.tool_context import ToolContext
 
+from examples.context_preparation import PreparationOptions, collect_chunks, prepare_generation
 from examples.enterprise.config import example_deployment
 from examples.enterprise.workflow.run import estimator_config
 from examples.langgraph.routing.policy import RoutingPolicy, assess_context
@@ -17,9 +18,22 @@ from .state import RoutingState
 
 
 @function_tool(failure_error_function=None)
+async def prepare_context(ctx: RunContextWrapper[RoutingState]) -> str:
+    """Return selected original passages and source references for generation."""
+    state = ctx.context
+    state.generation = await prepare_generation(
+        state.observations, question=state.question, estimator=estimator_config(),
+        chunks=state.retrieved_chunks, evaluation=state.context_evaluation,
+        preparation=state.preparation,
+    )
+    return state.generation["messages"][1]["content"]
+
+
+@function_tool(failure_error_function=None)
 async def evaluate_context(ctx: RunContextWrapper[RoutingState]) -> str:
     """Evaluate the accumulated observations through Omneum MCP stdio."""
     state = ctx.context
+    state.retrieved_chunks = collect_chunks(state.observations)
     with example_deployment() as (config, server):
         async with open_stdio_client(config, server) as client:
             state.context_evaluation = await client.evaluate_context(
@@ -71,9 +85,11 @@ async def invoke_tool(
 
 async def run_routing(
     scenario: str, *, policy: RoutingPolicy = RoutingPolicy(),
+    preparation: PreparationOptions | None = None, generation_agent: Agent | None = None,
 ) -> RoutingState:
     observations = initial_observations(scenario)
     state = RoutingState(scenario, len(observations), observations)
+    state.preparation = preparation or PreparationOptions()
     context = RunContextWrapper(state)
 
     while True:
@@ -84,11 +100,13 @@ async def run_routing(
         state.routing_history = (*state.routing_history, state.decision.route)
         if state.decision.route == "generate":
             state.selected_claims = select_context(state.context_evaluation, policy=policy)
-            state.answer = "\n".join([
-                "Application decision: EVALUATION COMPLETE",
-                "Selected context:",
-                *(f"{claim.attribute}: {claim.value}" for claim in state.selected_claims),
-            ])
+            model_input = await invoke_tool(prepare_context, context)
+            state.answer = (
+                "Application decision: EVALUATION COMPLETE\nSelected context:\n" + model_input
+            )
+            if generation_agent is not None:
+                result = await Runner.run(generation_agent, state.generation["messages"], context=state)
+                state.answer = result.final_output
             return state
         if state.decision.route == "escalate":
             state.answer = (

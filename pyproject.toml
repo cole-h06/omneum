@@ -6,8 +6,8 @@ build-backend = "maturin"
 
 [project]
 name = "omneum"
-version = "1.1.4"
-description = "An open-source context evaluator for AI agents."
+version = "1.1.5"
+description = "Provenance-aware context control plane for AI agents."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -100,7 +100,16 @@ crewai = { requires-python = ">=3.11,<3.14" }
 testpaths = ["tests"]
 
 [tool.maturin]
-exclude = ["evaluate.py", "**/*.zip", "tools/provenance_explorer/**", "docs/reviews/**", "deploy/network/vm/production-audit.py", "src/__fuzz__/**", "**/*.pem", "**/*.key", ".env", ".env.*"]
+exclude = [
+    "evaluate.py", "**/*.zip", "tools/provenance_explorer/**", "docs/reviews/**",
+    "deploy/network/vm/production-audit.py", "src/__fuzz__/**",
+    "**/*.pem", "**/*.key", ".env", ".env.*",
+    # Local model traces, generated evaluations and databases are not runtime sources.
+    "**/results/**", "benchmarks/context_selection/synthetic/analysis/**",
+    "benchmarks/context_selection/release_readiness/**",
+    "benchmarks/local_llm/runs/**", "benchmarks/context_selection/STAGING_MANIFEST.json",
+    "**/*.sqlite3", "**/*.sqlite3-*", "**/*.db", "**/*.db-*", "**/*.log",
+]
 include = [
     { path = "omneum/NATIVE-LICENSES.txt", format = ["sdist", "wheel"] },
     { path = "omneum/RUST-STDLIB-LICENSES.txt", format = ["sdist", "wheel"] },

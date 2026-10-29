@@ -1,0 +1,842 @@
+[
+  {
+    "case_id": "5a7fb1765542992e7d278d20",
+    "passage_id": "p06",
+    "source_text": "Foster Hutchinson Jr. (d. 1815) was a member of the Nova Scotia Council and one of the Puisne judges of the Supreme Court of Nova Scotia. He was the only son of Foster Hutchinson (judge), Sr., the nephew of Governor of Massuchsetts Thomas Hutchinson and grandchild of Governor of Nova Scotia Paul Mascarene. He arrived in Halifax from Boston with his father as Loyalists (1776). Hutchinson became a lawyer and worked under Chief Justice Thomas Andrew Lumisden Strange. Sir George Prévost appointed him an Assistant Justice to the Supreme Court (1809). He is buried in the Old Burying Ground (Halifax, Nova Scotia).",
+    "document_title": "Foster Hutchinson (jurist)",
+    "records": [
+      {
+        "observation_id": "p06:3",
+        "claim": {
+          "attribute": "relative",
+          "entity": "Foster Hutchinson Jr.",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "Foster Hutchinson Jr. was the nephew of Governor of Massachusetts Thomas Hutchinson",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Foster Hutchinson Jr. (d. 1815) was a member of the Nova Scotia Council and one of the Puisne judges of the Supreme Court of Nova Scotia. He was the only son of Foster Hutchinson (judge), Sr., the nephew of Governor of Massuchsetts Thomas Hutchinson and grandchild of Governor of Nova Scotia Paul Mascarene."
+      },
+      {
+        "observation_id": "p06:4",
+        "claim": {
+          "attribute": "relative",
+          "entity": "Foster Hutchinson Jr.",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "Foster Hutchinson Jr. was the grandchild of Governor of Nova Scotia Paul Mascarene",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Foster Hutchinson Jr. (d. 1815) was a member of the Nova Scotia Council and one of the Puisne judges of the Supreme Court of Nova Scotia. He was the only son of Foster Hutchinson (judge), Sr., the nephew of Governor of Massuchsetts Thomas Hutchinson and grandchild of Governor of Nova Scotia Paul Mascarene."
+      }
+    ],
+    "identities": [
+      {
+        "observation_id": "p06:3",
+        "entity_namespace": "person",
+        "entity": "Foster Hutchinson Jr.",
+        "attribute": "nephew_of"
+      },
+      {
+        "observation_id": "p06:4",
+        "entity_namespace": "person",
+        "entity": "Foster Hutchinson Jr.",
+        "attribute": "grandchild_of"
+      }
+    ],
+    "original_trace": "/tmp/omneum-tier2-repair-20261025-v2/preprocessing-v2f/5a7fb1765542992e7d278d20-preprocessing-error.json"
+  },
+  {
+    "case_id": "5a80ad19554299485f5986a8",
+    "passage_id": "p01",
+    "source_text": "Crystal Powell-Cooper (born Crystal Powell) is an American comedian, actress and singer best known for her roles in Kevin Hart Presents: Hart of the City on Comedy Central and her role in \"Ball Don't Lie\" featuring Ludacris, Rosanna Arquette and Nick Cannon. Powell was born in the small town of Tatum, Texas and moved to Houston with her family. After the death of both her parents at a young age, she moved to Los Angeles. Rather than let grief swallow her, an agent told her to try Improv comedy to tap into her true personality at auditions. From there she turned to comedy to heal not only her own pain but that of others. Powell has appeared on Jimmy Kimmel Live, ABC, FOX and KPRC among other outlets.",
+    "document_title": "Crystal Powell (comedian)",
+    "records": [
+      {
+        "observation_id": "p01:4",
+        "claim": {
+          "attribute": "migration",
+          "entity": "Crystal Powell-Cooper",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "Crystal Powell-Cooper moved to Houston with her family",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Crystal Powell-Cooper (born Crystal Powell) is an American comedian, actress and singer best known for her roles in Kevin Hart Presents: Hart of the City on Comedy Central and her role in \"Ball Don't Lie\" featuring Ludacris, Rosanna Arquette and Nick Cannon. Powell was born in the small town of Tatum, Texas and moved to Houston with her family."
+      },
+      {
+        "observation_id": "p01:5",
+        "claim": {
+          "attribute": "migration",
+          "entity": "Crystal Powell-Cooper",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "Crystal Powell-Cooper moved to Los Angeles after the death of both her parents at a young age",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Crystal Powell-Cooper (born Crystal Powell) is an American comedian, actress and singer best known for her roles in Kevin Hart Presents: Hart of the City on Comedy Central and her role in \"Ball Don't Lie\" featuring Ludacris, Rosanna Arquette and Nick Cannon. Powell was born in the small town of Tatum, Texas and moved to Houston with her family. After the death of both her parents at a young age, she moved to Los Angeles."
+      },
+      {
+        "observation_id": "p01:6",
+        "claim": {
+          "attribute": "career_development",
+          "entity": "Crystal Powell-Cooper",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "An agent told Crystal Powell-Cooper to try Improv comedy to tap into her true personality at auditions",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Crystal Powell-Cooper (born Crystal Powell) is an American comedian, actress and singer best known for her roles in Kevin Hart Presents: Hart of the City on Comedy Central and her role in \"Ball Don't Lie\" featuring Ludacris, Rosanna Arquette and Nick Cannon. Powell was born in the small town of Tatum, Texas and moved to Houston with her family. After the death of both her parents at a young age, she moved to Los Angeles. Rather than let grief swallow her, an agent told her to try Improv comedy to tap into her true personality at auditions."
+      },
+      {
+        "observation_id": "p01:7",
+        "claim": {
+          "attribute": "career_development",
+          "entity": "Crystal Powell-Cooper",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "Crystal Powell-Cooper turned to comedy to heal not only her own pain but that of others",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Crystal Powell-Cooper (born Crystal Powell) is an American comedian, actress and singer best known for her roles in Kevin Hart Presents: Hart of the City on Comedy Central and her role in \"Ball Don't Lie\" featuring Ludacris, Rosanna Arquette and Nick Cannon. Powell was born in the small town of Tatum, Texas and moved to Houston with her family. After the death of both her parents at a young age, she moved to Los Angeles. Rather than let grief swallow her, an agent told her to try Improv comedy to tap into her true personality at auditions. From there she turned to comedy to heal not only her own pain but that of others."
+      }
+    ],
+    "identities": [
+      {
+        "observation_id": "p01:4",
+        "entity_namespace": "person",
+        "entity": "Crystal Powell-Cooper",
+        "attribute": "moved_with_family_to"
+      },
+      {
+        "observation_id": "p01:5",
+        "entity_namespace": "person",
+        "entity": "Crystal Powell-Cooper",
+        "attribute": "moved_after_parents_death_to"
+      },
+      {
+        "observation_id": "p01:6",
+        "entity_namespace": "person",
+        "entity": "Crystal Powell-Cooper",
+        "attribute": "received_improv_advice"
+      },
+      {
+        "observation_id": "p01:7",
+        "entity_namespace": "person",
+        "entity": "Crystal Powell-Cooper",
+        "attribute": "comedy_motivation"
+      }
+    ],
+    "original_trace": "/tmp/omneum-tier2-repair-20261025-v2/preprocessing-v2f/5a80ad19554299485f5986a8-preprocessing-error.json"
+  },
+  {
+    "case_id": "5a75d9b4554299109176e5a7",
+    "passage_id": "p02",
+    "source_text": "Gari (ガリ ) is a type of tsukemono (pickled vegetables). It is sweet, thinly sliced young ginger that has been marinated in a solution of sugar and vinegar. Young ginger is generally preferred for gari because of its tender flesh and natural sweetness. Gari is often served and eaten after sushi, and is sometimes called sushi ginger. It is considered to be essential in the presentation of sushi. It is used to cleanse the palate between eating different pieces of sushi, or alternatively before or after the meal.",
+    "document_title": "Gari (ginger)",
+    "records": [
+      {
+        "observation_id": "p02:4",
+        "claim": {
+          "attribute": "usage",
+          "entity": "gari",
+          "entity_namespace": "food",
+          "value": {
+            "assertion": "Gari is often served and eaten after sushi",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Gari (ガリ ) is a type of tsukemono (pickled vegetables). It is sweet, thinly sliced young ginger that has been marinated in a solution of sugar and vinegar. Young ginger is generally preferred for gari because of its tender flesh and natural sweetness. Gari is often served and eaten after sushi, and is sometimes called sushi ginger."
+      },
+      {
+        "observation_id": "p02:7",
+        "claim": {
+          "attribute": "usage",
+          "entity": "gari",
+          "entity_namespace": "food",
+          "value": {
+            "assertion": "Gari is used to cleanse the palate between eating different pieces of sushi, or alternatively before or after the meal",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Gari (ガリ ) is a type of tsukemono (pickled vegetables). It is sweet, thinly sliced young ginger that has been marinated in a solution of sugar and vinegar. Young ginger is generally preferred for gari because of its tender flesh and natural sweetness. Gari is often served and eaten after sushi, and is sometimes called sushi ginger. It is considered to be essential in the presentation of sushi. It is used to cleanse the palate between eating different pieces of sushi, or alternatively before or after the meal."
+      }
+    ],
+    "identities": [
+      {
+        "observation_id": "p02:4",
+        "entity_namespace": "food",
+        "entity": "gari",
+        "attribute": "served_after_sushi"
+      },
+      {
+        "observation_id": "p02:7",
+        "entity_namespace": "food",
+        "entity": "gari",
+        "attribute": "palate_cleansing_between_courses"
+      }
+    ],
+    "original_trace": "/tmp/omneum-tier2-repair-20261025-v2/preprocessing-v2f/5a75d9b4554299109176e5a7-preprocessing-error.json"
+  },
+  {
+    "case_id": "5ae6050f55429929b0807a5e",
+    "passage_id": "p05",
+    "source_text": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\". He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\".",
+    "document_title": "Jim Cummings",
+    "records": [
+      {
+        "observation_id": "p05:2",
+        "claim": {
+          "attribute": "voiced_character",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings voiced the title character from \"Darkwing Duck\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr."
+      },
+      {
+        "observation_id": "p05:3",
+        "claim": {
+          "attribute": "voiced_character",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings voiced Dr. Robotnik from \"Sonic the Hedgehog\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete."
+      },
+      {
+        "observation_id": "p05:4",
+        "claim": {
+          "attribute": "voiced_character",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings voiced Pete",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete."
+      },
+      {
+        "observation_id": "p05:5",
+        "claim": {
+          "attribute": "voiced_character",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings voiced Winnie the Pooh",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil."
+      },
+      {
+        "observation_id": "p05:6",
+        "claim": {
+          "attribute": "voiced_character",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings voiced Tigger",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil."
+      },
+      {
+        "observation_id": "p05:7",
+        "claim": {
+          "attribute": "voiced_character",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings voiced the Tasmanian Devil",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil."
+      },
+      {
+        "observation_id": "p05:8",
+        "claim": {
+          "attribute": "appeared_in_animation",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings has performed in \"Aladdin\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\"."
+      },
+      {
+        "observation_id": "p05:9",
+        "claim": {
+          "attribute": "appeared_in_animation",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings has performed in \"The Lion King\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\"."
+      },
+      {
+        "observation_id": "p05:10",
+        "claim": {
+          "attribute": "appeared_in_animation",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings has performed in \"Balto\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\"."
+      },
+      {
+        "observation_id": "p05:11",
+        "claim": {
+          "attribute": "appeared_in_animation",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings has performed in \"Antz\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\"."
+      },
+      {
+        "observation_id": "p05:12",
+        "claim": {
+          "attribute": "appeared_in_animation",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings has performed in \"The Road to El Dorado\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\"."
+      },
+      {
+        "observation_id": "p05:13",
+        "claim": {
+          "attribute": "appeared_in_animation",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings has performed in \"Shrek\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\"."
+      },
+      {
+        "observation_id": "p05:14",
+        "claim": {
+          "attribute": "appeared_in_animation",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings has performed in \"The Princess and the Frog\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\"."
+      },
+      {
+        "observation_id": "p05:15",
+        "claim": {
+          "attribute": "provided_voice-over_for_video_game",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings provided voice-over work for \"Icewind Dale\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\". He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\"."
+      },
+      {
+        "observation_id": "p05:16",
+        "claim": {
+          "attribute": "provided_voice-over_for_video_game",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings provided voice-over work for \"Fallout\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\". He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\"."
+      },
+      {
+        "observation_id": "p05:17",
+        "claim": {
+          "attribute": "provided_voice-over_for_video_game",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings provided voice-over work for \"Baldur's Gate\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\". He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\"."
+      },
+      {
+        "observation_id": "p05:18",
+        "claim": {
+          "attribute": "provided_voice-over_for_video_game",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings provided voice-over work for \"Mass Effect 2\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\". He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\"."
+      },
+      {
+        "observation_id": "p05:19",
+        "claim": {
+          "attribute": "provided_voice-over_for_video_game",
+          "entity": "James Jonah Cummings",
+          "entity_namespace": "person",
+          "value": {
+            "assertion": "James Jonah Cummings provided voice-over work for \"Splatterhouse\"",
+            "condition": null,
+            "modality": "reported state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "James Jonah Cummings (born November 3, 1952) is an American voice actor and singer, who has appeared in almost 400 roles. He is known for voicing the title character from \"Darkwing Duck\", Dr. Robotnik from \"Sonic the Hedgehog\", and Pete. His other characters include Winnie the Pooh, Tigger, and the Tasmanian Devil. He has performed in numerous Disney and DreamWorks animations including \"Aladdin\", \"The Lion King\", \"Balto\", \"Antz\", \"The Road to El Dorado\", \"Shrek\", and \"The Princess and the Frog\". He has also provided voice-over work for video games, such as \"Icewind Dale\", \"Fallout\", \"\", \"Baldur's Gate\", \"Mass Effect 2\", \"\", \"\", \"\", and \"Splatterhouse\"."
+      }
+    ],
+    "identities": [
+      {
+        "observation_id": "p05:2",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Darkwing Duck",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:3",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Sonic the Hedgehog | Dr. Robotnik",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:4",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Pete",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:5",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Winnie the Pooh",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:6",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Tigger",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:7",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Tasmanian Devil",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:8",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Aladdin",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:9",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | The Lion King",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:10",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Balto",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:11",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Antz",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:12",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | The Road to El Dorado",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:13",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Shrek",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:14",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | The Princess and the Frog",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:15",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Icewind Dale",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:16",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Fallout",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:17",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Baldur's Gate",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:18",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Mass Effect 2",
+        "attribute": "voice_over"
+      },
+      {
+        "observation_id": "p05:19",
+        "entity_namespace": "performance_credit",
+        "entity": "James Jonah Cummings | Splatterhouse",
+        "attribute": "voice_over"
+      }
+    ],
+    "original_trace": "/tmp/omneum-tier2-repair-20261025-v2/preprocessing-v2f/5ae6050f55429929b0807a5e-p05-verified.json"
+  },
+  {
+    "case_id": "5a75d9b4554299109176e5a7",
+    "passage_id": "p06",
+    "source_text": "Malus baccata is an Asian species of apple known by the common names Siberian crab apple, Siberian crab, Manchurian crab apple and Chinese crab apple. It is native to much of northern Asia, but is also grown elsewhere as an ornamental tree and for rootstock. It is used for bonsai. It bears plentiful fragrant white flowers and edible red to yellow fruit of about 1 cm diameter.",
+    "records": [
+      {
+        "claim": {
+          "attribute": "cultivation_use",
+          "entity": "Malus baccata",
+          "entity_namespace": "species",
+          "value": {
+            "assertion": "grown elsewhere as an ornamental tree and for rootstock",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Malus baccata is an Asian species of apple known by the common names Siberian crab apple, Siberian crab, Manchurian crab apple and Chinese crab apple. It is native to much of northern Asia, but is also grown elsewhere as an ornamental tree and for rootstock."
+      },
+      {
+        "claim": {
+          "attribute": "cultivation_use",
+          "entity": "Malus baccata",
+          "entity_namespace": "species",
+          "value": {
+            "assertion": "used for bonsai",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Malus baccata is an Asian species of apple known by the common names Siberian crab apple, Siberian crab, Manchurian crab apple and Chinese crab apple. It is native to much of northern Asia, but is also grown elsewhere as an ornamental tree and for rootstock. It is used for bonsai."
+      }
+    ],
+    "identities": [
+      {
+        "entity_namespace": "cultivation_use",
+        "entity": "Malus baccata | ornamental and rootstock",
+        "attribute": "used_for"
+      },
+      {
+        "entity_namespace": "cultivation_use",
+        "entity": "Malus baccata | bonsai",
+        "attribute": "used_for"
+      }
+    ]
+  },
+  {
+    "case_id": "5a75d9b4554299109176e5a7",
+    "passage_id": "p08",
+    "source_text": "Flies in the family Sarcophagidae (from the Greek σάρκο \"sarco-\" = flesh, φάγε \"phage\" = eating; the same roots as the word \"sarcophagus\") are commonly known as flesh flies. They differ from most flies in that they are ovoviviparous, opportunistically depositing hatched or hatching maggots instead of eggs on carrion, dung, decaying material, or open wounds of mammals, hence their common name. Some flesh fly larvae are internal parasites of other insects such as Orthoptera, and some, in particular the Miltogramminae, are kleptoparasites of solitary Hymenoptera. The adults mostly feed on fluids from animal bodies, nectar, sweet foods, fluids from animal waste and other organic substances. Juveniles need protein to develop and may be laid on carrion, dung or sweet plant foods (including fruit, nuts, and artificial foodstuffs).",
+    "records": [
+      {
+        "claim": {
+          "attribute": "larval_habitat",
+          "entity": "Sarcophagidae",
+          "entity_namespace": "taxonomic_group",
+          "value": {
+            "assertion": "some larvae are internal parasites of other insects such as Orthoptera",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Flies in the family Sarcophagidae (from the Greek σάρκο \"sarco-\" = flesh, φάγε \"phage\" = eating; the same roots as the word \"sarcophagus\") are commonly known as flesh flies. They differ from most flies in that they are ovoviviparous, opportunistically depositing hatched or hatching maggots instead of eggs on carrion, dung, decaying material, or open wounds of mammals, hence their common name. Some flesh fly larvae are internal parasites of other insects such as Orthoptera, and some, in particular the Miltogramminae, are kleptoparasites of solitary Hymenoptera."
+      },
+      {
+        "claim": {
+          "attribute": "larval_habitat",
+          "entity": "Sarcophagidae",
+          "entity_namespace": "taxonomic_group",
+          "value": {
+            "assertion": "some, in particular the Miltogramminae, are kleptoparasites of solitary Hymenoptera",
+            "condition": null,
+            "modality": "reported_state",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Flies in the family Sarcophagidae (from the Greek σάρκο \"sarco-\" = flesh, φάγε \"phage\" = eating; the same roots as the word \"sarcophagus\") are commonly known as flesh flies. They differ from most flies in that they are ovoviviparous, opportunistically depositing hatched or hatching maggots instead of eggs on carrion, dung, decaying material, or open wounds of mammals, hence their common name. Some flesh fly larvae are internal parasites of other insects such as Orthoptera, and some, in particular the Miltogramminae, are kleptoparasites of solitary Hymenoptera."
+      }
+    ],
+    "identities": [
+      {
+        "entity_namespace": "taxonomic_group",
+        "entity": "Sarcophagidae",
+        "attribute": "larval_internal_parasitism"
+      },
+      {
+        "entity_namespace": "taxonomic_group",
+        "entity": "Sarcophagidae",
+        "attribute": "larval_kleptoparasitism"
+      }
+    ]
+  },
+  {
+    "case_id": "5abc089b5542993f40c73c57",
+    "passage_id": "p00",
+    "source_text": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties. The company focuses on computers designed to be portable and sells a wide range of desktop gaming computers, all of which are built into cases with carrying handles for ease of transport. Each computer comes with a special backpack to hold everything needed to run a desktop computer with the exception of the computer case. In addition to portable computers, LanSlide Gaming PCs also sells a line of computers designed for 3D gaming.",
+    "records": [
+      {
+        "claim": {
+          "attribute": "design_feature",
+          "entity": "LanSlide Gaming PCs",
+          "entity_namespace": "product",
+          "value": {
+            "assertion": "computers designed to be portable",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties."
+      },
+      {
+        "claim": {
+          "attribute": "design_feature",
+          "entity": "LanSlide Gaming PCs",
+          "entity_namespace": "product",
+          "value": {
+            "assertion": "all of which are built into cases with carrying handles for ease of transport",
+            "condition": null,
+            "modality": "description",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties. The company focuses on computers designed to be portable and sells a wide range of desktop gaming computers, all of which are built into cases with carrying handles for ease of transport."
+      }
+    ],
+    "identities": [
+      {
+        "entity_namespace": "product",
+        "entity": "LanSlide Gaming PCs",
+        "attribute": "design_goal"
+      },
+      {
+        "entity_namespace": "product",
+        "entity": "LanSlide Gaming PCs",
+        "attribute": "case_construction"
+      }
+    ],
+    "initial_records": [
+      {
+        "claim": {
+          "entity_namespace": "organization",
+          "entity": "LanSlide Gaming PCs, LLC",
+          "attribute": "founded",
+          "value": {
+            "assertion": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties.",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "historical_description"
+          }
+        },
+        "evidence": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties."
+      },
+      {
+        "claim": {
+          "entity_namespace": "product",
+          "entity": "LanSlide Gaming PCs",
+          "attribute": "design_feature",
+          "value": {
+            "assertion": "computers designed to be portable",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "description"
+          }
+        },
+        "evidence": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties."
+      },
+      {
+        "claim": {
+          "entity_namespace": "product",
+          "entity": "LanSlide Gaming PCs",
+          "attribute": "design_feature",
+          "value": {
+            "assertion": "all of which are built into cases with carrying handles for ease of transport",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "description"
+          }
+        },
+        "evidence": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties. The company focuses on computers designed to be portable and sells a wide range of desktop gaming computers, all of which are built into cases with carrying handles for ease of transport."
+      },
+      {
+        "claim": {
+          "entity_namespace": "product",
+          "entity": "LanSlide Gaming PCs",
+          "attribute": "accessory",
+          "value": {
+            "assertion": "Each computer comes with a special backpack to hold everything needed to run a desktop computer with the exception of the computer case",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "description"
+          }
+        },
+        "evidence": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties. The company focuses on computers designed to be portable and sells a wide range of desktop gaming computers, all of which are built into cases with carrying handles for ease of transport. Each computer comes with a special backpack to hold everything needed to run a desktop computer with the exception of the computer case."
+      },
+      {
+        "claim": {
+          "entity_namespace": "product_line",
+          "entity": "LanSlide Gaming PCs",
+          "attribute": "additional_product_line",
+          "value": {
+            "assertion": "In addition to portable computers, LanSlide Gaming PCs also sells a line of computers designed for 3D gaming",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "description"
+          }
+        },
+        "evidence": "LanSlide Gaming PCs, LLC was founded in 2005 by a group of gamers tired of moving large gaming desktops to LAN parties. The company focuses on computers designed to be portable and sells a wide range of desktop gaming computers, all of which are built into cases with carrying handles for ease of transport. Each computer comes with a special backpack to hold everything needed to run a desktop computer with the exception of the computer case. In addition to portable computers, LanSlide Gaming PCs also sells a line of computers designed for 3D gaming."
+      }
+    ]
+  }
+]

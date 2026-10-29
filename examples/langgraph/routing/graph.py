@@ -1,8 +1,12 @@
+from functools import partial
+
+from langchain_core.language_models import BaseChatModel
 from langgraph.graph import END, START, StateGraph
 
 from examples.langgraph.nodes import (
     evaluate_context,
     merge_observations,
+    prepare_context,
     retrieve_api,
     retrieve_documents,
     retrieve_research,
@@ -12,6 +16,8 @@ from examples.langgraph.nodes import (
 from examples.langgraph.state import WorkflowState
 
 from .policy import assess_context
+from examples.langgraph.nodes import render_answer
+
 from .selection import select_context
 from .retrieval import retrieve_additional_evidence
 
@@ -73,15 +79,11 @@ def select_claims(state: WorkflowState) -> dict:
     }
 
 
-def generate(state: WorkflowState) -> dict:
-    claims = state["selected_claims"]
-    lines = [
-        "Application decision: EVALUATION COMPLETE",
-        "Selected context:",
-        *(f"{claim.attribute}: {claim.value}" for claim in claims),
-    ]
-    return {"answer": "\n".join(lines)}
-
+async def generate(state: WorkflowState, *, model: BaseChatModel | None = None) -> dict:
+    result = await render_answer(state, model=model)
+    if model is None:
+        result["answer"] = "Application decision: EVALUATION COMPLETE\n" + result["answer"]
+    return result
 
 def escalate(state: WorkflowState) -> dict:
     return {
@@ -92,7 +94,7 @@ def escalate(state: WorkflowState) -> dict:
     }
 
 
-def build_routing_graph(*, preloaded=False):
+def build_routing_graph(*, preloaded=False, model: BaseChatModel | None = None):
     graph = StateGraph(WorkflowState)
 
     retrieval_nodes = {
@@ -118,7 +120,8 @@ def build_routing_graph(*, preloaded=False):
     graph.add_node("resolve_conflicts", resolve_conflicts)
     graph.add_node("diversify_sources", diversify_sources)
     graph.add_node("select_context", select_claims)
-    graph.add_node("generate", generate)
+    graph.add_node("generate", partial(generate, model=model))
+    graph.add_node("prepare_context", prepare_context)
     graph.add_node("escalate", escalate)
 
     if not preloaded:
@@ -143,7 +146,8 @@ def build_routing_graph(*, preloaded=False):
     ):
         graph.add_edge(name, "evaluate_context")
 
-    graph.add_edge("select_context", "generate")
+    graph.add_edge("select_context", "prepare_context")
+    graph.add_edge("prepare_context", "generate")
     graph.add_edge("generate", END)
     graph.add_edge("escalate", END)
 

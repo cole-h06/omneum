@@ -38,9 +38,13 @@ def test_routing_and_selection(scenario, example_daemon):
             "processing_region": "EU",
         }
 
-        assert "unredacted customer content allowed" not in result["answer"]
-        assert "30 days" not in result["answer"]
-        assert "processing_region: US" not in result["answer"]
+        generation = result["generation"]
+        assert generation["prepared_context"]["context"] in result["answer"]
+        for chunk in generation["retrieved_chunks"]:
+            if chunk["chunk_id"] in generation["prepared_context"]["packed_chunk_ids"]:
+                assert chunk["raw_text"] in result["answer"]
+            else:
+                assert chunk["raw_text"] not in result["answer"]
         assert "Selected context:" in result["answer"]
 
     asyncio.run(run())

@@ -1,74 +1,39 @@
-import argparse
 import asyncio
 
+from examples.context_output import print_routing_status, run_cli
 from examples.enterprise.workflow.run import QUESTION
-from examples.langgraph.routing.graph import build_routing_graph
-from examples.langgraph.routing.policy import assess_context
-from examples.langgraph.routing.scenarios import initial_observations
+from .graph import build_routing_graph
+from .policy import assess_context
+from .scenarios import initial_observations
 
 
-SCENARIOS = (
-    "diversify_sources",
-    "retrieve_support",
-    "resolve_conflicts",
-)
+SCENARIOS = ("diversify_sources", "retrieve_support", "resolve_conflicts")
 
 
 async def run_scenario(scenario: str) -> None:
+    from argparse import Namespace
+    from examples.context_preparation import PreparationOptions
+
+    _, answer = await execute(PreparationOptions(), Namespace(json=False, compare=False), scenario)
+    print(answer)
+
+
+async def execute(options, args, scenario):
     initial = initial_observations(scenario)
-
-    graph = build_routing_graph(preloaded=True)
-
-    result = await graph.ainvoke({
-        "question": QUESTION,
-        "observation_batches": [],
-        "observations": initial,
-        "retry_count": 0,
-        "routing_history": (),
+    state = await build_routing_graph(preloaded=True).ainvoke({
+        "question": QUESTION, "observation_batches": [], "observations": initial,
+        "retry_count": 0, "routing_history": (), "preparation": options,
     })
-
-    evaluation = result["context_evaluation"]
-    decision = assess_context(
-        evaluation,
-        retries=result["retry_count"],
-    )
-
-    print(f"\n=== {scenario} ===")
-    print(f"Observations: {len(initial)} -> {len(result['observations'])}")
-    print(f"Routing: {' -> '.join(result['routing_history'])} -> {decision.route}")
-    print(f"Retries: {result['retry_count']}")
-
-    print("\nClaim support:")
-    for claim in sorted(
-        evaluation.claim_support,
-        key=lambda item: (item.claim.attribute, -item.support),
-    ):
-        print(
-            f"  {claim.claim.attribute}: {claim.claim.value}"
-            f" | support={claim.support:.4f}"
-            f" | independent={claim.estimated_independent_support_count:.3f}"
-        )
-
-    print("\nAnswer:")
-    print(result["answer"])
+    if not args.json and not args.compare:
+        print_routing_status(scenario, len(initial), state["observations"], (*state["routing_history"], assess_context(state["context_evaluation"], retries=state["retry_count"]).route), state["retry_count"], state["context_evaluation"])
+    return state.get("generation"), state["answer"]
 
 
 async def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="LangGraph conditional routing with Omneum."
-    )
-    parser.add_argument(
-        "--scenario",
-        choices=(*SCENARIOS, "all"),
-        default="all",
-    )
-    args = parser.parse_args()
+    await run_cli("langgraph", execute, routing=True, debug_json=DEBUG_JSON)
 
-    scenarios = SCENARIOS if args.scenario == "all" else (args.scenario,)
 
-    for scenario in scenarios:
-        await run_scenario(scenario)
-
+DEBUG_JSON = False
 
 if __name__ == "__main__":
     asyncio.run(main())

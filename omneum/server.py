@@ -51,7 +51,7 @@ def _suppress_mcp_logging() -> None:
 
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARNING,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     stream=sys.stderr,
 )

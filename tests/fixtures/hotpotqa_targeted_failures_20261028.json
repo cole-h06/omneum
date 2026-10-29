@@ -1,0 +1,266 @@
+{
+  "hugler": {
+    "case_id": "5a7b3ec95542995eb53be8d3",
+    "passage_id": "p00",
+    "source": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000. However, he served as Acting Secretary of Labor from February 2\u201324, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings. He stepped down from the position when Solis was confirmed and sworn in as Secretary of Labor. Ed Hugler served as Acting Secretary of Labor from January 20, 2017 to April 28, 2017 until when Alexander Acosta was confirmed and sworn into office.",
+    "initial": [
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Edward Charles \"Ed\" Hugler",
+          "attribute": "date_of_birth",
+          "value": {
+            "assertion": "Edward Charles \"Ed\" Hugler was born on February 7, 1950",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "historical_description"
+          }
+        },
+        "evidence": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Edward Charles \"Ed\" Hugler",
+          "attribute": "current_position",
+          "value": {
+            "assertion": "Edward Charles \"Ed\" Hugler is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "historical_description"
+          }
+        },
+        "evidence": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S."
+      },
+      {
+        "claim": {
+          "entity_namespace": "position",
+          "entity": "Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management",
+          "attribute": "holder_since",
+          "value": {
+            "assertion": "Edward Charles \"Ed\" Hugler has been in the position of Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management since April 2000",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "historical_description"
+          }
+        },
+        "evidence": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Edward Charles \"Ed\" Hugler",
+          "attribute": "served_as_acting_secretary_of_labor",
+          "value": {
+            "assertion": "Edward Charles \"Ed\" Hugler served as Acting Secretary of Labor from February 2\u201324, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "historical_description"
+          }
+        },
+        "evidence": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000. However, he served as Acting Secretary of Labor from February 2\u201324, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Edward Charles \"Ed\" Hugler",
+          "attribute": "ended_acting_secretary_of_labor",
+          "value": {
+            "assertion": "Edward Charles \"Ed\" Hugler stepped down from the position of Acting Secretary of Labor when Hilda Solis was confirmed and sworn in as Secretary of Labor",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "historical_description"
+          }
+        },
+        "evidence": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000. However, he served as Acting Secretary of Labor from February 2\u201324, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings. He stepped down from the position when Solis was confirmed and sworn in as Secretary of Labor."
+      },
+      {
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Edward Charles \"Ed\" Hugler",
+          "attribute": "served_as_acting_secretary_of_labor",
+          "value": {
+            "assertion": "Edward Charles \"Ed\" Hugler served as Acting Secretary of Labor from January 20, 2017 to April 28, 2017 until when Alexander Acosta was confirmed and sworn into office",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "historical_description"
+          }
+        },
+        "evidence": "Edward Charles \"Ed\" Hugler (born February 7, 1950) is Deputy Assistant Secretary for Operations in the U.S. Department of Labor's Office of the Assistant Secretary for Administration and Management. That position has been his formal position at the United States Department of Labor since April 2000. However, he served as Acting Secretary of Labor from February 2\u201324, 2009, when Hilda Solis's nomination by President Barack Obama became bogged down during Senate confirmation hearings. He stepped down from the position when Solis was confirmed and sworn in as Secretary of Labor. Ed Hugler served as Acting Secretary of Labor from January 20, 2017 to April 28, 2017 until when Alexander Acosta was confirmed and sworn into office."
+      }
+    ],
+    "recorded_failure": "/tmp/omneum-tier2-completion-20261027-v1/preprocessing-v1/5a7b3ec95542995eb53be8d3-p00-failed.json"
+  },
+  "jirisan": {
+    "case_id": "5ab4e48655429942dd415f9c",
+    "passage_id": "p09",
+    "source": "Jirisan is a mountain located in the southern region of South Korea. It is the second-tallest mountain in South Korea after Jeju Island's Hallasan, and the tallest mountain in mainland South Korea. After Jirisan, Seoraksan is the third tallest mountain in South Korea and the second-tallest mountain on the South Korean mainland.",
+    "initial": [
+      {
+        "claim": {
+          "attribute": "position_in_ranking",
+          "entity": "Jirisan",
+          "entity_namespace": "mountain",
+          "value": {
+            "assertion": "Jirisan is the second-tallest mountain in South Korea after Jeju Island's Hallasan",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Jirisan is a mountain located in the southern region of South Korea."
+      },
+      {
+        "claim": {
+          "attribute": "position_in_ranking",
+          "entity": "Jirisan",
+          "entity_namespace": "mountain",
+          "value": {
+            "assertion": "Jirisan is the tallest mountain in mainland South Korea",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Jirisan is a mountain located in the southern region of South Korea. It is the second-tallest mountain in South Korea after Jeju Island's Hallasan, and the tallest mountain in mainland South Korea."
+      },
+      {
+        "claim": {
+          "attribute": "position_in_ranking",
+          "entity": "Seoraksan",
+          "entity_namespace": "mountain",
+          "value": {
+            "assertion": "Seoraksan is the third tallest mountain in South Korea",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Jirisan is a mountain located in the southern region of South Korea. It is the second-tallest mountain in South Korea after Jeju Island's Hallasan, and the tallest mountain in mainland South Korea. After Jirisan, Seoraksan is the third tallest mountain in South Korea and the second-tallest mountain on the South Korean mainland."
+      },
+      {
+        "claim": {
+          "attribute": "position_in_ranking",
+          "entity": "Seoraksan",
+          "entity_namespace": "mountain",
+          "value": {
+            "assertion": "Seoraksan is the second-tallest mountain on the South Korean mainland",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Jirisan is a mountain located in the southern region of South Korea. It is the second-tallest mountain in South Korea after Jeju Island's Hallasan, and the tallest mountain in mainland South Korea. After Jirisan, Seoraksan is the third tallest mountain in South Korea and the second-tallest mountain on the South Korean mainland."
+      }
+    ],
+    "recorded_failure": "/tmp/omneum-tier2-completion-20261027-v1/preprocessing-v1/5ab4e48655429942dd415f9c-p09-failed.json"
+  },
+  "leopard": {
+    "case_id": "5a8f38fa55429924144829f5",
+    "passage_id": "p07",
+    "source": "The Javan leopard (\"Panthera pardus melas\") is a leopard subspecies confined to the Indonesian island of Java and has been listed as Critically Endangered on the IUCN Red List since 2008. The population is estimated at less than 250 mature individuals, with a decreasing population trend. The total remaining habitat is estimated at only 2267.9 to .",
+    "initial": [
+      {
+        "claim": {
+          "entity_namespace": "taxonomic_name",
+          "entity": "Panthera pardus melas",
+          "attribute": "is_subspecies_of",
+          "value": {
+            "assertion": "is a leopard subspecies",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "reported_state"
+          }
+        },
+        "evidence": "The Javan leopard (\"Panthera pardus melas\") is a leopard subspecies confined to the Indonesian island of Java and has been listed as Critically Endangered on the IUCN Red List since 2008."
+      },
+      {
+        "claim": {
+          "entity_namespace": "taxonomic_name",
+          "entity": "Panthera pardus melas",
+          "attribute": "geographic_distribution",
+          "value": {
+            "assertion": "confined to the Indonesian island of Java",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "reported_state"
+          }
+        },
+        "evidence": "The Javan leopard (\"Panthera pardus melas\") is a leopard subspecies confined to the Indonesian island of Java and has been listed as Critically Endangered on the IUCN Red List since 2008."
+      },
+      {
+        "claim": {
+          "entity_namespace": "taxonomic_name",
+          "entity": "Panthera pardus melas",
+          "attribute": "conservation_status",
+          "value": {
+            "assertion": "listed as Critically Endangered on the IUCN Red List since 2008",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "reported_state"
+          }
+        },
+        "evidence": "The Javan leopard (\"Panthera pardus melas\") is a leopard subspecies confined to the Indonesian island of Java and has been listed as Critically Endangered on the IUCN Red List since 2008."
+      },
+      {
+        "claim": {
+          "entity_namespace": "taxonomic_name",
+          "entity": "Panthera pardus melas",
+          "attribute": "population_estimate",
+          "value": {
+            "assertion": "estimated at less than 250 mature individuals",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "reported_state"
+          }
+        },
+        "evidence": "The Javan leopard (\"Panthera pardus melas\") is a leopard subspecies confined to the Indonesian island of Java and has been listed as Critically Endangered on the IUCN Red List since 2008. The population is estimated at less than 250 mature individuals, with a decreasing population trend."
+      },
+      {
+        "claim": {
+          "entity_namespace": "taxonomic_name",
+          "entity": "Panthera pardus melas",
+          "attribute": "population_trend",
+          "value": {
+            "assertion": "with a decreasing population trend",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "reported_state"
+          }
+        },
+        "evidence": "The Javan leopard (\"Panthera pardus melas\") is a leopard subspecies confined to the Indonesian island of Java and has been listed as Critically Endangered on the IUCN Red List since 2008. The population is estimated at less than 250 mature individuals, with a decreasing population trend."
+      },
+      {
+        "claim": {
+          "entity_namespace": "taxonomic_name",
+          "entity": "Panthera pardus melas",
+          "attribute": "remaining_habitat_estimate",
+          "value": {
+            "assertion": "total remaining habitat is estimated at only 2267.9 to",
+            "scope": null,
+            "condition": null,
+            "ordering": null,
+            "modality": "reported_state"
+          }
+        },
+        "evidence": "The Javan leopard (\"Panthera pardus melas\") is a leopard subspecies confined to the Indonesian island of Java and has been listed as Critically Endangered on the IUCN Red List since 2008. The population is estimated at less than 250 mature individuals, with a decreasing population trend. The total remaining habitat is estimated at only 2267.9 to ."
+      }
+    ],
+    "recorded_failure": "/tmp/omneum-tier2-completion-20261027-v1/preprocessing-v1/5a8f38fa55429924144829f5-p07-failed.json"
+  }
+}

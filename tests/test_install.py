@@ -495,7 +495,7 @@ def test_install_automatically_creates_private_user_graph(monkeypatch, target):
     assert path.is_file() and path.stat().st_mode & 0o777 == 0o600
     assert path.parent.stat().st_mode & 0o777 == 0o700
     with sqlite3.connect(path) as db:
-        assert db.execute('SELECT version FROM schema_migrations ORDER BY version').fetchall() == [(1,), (2,), (3,)]
+        assert db.execute('SELECT version FROM schema_migrations ORDER BY version').fetchall() == [(1,), (2,), (3,), (4,)]
         assert db.execute('SELECT count(*) FROM evaluation_runs').fetchone() == (0,)
     install.run_install(Mock())
     with sqlite3.connect(path) as db:

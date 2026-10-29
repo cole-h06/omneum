@@ -7,3 +7,7 @@ from omneum.context_selection import (
     select_chunks,
     token_count,
 )
+
+# Strategies recorded by enterprise_chunk_selection_v1, independent of later
+# production strategies with different ranking contracts or required inputs.
+LEGACY_STRATEGIES = ("retrieval", "max_support", "mean_support", "coverage_support")

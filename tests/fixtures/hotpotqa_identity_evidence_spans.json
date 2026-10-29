@@ -1,0 +1,229 @@
+[
+  {
+    "case_id": "5a8a5c0d554299515336137b",
+    "source_text": "Elsie Audrey Mossom (3 September 1920, Preston \u2013 1 September 2009, Hastings) was an English teen celebrity and later a professional dancer. She was crowned the 10th Railway Queen of Great Britain at the Railway Carnival and Pageant held at Belle Vue, Manchester in August 1935 when she was 15 years old. Later in 1935, she turned on the Blackpool Illuminations, an annual lights festival in Blackpool. 50 years later, she again turned on the Blackpool Illuminations.",
+    "targets": {
+      "p04:6": {
+        "observation_id": "p04:6",
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Elsie Audrey Mossom",
+          "attribute": "event_participation",
+          "value": {
+            "assertion": "Elsie Audrey Mossom turned on the Blackpool Illuminations",
+            "condition": null,
+            "modality": "historical_description",
+            "ordering": null,
+            "scope": "annual lights festival in Blackpool"
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 401,
+          "text": "Elsie Audrey Mossom (3 September 1920, Preston \u2013 1 September 2009, Hastings) was an English teen celebrity and later a professional dancer. She was crowned the 10th Railway Queen of Great Britain at the Railway Carnival and Pageant held at Belle Vue, Manchester in August 1935 when she was 15 years old. Later in 1935, she turned on the Blackpool Illuminations, an annual lights festival in Blackpool."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      },
+      "p04:7": {
+        "observation_id": "p04:7",
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Elsie Audrey Mossom",
+          "attribute": "event_participation",
+          "value": {
+            "assertion": "50 years later, Elsie Audrey Mossom again turned on the Blackpool Illuminations",
+            "condition": null,
+            "modality": "historical_description",
+            "ordering": null,
+            "scope": "annual lights festival in Blackpool"
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 466,
+          "text": "Elsie Audrey Mossom (3 September 1920, Preston \u2013 1 September 2009, Hastings) was an English teen celebrity and later a professional dancer. She was crowned the 10th Railway Queen of Great Britain at the Railway Carnival and Pageant held at Belle Vue, Manchester in August 1935 when she was 15 years old. Later in 1935, she turned on the Blackpool Illuminations, an annual lights festival in Blackpool. 50 years later, she again turned on the Blackpool Illuminations."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      }
+    },
+    "records": [
+      {
+        "observation_id": "p04:6",
+        "claim": {
+          "entity_namespace": "event_participation",
+          "entity": "Elsie Audrey Mossom | Blackpool Illuminations, annual lights festival in Blackpool | 1935",
+          "attribute": "event_participation",
+          "value": {
+            "assertion": "Elsie Audrey Mossom turned on the Blackpool Illuminations",
+            "condition": null,
+            "modality": "historical_description",
+            "ordering": null,
+            "scope": "annual lights festival in Blackpool"
+          }
+        },
+        "evidence": "Elsie Audrey Mossom (3 September 1920, Preston \u2013 1 September 2009, Hastings) was an English teen celebrity and later a professional dancer. She was crowned the 10th Railway Queen of Great Britain at the Railway Carnival and Pageant held at Belle Vue, Manchester in August 1935 when she was 15 years old. Later in 1935, she turned on the Blackpool Illuminations, an annual lights festival in Blackpool."
+      },
+      {
+        "observation_id": "p04:7",
+        "claim": {
+          "entity_namespace": "event_participation",
+          "entity": "Elsie Audrey Mossom | Blackpool Illuminations, annual lights festival in Blackpool | 1985",
+          "attribute": "event_participation",
+          "value": {
+            "assertion": "50 years later, Elsie Audrey Mossom again turned on the Blackpool Illuminations",
+            "condition": null,
+            "modality": "historical_description",
+            "ordering": null,
+            "scope": "annual lights festival in Blackpool"
+          }
+        },
+        "evidence": "Elsie Audrey Mossom (3 September 1920, Preston \u2013 1 September 2009, Hastings) was an English teen celebrity and later a professional dancer. She was crowned the 10th Railway Queen of Great Britain at the Railway Carnival and Pageant held at Belle Vue, Manchester in August 1935 when she was 15 years old. Later in 1935, she turned on the Blackpool Illuminations, an annual lights festival in Blackpool. 50 years later, she again turned on the Blackpool Illuminations."
+      }
+    ],
+    "decisions": [
+      {
+        "group_id": "0",
+        "distinct": true,
+        "evidence": "Elsie Audrey Mossom (3 September 1920, Preston \u2013 1 September 2009, Hastings) was an English teen celebrity and later a professional dancer. She was crowned the 10th Railway Queen of Great Britain at the Railway Carnival and Pageant held at Belle Vue, Manchester in August 1935 when she was 15 years old. Later in 1935, she turned on the Blackpool Illuminations, an annual lights festival in Blackpool.",
+        "issues": []
+      }
+    ]
+  },
+  {
+    "case_id": "5ab2771e554299340b5254d8",
+    "source_text": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973. He was appointed Governor of the Federal District of Venezuela by President Luis Herrera Campins in the early 1980s. He also served in the cabinet of Luis Herrera Campins, as Minister of Agriculture (1979\u20131981) and Minister of Interior and Justice (1982\u20131984).",
+    "targets": {
+      "p00:1": {
+        "observation_id": "p00:1",
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Luciano Valero",
+          "attribute": "governed",
+          "value": {
+            "assertion": "Luciano Valero was the appointed Governor of Barinas from 1959 to 1964",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 131,
+          "text": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      },
+      "p00:2": {
+        "observation_id": "p00:2",
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Luciano Valero",
+          "attribute": "governed",
+          "value": {
+            "assertion": "Luciano Valero was the appointed Governor of Barinas from 1969 to 1973",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 131,
+          "text": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      },
+      "p00:3": {
+        "observation_id": "p00:3",
+        "claim": {
+          "entity_namespace": "person",
+          "entity": "Luciano Valero",
+          "attribute": "governed",
+          "value": {
+            "assertion": "Luciano Valero was appointed Governor of the Federal District of Venezuela by President Luis Herrera Campins in the early 1980s",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "source_span": {
+          "start": 0,
+          "end": 248,
+          "text": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973. He was appointed Governor of the Federal District of Venezuela by President Luis Herrera Campins in the early 1980s."
+        },
+        "issues": [
+          "multiple values for source/property; preserve distinct subjects and relations"
+        ]
+      }
+    },
+    "records": [
+      {
+        "observation_id": "p00:1",
+        "claim": {
+          "entity_namespace": "governed",
+          "entity": "Luciano Valero | Barinas | 1959\u20131964",
+          "attribute": "governed",
+          "value": {
+            "assertion": "Luciano Valero was the appointed Governor of Barinas from 1959 to 1964",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973."
+      },
+      {
+        "observation_id": "p00:2",
+        "claim": {
+          "entity_namespace": "governed",
+          "entity": "Luciano Valero | Barinas | 1969\u20131973",
+          "attribute": "governed",
+          "value": {
+            "assertion": "Luciano Valero was the appointed Governor of Barinas from 1969 to 1973",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973."
+      },
+      {
+        "observation_id": "p00:3",
+        "claim": {
+          "entity_namespace": "governed",
+          "entity": "Luciano Valero | Federal District of Venezuela | early 1980s",
+          "attribute": "governed",
+          "value": {
+            "assertion": "Luciano Valero was appointed Governor of the Federal District of Venezuela by President Luis Herrera Campins in the early 1980s",
+            "condition": null,
+            "modality": "report",
+            "ordering": null,
+            "scope": null
+          }
+        },
+        "evidence": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973. He was appointed Governor of the Federal District of Venezuela by President Luis Herrera Campins in the early 1980s."
+      }
+    ],
+    "decisions": [
+      {
+        "group_id": "0",
+        "distinct": true,
+        "evidence": "Luciano Valero is a Venezuelan politician. He was the appointed Governor of Barinas from 1959 to 1964, and again from 1969 to 1973.",
+        "issues": []
+      }
+    ]
+  }
+]

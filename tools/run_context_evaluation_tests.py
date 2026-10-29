@@ -17,11 +17,30 @@ os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1",
 import pytest
 
 
+# Explicit file allowlist: no public-dataset pipeline or experimental model runs.
+UNIT_FILES = (
+    'benchmarks/context_selection/test_publication_docs.py',
+    'benchmarks/context_selection/test_provenance.py',
+    *(f'benchmarks/context_selection/synthetic/{name}.py' for name in (
+        'test_execution_safety', 'test_dataset', 'test_loader', 'test_tier1',
+        'test_tier1_competitors', 'test_scoring', 'test_scoring_polarity',
+        'test_aggregate', 'test_artifacts', 'test_latency_analysis',
+        'test_verified_gemini_recovery', 'test_dashboard_summary')),
+    'tests/test_context_packing.py',
+    'tests/test_context_density.py',
+    'tests/test_context_discovery_recovery.py',
+)
+
+
 class OfflineOnly:
+    def __init__(self, unit_only=False):
+        self.unit_only = unit_only
+
     def pytest_collection_modifyitems(self, items):
         for item in items:
             path = str(item.path)
-            if (path.endswith("prompt_injection/test_prompt_injection.py")
+            if (self.unit_only and item.originalname == 'test_sdk_expanded_recovers_but_explicit_top_k_remains_a_hard_restriction'
+                    or path.endswith("prompt_injection/test_prompt_injection.py")
                     or path.endswith("test_semantic_reranker.py")
                     or item.originalname in {"test_vector_selection", "test_bge_selection",
                                              "test_smoke_real_llm_envelope_and_failure_continuation"}):
@@ -47,5 +66,12 @@ class OfflineOnly:
 
 
 if __name__ == "__main__":
-    raise SystemExit(pytest.main([str(ROOT / "benchmarks/context_evaluation"),
-                                 *sys.argv[1:]], plugins=[OfflineOnly()]))
+    arguments = sys.argv[1:]
+    unit_only = '--unit-only' in arguments
+    if unit_only:
+        arguments.remove('--unit-only')
+    targets = [str(ROOT / p) for p in UNIT_FILES] if unit_only else [str(ROOT / 'benchmarks/context_selection')]
+    # Bypass autouse daemon/persistence fixtures only for this explicit pure suite.
+    options = ['--noconftest', '-p', 'no:cacheprovider'] if unit_only else []
+    raise SystemExit(pytest.main([*targets, *options, *arguments],
+                                plugins=[OfflineOnly(unit_only)]))

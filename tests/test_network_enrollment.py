@@ -371,7 +371,7 @@ def test_cli_enrollment_to_real_https_contribution(self_service, oidc, tmp_path,
             onboarding.manage('enroll', output.append, lambda text: True)
             first = onboarding.stored_credential()
             client = OmneumClient(*runtime[:2], network_contribution=network_configuration())
-            result = asyncio.run(client.evaluate_context(runtime[2], estimator=runtime[3]))
+            result = asyncio.run(client._evaluate_context(runtime[2], estimator=runtime[3]))
             assert result.claim_support
             assert db.execute('SELECT count(*) FROM control.ingestion_receipts').fetchone() == (1,)
             assert db.execute('SELECT count(*) FROM network.assertion_observations').fetchone() == (len(runtime[2]),)
@@ -385,7 +385,7 @@ def test_cli_enrollment_to_real_https_contribution(self_service, oidc, tmp_path,
             # succeeds and only the optional contribution raises a recoverable error.
             from omneum.client import NetworkContributionError
             with pytest.raises(NetworkContributionError) as failed:
-                asyncio.run(client.evaluate_context(runtime[2], estimator=runtime[3]))
+                asyncio.run(client._evaluate_context(runtime[2], estimator=runtime[3]))
             assert failed.value.evaluation.claim_support and failed.value.local_persistence_succeeded
             assert db.execute('SELECT count(*) FROM control.ingestion_receipts').fetchone() == (1,)
         finally:

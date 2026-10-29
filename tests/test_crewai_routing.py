@@ -23,8 +23,9 @@ def test_basic_crewai_flow(example_daemon):
         answer = await flow.kickoff_async()
         assert len(flow.state.observations) == 17
         assert len(flow.state.context_evaluation.claim_support) == 6
-        assert "Omneum Evaluation" in answer
-        assert "Application decision: EVALUATION COMPLETE" in answer
+        assert flow.state.generation["prepared_context"]["context"] in flow.state.generation_task.description
+        assert flow.state.generation_task.description in answer
+        assert "Omneum Evaluation" not in flow.state.generation_task.description
 
     asyncio.run(run())
 
@@ -51,14 +52,13 @@ def test_routing_scenario(scenario, example_daemon):
             for claim in state.selected_claims
         )
         assert answer == state.answer
-        assert answer == "\n".join([
-            "Application decision: EVALUATION COMPLETE",
-            "Selected context:",
-            *(f"{attribute}: {ROUTING_VALUES[attribute]}" for attribute in REQUIRED_ATTRIBUTES),
-        ])
-        assert "unredacted customer content allowed" not in answer
-        assert "30 days" not in answer
-        assert "processing_region: US" not in answer
+        assert state.generation["prepared_context"]["context"] in state.generation_task.description
+        assert state.generation_task.description in answer
+        for chunk in state.generation["retrieved_chunks"]:
+            if chunk["chunk_id"] in state.generation["prepared_context"]["packed_chunk_ids"]:
+                assert chunk["raw_text"] in state.generation_task.description
+            else:
+                assert chunk["raw_text"] not in state.generation_task.description
 
     asyncio.run(run())
 

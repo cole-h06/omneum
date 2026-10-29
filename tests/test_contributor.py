@@ -324,7 +324,7 @@ create_server(parameters=StdioServerParameters(command=sys.executable, args=['-m
     try:
         asyncio.run(run())
         import sqlite3
-        databases = list(tmp_path.rglob('context.db'))
+        databases = list(tmp_path.rglob('omneum.db'))
         assert len(databases) == 1
         with sqlite3.connect(databases[0]) as db:
             assert db.execute('SELECT count(*) FROM observations').fetchone()[0] == len(computed[4])
@@ -420,7 +420,7 @@ def test_current_occurrences_only_and_wire_privacy(runtime, network, tmp_path):
     from omneum.information import Claim
     old = tuple(replace(o, claim=Claim(o.claim.entity_namespace, o.claim.entity,
         o.claim.attribute, 'historic-' + str(o.claim.value))) for o in runtime[2])
-    asyncio.run(OmneumClient(runtime[0], runtime[1], local_persistence=storage).evaluate_context(old, estimator=runtime[3]))
+    asyncio.run(OmneumClient(runtime[0], runtime[1], local_persistence=storage)._evaluate_context(old, estimator=runtime[3]))
     client = OmneumClient(runtime[0], runtime[1], local_persistence=storage, network_contribution=network[0])
     asyncio.run(evaluate(client, inputs(runtime[2]), runtime[3], True))
     assert len(network[2]) == 1

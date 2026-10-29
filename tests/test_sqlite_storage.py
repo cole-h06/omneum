@@ -29,7 +29,7 @@ TABLES = ('sources', 'claims', 'observations', 'evaluation_runs', 'source_scores
 
 def evaluate(runtime, **options):
     config, evaluator, observations, estimator = runtime
-    return asyncio.run(OmneumClient(config, evaluator, **options).evaluate_context(
+    return asyncio.run(OmneumClient(config, evaluator, **options)._evaluate_context(
         observations, estimator=estimator))
 
 
@@ -41,15 +41,17 @@ def counts(path):
 def test_default_first_use(runtime):
     from omneum import paths
     path = paths.get_context_db_path()
-    client = OmneumClient(*runtime[:2])
     assert not path.exists()
-    result = asyncio.run(client.evaluate_context(runtime[2], estimator=runtime[3]))
+    client = OmneumClient(*runtime[:2])
+    assert path.exists()
+    assert all(value == 0 for value in counts(path).values())
+    result = asyncio.run(client._evaluate_context(runtime[2], estimator=runtime[3]))
     assert result.claim_support
     assert path.is_file()
     assert counts(path) == dict(sources=2, claims=2, observations=3, evaluation_runs=1,
         source_scores=2, claim_scores=2, source_dependencies=1)
     with sqlite3.connect(path) as connection:
-        assert connection.execute('SELECT version FROM schema_migrations').fetchall() == [(1,), (2,), (3,)]
+        assert connection.execute('SELECT version FROM schema_migrations').fetchall() == [(1,), (2,), (3,), (4,)]
         assert connection.execute('PRAGMA journal_mode').fetchone() == ('wal',)
         assert not connection.execute('PRAGMA foreign_key_check').fetchall()
         assert connection.execute('SELECT count(*) FROM observations WHERE evaluation_run_id IS NULL').fetchone()[0] == 0
@@ -58,13 +60,13 @@ def test_default_first_use(runtime):
 
 
 @pytest.mark.parametrize('platform,variables,parts', [
-    ('darwin', {}, ('Library', 'Application Support', 'Omneum', 'context.db')),
-    ('linux', {}, ('.local', 'share', 'omneum', 'context.db')),
-    ('linux', {'XDG_DATA_HOME': 'custom-data'}, ('custom-data', 'omneum', 'context.db')),
-    ('linux', {'XDG_DATA_HOME': 'relative'}, ('.local', 'share', 'omneum', 'context.db')),
-    ('win32', {'LOCALAPPDATA': 'local-app-data'}, ('local-app-data', 'Omneum', 'context.db')),
-    ('win32', {}, ('AppData', 'Local', 'Omneum', 'context.db')),
-    ('win32', {'LOCALAPPDATA': 'relative'}, ('AppData', 'Local', 'Omneum', 'context.db')),
+    ('darwin', {}, ('Library', 'Application Support', 'Omneum', 'omneum.db')),
+    ('linux', {}, ('.local', 'share', 'omneum', 'omneum.db')),
+    ('linux', {'XDG_DATA_HOME': 'custom-data'}, ('custom-data', 'omneum', 'omneum.db')),
+    ('linux', {'XDG_DATA_HOME': 'relative'}, ('.local', 'share', 'omneum', 'omneum.db')),
+    ('win32', {'LOCALAPPDATA': 'local-app-data'}, ('local-app-data', 'Omneum', 'omneum.db')),
+    ('win32', {}, ('AppData', 'Local', 'Omneum', 'omneum.db')),
+    ('win32', {'LOCALAPPDATA': 'relative'}, ('AppData', 'Local', 'Omneum', 'omneum.db')),
 ])
 def test_native_paths(tmp_path, monkeypatch, platform, variables, parts):
     import omneum.paths as module
@@ -91,7 +93,7 @@ def test_fallback_database_restart(tmp_path, monkeypatch):
     shared.mkdir(parents=True)
     shared.parent.chmod(0o775)
     shared.chmod(0o775)
-    expected = tmp_path / '.omneum' / 'data' / 'context.db'
+    expected = tmp_path / '.omneum' / 'data' / 'omneum.db'
     assert get_context_db_path() == expected
     assert not expected.parent.exists()  # Resolving a location never creates it.
     with SQLiteStorage().transaction():
@@ -117,7 +119,7 @@ def test_existing_native_graph_is_not_redirected(tmp_path, monkeypatch):
     native = tmp_path / '.local' / 'share' / 'omneum'
     native.mkdir(parents=True, mode=0o700)
     native.parent.chmod(0o775)
-    assert get_context_db_path() == native / 'context.db'
+    assert get_context_db_path() == native / 'omneum.db'
     with pytest.raises(ValueError, match='unsafe ancestor'):
         with SQLiteStorage().transaction():
             pass
@@ -134,7 +136,7 @@ def test_explicit_unsafe_data_directory_does_not_fallback(tmp_path, monkeypatch)
     shared.mkdir(mode=0o775)
     shared.chmod(0o775)
     monkeypatch.setenv('XDG_DATA_HOME', str(shared))
-    assert get_context_db_path() == shared / 'omneum' / 'context.db'
+    assert get_context_db_path() == shared / 'omneum' / 'omneum.db'
     with pytest.raises(ValueError, match='unsafe ancestor'):
         with SQLiteStorage().transaction():
             pass
@@ -176,7 +178,7 @@ def test_unrelated_dot_directory_does_not_hide_existing_graph(tmp_path, monkeypa
     native = tmp_path / '.local' / 'share' / 'omneum'
     native.mkdir(parents=True)
     (tmp_path / '.omneum').mkdir()
-    assert get_context_db_path() == native / 'context.db'
+    assert get_context_db_path() == native / 'omneum.db'
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='POSIX directory permissions')
@@ -400,7 +402,7 @@ def test_default_stdio_sqlite(runtime, computed, tmp_path):
     config = OmneumClientConfig(DEPLOYMENT_ID, 1, 'voprf', 'ristretto255-SHA512', 1, key)
     async def run():
         async with open_stdio_client(config, params) as client:
-            return await client.evaluate_context(computed[4], estimator=computed[3])
+            return await client._evaluate_context(computed[4], estimator=computed[3])
     assert asyncio.run(run()).claim_support
     assert counts(paths.get_context_db_path())['evaluation_runs'] == 1
 
@@ -682,7 +684,7 @@ def test_macos_config_permissions(tmp_path, monkeypatch):
     finally:
         os.umask(mask)
     assert stat.S_IMODE(expected.stat().st_mode) == 0o700
-    assert stat.S_IMODE((expected / 'context.db').stat().st_mode) == 0o600
+    assert stat.S_IMODE((expected / 'omneum.db').stat().st_mode) == 0o600
     assert stat.S_IMODE(tmp_path.stat().st_mode) == before
 
 
@@ -727,3 +729,22 @@ def test_cross_thread_sqlite_locks(tmp_path, monkeypatch):
                 future.result(timeout=0.1)
             active.clear()
         future.result(timeout=5)
+
+
+def test_history_scores_do_not_initialize_next_evaluation(runtime, tmp_path):
+    storage = SQLiteStorage(tmp_path / 'history.db')
+    config = LocalPersistenceConfig(storage)
+    first = evaluate(runtime, local_persistence=config)
+    with storage.transaction() as connection:
+        previous = connection.execute('SELECT id FROM evaluation_runs').fetchone()[0]
+        connection.execute('UPDATE source_scores SET reliability_score=0')
+        connection.execute('UPDATE claim_scores SET support_score=0')
+    second = evaluate(runtime, local_persistence=config)
+    assert second == first
+    assert counts(storage.path) == dict(sources=2, claims=2, observations=6,
+        evaluation_runs=2, source_scores=4, claim_scores=4, source_dependencies=2)
+    with storage.transaction() as connection:
+        assert connection.execute('SELECT reliability_score FROM source_scores WHERE evaluation_run_id=?',
+                                  (previous,)).fetchall() == [(0.0,), (0.0,)]
+        assert connection.execute('SELECT support_score FROM claim_scores WHERE evaluation_run_id=?',
+                                  (previous,)).fetchall() == [(0.0,), (0.0,)]

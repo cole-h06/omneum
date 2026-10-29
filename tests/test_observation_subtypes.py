@@ -239,4 +239,4 @@ def test_version_two_upgrade_rejects_orphan_without_data_loss(tmp_path, assertio
         c.execute("INSERT INTO assertion_observations VALUES ('legacy-orphan',?)", (str(row.claim_id),))
     with storage.transaction() as c:
         assert c.execute('SELECT count(*) FROM assertion_observation_requirements').fetchone() == (2,)
-        assert c.execute('SELECT version FROM schema_migrations').fetchall() == [(1,), (2,), (3,)]
+        assert c.execute('SELECT version FROM schema_migrations').fetchall() == [(1,), (2,), (3,), (4,)]

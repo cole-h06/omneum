@@ -4,7 +4,7 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime, timezone
 from typing import Any
 
-from .client import ContextEvaluation, evaluate_context
+from .client import ContextEvaluation, _evaluate_context
 from .dependency import DependencyEstimatorConfig, _UPSTREAM_ESTIMATOR
 from .information import Claim, Observation, Source, SourceReference
 
@@ -29,7 +29,7 @@ def evaluate(
     *,
     estimator: DependencyEstimatorConfig | None = None,
 ) -> ContextEvaluation:
-    """Evaluate URL/value dictionaries in memory through evaluate_context().
+    """Evaluate URL/value dictionaries in memory through the internal graph evaluator.
 
     Records without ``claim`` describe one attribute: records/default/value.
     For multiple attributes, every record must provide a complete ``claim``
@@ -82,10 +82,9 @@ def evaluate(
             parent_observation_ids=None if parents is None else tuple(parents),
             metadata=record.get("metadata", {}),
         ))
-    return evaluate_context(
+    return _evaluate_context(
         observations, estimator=_UPSTREAM_ESTIMATOR if estimator is None else estimator,
     )
 
 
-# Backward-compatible name for the dictionary convenience API.
 evaluate_records = evaluate

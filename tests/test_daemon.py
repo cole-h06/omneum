@@ -1,5 +1,6 @@
 """Daemon functional tests. Cross-UID tests live in security/linux_isolation.py."""
 
+import errno
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -135,6 +136,10 @@ def test_daemon_denies_unauthorized_peer_uid(tmp_path):
                 assert stream.recv(4) == b''
             except (ConnectionResetError, BrokenPipeError):
                 pass  # Peer denial may close before the client writes its frame.
+            except OSError as error:
+                # Darwin reports ENOTCONN when send() races the server's close;
+                # Linux commonly reports a reset or broken pipe for the same denial.
+                assert error.errno == errno.ENOTCONN
     finally:
         process.terminate()
         process.wait(timeout=3)

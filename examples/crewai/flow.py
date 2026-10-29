@@ -1,4 +1,10 @@
+import asyncio
+from typing import Any
+
+from crewai import Agent, Task
 from crewai.flow.flow import Flow, and_, listen, start
+
+from examples.context_preparation import PreparationOptions, collect_chunks, prepare_generation
 
 from examples.enterprise.agents.api import api_agent
 from examples.enterprise.agents.documents import documents_agent
@@ -6,13 +12,18 @@ from examples.enterprise.agents.research import research_agent
 from examples.enterprise.agents.search import search_agent
 from examples.enterprise.agents.sql import sql_agent
 from examples.enterprise.config import example_deployment
-from examples.enterprise.workflow.run import estimator_config, render_result
+from examples.enterprise.workflow.run import estimator_config
 from omneum import ContextMapper, open_stdio_client
 
 from .state import WorkflowState
 
 
 class EnterpriseFlow(Flow[WorkflowState]):
+    def __init__(self, *, generation_agent: Agent | None = None, preparation: PreparationOptions | None = None, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.generation_agent = generation_agent
+        self.state.preparation = preparation or PreparationOptions()
+
     @start()
     def retrieve_documents(self):
         self.state.document_observations = documents_agent()
@@ -52,6 +63,7 @@ class EnterpriseFlow(Flow[WorkflowState]):
             *self.state.api_observations,
             *self.state.search_observations,
         )
+        self.state.retrieved_chunks = collect_chunks(self.state.observations)
         return self.state.observations
 
     @listen(merge_observations)
@@ -97,6 +109,22 @@ class EnterpriseFlow(Flow[WorkflowState]):
         return result
 
     @listen(evaluate_context)
-    def render_answer(self):
-        self.state.answer = render_result(self.state.context_evaluation)
+    async def prepare_context(self):
+        self.state.generation = await prepare_generation(
+            self.state.observations, question=self.state.question, estimator=estimator_config(),
+            chunks=self.state.retrieved_chunks, evaluation=self.state.context_evaluation,
+            preparation=self.state.preparation,
+        )
+        self.state.generation_task = Task(
+            agent=self.generation_agent,
+            description="\n\n".join(message["content"] for message in self.state.generation["messages"]),
+            expected_output="Answer the question with chunk citations and explain conflicting evidence.",
+        )
+
+    @listen(prepare_context)
+    async def render_answer(self):
+        self.state.answer = "Selected context:\n" + self.state.generation_task.description
+        if self.generation_agent is not None:
+            output = await asyncio.wrap_future(self.state.generation_task.execute_async())
+            self.state.answer = output.raw
         return self.state.answer
