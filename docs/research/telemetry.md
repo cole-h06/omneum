@@ -1,4 +1,3 @@
-
 # Research Telemetry
 
 Opt-in evaluation telemetry for Omneum's reliability algorithms, benchmarking, and reproducibility. Use `omneum.research_telemetry` to record aggregate graph statistics, dependency signals, convergence metadata, implementation provenance, and execution latency.
@@ -322,5 +321,5 @@ Correlation identifiers are metadata only; the research recorder does not export
 - `omneum/schemas/research-event-v1.schema.json`
 - [Python SDK](../sdk.md)
 - [Architecture](../architecture.md)
-- [Source Dependence](../architecture.md#source-dependence)
+- [Dependency Estimation](../architecture.md#dependency-estimation)
 - [API Reference](../api/)

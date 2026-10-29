@@ -1,4 +1,3 @@
-
 # Security Audit
 
 **2026-10-10 · Local MCP, Context Graph, evaluator, and hosted Network**

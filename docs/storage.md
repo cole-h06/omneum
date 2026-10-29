@@ -6,9 +6,9 @@ Omneum uses SQLite for local persistence and PostgreSQL for external deployments
 
 | Backend | Use | Graph |
 |---|---|---|
-| SQLite | Default local MCP and sidecar | Relational graph tables |
-| PostgreSQL | User-managed deployments | Relational graph tables |
-| PostgreSQL + Apache AGE | Graph-enabled PostgreSQL deployments | AGE graph projection |
+| SQLite | Default Python SDK persistence | Relational graph tables |
+| PostgreSQL + Apache AGE | User-managed PostgreSQL persistence | Relational tables with AGE graph projection |
+| PostgreSQL (relational only) | Hosted Omneum Network | Authoritative `network.*` relational tables |
 
 ## Local Storage
 
@@ -18,23 +18,23 @@ Local installations use SQLite. The database is created automatically on first u
 
 | Platform | Path |
 |---|---|
-| macOS | `~/Library/Application Support/Omneum/context.db` |
-| Linux | `~/.local/share/omneum/context.db` |
+| macOS | `~/Library/Application Support/Omneum/omneum.db` |
+| Linux | `~/.local/share/omneum/omneum.db` |
 
 For a new default graph with unsafe data-directory ancestors, Omneum uses
-`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+`~/.omneum/data/omneum.db`. Existing graphs and explicit paths are never
 silently relocated; shared directory permissions are preserved.
 
 On Linux, an absolute `XDG_DATA_HOME` overrides the default data directory:
 
 ```text
-$XDG_DATA_HOME/omneum/context.db
+$XDG_DATA_HOME/omneum/omneum.db
 ```
 
 ### Database Layout
 
 ```text
-context.db
+omneum.db
 ├── sources
 ├── claims
 ├── observations
@@ -44,6 +44,7 @@ context.db
 ├── observation_retrievals
 ├── source_dependencies
 ├── evaluation_runs
+├── execution_history
 ├── source_scores
 ├── claim_scores
 ├── claim_support_sources
@@ -64,6 +65,7 @@ context.db
 | `observation_retrievals` | Observation retrieval records |
 | `source_dependencies` | Pairwise source dependencies |
 | `evaluation_runs` | Evaluation history |
+| `execution_history` | Completed preparation measurements linked to evaluation runs |
 | `source_scores` | Source reliability scores |
 | `claim_scores` | Claim support scores |
 | `claim_support_sources` | Sources contributing support to a claim |
@@ -123,16 +125,16 @@ PRAGMA foreign_keys=ON;
 
 ### Files
 
-A running database may contain SQLite WAL files next to `context.db`:
+A running database may contain SQLite WAL files next to `omneum.db`:
 
 ```text
 Omneum/
-├── context.db
-├── context.db-wal
-└── context.db-shm
+├── omneum.db
+├── omneum.db-wal
+└── omneum.db-shm
 ```
 
-`context.db-wal` and `context.db-shm` are managed by SQLite.
+`omneum.db-wal` and `omneum.db-shm` are managed by SQLite.
 
 On macOS and Linux the graph directory must be user-owned with mode `0700`.
 Database, WAL, SHM and journal files are checked for ownership, regular-file type,
@@ -148,37 +150,37 @@ plaintext assertions and metadata; use OS disk encryption as appropriate.
 
 ## Local MCP
 
-The default MCP installation opens the local SQLite database automatically.
+The Python SDK opens the local SQLite database by default. The core MCP evaluator processes request-scoped graphs without persistence.
 
 ```text
-MCP client
+Python SDK client
     │
     ▼
-Omneum MCP server
+Local persistence adapter
     │
     ▼
-context.db
+omneum.db
 ```
 
 No persistence configuration is required.
 
 ## Sidecar
 
-The sidecar uses the same local database.
+Python SDK sidecars use the same default database path for the owning OS user.
 
 ```text
-MCP processes
+Agent processes
     │
     ▼
 Omneum sidecar
     │
     ▼
-context.db
+omneum.db
 ```
 
 SQLite WAL mode allows concurrent readers. Writes use `BEGIN IMMEDIATE` transactions to serialize writers across local processes.
 
-MCP processes do not create separate context databases.
+The core MCP server does not open this database.
 
 ## PostgreSQL
 
@@ -216,8 +218,8 @@ The hosted migration runner uses the relational `production_*` sequence through
 007 and excludes `production_002_context_graph.sql`. DigitalOcean Managed
 PostgreSQL does not support AGE in its published extension lists. Production AGE
 projection, synchronization and backfill/rebuild are not implemented; the existing
-production AGE migration creates labels only. See the [deployment guide](guides/deployment.md#production-database-architecture)
-for provider sources and the verification date.
+production AGE migration creates labels only. See the [deployment guide](guides/deployment.md#database-layout)
+for the current database layout.
 
 The `PostgresStorage` adapter and unprefixed migrations described above and below
 are for user-managed local graphs. They target an incompatible `public.*` schema
@@ -227,7 +229,7 @@ not.
 
 ## Apache AGE
 
-Apache AGE is optional. It runs as a PostgreSQL extension and provides a property-graph projection of the context graph.
+Apache AGE provides a property-graph projection for user-managed PostgreSQL Context Graph deployments. The current `PostgresStorage` adapter requires AGE during persistence. Hosted Omneum Network storage uses relational PostgreSQL tables without AGE.
 
 ```text
 PostgreSQL
@@ -299,7 +301,7 @@ PostgreSQL migrations also create required extensions and AGE graph objects.
 
 ## Local Data Boundary
 
-`context.db` contains the local context graph.
+`omneum.db` contains the local context graph.
 
 Local evaluation reads and writes this database. Network contribution uses the Omneum Network ingestion API rather than a direct connection to the Network database.
 

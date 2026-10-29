@@ -1,11 +1,9 @@
-# External Evaluations
+# Evaluations
 
-Third-party evaluations of Omneum in external workflows. Results include observed failures and integration limitations. Original artifacts are retained where available.
+[Historical external evaluations](legacy/README.md) of Omneum 1.0.3's provenance-aware context evaluation capabilities are archived under `legacy/`:
 
-## Evaluations
+- [Bastra Recall](legacy/bastra-recall/README.md) — synthetic agent-memory histories, with original evaluation outputs.
+- [Jawz](legacy/jawz/README.md) — macroeconomic data provenance and source dependencies; README-only.
+- [SearchTS](legacy/searchts/README.md) — web retrieval provenance and source independence, with original captures and reproduction files.
 
-- [Bastra Recall](bastra-recall/README.md) — Daniel Nevoigt tested Omneum 1.0.3 against synthetic agent-memory histories. Single-claim and multi-claim runs, with the original JSON outputs.
-
-- [Jawz](jawz/README.md) — Omneum 1.0.3 evaluated against macroeconomic data provenance and source dependencies. Both configurations are documented: FRED lineage declared and undeclared.
-
-- [SearchTS](searchts/README.md) — CAP.AD [NOUS] tested Omneum 1.0.3 against web retrieval pipelines. Covers provenance and source independence across retrieval backends, with Debian reproduction scripts and recorded outputs.
+Context-control plane benchmarks are maintained separately under [`benchmarks/`](../benchmarks/README.md).

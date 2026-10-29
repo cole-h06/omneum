@@ -1,12 +1,12 @@
 <!-- mcp-name: io.github.cole-h06/omneum -->
-# What is Omneum
+# Omneum
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/cole-h06/omneum/main/assets/omneum-logotype-white-bg.png" alt="Omneum" width="240">
 </p>
 
 <p align="center">
-  An open-source context evaluator for AI agents.
+  Provenance-aware context control plane for AI agents.
 </p>
 
 <p align="center">
@@ -22,144 +22,142 @@
   </a>
 </p>
 
-Agents routinely assemble context from many different sources — a RAG pipeline, web search, APIs, databases, files, memory systems, other agents — but stuffing dozens of raw chunks into a single context window can leave the model working through a mess of information that was never organized for it.
+Omneum is an open-source context control plane for AI agents, built to optimize the evidence entering an LLM's context window.
 
-Most agents focus on retrieving more context. Omneum is focused on making sure the context reaching the model is clean and reliable.
+Agents accumulate context from retrieval, tools, memory, and previous sessions, but longer context windows don't guarantee better reasoning. Context rot can slowly degrade downstream answer accuracy even when the relevant information has already been retrieved.
 
-**⚡ Fast context auditing for AI agents.**
+## Why Omneum?
 
-**33 ms median evaluation latency:** Measured across 250 observations, 3 independent sources, 84 claims on Apple M5. No additional LLM inference or model judge steps.
+- **Provenance-aware graph inference:** Iteratively computes source reliability and claim support across a bipartite graph, accounting for shared evidence origins and dependencies between sources.
 
-**Dependency-aware:** Detects when multiple retrieved context chunks repeat information from the same upstream source.
+- **Context reconstruction:** Selects original retrieved passages based on question relevance and incremental claim coverage within a token budget.
 
-**Local by default:** A content-blind graph algorithm running entirely within your environment, with SQLite persistence and optional PostgreSQL deployment.
+- **Text-blind evaluation:** Evaluates structured observations without reading source text strings or invoking an LLM judge.
+
+- **Local by default:** Persists your agents' observations across sessions in a [Context Graph](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md), backed by SQLite or PostgreSQL.
 
 ## Quick Start
 
-Install the Python package:
+Install Omneum:
 
 ```bash
 pip install omneum
 ```
 
-Run the included demo:
+Run the context reconstruction demo:
 
 ```bash
-python -m omneum.demo
+git clone https://github.com/cole-h06/omneum.git
+cd omneum
+python -m examples.context_quality_demo.before_after
 ```
 
-Create `evaluate.py` to evaluate three observations against a single claim. Two sources reference the same upstream document.
+**Five retrieved chunks, four distinct claims, 80-unit context budget.**
 
-```python
-import omneum
-from omneum.explanations import explain_evaluation
+Compare retrieval-order packing with Omneum's claim-coverage selection under the same context budget.
 
-observations = [
-    {
-        "url": "https://a.example",
-        "value": 4200000000,
-        "claim": {
-            "entity_namespace": "company",
-            "entity": "acme",
-            "attribute": "fy2025_gross_revenue",
-        },
-        "upstream": ["https://sec.example"],
-    },
-    {
-        "url": "https://b.example",
-        "value": 4200000000,
-        "claim": {
-            "entity_namespace": "company",
-            "entity": "acme",
-            "attribute": "fy2025_gross_revenue",
-        },
-        "upstream": ["https://sec.example"],
-    },
-    {
-        "url": "https://c.example",
-        "value": 4200000000,
-        "claim": {
-            "entity_namespace": "company",
-            "entity": "acme",
-            "attribute": "fy2025_gross_revenue",
-        },
-        "upstream": [],
-    },
-]
+| Metric | Raw RAG | Omneum |
+|---|---:|---:|
+| Chunks retained | 3 | 2 |
+| Claim coverage | 2/4 | 4/4 |
+| Budget used | 75/80 | 51/80 |
 
-result = omneum.evaluate(observations)
-print(explain_evaluation(result))
-```
+Packing chunks in retrieval order consumes 75 units while covering only two claims. Omneum retains two original chunks covering all four, using **32% less context capacity**.
 
-Run:
+The demo measures its budget with the SDK's word/punctuation counter.
 
-```bash
-python evaluate.py
-```
+[Example source →](https://github.com/cole-h06/omneum/tree/main/examples/context_quality_demo)
 
-Output:
+[Set up the MCP server →](#mcp-installation)
+
+## How Omneum Works
+
+### Graph Inference & Context Selection
+
+Omneum uses a graph-based mathematical analysis, calculated from `Observation` objects, to estimate the structural reliability of sources and the support for claims found in retrieved context.
+
+Importantly, this analysis does not naively assume every source has derived its information independently. The same information often propagates across multiple sources. Without dependency tracking, five observations from different sources can be difficult to distinguish from five reports derived from the same upstream source.
+
+For example, consider:
 
 ```text
-Omneum Evaluation
-Evaluation latency: 1.6 ms
+Source A:    Acme's 2025 annual report
+Claim:       Acme reported $4.2 billion in revenue for 2025.
 
-Fy2025 gross revenue
-
-  4200000000
-  Support: 0.67
-  Supporting sources: 3
-  Estimated independent support: 2.00
-  Dependency signal coverage: 1.00
-
-  Explanation:
-    3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
+Source B:    Financial article reporting the same claim
+Claim:       Acme reported $4.2 billion in revenue for 2025.
+Upstream:    Acme's 2025 annual report
 ```
 
-`evaluate()` runs Omneum's graph-based evaluation algorithm in-process; it computes source reliability and claim support scores, adjusting for dependencies between sources.
+How much support should that claim receive? That depends partly on the reliability of the sources reporting it. But how do we determine the reliability of the sources? By looking at the claims they support.
 
-For raw retrieval text, use the optional `extract_observations()` API to extract structured claims with an LLM before evaluation. See [Python SDK](https://github.com/cole-h06/omneum/blob/main/docs/sdk.md#extract-assertions-from-text).
+This definition seems circular, and it is. Nonetheless, it provides a well-defined notion of reliability that helps distinguish strongly supported context from weakly supported context.
 
-## Why Omneum and how it works
+Of course claim-level scores are only useful for context selection if they can be mapped back to chunks. To bridge this gap, Omneum stores a claim-to-chunk mapping: each chunk retains its original text and `chunk_id`, while its associated `claim_ids` reference the claims evaluated in the graph. A chunk can contain multiple claims, and the same claim can appear across multiple chunks. This allows the algorithm to associate claim support with the actual passages competing for space in the context window.
 
-Modern agent pipelines use several different techniques to decide what context should reach a model:
+But selecting context is not simply a matter of ranking chunks by their individual scores. Omneum derives chunk utility from the claims associated with each passage, then ranks chunks to fill the model's window under a limited token budget. When a nonempty `question` is supplied, finalized claim contributions are weighted by deterministic, local lexical relevance over the original passage text. Repeated evidence from the same inferred source cluster earns only an improvement over its best selected relevance. Without a question, Omneum keeps its question-blind claim-coverage selection. Selected passages are reconstructed from their original text.
 
-**Semantic similarity (Vector DBs).** The piece of text that *looks* closest to the prompt wins.
+The selected passages are then reconstructed from their original text into the context passed to the LLM. The analysis itself never needs to read that text because it operates exclusively on structured relationships between sources and claims.
 
-**Semantic reranking.** Retrieved context is reordered based on how relevant it is to the query.
+[Experiments and research →](https://github.com/cole-h06/omneum/tree/main/research)
 
-**LLM-as-a-Judge.** An LLM reads the retrieved context and is instructed to evaluate it against a set of instructions.
+### Integration
 
-These techniques can be highly effective at selecting context, but relevance is only one dimension of context quality.
+Omneum runs between retrieval and generation. The Python SDK accepts retrieved chunks and relevance scores from the calling retrieval pipeline, or computes relevance locally using BM25 or MiniLM when explicitly enabled.
 
-Chunks can still hold conflicting or stale information. Multiple retrieved chunks might not be deduplicated or appear independent despite sharing an upstream source. This contributes to context bloat: low-quality information consumes context-window capacity that could otherwise be used for higher quality information.
+```text
+Retrieval / tools
+        │
+        ▼
+┌───────────────────────────────────────────┐
+│ ContextMapper / Observation input         │
+│                                           │
+│ Source, claim and provenance mapping      │
+│ Structured Observation construction       │
+└─────────────────────┬─────────────────────┘
+                      │ Structured observations
+                      ▼
+┌───────────────────────────────────────────┐
+│ Python SDK · prepare_context()            │
+│                                           │
+│ Retrieved chunks and relevance scores     │
+│ Query conditioning / candidate discovery  │
+│ Original text retained locally            │
+└─────────────────────┬─────────────────────┘
+                      │ Structured observations
+                      ▼
+┌───────────────────────────────────────────┐
+│ Omneum evaluator                          │
+│                                           │
+│ Provenance-aware graph inference          │
+│ Dependency-adjusted claim support         │
+│ No original source text required          │
+└─────────────────────┬─────────────────────┘
+                      │ Graph evaluation
+                      ▼
+┌───────────────────────────────────────────┐
+│ Python SDK                                │
+│                                           │
+│ Claim-to-chunk score mapping              │
+│ Question-weighted claim support           │
+│ Marginal claim coverage                   │
+│ Token-budget enforcement                  │
+│ Original text reconstruction              │
+└─────────────────────┬─────────────────────┘
+                      │ Reconstructed context
+                      ▼
+                  Agent / LLM
+```
 
-Omneum addresses many of these limitations: it uses a graph-based mathematical analysis to model the relationships between claims and their supporting sources. Importantly, this analysis does not naively assume every source has derived its information independently. The same information often propagates across multiple sources. Without dependency tracking, an agent cannot distinguish five independent observations from the same information repeated five times.
+`client.prepare_context()` uses Omneum's provenance-aware graph inference to evaluate source reliability and claim support, accounting for dependencies between sources. The SDK uses those results to rank and select retrieved passages within the token budget, then reconstructs their original text for the model.
 
-Agent pipelines already handle structured metadata alongside retrieved context. Omneum uses available provenance and lineage metadata to estimate source dependencies, then incorporates those estimates into its calculation of source reliability and claim support scores.
+The prepared context is returned in `result["context"]`, with selected passages in `result["chunks"]` and evaluation scores in `result["evaluation"]`.
 
-These scores are computed without interpreting the semantic meaning of the context. For instance, when considering a claim such as:
-
-**“Acme reported $4.2 billion in revenue in 2025.”**
-
-Its support score depends on the reliability of the sources supporting it. In turn, those sources receive reliability from the claims they support.
-
-This definition seems circular, and it is. Nonetheless, it yields a well-defined notion of reliability that helps distinguish strongly supported context from weakly supported context.
-
-Omneum's production inference algorithm computes these reliability and support scores. [Explore the experiments and research →](https://github.com/cole-h06/omneum/tree/main/research)
-
-## Where Omneum fits
-
-Omneum runs locally through its Python SDK or as a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. It adds a lightweight post-retrieval evaluation layer to your existing retrieval or ranking stack; no inference request, no extra model call.
-
-**Retrieval / tools → Reranking (optional) → Omneum evaluation → agent control flow → LLM**
-
-Omneum returns context-quality signals; your agent makes evidence-aware decisions throughout its workflow.
-
-[Architecture and design →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md)
+[Architecture →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md)
 
 ## MCP Installation
 
-**Note:** This tutorial assumes Python 3.11–3.14. SDKs for other languages are not currently supported.
+**Note:** Omneum supports Python 3.11–3.14 on macOS and Ubuntu. The Python SDK is the currently supported client library.
 
 **Supported Platforms:**
 
@@ -169,7 +167,7 @@ Omneum returns context-quality signals; your agent makes evidence-aware decision
 | macOS (Intel / x86_64) | ✅ |
 | Linux (Ubuntu 22.04+ / x86_64) | ✅ |
 
-### 1. Install the local evaluator
+### 1. Install the evaluator
 
 Run the installer to configure the local evaluator:
 
@@ -195,15 +193,15 @@ and public client configuration at:
 /etc/omneum/config.toml
 ```
 
-The evaluator runs as a system service because its VOPRF private key is isolated from the login account and MCP process. On macOS it runs under `launchd`; on Ubuntu it runs under systemd with a separate service identity.
+The evaluator runs under a dedicated service identity, isolating its VOPRF private key from the login account and MCP server process. macOS uses `launchd`; Ubuntu uses systemd.
 
-`omneum-server` connects MCP clients to the installed local service. The installer finishes by sending a VOPRF request through that path and verifying the response against the configured public key. A running service alone does not count as a successful installation.
+`omneum-server` exposes Omneum's MCP tools over stdio and communicates with the locally installed evaluator service. The installer finishes by sending a VOPRF request through that path and verifying the response against the configured public key. A running service alone does not count as a successful installation.
 
 See [`docs/guides/installation.md`](https://github.com/cole-h06/omneum/blob/main/docs/guides/installation.md) for service accounts, sockets, installed paths, custom endpoints, and failure handling.
 
-### 2. Connect an MCP client
+### 2. Connect your MCP client
 
-Add Omneum to your MCP client configuration:
+Add Omneum to your MCP configuration:
 
 ```json
 {
@@ -215,169 +213,164 @@ Add Omneum to your MCP client configuration:
 }
 ```
 
-Restart your MCP client to expose Omneum's tools to your agent.
+Restart the MCP client. It launches `omneum-server` over stdio and exposes Omneum's tools to your agent.
 
-If your MCP client cannot find `omneum-server`, set `command` to the absolute path returned by `command -v omneum-server`.
+If the executable isn't found, locate it with `command -v omneum-server` and use the returned absolute path as `command`.
 
-### 3. Verify the connection
+### 3. Verify
 
-Ask your agent to call Omneum's `ping` tool. A successful response returns `"status": "ok"`, confirming that your agent can reach the Omneum MCP server.
+Ask your agent to call Omneum's `ping` tool. A successful connection returns:
 
-## Running an Evaluation
+```json
+{
+  "status": "ok"
+}
+```
 
-Evaluate retrieved context using Omneum's Python SDK and local MCP server.
+## Context Preparation
+
+Omneum evaluates structured observations, selects retrieved chunks under a token budget, and reconstructs the selected text for the downstream LLM. The evaluator computes dependency-adjusted claim support, while the Python SDK handles chunk selection and reconstruction.
 
 ### 1. Map retrieved context
 
-Use `ContextMapper` to map retrieved records into Omneum observations. The example uses three sources, two of which reference the same upstream document.
+In this example, the FAQ derives its audit retention claim from the security policy. The upstream dependency is recorded through `upstream_sources`.
 
 ```python
-import asyncio
 from datetime import datetime, timezone
 
-from omneum.mcp import StdioServerParameters
-from omneum import (
-    ContextMapper,
-    OmneumClientConfig,
-    Source,
-    open_stdio_client,
-)
+from omneum import ContextMapper, Source
+from omneum.information import SourceReference
+from omneum.context_selection import claim_id
 
 now = datetime.now(timezone.utc)
+policy_url = "https://example.com/security-policy"
 
 records = [
     {
-        "id": "obs-1",
-        "raw_text": "Acme reported FY2025 gross revenue of $4.2 billion.",
-        "url": "https://example.com/report-a",
-        "value": 4_200_000_000,
-        "upstream": ["https://example.com/filing"],
-        "observed_at": now,
-    },
-    {
-        "id": "obs-2",
-        "raw_text": "FY2025 gross revenue for Acme was $4.2 billion, per the filing.",
-        "url": "https://example.org/report-b",
-        "value": 4_200_000_000,
-        "upstream": ["https://example.com/filing"],
-        "observed_at": now,
-    },
-    {
-        "id": "obs-3",
-        "raw_text": "Acme's FY2025 gross revenue totaled $4.2 billion.",
-        "url": "https://example.net/report-c",
-        "value": 4_200_000_000,
+        "id": "obs-policy",
+        "url": policy_url,
+        "attribute": "audit_retention_days",
+        "value": 90,
         "upstream": [],
-        "observed_at": now,
+        "text": "Audit logs are retained for 90 days.",
+    },
+    {
+        "id": "obs-faq",
+        "url": "https://example.com/faq",
+        "attribute": "audit_retention_days",
+        "value": 90,
+        "upstream": [
+            SourceReference(kind="web_document", identifier=policy_url)
+        ],
+        "text": "Audit logs are retained for 90 days.",
+    },
+    {
+        "id": "obs-incident",
+        "url": "https://example.com/incident-report",
+        "attribute": "incident_notification_hours",
+        "value": 24,
+        "upstream": [],
+        "text": "Security incidents are reported within 24 hours.",
     },
 ]
 
 mapper = ContextMapper(
     source=lambda r: Source(kind="web_document", identifier=r["url"]),
-    entity_namespace=lambda r: "company",
+    entity_namespace=lambda r: "security",
     entity=lambda r: "acme",
-    attribute=lambda r: "fy2025_gross_revenue",
+    attribute="attribute",
     value="value",
     observation_id="id",
-    observed_at="observed_at",
-    upstream_sources=lambda r: [
-        {"kind": "web_document", "identifier": url}
-        for url in r["upstream"]
-    ],
+    observed_at=lambda r: now,
+    upstream_sources="upstream",
 )
+
+observations = [mapper.map(record) for record in records]
+
+chunks = [
+    {
+        "chunk_id": record["id"],
+        "claim_ids": [claim_id(observation.claim)],
+        "raw_text": record["text"],
+    }
+    for record, observation in zip(records, observations)
+]
 ```
 
-The SDK handles canonicalization. See [Canonicalization](https://github.com/cole-h06/omneum/blob/main/docs/canonicalization.md).
+`ContextMapper` maps the records into assertion observations. The original text stays in the chunk mapping, accessible through the associated claim IDs. Only the structured observations are sent to the MCP evaluator.
 
-### 2. Evaluate context
+### 2. Reconstruct context
 
-Connect to `omneum-server` and call `evaluate_mapped()`:
+Pass the mapped observations and chunks to `prepare_context()`. The dependency estimator is configured to use upstream lineage.
 
 ```python
+import asyncio
+
+from omneum import DependencyEstimatorConfig, OmneumClientConfig, open_stdio_client
+from omneum.mcp import StdioServerParameters
+
+estimator = DependencyEstimatorConfig(
+    upstream_weight=1.0,
+    citation_weight=0.0,
+    assertion_lineage_weight=0.0,
+    ownership_weight=0.0,
+    temporal_weight=0.0,
+    graph_weight=0.0,
+    temporal_window_seconds=7200.0,
+)
+
 async def main():
     config = OmneumClientConfig.from_local_deployment()
     server = StdioServerParameters(command="omneum-server")
 
-    async with open_stdio_client(config, server=server) as client:
-        evaluation = await client.evaluate_mapped(
-            records,
-            mapper,
+    async with open_stdio_client(config, server) as client:
+        result = await client.prepare_context(
+            observations,
+            chunks,
+            estimator=estimator,
+            token_budget=100,
         )
-        print(evaluation.explanation)
 
+    print(result["context"])
+    print(result["selection"]["claim_coverage"])
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
-Save both Python blocks in `evaluate_mcp.py`, then run:
+Save as `prepare_context.py` and run:
 
 ```bash
-python evaluate_mcp.py
+python prepare_context.py
 ```
 
-To evaluate and select locally retained chunks in one operation, replace the
-`evaluate_mapped()` call with:
+The returned JSON contains the reconstructed context at `result["context"]`. Graph scores are available in `result["evaluation"]`, so your agent can inspect the result before invoking the model.
+
+See [`examples/context_quality_demo/`](https://github.com/cole-h06/omneum/tree/main/examples/context_quality_demo) for a comparison with retrieval-order packing.
+
+### 3. Agent Control Flow
+
+An agent orchestrator can use Omneum's claim support scores to control execution after retrieval. In LangGraph, a conditional edge can send the workflow back to a retrieval node when the evidence falls below a configured threshold.
 
 ```python
-from omneum import DependencyEstimatorConfig
-from omneum.context_selection import claim_id
+def route_context(result):
+    evaluation = result["evaluation"]
 
-observations = mapper.map_many(records)
-chunks = [
-    {"chunk_id": record["id"], "raw_text": record["raw_text"],
-     "claim_ids": [claim_id(observation.claim)]}
-    for record, observation in zip(records, observations)
-]
-estimator = DependencyEstimatorConfig(
-    upstream_weight=1.0, citation_weight=0.0, assertion_lineage_weight=0.0,
-    ownership_weight=0.0, temporal_weight=0.0, graph_weight=0.0,
-    temporal_window_seconds=7200.0,
-)
-result = await client.evaluate_context_with_chunks(
-    observations, chunks, estimator=estimator, token_budget=200,
-    strategy="coverage_support",
-)
-evaluation = result["evaluation"]
-selected_chunks = result["chunks"]
-context = result["context"]
+    if (
+        not evaluation["converged"]
+        or evaluation["max_claim_support"] is None
+        or evaluation["max_claim_support"] < 0.30
+    ):
+        return "retrieve"
+
+    return "generate"
 ```
 
-`evaluation` retains source reliability, claim support, and evaluation telemetry.
-`chunks` contains only selected `{chunk_id, score, raw_text}` records in descending
-utility order; `context` renders them in that same order. Raw text remains in
-client memory and is never included in the MCP request. The consuming agent
-assembles its own model request.
+The `retrieve` branch can run another search before the agent attempts generation. Once the routing condition passes, the model receives `result["context"]`.
 
-The default budget counts Unicode words and punctuation, including chunk headers.
-Pass `count_tokens=your_token_counter` for model-specific accounting. Strategies
-are `retrieval`, `max_support`, `mean_support`, and `coverage_support`; coverage
-selection records marginal gains separately from final chunk utilities.
+The threshold is an example. A workflow that needs support for particular claims can inspect their individual scores in `evaluation["claim_support"]`.
 
-### 3. Evaluation results
-
-`evaluation.explanation` formats the evaluation result for inspection.
-
-```text
-Omneum Evaluation
-Evaluation latency: 10.6 ms
-
-Fy2025 gross revenue
-
-  4200000000
-  Support: 0.67
-  Supporting sources: 3
-  Estimated independent support: 2.00
-  Dependency signal coverage: 1.00
-
-  Explanation:
-    3 sources support this claim, with an estimated 2.00 independent sources. The available dependency signals indicate that some supporting sources are related.
-```
-
-Three sources report the same value, but two reference a shared upstream document. Omneum identifies this dependency and estimates 2.00 independent supporting sources instead of treating all three as independent evidence.
-
-An agent can use this result to trigger additional retrieval or route execution back to a verification step before generating a response.
-
-See [Evaluation schema](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#evaluation-results) for result fields.
+[Python SDK →](https://github.com/cole-h06/omneum/blob/main/docs/sdk.md)
 
 ## Integrations
 
@@ -395,23 +388,23 @@ Framework examples:
 For a complete framework-independent workflow, see the
 [enterprise policy example](https://github.com/cole-h06/omneum/tree/main/examples/enterprise/).
 
-### Optional: Contribute to the Omneum Network (Closed Beta)
+### Optional: Omneum Network (Closed Beta)
 
-Omneum runs locally by default. You can opt in to contribute observations to the shared Omneum Context Graph without uploading raw context.
+Omneum runs locally by default. Network contribution is opt-in and allows participating deployments to contribute observations to the shared Omneum Context Graph without uploading raw context.
 
-Network contributions help build a shared evidence base across agent deployments, extending the Context Graph beyond any single installation.
+Contributions use privacy-preserving linkage through an RFC 9497 VOPRF. The shared graph can accumulate source and claim relationships across deployments while keeping the underlying text local.
 
-Contributions use privacy-preserving cryptographic linkage via an RFC 9497 VOPRF. Network contribution is disabled by default. Local evaluation works without it.
+Network contribution is disabled by default and is not required for local evaluation. Hosted Network enrollment is currently limited to approved beta participants.
 
-Hosted Network enrollment is currently limited to approved beta participants.
+See [Enable Network contribution (MCP)](https://github.com/cole-h06/omneum/blob/main/docs/guides/configuration.md#mcp-configuration) for setup instructions or [How Network contribution works](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md#omneum-network) for the protocol details.
 
-See [Enable Network contribution (MCP)](https://github.com/cole-h06/omneum/blob/main/docs/guides/configuration.md#mcp-configuration) to get started, or [How Network contribution works](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md#omneum-network) for technical details.
+## Data Model & Context Preparation
 
-## Data Model & Evaluation
+Omneum evaluates retrieved context through a source–claim graph. Claims identify factual assertions within the retrieved passages, while observations preserve where those assertions originated. The graph's evaluation scores inform which original chunks are selected for the LLM's context window.
 
 ### Observations
 
-Context is more than a collection of text chunks. Omneum represents information encountered by an agent as **observations** — immutable records that preserve structured data and its provenance. The first supported type, an assertion observation, records a claim, its source, and the metadata needed to evaluate it.
+Observations record information encountered during retrieval. The first supported type, an assertion observation, connects a claim to its source and preserves the provenance available at the time it was encountered.
 
 ```python
 Observation(
@@ -422,13 +415,13 @@ Observation(
 )
 ```
 
-Observations retain available provenance and metadata, including source ownership, timestamps, citations, upstream source relationships, and assertion lineage. Multiple assertion observations can support the same claim or report conflicting values without being merged or overwritten. Observations are not generated judgments about what is true: they preserve the evidence as reported.
+An assertion can appear across multiple retrieved passages without being treated as independent evidence each time. Observations preserve these source relationships for graph inference. Conflicting assertions also remain distinct, retaining the evidence originally reported by each source.
 
 [Observations docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#observation)
 
 ### Sources
 
-Sources identify where an assertion originated. Each source has a `kind` and a canonical `identifier` for recognizing the same source across multiple observations. Sources can represent web documents, databases, internal services, or other information providers.
+Sources identify where retrieved evidence originated. Each source has a `kind` and canonical `identifier`, allowing Omneum to recognize the same source across observations.
 
 ```python
 Source(
@@ -437,11 +430,15 @@ Source(
 )
 ```
 
+Source identity matters when multiple passages reference the same fact. Omneum uses these relationships during dependency estimation so repeated evidence does not receive the same weight as independent support.
+
 [Sources docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#source)
 
 ### Claims
 
-Claims represent specific assertions extracted from retrieved context, such as text chunks and tool outputs. Each claim consists of an `entity_namespace`, `entity`, `attribute`, and `value`. An integrating agent or retrieval pipeline extracts these fields, and `ContextMapper` maps them into Omneum's data model.
+Claims represent factual assertions identified within retrieved context. Omneum maps claims across source passages to evaluate their support and determine which chunks contribute useful evidence to the model's context.
+
+Each claim is represented by an `entity_namespace`, `entity`, `attribute`, and `value`.
 
 ```python
 Claim(
@@ -452,73 +449,137 @@ Claim(
 )
 ```
 
+Multiple passages can reference the same claim. Their source relationships are accounted for during graph inference, allowing context selection to prioritize additional claim coverage within the token budget.
+
 [Claims docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#claim)
 
 ### Source Dependence
 
-Multiple sources can report the same claim without providing independent support. Omneum estimates source dependence from upstream lineage, citations, assertion lineage, shared ownership, timestamps, and graph structure.
+Retrieved passages may repeat assertions from the same underlying source. Omneum estimates source dependence using available provenance signals, including upstream references and assertion lineage.
 
-Estimated source dependencies adjust the contribution of related sources when calculating independent support for each claim.
+These dependencies affect how much support each source contributes to a claim. A passage repeating an earlier report can still be selected when it adds useful context, but the repeated assertion does not receive the weight of independent evidence.
 
 [Source dependence docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#dependency-estimation)
 
-### ContextMapper
+### Context Mapping
 
-`ContextMapper` maps structured data from agent and retrieval pipelines into Omneum's observation model. It defines how source identifiers, claim fields, timestamps, and provenance metadata are read from existing records.
+`ContextMapper` maps structured retrieval records into Omneum's observation model. Claim fields and source metadata are extracted from the records supplied by the integrating pipeline.
+
+The SDK maintains a claim-to-chunk mapping. Each chunk retains its `chunk_id` and `raw_text`, while `claim_ids` reference the claims represented in that passage.
+
+This mapping allows graph inference to operate on structured observations while keeping the original text available for context reconstruction.
 
 [ContextMapper docs →](https://github.com/cole-h06/omneum/blob/main/docs/context-mapper.md)
 
-### ContextEvaluation
+### Context Selection & Reconstruction
 
-`ContextEvaluation` returns source reliability and claim support scores adjusted for source dependence, alongside conflict and provenance information.
+After graph inference, Omneum uses claim support to select retrieved chunks within a context budget.
+
+Selection accounts for claim coverage across the candidate passages. A chunk's utility depends on the additional evidence it contributes to the selected context, including claims already covered by other chunks.
+
+`prepare_context()` reconstructs the selected passages from their original text. The returned `context` string is ready to be included in the next LLM request.
+
+The selection budget applies to the retrieved evidence. The consuming agent remains responsible for accounting for the rest of the model's input.
+
+### Evaluation Results
+
+`prepare_context()` returns a dictionary containing reconstructed context, selected chunks, graph evaluation results, and selection metadata.
 
 ```python
-evaluation = await client.evaluate_mapped(
-    records,
-    mapper,
+result = await client.prepare_context(
+    observations,
+    chunks,
+    estimator=estimator,
+    token_budget=2048,
 )
-print(evaluation.explanation)
+
+context = result["context"]
+claim_scores = result["evaluation"]["claim_support"]
+selected_chunks = result["chunks"]
 ```
 
-[ContextEvaluation docs →](https://github.com/cole-h06/omneum/blob/main/docs/architecture.md#evaluation-results)
+The `evaluation` object exposes source reliability and claim support scores from graph inference. The `selection` object records token-budget usage, while `packed_chunk_ids` identifies the chunks included in the reconstructed context.
+
+An agent orchestrator can inspect the evaluation before invoking the LLM. Conditional routing can trigger another retrieval pass when the available evidence does not meet the workflow's requirements.
+
+[Python SDK and response schema →](https://github.com/cole-h06/omneum/blob/main/docs/sdk.md)
 
 ## Performance & Accuracy
 
-Evaluated on **24 held-out cases across six domains**: coding agents, enterprise RAG, research and analysis agents, multi-agent systems, data analytics agents, and support and operations agents.
+The [Cross-Domain Context Curation Benchmark](https://github.com/cole-h06/omneum/blob/main/benchmarks/leaderboard.md) evaluates 13 context-selection configurations on **24 synthetic cases across six agentic domains**, using six Qwen-token budgets from 64 to 256. Each configuration receives the same candidate passages within a case. Results are macro-averaged across cases and budgets.
 
-### Semantic Rerankers
+### Retrieval & Reranking
 
-Measures how Omneum improves evidence selection when combined with semantic rerankers across diverse agent workflows.
+Omneum improved selection precision across all four evaluated integrations—BM25, MiniLM embeddings, BGE Reranker v2-m3, and Cohere Rerank v4.0 Pro, while reducing the number of tokens used.
 
-![Semantic Reranker Selection Precision](https://raw.githubusercontent.com/cole-h06/omneum/main/assets/benchmarks/semantic-reranker-selection-precision.png)
+![Retrieval and Reranking Selection Precision](assets/benchmarks/retrieval-reranking-selection-precision.png)
 
-| Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| BGE Reranker v2-m3 | 69.44% | 47.46% | 91.67% | 201 ms | 2.467s | 11,941 | $0.074618 |
-| BGE + Omneum | **85.51%** | **59.31%** | 87.50% | 660 ms | 3.020s | 11,595 | **$0.070662** |
-| Cohere Rerank v4.0 Pro | 77.78% | 53.99% | 87.50% | 151 ms | 2.634s | 11,577 | $0.071242 |
-| Cohere + Omneum | **82.64%** | **55.72%** | 79.17% | 624 ms | 3.176s | 11,535 | **$0.070654** |
+| Configuration | Precision ↑ | Recall ↑ | Evidence ↑ | Claims ↑ | Origins ↑ | Qwen Tokens ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Original-Order RAG | 43.33% | 42.75% | 43.08% | 58.51% | 60.32% | 136.87 |
+| BM25 | 59.15% | 55.76% | 55.79% | 66.15% | 71.05% | 136.18 |
+| **BM25 + Omneum** | **63.12%** | 46.86% | 46.90% | 66.22% | 69.16% | **111.60** |
+| MiniLM Embeddings | 63.80% | 59.13% | 58.86% | 68.47% | 70.94% | 136.31 |
+| **MiniLM + Omneum** | **66.83%** | 49.08% | 50.14% | 69.74% | 68.50% | **111.08** |
+| BGE Reranker v2-m3 | 63.29% | 59.19% | 58.84% | 68.75% | 71.42% | 136.47 |
+| **BGE + Omneum** | **71.74%** | 54.76% | 55.26% | **75.36%** | **75.21%** | **116.74** |
+| Cohere Rerank v4.0 Pro | 71.11% | 64.43% | 64.39% | 72.29% | 75.20% | 136.72 |
+| **Cohere + Omneum** | **74.88%** | 54.91% | 56.20% | 72.99% | 72.86% | **112.68** |
+| Omneum Standalone | 61.55% | 52.65% | 53.42% | **75.85%** | **75.52%** | 129.27 |
 
-*Costs reflect estimated downstream generator API usage only; reranker API charges and local compute are excluded. Omneum improves selection precision and recall in both comparisons.*
+Across the four integrations, Omneum increased aggregate selection precision by **3.02–8.44 percentage points** and reduced mean reconstructed-context token usage by **14.46–18.51%**.
+
+BGE + Omneum delivered the largest precision gain, improving from **63.29% to 71.74%**, alongside an increase in claim coverage from **68.75% to 75.36%**. Its precision improvement was **+8.44 percentage points** (95% paired bootstrap CI: **+2.19 to +15.37 pp**), based on 50,000 whole-case resamples.
+
+Cohere + Omneum achieved the highest precision among the evaluated Omneum integrations at **74.88%**, using **17.58% fewer context tokens** than standalone Cohere.
+
+The integrations prioritize a smaller set of supporting passages, increasing precision at the expense of aggregate recall and evidence retention. The [full leaderboard](https://github.com/cole-h06/omneum/blob/main/benchmarks/leaderboard.md) includes the paired comparisons and confidence intervals.
 
 ### Frontier LLM Judges
 
-Each LLM judge is evaluated alongside Omneum under the same model-specific benchmark configuration.
+The benchmark also evaluates Claude Sonnet 5.5, GPT-6 Astra, and Gemini 3.8 Flash as passage-ranking judges. Each judge ranks the fixed candidate pool before token-budgeted packing. Omneum performs selection locally through `prepare_context()` without an additional frontier-model judge call.
 
-![Frontier LLM Judge Selection Latency](https://raw.githubusercontent.com/cole-h06/omneum/main/assets/benchmarks/llm-judge-selection-latency.png)
+| Configuration | Precision ↑ | Recall ↑ | Evidence ↑ | Claims ↑ | Origins ↑ | Qwen Tokens ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Claude Sonnet 5.5 | **85.69%** | **75.85%** | **76.49%** | 81.05% | 82.89% | 136.41 |
+| GPT-6 Astra | 85.14% | 75.33% | 76.18% | **81.48%** | **83.50%** | 136.49 |
+| Gemini 3.8 Flash | 83.81% | 74.81% | 75.33% | 80.12% | 81.27% | 136.52 |
+| Omneum Standalone | 61.55% | 52.65% | 53.42% | 75.85% | 75.52% | 129.27 |
+| BGE + Omneum | 71.74% | 54.76% | 55.26% | 75.36% | 75.21% | 116.74 |
+| Cohere + Omneum | 74.88% | 54.91% | 56.20% | 72.99% | 72.86% | **112.68** |
 
-| Configuration | Precision ↑ | Recall ↑ | Answer Accuracy ↑ | Selection p50 ↓ | E2E p50 ↓ | Generator Tokens ↓ | Generator Cost ↓ |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| BGE + Claude Sonnet 5.5 Judge | **92.36%** | **65.24%** | **95.83%** | 1.831s | 4.165s | **11,356** | **$0.068208** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.697s** | **3.141s** | 11,811 | $0.072822 |
-| BGE + GPT-6 Astra Judge | **92.78%** | **65.45%** | **92.50%** | 3.421s | 5.849s | **111,247** | **$0.658998** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.641s** | **2.983s** | 115,119 | $0.698310 |
-| BGE + Gemini 3.8 Flash Judge | **94.44%** | **66.28%** | **95.83%** | 2.487s | 4.924s | **114,250** | **$0.686916** |
-| BGE + Omneum | 86.11% | 59.34% | 91.67% | **0.639s** | **3.130s** | 115,535 | $0.702470 |
+Frontier judges achieved higher aggregate selection quality. Claude Sonnet 5.5 led selection precision at **85.69%**, while GPT-6 Astra achieved the highest claim coverage (**81.48%**) and root-origin coverage (**83.50%**).
 
-*Costs reflect estimated downstream generator API usage only; LLM judge inference costs and local compute are excluded. Omneum achieves competitive selection quality and downstream answer accuracy against frontier LLM judges, with 2.6–5.3× lower selection latency and no additional LLM inference step.*
+Omneum's integrations operate without frontier judge inference, with smaller reconstructed contexts in the recorded comparisons.
 
-**Detailed evaluations:** [Methodology](https://github.com/cole-h06/omneum/blob/main/benchmarks/README.md) · [Coding Agents](https://github.com/cole-h06/omneum/blob/main/benchmarks/coding.md) · [Enterprise RAG](https://github.com/cole-h06/omneum/blob/main/benchmarks/enterprise-rag.md) · [Research Agents](https://github.com/cole-h06/omneum/blob/main/benchmarks/research.md) · [Multi-Agent Systems](https://github.com/cole-h06/omneum/blob/main/benchmarks/multi-agent.md) · [Data Analytics](https://github.com/cole-h06/omneum/blob/main/benchmarks/analytics.md) · [Support Operations](https://github.com/cole-h06/omneum/blob/main/benchmarks/support.md)
+### Selection Latency & Cost
+
+Omneum's median local selection latency ranged from **194.86 ms to 207.79 ms** across standalone and hybrid configurations.
+
+| Configuration | Local Selection p50 ↓ | Local Selection p95 ↓ |
+|---|---:|---:|
+| Omneum Standalone | **194.86 ms** | 451.87 ms |
+| BM25 + Omneum | 207.79 ms | 461.25 ms |
+| MiniLM + Omneum | 203.84 ms | 465.36 ms |
+| BGE + Omneum | 200.63 ms | **430.51 ms** |
+| Cohere + Omneum | 206.89 ms | 480.37 ms |
+
+Timing begins with relevance scores and structured observations already available. External ranking inference and observation preparation are excluded.
+
+The recorded frontier-judge response medians were **1.844 s** for Claude Sonnet 5.5, **2.034 s** for GPT-6 Astra, and **2.033 s** for Gemini 3.8 Flash. Provider response time and Omneum's local selection time have different measurement boundaries.
+
+![Frontier LLM Judge Selection Latency](assets/benchmarks/llm-judge-selection-latency.png)
+
+| Frontier Judge | Estimated Ranking Inference Cost |
+|---|---:|
+| Claude Sonnet 5.5 | $0.113996 |
+| GPT-6 Astra | $0.281080 |
+| Gemini 3.8 Flash | $0.025231 |
+| **Total** | **$0.420307** |
+
+These are aggregate estimates from the saved frontier-ranking calls, using recorded token counts and pricing assumptions. They exclude Cohere API charges and local computation. No downstream answer generation was executed in this benchmark.
+
+**Detailed evaluations:** [Methodology](https://github.com/cole-h06/omneum/blob/main/benchmarks/README.md) · [Full Leaderboard](https://github.com/cole-h06/omneum/blob/main/benchmarks/leaderboard.md) · [Coding Agents](https://github.com/cole-h06/omneum/blob/main/benchmarks/coding.md) · [Enterprise RAG](https://github.com/cole-h06/omneum/blob/main/benchmarks/enterprise-rag.md) · [Research & Analysis](https://github.com/cole-h06/omneum/blob/main/benchmarks/research.md) · [Multi-Agent Systems](https://github.com/cole-h06/omneum/blob/main/benchmarks/multi-agent.md) · [Data Analytics](https://github.com/cole-h06/omneum/blob/main/benchmarks/analytics.md) · [Support & Operations](https://github.com/cole-h06/omneum/blob/main/benchmarks/support.md)
 
 ## Production
 
@@ -535,18 +596,18 @@ Omneum uses SQLite as its default local storage backend. PostgreSQL is supported
 | **Service manager** | `launchd` on macOS; systemd on Ubuntu |
 | **Cryptography** | RFC 9497 VOPRF, Ristretto255-SHA512 |
 
-Local installations create `context.db` automatically:
+Local installations create `omneum.db` automatically:
 
 ```text
 macOS
-~/Library/Application Support/Omneum/context.db
+~/Library/Application Support/Omneum/omneum.db
 
 Linux
-~/.local/share/omneum/context.db
+~/.local/share/omneum/omneum.db
 ```
 
 For a new default graph with unsafe data-directory ancestors, Omneum uses
-`~/.omneum/data/context.db`. Existing graphs and explicit paths are never
+`~/.omneum/data/omneum.db`. Existing graphs and explicit paths are never
 silently relocated; shared directory permissions are preserved.
 
 PostgreSQL can be configured for deployments that use an external database. Apache AGE provides the graph projection for PostgreSQL deployments.
@@ -555,12 +616,12 @@ See [`docs/storage.md`](https://github.com/cole-h06/omneum/blob/main/docs/storag
 
 ## Security & Privacy
 
-Omneum evaluates context locally. `omneum-server`, the evaluator daemon, and `context.db` run within the local environment.
+The Python SDK retains original text chunks locally for context selection and reconstruction. The evaluator processes structured observations and provenance metadata without accessing source text. The MCP server, evaluator daemon, and SQLite database run locally.
 
 | Component | Boundary |
 |---|---|
-| **Context** | Passed to the local evaluation path |
-| **Context graph** | Stored in local `context.db` |
+| **Context** | Original chunks remain available to the SDK for selection and reconstruction |
+| **Context graph** | Stored in local `omneum.db` |
 | **VOPRF private key** | Held by the evaluator daemon |
 | **MCP process** | Cannot read the evaluator's private key |
 | **Source payloads** | Not required in the graph |
@@ -568,35 +629,22 @@ Omneum evaluates context locally. `omneum-server`, the evaluator daemon, and `co
 
 Omneum persists the local context graph across MCP sessions.
 
-```text
-application data
-      │
-      ▼
-  omneum-server
-      │
-      ├── evaluator daemon
-      │
-      └── context.db
-```
-
 Local persistence and Omneum Network contribution are configured independently.
 
 | Option | Behavior |
 |---|---|
-| **Local persistence** | Writes observations to `context.db` |
+| **Local persistence** | Writes observations to `omneum.db` |
 | **Network contribution** | Sends pseudonymous observations to the Omneum Network through the ingestion API |
 
 See [Omneum Network](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md#omneum-network) for Network contribution and [Local Persistence](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md#local-persistence) for Context Graph storage.
 
-## External Evaluations
+## Documentation
 
-External evaluations are published with the test inputs and Omneum outputs in [`evals/`](https://github.com/cole-h06/omneum/tree/main/evals/).
-
-**SearchTS.** SearchTS 0.13.0 returned the same Go 1.22 claim from `thenewstack.io` through `curl_cffi` and `go.dev` through `stealth-browser`. Omneum received the original `final_url` and `fetched_at` values for both captures. The evaluation returned `2.00` estimated independent support, pairwise dependency `0.0000`, and dependency-signal coverage `0.25`. [Results →](https://github.com/cole-h06/omneum/tree/main/evals/searchts/)
-
-**Jawz.** Independent evaluation of Omneum 1.0.3 on 14 financial observations across 5 sources and 10 claims. Declared FRED lineage produced dependency scores of **1.00**; omitting lineage reduced mean dependency from **0.70 to 0.42**, while estimator v4 detected partial dependency (**0.10**) between shared-series pairs. Unrelated controls remained at **0.00**. Runs were deterministic in a network-isolated Linux Docker environment. [Results →](https://github.com/cole-h06/omneum/tree/main/evals/jawz/)
-
-**Bastra Recall.** Recall ran Omneum 1.0.3 `dependency-estimator-v4` against a 30-memory synthetic harness. Four memories sharing one upstream source collapsed to `1.0` effective independent support; three independent sources remained at `3.0`. A temporal-only sweep moved continuously from `2.5` effective sources at identical timestamps to `3.0` at 48 hours. The evaluation also exposed an open lineage-chain case where `v1 → v2 → v3 → v4` produces `1.6` rather than `1.0` because dependency is currently computed only across direct lineage edges. [Results →](https://github.com/cole-h06/omneum/tree/main/evals/bastra-recall/)
+- [Python SDK](https://github.com/cole-h06/omneum/blob/main/docs/sdk.md)
+- [MCP Protocol](https://github.com/cole-h06/omneum/blob/main/docs/protocol.md)
+- [Context Graph](https://github.com/cole-h06/omneum/blob/main/docs/context-graph.md)
+- [Configuration](https://github.com/cole-h06/omneum/blob/main/docs/guides/configuration.md)
+- [Benchmarks](https://github.com/cole-h06/omneum/blob/main/benchmarks/leaderboard.md)
 
 ## Contributing
 

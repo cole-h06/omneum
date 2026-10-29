@@ -1,4 +1,3 @@
-
 # Errors
 
 `evaluate_context` and `evaluate_voprf` return application errors through MCP `CallToolResult`. Python SDK callers receive typed exceptions from `omneum/client.py`.
@@ -94,7 +93,7 @@ from omneum import (
 | `ContextEvaluationRejectedError` | MCP evaluator returned an Omneum application error |
 | `ContextEvaluationTransportError` | MCP request or response transport failed |
 | `ContextEvaluationResponseError` | Evaluator response failed validation |
-| `ContextEvaluationMappingError` | Evaluator response could not be mapped to local source and claim objects |
+| `ContextEvaluationMappingError` | Record mapping or evaluation-result identity resolution failed |
 
 Handle application rejection separately from transport failure:
 
@@ -108,10 +107,6 @@ except ContextEvaluationRejectedError as exc:
     print(exc.omneum_code)
 except ContextEvaluationTransportError as exc:
     print(exc.uncertain)
-except ContextEvaluationResponseError:
-    raise
-except ContextEvaluationMappingError:
-    raise
 ```
 
 `ContextEvaluationRejectedError.omneum_code` contains the returned application error code.
@@ -159,7 +154,7 @@ For SDK integrations, handle the corresponding transport exception. Direct MCP c
 | Deployment or protocol mismatch | Reload the installed deployment configuration |
 | `invalid_blinded_element` | Generate a new valid blinded element |
 | `server_busy` | Retry with bounded backoff |
-| `request_timeout` | Check execution status assumptions before retrying |
+| `request_timeout` | Retry with bounded backoff; the original execution may have completed |
 | `evaluation_failed` | Inspect evaluator availability and protocol configuration |
 | `assertion_evaluation_failed` | Inspect graph inference and response validation |
 | `internal_error` | Inspect server logs |

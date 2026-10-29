@@ -1,7 +1,6 @@
 # Installation
 
-Omneum runs locally as a Python SDK and MCP server backed by a protected
-evaluation daemon.
+Omneum supports synchronous in-process evaluation through its Python SDK and MCP-based evaluation through a protected local daemon. In-process evaluation does not require installing or starting the daemon.
 
 ## Supported platforms
 
@@ -23,7 +22,7 @@ a virtual environment to avoid the externally managed environment restriction.
 
 Local SQLite storage rejects symlinked or group/world-writable ancestors and
 requires its own directory to be owner-only (0700). For a new default graph,
-Omneum uses `~/.omneum/data/context.db` if the native data-directory ancestors
+Omneum uses `~/.omneum/data/omneum.db` if the native data-directory ancestors
 are unsafe. This private location remains stable across restarts. Existing
 graphs and explicitly selected data directories are never silently relocated;
 unsafe permissions there still require review. Omneum does not change
@@ -33,6 +32,11 @@ permissions on directories shared with other applications.
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install omneum
+```
+
+For MCP evaluation through the protected local daemon, run:
+
+```bash
 omneum install
 ```
 

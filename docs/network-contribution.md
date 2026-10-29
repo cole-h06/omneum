@@ -1,4 +1,3 @@
-
 # Omneum Network Contribution
 
 Omneum Network accepts pseudonymous Context Graph contributions from explicitly enrolled installations. Hosted enrollment is currently restricted to approved closed-beta participants. Local persistence remains independent of Network submission. Contributions pass through the HTTPS ingestion API; local MCP installations never connect directly to `omneum_prod`.
@@ -175,7 +174,7 @@ Later relational migrations include subtype INSERT/RETURNING permissions, deferr
 
 Database permission tests cover role-scoped writes, replay handling, token upserts, and deferred validation at transaction commit.
 
-See [Server Deployment](guides/deployment.md#production-database-architecture) for migration execution and the managed PostgreSQL deployment.
+See [Server Deployment](guides/deployment.md#database-layout) for migration execution and the managed PostgreSQL deployment.
 
 ### Database Roles
 
