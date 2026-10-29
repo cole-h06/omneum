@@ -1,0 +1,10 @@
+{
+  "endpoint": "http://127.0.0.1:57704",
+  "model_gguf": "/Users/colehoke/.ollama/models/blobs/sha256-2bada8a7450677000f678be90653b85d364de7db25eb5ea54136ada5f3933730",
+  "purpose": "Exact local tokenization only",
+  "generation_requests": 0,
+  "paid_api_requests": 0,
+  "service_stopped": true,
+  "log": "../budget-exhaustion-recovery-20261026-v1/tokenizer-service.log",
+  "cache_reused_from": "budget-exhaustion-recovery-20261026-v1; original counts verified against 2328 saved contexts"
+}

@@ -1,0 +1,413 @@
+{
+  "id": "enterprise_stale_handbook",
+  "domain": "enterprise_rag",
+  "question": "How many paid volunteer days may a full-time Cedar employee take in calendar year 2026?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "archived_handbook",
+      "source": {
+        "kind": "archived_handbook",
+        "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook"
+      },
+      "text": "Archived 2024 employee handbook: full-time staff receive two paid volunteer days per calendar year.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:archived_handbook",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2024-01-10T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2024 materials",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 2,
+          "claim_id": "sha256:a328457a932c9f56fdfb0e12b2e34d537f0671a12e8a8c7e92d0571bcb36a8ff",
+          "observation_id": "enterprise_stale_handbook:archived_handbook",
+          "evidence": [
+            {
+              "source_id": "archived_handbook",
+              "start": 0,
+              "end": 99,
+              "text": "Archived 2024 employee handbook: full-time staff receive two paid volunteer days per calendar year."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "old_team_page",
+      "source": {
+        "kind": "old_team_page",
+        "identifier": "https://old-team-page.benchmark.example/enterprise_stale_handbook/old_team_page"
+      },
+      "text": "Engineering onboarding page, last reviewed in 2024: the annual volunteer allowance is two days.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:old_team_page",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2024-03-12T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "archived_handbook",
+            "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_stale_handbook:archived_handbook"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2024 materials",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 2,
+          "claim_id": "sha256:a328457a932c9f56fdfb0e12b2e34d537f0671a12e8a8c7e92d0571bcb36a8ff",
+          "observation_id": "enterprise_stale_handbook:old_team_page",
+          "evidence": [
+            {
+              "source_id": "old_team_page",
+              "start": 0,
+              "end": 95,
+              "text": "Engineering onboarding page, last reviewed in 2024: the annual volunteer allowance is two days."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Engineering volunteer leave onboarding page",
+          "attribute": "last_reviewed_year",
+          "value": 2024,
+          "claim_id": "sha256:dc63927195a02c134c128d94f689d6880d6c3e2231d24af2f3d7defafdc6f768",
+          "observation_id": "enterprise_stale_handbook:old_team_page:claim:2",
+          "evidence": [
+            {
+              "source_id": "old_team_page",
+              "start": 0,
+              "end": 95,
+              "text": "Engineering onboarding page, last reviewed in 2024: the annual volunteer allowance is two days."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "current_policy",
+      "source": {
+        "kind": "current_policy",
+        "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy"
+      },
+      "text": "Volunteer leave policy effective January 1, 2026: full-time staff receive four paid volunteer days each calendar year.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:current_policy",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2025-12-16T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 4,
+          "claim_id": "sha256:2f204f1c868a55b3e395dc02d897f7c404d348d04273ab18b6185bff7f2d95dd",
+          "observation_id": "enterprise_stale_handbook:current_policy",
+          "evidence": [
+            {
+              "source_id": "current_policy",
+              "start": 0,
+              "end": 118,
+              "text": "Volunteer leave policy effective January 1, 2026: full-time staff receive four paid volunteer days each calendar year."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "effective_date",
+          "value": "2026-01-01",
+          "claim_id": "sha256:bc09c108147138a030e2ab785fcfeb21b71bc1c77fb1beeeb1dbe07b43388fca",
+          "observation_id": "enterprise_stale_handbook:current_policy:claim:2",
+          "evidence": [
+            {
+              "source_id": "current_policy",
+              "start": 0,
+              "end": 118,
+              "text": "Volunteer leave policy effective January 1, 2026: full-time staff receive four paid volunteer days each calendar year."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "hr_system",
+      "source": {
+        "kind": "hr_system",
+        "identifier": "https://hr-system.benchmark.example/enterprise_stale_handbook/hr_system"
+      },
+      "text": "HR leave-plan configuration VOL-FT-2026: annual entitlement 4 days for full-time employees, effective 2026-01-01.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:hr_system",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-01-01T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "current_policy",
+            "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 4,
+          "claim_id": "sha256:2f204f1c868a55b3e395dc02d897f7c404d348d04273ab18b6185bff7f2d95dd",
+          "observation_id": "enterprise_stale_handbook:hr_system",
+          "evidence": [
+            {
+              "source_id": "hr_system",
+              "start": 0,
+              "end": 113,
+              "text": "HR leave-plan configuration VOL-FT-2026: annual entitlement 4 days for full-time employees, effective 2026-01-01."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "effective_date",
+          "value": "2026-01-01",
+          "claim_id": "sha256:bc09c108147138a030e2ab785fcfeb21b71bc1c77fb1beeeb1dbe07b43388fca",
+          "observation_id": "enterprise_stale_handbook:hr_system:claim:2",
+          "evidence": [
+            {
+              "source_id": "hr_system",
+              "start": 0,
+              "end": 113,
+              "text": "HR leave-plan configuration VOL-FT-2026: annual entitlement 4 days for full-time employees, effective 2026-01-01."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "announcement",
+      "source": {
+        "kind": "announcement",
+        "identifier": "https://announcement.benchmark.example/enterprise_stale_handbook/announcement"
+      },
+      "text": "People team December announcement: the full-time volunteer allowance increases to four days from January 2026.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:announcement",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2025-12-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "current_policy",
+            "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 4,
+          "claim_id": "sha256:2f204f1c868a55b3e395dc02d897f7c404d348d04273ab18b6185bff7f2d95dd",
+          "observation_id": "enterprise_stale_handbook:announcement",
+          "evidence": [
+            {
+              "source_id": "announcement",
+              "start": 0,
+              "end": 110,
+              "text": "People team December announcement: the full-time volunteer allowance increases to four days from January 2026."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "effective_month",
+          "value": "2026-01",
+          "claim_id": "sha256:417429a4251e37c07c1bf071a92107340e734b43403254021c1b6e02a40b0fd7",
+          "observation_id": "enterprise_stale_handbook:announcement:claim:2",
+          "evidence": [
+            {
+              "source_id": "announcement",
+              "start": 0,
+              "end": 110,
+              "text": "People team December announcement: the full-time volunteer allowance increases to four days from January 2026."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "confluence_page",
+      "source": {
+        "kind": "confluence_page",
+        "identifier": "https://confluence-page.benchmark.example/enterprise_stale_handbook/confluence_page"
+      },
+      "text": "Confluence new-starter benefits page: four paid volunteer days annually for full-time staff in the 2026 plan.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:confluence_page",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-02-05T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "current_policy",
+            "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_stale_handbook:current_policy"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 4,
+          "claim_id": "sha256:2f204f1c868a55b3e395dc02d897f7c404d348d04273ab18b6185bff7f2d95dd",
+          "observation_id": "enterprise_stale_handbook:confluence_page",
+          "evidence": [
+            {
+              "source_id": "confluence_page",
+              "start": 0,
+              "end": 109,
+              "text": "Confluence new-starter benefits page: four paid volunteer days annually for full-time staff in the 2026 plan."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "drive_document",
+      "source": {
+        "kind": "drive_document",
+        "identifier": "https://drive-document.benchmark.example/enterprise_stale_handbook/drive_document"
+      },
+      "text": "Drive benefits overview exported for the 2024 recruiting cycle: two paid volunteer days per year.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:drive_document",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2024-06-03T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "archived_handbook",
+            "identifier": "https://archived-handbook.benchmark.example/enterprise_stale_handbook/archived_handbook"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_stale_handbook:archived_handbook"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2024 materials",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 2,
+          "claim_id": "sha256:a328457a932c9f56fdfb0e12b2e34d537f0671a12e8a8c7e92d0571bcb36a8ff",
+          "observation_id": "enterprise_stale_handbook:drive_document",
+          "evidence": [
+            {
+              "source_id": "drive_document",
+              "start": 0,
+              "end": 97,
+              "text": "Drive benefits overview exported for the 2024 recruiting cycle: two paid volunteer days per year."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "policy_changelog",
+      "source": {
+        "kind": "policy_changelog",
+        "identifier": "https://policy-changelog.benchmark.example/enterprise_stale_handbook/policy_changelog"
+      },
+      "text": "Policy history V-4: replaced the two-day allowance with four days effective January 1, 2026; part-time proration unchanged.",
+      "provenance": {
+        "assertion_id": "enterprise_stale_handbook:policy_changelog",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2025-12-16T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "current_policy",
+            "identifier": "https://current-policy.benchmark.example/enterprise_stale_handbook/current_policy"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "paid_days_per_calendar_year",
+          "value": 4,
+          "claim_id": "sha256:2f204f1c868a55b3e395dc02d897f7c404d348d04273ab18b6185bff7f2d95dd",
+          "observation_id": "enterprise_stale_handbook:policy_changelog",
+          "evidence": [
+            {
+              "source_id": "policy_changelog",
+              "start": 0,
+              "end": 123,
+              "text": "Policy history V-4: replaced the two-day allowance with four days effective January 1, 2026; part-time proration unchanged."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "effective_date",
+          "value": "2026-01-01",
+          "claim_id": "sha256:bc09c108147138a030e2ab785fcfeb21b71bc1c77fb1beeeb1dbe07b43388fca",
+          "observation_id": "enterprise_stale_handbook:policy_changelog:claim:2",
+          "evidence": [
+            {
+              "source_id": "policy_changelog",
+              "start": 0,
+              "end": 123,
+              "text": "Policy history V-4: replaced the two-day allowance with four days effective January 1, 2026; part-time proration unchanged."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "previous_paid_days_per_calendar_year",
+          "value": 2,
+          "claim_id": "sha256:27203f79fdb330293268bdae5585a26ca8717538e0fd8749572682447620d5e7",
+          "observation_id": "enterprise_stale_handbook:policy_changelog:claim:3",
+          "evidence": [
+            {
+              "source_id": "policy_changelog",
+              "start": 0,
+              "end": 123,
+              "text": "Policy history V-4: replaced the two-day allowance with four days effective January 1, 2026; part-time proration unchanged."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Cedar full-time volunteer leave; 2026 plan",
+          "attribute": "part_time_proration_changed",
+          "value": false,
+          "claim_id": "sha256:f208db3ed8526f07a621e302616d668fe3b8a64e47b438b3864b656c1e76329d",
+          "observation_id": "enterprise_stale_handbook:policy_changelog:claim:4",
+          "evidence": [
+            {
+              "source_id": "policy_changelog",
+              "start": 0,
+              "end": 123,
+              "text": "Policy history V-4: replaced the two-day allowance with four days effective January 1, 2026; part-time proration unchanged."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

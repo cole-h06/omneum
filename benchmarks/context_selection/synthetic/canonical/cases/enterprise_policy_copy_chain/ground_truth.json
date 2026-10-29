@@ -1,0 +1,15 @@
+{
+  "case_id": "enterprise_policy_copy_chain",
+  "answer": "Receipts are required for domestic employee meals of $40 or more.",
+  "supporting_sources": [
+    "policy_record",
+    "hr_system",
+    "policy_changelog"
+  ],
+  "scoring": {
+    "required": [
+      "40"
+    ],
+    "forbidden": []
+  }
+}

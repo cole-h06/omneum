@@ -1,0 +1,15 @@
+{
+  "case_id": "multi_agent_independent_error",
+  "answer": "Wait 120 seconds before retrying.",
+  "supporting_sources": [
+    "tool_result",
+    "api_result",
+    "database_result"
+  ],
+  "scoring": {
+    "required": [
+      "120 seconds"
+    ],
+    "forbidden": []
+  }
+}

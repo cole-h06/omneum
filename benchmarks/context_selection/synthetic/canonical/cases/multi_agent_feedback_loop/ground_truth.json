@@ -1,0 +1,18 @@
+{
+  "case_id": "multi_agent_feedback_loop",
+  "answer": "Build Aster 118 is blocked by the failed load_test check under RG-2.",
+  "supporting_sources": [
+    "tool_result",
+    "database_result",
+    "web_result",
+    "verifier_agent",
+    "api_result"
+  ],
+  "scoring": {
+    "required": [
+      "blocked",
+      "load_test"
+    ],
+    "forbidden": []
+  }
+}

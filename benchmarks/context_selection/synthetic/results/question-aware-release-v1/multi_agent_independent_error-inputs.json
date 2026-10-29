@@ -1,0 +1,337 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'0.12'",
+        "attribute": "wait_seconds",
+        "entity": "heldout-entity-v1:5b226170695f6f7065726174696f6e73222c22455520696e766f696365204150492052657472792d416674657220313230225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_independent_error:researcher_agent",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://researcher-agent.benchmark.example/multi_agent_independent_error/researcher_agent",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'0.12'",
+        "attribute": "wait_seconds",
+        "entity": "heldout-entity-v1:5b226170695f6f7065726174696f6e73222c22455520696e766f696365204150492052657472792d416674657220313230225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_independent_error:analyst_agent",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://analyst-agent.benchmark.example/multi_agent_independent_error/analyst_agent",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'0.12'",
+        "attribute": "wait_seconds",
+        "entity": "heldout-entity-v1:5b226170695f6f7065726174696f6e73222c22455520696e766f696365204150492052657472792d416674657220313230225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_independent_error:specialist_agent",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://specialist-agent.benchmark.example/multi_agent_independent_error/specialist_agent",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'120'",
+        "attribute": "wait_seconds",
+        "entity": "heldout-entity-v1:5b226170695f6f7065726174696f6e73222c22455520696e766f696365204150492052657472792d416674657220313230225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_independent_error:tool_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://tool-result.benchmark.example/multi_agent_independent_error/tool_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'120'",
+        "attribute": "wait_seconds",
+        "entity": "heldout-entity-v1:5b226170695f6f7065726174696f6e73222c22455520696e766f696365204150492052657472792d416674657220313230225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_independent_error:api_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://api-result.benchmark.example/multi_agent_independent_error/api_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'120'",
+        "attribute": "wait_seconds",
+        "entity": "heldout-entity-v1:5b226170695f6f7065726174696f6e73222c22455520696e766f696365204150492052657472792d416674657220313230225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_independent_error:database_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://database-result.benchmark.example/multi_agent_independent_error/database_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "wait seconds",
+        "entity": "EU invoice API Retry-After 120",
+        "entity_namespace": "api_operations",
+        "provenance": {
+          "assertion_id": "multi_agent_independent_error:researcher_agent",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://researcher-agent.benchmark.example/multi_agent_independent_error/researcher_agent",
+          "kind": "researcher_agent"
+        },
+        "source_id": "researcher_agent",
+        "text": "Researcher agent, isolated prompt with response headers: interprets Retry-After: 120 as 120 milliseconds and proposes a 0.12-second delay.",
+        "value": 0.12
+      },
+      {
+        "attribute": "wait seconds",
+        "entity": "EU invoice API Retry-After 120",
+        "entity_namespace": "api_operations",
+        "provenance": {
+          "assertion_id": "multi_agent_independent_error:analyst_agent",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://analyst-agent.benchmark.example/multi_agent_independent_error/analyst_agent",
+          "kind": "analyst_agent"
+        },
+        "source_id": "analyst_agent",
+        "text": "Analyst agent, separate session with the same raw header: converts Retry-After: 120 to 0.12 seconds, assuming a millisecond field.",
+        "value": 0.12
+      },
+      {
+        "attribute": "wait seconds",
+        "entity": "EU invoice API Retry-After 120",
+        "entity_namespace": "api_operations",
+        "provenance": {
+          "assertion_id": "multi_agent_independent_error:specialist_agent",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://specialist-agent.benchmark.example/multi_agent_independent_error/specialist_agent",
+          "kind": "specialist_agent"
+        },
+        "source_id": "specialist_agent",
+        "text": "API specialist agent, fresh context and no other agent messages: recommends sleeping 0.12 seconds for Retry-After: 120.",
+        "value": 0.12
+      },
+      {
+        "attribute": "wait seconds",
+        "entity": "EU invoice API Retry-After 120",
+        "entity_namespace": "api_operations",
+        "provenance": {
+          "assertion_id": "multi_agent_independent_error:tool_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://tool-result.benchmark.example/multi_agent_independent_error/tool_result",
+          "kind": "tool_result"
+        },
+        "source_id": "tool_result",
+        "text": "HTTP conformance tool against the invoice sandbox: Retry-After numeric values are seconds. For header 120, retry timer is 120 seconds.",
+        "value": 120
+      },
+      {
+        "attribute": "wait seconds",
+        "entity": "EU invoice API Retry-After 120",
+        "entity_namespace": "api_operations",
+        "provenance": {
+          "assertion_id": "multi_agent_independent_error:api_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://api-result.benchmark.example/multi_agent_independent_error/api_result",
+          "kind": "api_result"
+        },
+        "source_id": "api_result",
+        "text": "EU invoice API response schema: Retry-After is delay-seconds or an HTTP date. A numeric value of 120 requires a 120-second wait.",
+        "value": 120
+      },
+      {
+        "attribute": "wait seconds",
+        "entity": "EU invoice API Retry-After 120",
+        "entity_namespace": "api_operations",
+        "provenance": {
+          "assertion_id": "multi_agent_independent_error:database_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://database-result.benchmark.example/multi_agent_independent_error/database_result",
+          "kind": "database_result"
+        },
+        "source_id": "database_result",
+        "text": "Integration trace database: invoice 429 received at 10:00:00Z with Retry-After=120; client next_allowed_at=10:02:00Z, delta_seconds=120.",
+        "value": 120
+      }
+    ],
+    "case_id": "multi_agent_independent_error",
+    "category": null,
+    "context_budget": 2,
+    "domain": "multi_agent_systems",
+    "question": "For the current EU invoice API, how should the orchestrator interpret a 429 response with Retry-After: 120 before retrying?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-researcher_agent",
+      "claim_ids": [
+        "7b22617474726962757465223a22776169745f7365636f6e6473222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631373036393566366637303635373236313734363936663665373332323263323234353535323036393665373636663639363336353230343135303439323035323635373437323739326434313636373436353732323033313332333032323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a302e31327d"
+      ],
+      "raw_text": "Researcher agent, isolated prompt with response headers: interprets Retry-After: 120 as 120 milliseconds and proposes a 0.12-second delay.",
+      "source_id": "researcher_agent"
+    },
+    {
+      "chunk_id": "chunk-analyst_agent",
+      "claim_ids": [
+        "7b22617474726962757465223a22776169745f7365636f6e6473222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631373036393566366637303635373236313734363936663665373332323263323234353535323036393665373636663639363336353230343135303439323035323635373437323739326434313636373436353732323033313332333032323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a302e31327d"
+      ],
+      "raw_text": "Analyst agent, separate session with the same raw header: converts Retry-After: 120 to 0.12 seconds, assuming a millisecond field.",
+      "source_id": "analyst_agent"
+    },
+    {
+      "chunk_id": "chunk-specialist_agent",
+      "claim_ids": [
+        "7b22617474726962757465223a22776169745f7365636f6e6473222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631373036393566366637303635373236313734363936663665373332323263323234353535323036393665373636663639363336353230343135303439323035323635373437323739326434313636373436353732323033313332333032323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a302e31327d"
+      ],
+      "raw_text": "API specialist agent, fresh context and no other agent messages: recommends sleeping 0.12 seconds for Retry-After: 120.",
+      "source_id": "specialist_agent"
+    },
+    {
+      "chunk_id": "chunk-tool_result",
+      "claim_ids": [
+        "7b22617474726962757465223a22776169745f7365636f6e6473222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631373036393566366637303635373236313734363936663665373332323263323234353535323036393665373636663639363336353230343135303439323035323635373437323739326434313636373436353732323033313332333032323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3132307d"
+      ],
+      "raw_text": "HTTP conformance tool against the invoice sandbox: Retry-After numeric values are seconds. For header 120, retry timer is 120 seconds.",
+      "source_id": "tool_result"
+    },
+    {
+      "chunk_id": "chunk-api_result",
+      "claim_ids": [
+        "7b22617474726962757465223a22776169745f7365636f6e6473222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631373036393566366637303635373236313734363936663665373332323263323234353535323036393665373636663639363336353230343135303439323035323635373437323739326434313636373436353732323033313332333032323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3132307d"
+      ],
+      "raw_text": "EU invoice API response schema: Retry-After is delay-seconds or an HTTP date. A numeric value of 120 requires a 120-second wait.",
+      "source_id": "api_result"
+    },
+    {
+      "chunk_id": "chunk-database_result",
+      "claim_ids": [
+        "7b22617474726962757465223a22776169745f7365636f6e6473222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323631373036393566366637303635373236313734363936663665373332323263323234353535323036393665373636663639363336353230343135303439323035323635373437323739326434313636373436353732323033313332333032323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3132307d"
+      ],
+      "raw_text": "Integration trace database: invoice 429 received at 10:00:00Z with Retry-After=120; client next_allowed_at=10:02:00Z, delta_seconds=120.",
+      "source_id": "database_result"
+    }
+  ],
+  "truth": {
+    "answer": "Wait 120 seconds before retrying.",
+    "case_id": "multi_agent_independent_error",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "120 seconds"
+      ]
+    },
+    "supporting_sources": [
+      "tool_result",
+      "api_result",
+      "database_result"
+    ]
+  }
+}

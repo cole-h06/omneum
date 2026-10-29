@@ -1,54 +1,60 @@
-
 # Multi-Agent Systems
 
-Context-selection benchmark for multi-agent workflows. Tests circular agent references, independent reasoning errors, task-inapplicable evidence, and repeated subagent outputs.
+Multi-agent evaluation for the Omneum Cross-Domain Context Curation Benchmark.
 
-**4 held-out cases · 31 candidate sources · Claude Sonnet 5.5 generator**
+Four synthetic cases test context selection for circular agent references, independent reasoning errors, task-inapplicable evidence, and repeated subagent outputs.
 
-[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_evaluation/heldout/DATASET.md) | [Saved Results](context_evaluation/heldout/results/)
+**4 cases · 31 candidate passages · 6 Qwen-token budgets · 13 budgeted configurations**
+
+[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_selection/synthetic/DATASET.md) | [Saved Results](context_selection/synthetic/results/)
 
 ## Quick Start
 
 Run from the Omneum repository root.
 
 ```bash
-# Validate all 24 held-out cases, including the four multi-agent cases
-.venv/bin/python -m benchmarks.context_evaluation.heldout.validate_dataset
-
 # Run offline benchmark tests
 .venv/bin/python tools/run_context_evaluation_tests.py -q
 
-# Verify saved publication metrics
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary --check
+# Inspect the final benchmark results
+cat \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
 ```
 
-No provider calls. These commands validate the frozen dataset, execute offline tests, and check published metrics against saved artifacts. They do not generate new model responses.
+The offline tests exercise benchmark contracts and local evaluation components. The saved benchmark artifacts contain the recorded selections and metrics. Inspecting these artifacts does not generate new model responses.
 
 ## Cases
 
-| Case | Candidates | Budget | Expected behavior |
-|---|---:|---:|---|
-| [`multi_agent_feedback_loop`](#multi_agent_feedback_loop) | 8 | 3 | Reject circular approval claims contradicted by release-gate state |
-| [`multi_agent_independent_error`](#multi_agent_independent_error) | 6 | 2 | Reject independently repeated HTTP unit errors |
-| [`multi_agent_relevant_wrong_task`](#multi_agent_relevant_wrong_task) | 9 | 3 | Select production upload lifecycle evidence, not staging values |
-| [`multi_agent_repeated_subagent`](#multi_agent_repeated_subagent) | 8 | 3 | Prefer actual dispatch records over repeated planned-date estimates |
+| Case | Candidates | Token Budgets | Expected behavior |
+|---|---:|---|---|
+| [`multi_agent_feedback_loop`](#multi_agent_feedback_loop) | 8 | 64–256 | Reject circular approval claims contradicted by release-gate state |
+| [`multi_agent_independent_error`](#multi_agent_independent_error) | 6 | 64–256 | Reject independently repeated HTTP unit errors |
+| [`multi_agent_relevant_wrong_task`](#multi_agent_relevant_wrong_task) | 9 | 64–256 | Select production upload lifecycle evidence, not staging values |
+| [`multi_agent_repeated_subagent`](#multi_agent_repeated_subagent) | 8 | 64–256 | Prefer actual dispatch records over repeated planned-date estimates |
 
-Each case uses a fixed candidate pool, relevance labels, and a selection budget.
+Each case uses a fixed candidate pool, relevance labels, canonical claims, and source-provenance annotations.
+
+The six selection budgets are **64, 96, 128, 160, 192, and 256 Qwen tokens**, measured against reconstructed original passage text.
 
 ## Recorded Results
 
-BGE + Omneum results below use the 10-trial GPT-6 Astra pairing. Claude and Cohere comparisons use one trial per case.
+The final benchmark evaluation measures context selection across all four Multi-Agent Systems cases and six token budgets.
 
-| Case | BGE + Omneum Precision | Recall | Answer | Selection p50 |
-|---|---:|---:|---|---:|
-| Feedback loop | 100% | 60% | 10/10 correct | 0.641s |
-| Independent error | 100% | 66.7% | 10/10 correct | 0.721s |
-| Relevant wrong task | 66.7% | 50% | 10/10 correct | 0.709s |
-| Repeated subagent | 66.7% | 66.7% | 10/10 correct | 0.636s |
+The evaluated configurations include standalone BM25, MiniLM, BGE, Cohere, Claude Sonnet 5.5, GPT-6 Astra, Gemini 3.8 Flash, standalone Omneum, and four reranker + Omneum hybrids. Original-order budgeted RAG and unbudgeted full-context RAG provide additional reference configurations.
 
-Omneum matched the BGE + LLM judges' selection precision and recall on three cases. In `multi_agent_relevant_wrong_task`, its selection precision and recall were lower.
+| Metric | Measurement |
+|---|---|
+| Selection precision | Fraction of selected sources annotated as supporting |
+| Selection recall | Fraction of annotated supporting sources retained |
+| Evidence retention | Retained annotated evidence spans |
+| Claim coverage | Canonical claims represented in supporting passages |
+| Origin coverage | Annotated root-origin units retained |
+| Qwen tokens | Token count of reconstructed context |
+| Selection latency | Recorded local selection execution time |
 
-Selection precision and recall use fixture relevance labels. `unscored` is a separate recorded answer status, not an incorrect-answer verdict.
+The final domain-level measurements are stored in the benchmark result artifacts. The earlier fixed-source-budget results are not interchangeable with these token-budgeted measurements.
+
+The final Omneum hybrid results incorporate deferred-candidate budget-exhaustion recovery. This allows additional positive-utility candidates to be considered after the initial discovery neighborhood is exhausted, subject to the remaining token budget and marginal utility-density threshold.
 
 ## `multi_agent_feedback_loop`
 
@@ -63,7 +69,6 @@ for production under release gate RG-2?
 
 ```text
 8 candidates
-3 selected
 5 relevant
 
 researcher_agent     Claims approved; cites reviewer
@@ -130,20 +135,24 @@ api_result
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `tool_result`, `database_result`, `web_result` | 100% | 60% | 1/1 correct | 2.136s |
-| BGE + GPT-6 Astra Judge | 10 | Same | 100% | 60% | 10/10 correct | 2.878s |
-| BGE + Gemini Judge | 10 | `database_result`, `tool_result`, `verifier_agent` (6/10); `database_result`, `tool_result`, `web_result` (4/10) | 100% | 60% | 10/10 correct | 3.987s |
-| **BGE + Omneum** | **10** | `verifier_agent`, `tool_result`, `web_result` | **100%** | **60%** | **10/10 correct** | **0.641s** |
-| Cohere + Claude Judge | 1 | `database_result`, `tool_result`, `verifier_agent` | 100% | 60% | 1/1 correct | 1.422s |
-| Cohere + Omneum | 1 | `database_result`, `tool_result`, `web_result` | 100% | 60% | 1/1 correct | 0.578s |
+The benchmark evaluates selected passages against the five annotated supporting sources.
 
-**Result:** Every configuration excluded the circular approval claims and selected evidence showing the gate was blocked.
+| Source | Evidence | Relevance |
+|---|---|---|
+| `researcher_agent` | Approval claim referencing reviewer | Not supporting |
+| `analyst_agent` | Approval claim referencing researcher | Not supporting |
+| `reviewer_agent` | Approval claim referencing analyst | Not supporting |
+| `tool_result` | Failed release-gate load test | Supporting |
+| `database_result` | No recorded override | Supporting |
+| `web_result` | Blocked release portal | Supporting |
+| `verifier_agent` | Verification using gate CLI and registry | Supporting |
+| `api_result` | Blocked release-gate API | Supporting |
 
-Omneum matched judge precision, recall, and recorded answer correctness at lower selection latency.
+The final saved selections identify which sources each method retained at each token budget.
 
-Its BGE selection included `verifier_agent`, whose conclusion derives from the operational records. Therefore, the selected evidence is relevant but not necessarily fully independent.
+**Result:** The case evaluates whether the selector retains operational evidence showing the blocked release gate instead of treating circular agent approval claims as independent authorization.
+
+Omneum's provenance-aware graph inference accounts for shared evidence origins and dependencies between sources when computing source reliability and claim support. The verifier agent's conclusion derives from the gate CLI and registry rather than an independent release-gate observation.
 
 ## `multi_agent_independent_error`
 
@@ -158,7 +167,6 @@ interpret a 429 response with Retry-After: 120 before retrying?
 
 ```text
 6 candidates
-2 selected
 3 relevant
 
 researcher_agent     Interprets 120 as milliseconds
@@ -211,24 +219,20 @@ database_result
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `api_result`, `tool_result` | 100% | 66.7% | 1/1 unscored | 1.414s |
-| BGE + GPT-6 Astra Judge | 10 | Same | 100% | 66.7% | 7/10 correct; 3 unscored | 2.351s |
-| BGE + Gemini Judge | 10 | `api_result`, `database_result` | 100% | 66.7% | 10/10 correct | 2.347s |
-| **BGE + Omneum** | **10** | `api_result`, `database_result` | **100%** | **66.7%** | **10/10 correct** | **0.721s** |
-| Cohere + Claude Judge | 1 | `api_result`, `tool_result` | 100% | 66.7% | 1/1 correct | 2.300s |
-| Cohere + Omneum | 1 | `api_result`, `tool_result` | 100% | 66.7% | 1/1 correct | 0.649s |
+| Source | Evidence | Relevance |
+|---|---|---|
+| `researcher_agent` | Incorrect 120-millisecond interpretation | Not supporting |
+| `analyst_agent` | Incorrect 120-millisecond interpretation | Not supporting |
+| `specialist_agent` | Incorrect 120-millisecond interpretation | Not supporting |
+| `tool_result` | HTTP conformance test | Supporting |
+| `api_result` | Invoice API schema | Supporting |
+| `database_result` | Integration trace | Supporting |
 
-**Result:** All configurations excluded the three independently incorrect agent interpretations.
+The final benchmark artifacts record source retention at each token budget.
 
-The BGE judges selected the API schema and conformance test. BGE + Omneum selected the API schema and integration trace.
+**Result:** The case evaluates whether context selection retains the API schema, conformance test, and operational trace rather than three independently incorrect agent interpretations.
 
-Both sets establish the correct 120-second delay.
-
-Omneum's ten answers were scored correct. The judges' `unscored` responses cannot be treated as incorrect without additional adjudication.
-
-This case also demonstrates a limitation of dependency-only reasoning: independent agents can produce the same incorrect assertion without sharing upstream information.
+The three agents have no shared upstream output, so their agreement cannot be discounted solely through source-dependency signals. Independent support does not establish that an assertion correctly interprets HTTP semantics.
 
 ## `multi_agent_relevant_wrong_task`
 
@@ -243,7 +247,6 @@ an unfinished multipart upload before aborting it?
 
 ```text
 9 candidates
-3 selected
 4 relevant
 
 researcher_agent     Audit-log retention: 24 hours
@@ -304,28 +307,27 @@ database_result
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `api_result`, `tool_result`, `database_result` | 100% | 75% | 1/1 correct | 1.529s |
-| BGE + GPT-6 Astra Judge | 10 | Same | 100% | 75% | 10/10 correct | 3.779s |
-| BGE + Gemini Judge | 10 | `api_result`, `database_result`, `operations_agent` | 100% | 75% | 10/10 correct | 2.289s |
-| **BGE + Omneum** | **10** | `operations_agent`, `code_agent`, `api_result` | **66.7%** | **50%** | **10/10 correct** | **0.709s** |
-| Cohere + Claude Judge | 1 | `api_result`, `tool_result`, `database_result` | 100% | 75% | 1/1 correct | 1.691s |
-| Cohere + Omneum | 1 | `operations_agent`, `database_result`, `tool_result` | 100% | 75% | 1/1 correct | 0.658s |
+| Source | Evidence | Relevance |
+|---|---|---|
+| `researcher_agent` | Audit-log retention | Not supporting |
+| `code_agent` | Staging multipart cleanup | Not supporting |
+| `analyst_agent` | Staging object expiry | Not supporting |
+| `operations_agent` | Production multipart abort | Supporting |
+| `tool_result` | Production lifecycle inspection | Supporting |
+| `tool_result_2` | Upload bearer-token lifetime | Not supporting |
+| `api_result` | Production lifecycle API | Supporting |
+| `database_result` | Production cleanup configuration | Supporting |
+| `reviewer_agent` | Signed download-link lifetime | Not supporting |
 
-Some judge trials vary source ordering without changing the selected sets.
+The final benchmark selections are evaluated against the four production-specific supporting sources.
 
-**Result:** BGE + Omneum selected the staging `code_agent` result alongside two relevant production sources.
+**Result:** The case tests whether context selection distinguishes the requested production multipart-upload lifecycle from staging cleanup and other operational time limits.
 
-This reduced selection precision to **66.7%** and recall to **50%**, compared with **100% precision and 75% recall** for the BGE + LLM judges.
+A staging configuration may be accurate for its own environment while remaining irrelevant to the production question.
 
-Claude Sonnet 5.5 nevertheless generated the correct 48-hour answer in all ten Omneum trials.
+The earlier fixed-source-budget evaluation exposed this failure mode when BGE + Omneum retained the staging `code_agent` passage alongside production evidence. That observation identifies the behavior under test; it is not a substitute for the final token-budgeted case measurements.
 
-The correct answer does not eliminate the selection error: the generator received both the staging two-hour value and production 48-hour evidence.
-
-Cohere + Omneum selected three relevant production sources in its single recorded trial.
-
-This is the clearest selection-quality weakness in the Multi-Agent Systems subset. Structural source reliability does not automatically establish applicability to the requested environment or task.
+Source reliability from provenance-aware graph inference does not, by itself, establish whether a passage applies to the requested environment. `prepare_context()` also uses question relevance and incremental claim coverage when selecting passages.
 
 ## `multi_agent_repeated_subagent`
 
@@ -340,7 +342,6 @@ give the customer from the current fulfillment records?
 
 ```text
 8 candidates
-3 selected
 3 relevant
 
 researcher_agent     Planned dispatch: Aug 22
@@ -400,149 +401,169 @@ The cached portal result remains an estimate, not a completed dispatch event.
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `database_result`, `tool_result`, `web_result` | 66.7% | 66.7% | 1/1 correct | 2.133s |
-| BGE + GPT-6 Astra Judge | 10 | Same | 66.7% | 66.7% | 10/10 correct | 2.725s |
-| BGE + Gemini Judge | 10 | `analyst_agent`, `database_result`, `tool_result` (7/10); `database_result`, `tool_result`, `web_result` (2/10); `database_result`, `summary_agent`, `tool_result` (1/10) | 66.7% | 66.7% | 10/10 correct | 2.515s |
-| **BGE + Omneum** | **10** | `web_result`, `database_result`, `tool_result` | **66.7%** | **66.7%** | **10/10 correct** | **0.636s** |
-| Cohere + Claude Judge | 1 | `database_result`, `tool_result`, `web_result` | 66.7% | 66.7% | 1/1 correct | 2.484s |
-| Cohere + Omneum | 1 | `database_result`, `web_result`, `tool_result` | 66.7% | 66.7% | 1/1 correct | 1.611s |
+| Source | Evidence | Relevance |
+|---|---|---|
+| `researcher_agent` | Planned August 22 dispatch | Not supporting |
+| `analyst_agent` | Reused planned-date estimate | Not supporting |
+| `analyst_agent_2` | Reused planned-date estimate | Not supporting |
+| `summary_agent` | Aggregated planned-date estimates | Not supporting |
+| `tool_result` | Actual carrier handoff | Supporting |
+| `database_result` | Actual fulfillment dispatch | Supporting |
+| `verifier_agent` | Verification from carrier and database | Supporting |
+| `web_result` | Cached planned dispatch | Not supporting |
 
-The Gemini selections include ordering variations.
+The final benchmark evaluation records whether selected context retains the actual-dispatch evidence at each token budget.
 
-**Result:** Omneum and the judges generally selected the two actual-dispatch records alongside an outdated planned-date source.
+**Result:** The case evaluates repeated subagent outputs and stale planned-date information against current operational dispatch records.
 
-Gemini selected the analyst agent's outdated estimate in seven trials, the summary agent's estimate in one, and the cached portal entry in two.
+The verifier agent derives its conclusion from the carrier scan and fulfillment database. The repeated analyst and summary outputs derive from the same planned-date estimate. Omneum's provenance-aware graph inference accounts for these shared evidence origins when computing source reliability and claim support.
 
-All configurations achieved the same selection precision, recall, and recorded answer correctness.
-
-Omneum did not select the relevant verifier agent and retained the cached planned date. The result therefore does not demonstrate complete removal of repeated or stale context.
+The earlier fixed-source-budget evaluation retained the cached planned date alongside actual dispatch records. The final benchmark results must be used to determine whether that behavior persists under the token-budgeted selection policy.
 
 ## Inspect Recorded Runs
 
-Authoritative run directories:
+Authoritative benchmark artifact directories:
 
 ```text
-benchmarks/context_evaluation/heldout/results/
-├── bge-claude-vs-bge-omneum-20261008/
-├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-low-vs-bge-omneum-20261008/
-└── cohere-claude-vs-cohere-omneum-20261008/
+benchmarks/context_selection/synthetic/
+├── results/
+│   ├── tier1-production-20261025-v1/
+│   ├── tier1-competitors-20261025-v1/
+│   └── budget-exhaustion-recovery-20261026-v2/
+└── analysis/
+    └── tier1-competitive-analysis-20261026-v1/
 ```
+
+These directories contain phases of the same cross-domain evaluation, not separate benchmark datasets.
 
 ### Inspect Multi-Agent Attempts
 
-```bash
-# List available result artifacts
-ls benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/
+List the final result artifacts:
 
-# Find the four multi-agent case records
+```bash
+ls \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/
+```
+
+Find the four Multi-Agent Systems cases:
+
+```bash
 rg -n \
   'multi_agent_feedback_loop|multi_agent_independent_error|multi_agent_relevant_wrong_task|multi_agent_repeated_subagent' \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/
 ```
 
-Extract matching JSONL records:
-
-```bash
-rg \
-  'multi_agent_feedback_loop|multi_agent_independent_error|multi_agent_relevant_wrong_task|multi_agent_repeated_subagent' \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl \
-  > /tmp/multi-agent-results.jsonl
-```
-
-Count extracted records:
-
-```bash
-wc -l /tmp/multi-agent-results.jsonl
-```
-
-The extracted line count depends on the saved attempt serialization. It is not a count of independent cases.
+The matching records identify the case-specific selections and metrics saved in the final evaluation.
 
 ### Inspect All Recorded Comparisons
 
-```bash
-for run in \
-  bge-claude-vs-bge-omneum-20261008 \
-  bge-openai-vs-bge-omneum-20261008 \
-  bge-google-low-vs-bge-omneum-20261008 \
-  cohere-claude-vs-cohere-omneum-20261008
-do
-  echo "===== $run ====="
-
-  rg -c \
-    'multi_agent_feedback_loop|multi_agent_independent_error|multi_agent_relevant_wrong_task|multi_agent_repeated_subagent' \
-    "benchmarks/context_evaluation/heldout/results/$run/results.jsonl" || true
-done
-```
-
-### Inspect the Published Dashboard
+Inspect the final evaluation report:
 
 ```bash
-.venv/bin/python -m json.tool \
-  benchmarks/context_evaluation/heldout/dashboard_summary.json
+cat \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
 ```
 
-Verify the dashboard:
+Inspect the competitive analysis:
 
 ```bash
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary --check
+cat \
+  benchmarks/context_selection/synthetic/analysis/tier1-competitive-analysis-20261026-v1/report.md
 ```
 
-Regenerate it from saved artifacts:
+Inspect the case-level and domain-level comparison artifacts:
 
 ```bash
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary
+find \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/ \
+  -maxdepth 1 -type f | sort
 ```
 
-Regeneration does not make provider calls or reproduce the original model responses.
+The paired analysis compares the final hybrid selections against their recorded standalone and initial hybrid counterparts.
+
+### Inspect the Published Results
+
+Inspect the saved evaluation artifacts without issuing provider requests:
+
+```bash
+ls \
+  benchmarks/context_selection/synthetic/results/tier1-production-20261025-v1/
+
+ls \
+  benchmarks/context_selection/synthetic/results/tier1-competitors-20261025-v1/
+
+ls \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/
+```
+
+The final results incorporate the corrected deferred-candidate recovery for Omneum hybrid configurations.
+
+Saved selections and metric records are the source of the published measurements. Re-reading them does not reproduce external model inference.
 
 ## Evaluation Notes
 
 | Setting | Value |
 |---|---|
 | Cases | 4 |
-| Candidate sources | 31 total |
-| Candidate pools | 6–9 sources per case |
-| Selection budgets | 2–3 sources |
-| Generator | Claude Sonnet 5.5 |
-| Initial rerankers | BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
+| Candidate passages | 31 total |
+| Candidate pools | 6–9 passages per case |
+| Selection budgets | 64, 96, 128, 160, 192, 256 Qwen tokens |
+| Tokenizer | Qwen2.5 7B GGUF |
+| Budgeted configurations | 13 |
+| Unbudgeted reference | `raw_full` |
+| Initial rankers | BM25, MiniLM, BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
 | Frontier judges | Claude Sonnet 5.5, GPT-6 Astra, Gemini 3.8 Flash |
-| BGE + GPT-6 / Gemini | 10 trials per case |
-| BGE + Omneum | 10 trials per case in each paired run |
-| Claude / Cohere comparisons | 1 trial per case |
-| Latency aggregation | Median across recorded trials |
-| Selection scoring | Fixture relevance labels |
+| Omneum entry point | `prepare_context()` |
+| Selection objective | `coverage_support_density` |
+| Complementary evidence | `complementary_evidence=True` |
+| Token cost exponent | `token_cost_exponent=1` |
+| Discovery anchors | 3 plus relevance-score ties |
+| Discovery expansion | Depth 2 |
+| Deferred-candidate recovery | Enabled for final hybrid results |
+| Conflict-aware selection | `conflict_aware=False` |
+| Selection scoring | Annotated supporting-source IDs |
+| Evidence scoring | Retained annotated evidence |
+| Claim scoring | Canonical claims represented in supporting passages |
+| Origin scoring | Annotated root-origin units |
+| Latency aggregation | Recorded local selection p50 and p95 |
 
-BGE + Omneum appears in multiple paired-run artifacts. The tables use its GPT-6 Astra pairing rather than pooling repeated executions into additional cases.
+Omneum's provenance-aware graph inference iteratively computes source reliability and claim support across a bipartite graph, accounting for shared evidence origins and dependencies between sources.
+
+The SDK maps finalized claim support to retrieved chunks through their associated claim IDs. `prepare_context()` uses question relevance and incremental claim coverage to select and reconstruct original passages within the configured token budget.
+
+The final recovery allows deferred candidates to be reconsidered when the initial discovery neighborhood exhausts positive, budget-feasible utility. Candidates must satisfy the marginal utility-density threshold and exact remaining-budget constraint.
 
 ### Selection Latency
 
-Median selection latency in seconds:
+The final aggregate local selection timings across all six domains are:
 
-| Case | GPT-6 Astra Judge | Gemini Judge | Omneum |
-|---|---:|---:|---:|
-| Feedback Loop | 2.878s | 3.987s | 0.641s |
-| Independent Error | 2.351s | 2.347s | 0.721s |
-| Relevant Wrong Task | 3.779s | 2.289s | 0.709s |
-| Repeated Subagent | 2.725s | 2.515s | 0.636s |
+| Configuration | Selection p50 | Selection p95 |
+|---|---:|---:|
+| Omneum Standalone | 194.86ms | 451.87ms |
+| BM25 + Omneum | 207.79ms | 461.25ms |
+| MiniLM + Omneum | 203.84ms | 465.36ms |
+| BGE + Omneum | 200.63ms | 430.51ms |
+| Cohere + Omneum | 206.89ms | 480.37ms |
 
-Omneum recorded lower selection latency in all four cases.
+These are all-domain measurements, not Multi-Agent Systems-specific latency percentiles.
+
+The local selection interval excludes external ranking inference and structured observation extraction. Frontier judge inference has a different timing boundary.
 
 ### Interpretation
 
-The four cases expose distinct behavior:
+The four cases test distinct failure mechanisms:
 
-- **Feedback loop:** Omneum excluded circular approval claims and selected the blocked release-gate evidence.
-- **Independent error:** Omneum rejected three independently incorrect agent interpretations.
-- **Relevant wrong task:** BGE + Omneum selected a staging configuration for a production question, reducing precision and recall relative to the LLM judges.
-- **Repeated subagent:** Omneum and the judges selected actual dispatch records but retained one outdated planned-date source.
+- **Feedback loop:** Circular agent approval claims conflict with operational release-gate state.
+- **Independent error:** Three independently produced agent responses make the same HTTP unit error.
+- **Relevant wrong task:** A staging configuration describes a related operation but does not answer the production question.
+- **Repeated subagent:** Several agent outputs repeat a planned dispatch estimate while operational records establish the actual date.
 
-**The measured advantage is consistent selection speed. The measured selection-quality outcome is three cases matching the judges and one case where BGE + Omneum performs worse.**
+The first and fourth cases contain explicit source dependencies. The second tests incorrect agreement without shared upstream information. The third tests task applicability rather than source dependence.
 
-These synthetic fixtures do not establish performance in live multi-agent deployments, under larger context graphs, or with different provenance and reranker distributions.
+Selection precision and recall measure retained supporting sources. Evidence retention, claim coverage, and origin coverage measure complementary properties of the reconstructed context.
 
-The methods may receive different structural metadata. Precision and recall measure selected-source relevance, not dependency-estimator accuracy.
+The evaluation uses synthetic candidate pools and supplied structured `Observation` objects. It does not measure live multi-agent execution, open-ended retrieval, or downstream answer correctness.
 
-For the complete evaluation methodology and live execution requirements, see [Benchmark README](README.md).
+The final domain-level comparisons should be read from the saved benchmark results rather than the superseded fixed-source-budget experiment.
+
+For complete methodology and aggregate results, see [Benchmark README](README.md) and [Leaderboard](leaderboard.md).

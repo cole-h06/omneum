@@ -1,0 +1,17 @@
+{
+  "case_id": "enterprise_stale_handbook",
+  "answer": "A full-time employee has four paid volunteer days in 2026.",
+  "supporting_sources": [
+    "current_policy",
+    "hr_system",
+    "announcement",
+    "confluence_page",
+    "policy_changelog"
+  ],
+  "scoring": {
+    "required": [
+      "four"
+    ],
+    "forbidden": []
+  }
+}

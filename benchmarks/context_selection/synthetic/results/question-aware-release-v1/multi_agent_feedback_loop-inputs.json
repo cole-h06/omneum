@@ -1,0 +1,506 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://reviewer-agent.benchmark.example/multi_agent_feedback_loop/reviewer_agent",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"approved\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:researcher_agent",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://researcher-agent.benchmark.example/multi_agent_feedback_loop/researcher_agent",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://researcher-agent.benchmark.example/multi_agent_feedback_loop/researcher_agent",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"approved\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:analyst_agent",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://analyst-agent.benchmark.example/multi_agent_feedback_loop/analyst_agent",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://analyst-agent.benchmark.example/multi_agent_feedback_loop/analyst_agent",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"approved\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:reviewer_agent",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://reviewer-agent.benchmark.example/multi_agent_feedback_loop/reviewer_agent",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"blocked\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:tool_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://tool-result.benchmark.example/multi_agent_feedback_loop/tool_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"blocked\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:database_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://database-result.benchmark.example/multi_agent_feedback_loop/database_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"blocked\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:web_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://web-result.benchmark.example/multi_agent_feedback_loop/web_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://api-result.benchmark.example/multi_agent_feedback_loop/api_result",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"blocked\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:verifier_agent",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "multi_agent_feedback_loop:tool_result",
+        "multi_agent_feedback_loop:database_result"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://verifier-agent.benchmark.example/multi_agent_feedback_loop/verifier_agent",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://tool-result.benchmark.example/multi_agent_feedback_loop/tool_result",
+          "kind": "web_document"
+        },
+        {
+          "identifier": "https://database-result.benchmark.example/multi_agent_feedback_loop/database_result",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"blocked\"'",
+        "attribute": "production_gate_status",
+        "entity": "heldout-entity-v1:5b2272656c65617365222c22417374657220313138225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "multi_agent_feedback_loop:api_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://api-result.benchmark.example/multi_agent_feedback_loop/api_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:researcher_agent",
+          "cited_sources": [
+            {
+              "identifier": "https://reviewer-agent.benchmark.example/multi_agent_feedback_loop/reviewer_agent",
+              "kind": "reviewer_agent"
+            }
+          ],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://researcher-agent.benchmark.example/multi_agent_feedback_loop/researcher_agent",
+          "kind": "researcher_agent"
+        },
+        "source_id": "researcher_agent",
+        "text": "Researcher shared note r118, revision 3: Aster 118 is approved for production, citing reviewer v118. The reviewer link was added after the initial handoff.",
+        "value": "approved"
+      },
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:analyst_agent",
+          "cited_sources": [
+            {
+              "identifier": "https://researcher-agent.benchmark.example/multi_agent_feedback_loop/researcher_agent",
+              "kind": "researcher_agent"
+            }
+          ],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://analyst-agent.benchmark.example/multi_agent_feedback_loop/analyst_agent",
+          "kind": "analyst_agent"
+        },
+        "source_id": "analyst_agent",
+        "text": "Analyst shared note a118: Aster 118 is approved for production; basis is researcher r118. No gate API request attached.",
+        "value": "approved"
+      },
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:reviewer_agent",
+          "cited_sources": [
+            {
+              "identifier": "https://analyst-agent.benchmark.example/multi_agent_feedback_loop/analyst_agent",
+              "kind": "analyst_agent"
+            }
+          ],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://reviewer-agent.benchmark.example/multi_agent_feedback_loop/reviewer_agent",
+          "kind": "reviewer_agent"
+        },
+        "source_id": "reviewer_agent",
+        "text": "Reviewer shared note v118: approve Aster 118 based on analyst a118. Researcher subsequently linked this review in r118.",
+        "value": "approved"
+      },
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:tool_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://tool-result.benchmark.example/multi_agent_feedback_loop/tool_result",
+          "kind": "tool_result"
+        },
+        "source_id": "tool_result",
+        "text": "Release gate CLI for Aster 118: gate RG-2 status=blocked; unresolved check=load_test; check result=failed.",
+        "value": "blocked"
+      },
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:database_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://database-result.benchmark.example/multi_agent_feedback_loop/database_result",
+          "kind": "database_result"
+        },
+        "source_id": "database_result",
+        "text": "Release registry row: build=118, gate=RG-2, decision=blocked, override_id=NULL.",
+        "value": "blocked"
+      },
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:web_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://api-result.benchmark.example/multi_agent_feedback_loop/api_result",
+              "kind": "api_result"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://web-result.benchmark.example/multi_agent_feedback_loop/web_result",
+          "kind": "web_result"
+        },
+        "source_id": "web_result",
+        "text": "Release portal for build 118 renders RG-2 blocked while load_test remains failed.",
+        "value": "blocked"
+      },
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:verifier_agent",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "multi_agent_feedback_loop:tool_result",
+            "multi_agent_feedback_loop:database_result"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://tool-result.benchmark.example/multi_agent_feedback_loop/tool_result",
+              "kind": "tool_result"
+            },
+            {
+              "identifier": "https://database-result.benchmark.example/multi_agent_feedback_loop/database_result",
+              "kind": "database_result"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://verifier-agent.benchmark.example/multi_agent_feedback_loop/verifier_agent",
+          "kind": "verifier_agent"
+        },
+        "source_id": "verifier_agent",
+        "text": "Verifier agent queried gate CLI and release registry: build 118 remains blocked; no production approval recorded.",
+        "value": "blocked"
+      },
+      {
+        "attribute": "production gate status",
+        "entity": "Aster 118",
+        "entity_namespace": "release",
+        "provenance": {
+          "assertion_id": "multi_agent_feedback_loop:api_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://api-result.benchmark.example/multi_agent_feedback_loop/api_result",
+          "kind": "api_result"
+        },
+        "source_id": "api_result",
+        "text": "GET /releases/118/gates/RG-2: {\"status\":\"blocked\",\"failed_check\":\"load_test\",\"override\":null}.",
+        "value": "blocked"
+      }
+    ],
+    "case_id": "multi_agent_feedback_loop",
+    "category": null,
+    "context_budget": 3,
+    "domain": "multi_agent_systems",
+    "question": "Can the orchestrator mark build Aster 118 approved for production under release gate RG-2?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-researcher_agent",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22617070726f766564227d"
+      ],
+      "raw_text": "Researcher shared note r118, revision 3: Aster 118 is approved for production, citing reviewer v118. The reviewer link was added after the initial handoff.",
+      "source_id": "researcher_agent"
+    },
+    {
+      "chunk_id": "chunk-analyst_agent",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22617070726f766564227d"
+      ],
+      "raw_text": "Analyst shared note a118: Aster 118 is approved for production; basis is researcher r118. No gate API request attached.",
+      "source_id": "analyst_agent"
+    },
+    {
+      "chunk_id": "chunk-reviewer_agent",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22617070726f766564227d"
+      ],
+      "raw_text": "Reviewer shared note v118: approve Aster 118 based on analyst a118. Researcher subsequently linked this review in r118.",
+      "source_id": "reviewer_agent"
+    },
+    {
+      "chunk_id": "chunk-tool_result",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626c6f636b6564227d"
+      ],
+      "raw_text": "Release gate CLI for Aster 118: gate RG-2 status=blocked; unresolved check=load_test; check result=failed.",
+      "source_id": "tool_result"
+    },
+    {
+      "chunk_id": "chunk-database_result",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626c6f636b6564227d"
+      ],
+      "raw_text": "Release registry row: build=118, gate=RG-2, decision=blocked, override_id=NULL.",
+      "source_id": "database_result"
+    },
+    {
+      "chunk_id": "chunk-web_result",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626c6f636b6564227d"
+      ],
+      "raw_text": "Release portal for build 118 renders RG-2 blocked while load_test remains failed.",
+      "source_id": "web_result"
+    },
+    {
+      "chunk_id": "chunk-verifier_agent",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626c6f636b6564227d"
+      ],
+      "raw_text": "Verifier agent queried gate CLI and release registry: build 118 remains blocked; no production approval recorded.",
+      "source_id": "verifier_agent"
+    },
+    {
+      "chunk_id": "chunk-api_result",
+      "claim_ids": [
+        "7b22617474726962757465223a2270726f64756374696f6e5f676174655f737461747573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232373236353663363536313733363532323263323234313733373436353732323033313331333832323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22626c6f636b6564227d"
+      ],
+      "raw_text": "GET /releases/118/gates/RG-2: {\"status\":\"blocked\",\"failed_check\":\"load_test\",\"override\":null}.",
+      "source_id": "api_result"
+    }
+  ],
+  "truth": {
+    "answer": "Build Aster 118 is blocked by the failed load_test check under RG-2.",
+    "case_id": "multi_agent_feedback_loop",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "blocked",
+        "load_test"
+      ]
+    },
+    "supporting_sources": [
+      "tool_result",
+      "database_result",
+      "web_result",
+      "verifier_agent",
+      "api_result"
+    ]
+  }
+}

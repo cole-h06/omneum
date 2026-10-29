@@ -1,0 +1,15 @@
+{
+  "case_id": "analytics_derived_metric_cycle",
+  "answer": "Solis had 612 daily active accounts on August 17.",
+  "supporting_sources": [
+    "source_table",
+    "source_table_2",
+    "query_result"
+  ],
+  "scoring": {
+    "required": [
+      "612"
+    ],
+    "forbidden": []
+  }
+}

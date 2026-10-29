@@ -1,0 +1,15 @@
+{
+  "case_id": "research_independent_false_consensus",
+  "answer": "There were 216 occupied homes in the August census.",
+  "supporting_sources": [
+    "dataset",
+    "primary_record",
+    "web_page"
+  ],
+  "scoring": {
+    "required": [
+      "216"
+    ],
+    "forbidden": []
+  }
+}

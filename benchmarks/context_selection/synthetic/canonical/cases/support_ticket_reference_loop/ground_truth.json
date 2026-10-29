@@ -1,0 +1,18 @@
+{
+  "case_id": "support_ticket_reference_loop",
+  "answer": "Resume the ingest consumer and monitor the backlog draining.",
+  "supporting_sources": [
+    "service_state",
+    "deployment_config",
+    "runbook",
+    "monitoring_result",
+    "change_record"
+  ],
+  "scoring": {
+    "required": [
+      "resume",
+      "consumer"
+    ],
+    "forbidden": []
+  }
+}

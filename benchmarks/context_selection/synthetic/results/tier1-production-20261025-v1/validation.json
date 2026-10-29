@@ -1,0 +1,47 @@
+{
+  "cases": 24,
+  "budgets": [
+    64,
+    96,
+    128,
+    160,
+    192,
+    256
+  ],
+  "methods": [
+    "bge",
+    "bge_omneum",
+    "embedding",
+    "embedding_omneum",
+    "bm25",
+    "bm25_omneum"
+  ],
+  "reference_cells_reused": 864,
+  "new_measured_executions": 4320,
+  "warmups": 6,
+  "complete_factorial_schedule": true,
+  "all_executions_match_recorded_selections": true,
+  "budget_violations": 0,
+  "graph_evaluation_reused": false,
+  "fresh_graph_executions": 2160,
+  "paid_api_calls": 0,
+  "downstream_generations": 0,
+  "summary_reproduced_exactly": true,
+  "tests_passed": 136,
+  "tests_failed": 0,
+  "protected_files": 8633,
+  "markdown_files": 284,
+  "protected_files_unchanged": true,
+  "start_utc": "2026-10-25T20:58:20.034839+00:00",
+  "completed_utc": "2026-10-25T21:03:23.654720+00:00",
+  "output_sha256": {
+    "summary.json": "6496dcb6dc99d3a822bc02f2eaf2a6840f6e39ff997b74910d3bcccf2f71a370",
+    "aggregate.csv": "e0dc6ef0901f86590643459e2d35fed7cbfe1ec58f720be5e11abc1ca5ee9551",
+    "integrity_after.json": "6d3cabe494f11d8be4fa508d93293d5f1eb23c53188404fd0aed9d80bab7c60e",
+    "manifest.json": "d9aca4775d5e421d0bae0a0808a3633ec891af38c8969264b6884c3bd3f39bc6",
+    "per_budget.csv": "495d585e28c3190fb016f013e061490f38d6451fbca2b064eb3726b150b4dcb7",
+    "integrity_before.json": "971876b822a7ae43caf8296082561d44500874deb5390c7881820afa5f92077a",
+    "selections.json": "b6589e2b68a19164aabd5bdfac1b62c540058fc4052a54c40b8cda28c8f95236",
+    "timings.csv": "818b4d1b2bedb7f39f0c4d56763ffef7a9e2357d33ce496206e026a1295c2d1e"
+  }
+}

@@ -1,0 +1,472 @@
+{
+  "id": "research_conflicting_reports",
+  "domain": "research_analysis_agents",
+  "question": "What was the 2025 net forest-cover change in the Maren district, using the district boundary and accounting for both gains and losses?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "report",
+      "source": {
+        "kind": "report",
+        "identifier": "https://report.benchmark.example/research_conflicting_reports/report"
+      },
+      "text": "Canopy Watch report: Maren forest cover rose 120 hectares in 2025. Its summary equates newly wooded parcels with net change.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:report",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_hectares",
+          "value": 120,
+          "claim_id": "sha256:19b93b3d3113837c0f8e21cd2fc3e88c6c1339016da80dd4a07437e96ca6fbd6",
+          "observation_id": "research_conflicting_reports:report",
+          "evidence": [
+            {
+              "source_id": "report",
+              "start": 0,
+              "end": 124,
+              "text": "Canopy Watch report: Maren forest cover rose 120 hectares in 2025. Its summary equates newly wooded parcels with net change."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_additions_hectares",
+          "value": 120,
+          "claim_id": "sha256:edab0d34bb9f9b59bf0c7af93de863b338f1bf1b8cdacb6fcd0101f8c994e847",
+          "observation_id": "research_conflicting_reports:report:claim:2",
+          "evidence": [
+            {
+              "source_id": "report",
+              "start": 0,
+              "end": 124,
+              "text": "Canopy Watch report: Maren forest cover rose 120 hectares in 2025. Its summary equates newly wooded parcels with net change."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "summary_equates_gross_additions_with_net_change",
+          "value": true,
+          "claim_id": "sha256:c73775082d013bf014018e3bef0ca9fad544f75f792ecdbb498458a4010bca79",
+          "observation_id": "research_conflicting_reports:report:claim:3",
+          "evidence": [
+            {
+              "source_id": "report",
+              "start": 0,
+              "end": 124,
+              "text": "Canopy Watch report: Maren forest cover rose 120 hectares in 2025. Its summary equates newly wooded parcels with net change."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "report_2",
+      "source": {
+        "kind": "report",
+        "identifier": "https://report.benchmark.example/research_conflicting_reports/report_2"
+      },
+      "text": "Land Review report: Maren lost a net 60 hectares in 2025 after adding 120 hectares and losing 180 hectares.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:report_2",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_hectares",
+          "value": -60,
+          "claim_id": "sha256:4a5f910a4e03e3d40af07ee8f53548f7e93137d8df340a7d79e1a25ea1f5432b",
+          "observation_id": "research_conflicting_reports:report_2",
+          "evidence": [
+            {
+              "source_id": "report_2",
+              "start": 0,
+              "end": 107,
+              "text": "Land Review report: Maren lost a net 60 hectares in 2025 after adding 120 hectares and losing 180 hectares."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_additions_hectares",
+          "value": 120,
+          "claim_id": "sha256:edab0d34bb9f9b59bf0c7af93de863b338f1bf1b8cdacb6fcd0101f8c994e847",
+          "observation_id": "research_conflicting_reports:report_2:claim:2",
+          "evidence": [
+            {
+              "source_id": "report_2",
+              "start": 0,
+              "end": 107,
+              "text": "Land Review report: Maren lost a net 60 hectares in 2025 after adding 120 hectares and losing 180 hectares."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_losses_hectares",
+          "value": 180,
+          "claim_id": "sha256:5a62bb8cb226331cf485f065835a43dd7c65fb5b29b01f31710b35a60c00c712",
+          "observation_id": "research_conflicting_reports:report_2:claim:3",
+          "evidence": [
+            {
+              "source_id": "report_2",
+              "start": 0,
+              "end": 107,
+              "text": "Land Review report: Maren lost a net 60 hectares in 2025 after adding 120 hectares and losing 180 hectares."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "primary_publication",
+      "source": {
+        "kind": "primary_publication",
+        "identifier": "https://primary-publication.benchmark.example/research_conflicting_reports/primary_publication"
+      },
+      "text": "Maren land office annual publication: district forest gains 120 ha; losses 180 ha; net forest-cover change -60 ha for 2025.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:primary_publication",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_hectares",
+          "value": -60,
+          "claim_id": "sha256:4a5f910a4e03e3d40af07ee8f53548f7e93137d8df340a7d79e1a25ea1f5432b",
+          "observation_id": "research_conflicting_reports:primary_publication",
+          "evidence": [
+            {
+              "source_id": "primary_publication",
+              "start": 0,
+              "end": 123,
+              "text": "Maren land office annual publication: district forest gains 120 ha; losses 180 ha; net forest-cover change -60 ha for 2025."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_additions_hectares",
+          "value": 120,
+          "claim_id": "sha256:edab0d34bb9f9b59bf0c7af93de863b338f1bf1b8cdacb6fcd0101f8c994e847",
+          "observation_id": "research_conflicting_reports:primary_publication:claim:2",
+          "evidence": [
+            {
+              "source_id": "primary_publication",
+              "start": 0,
+              "end": 123,
+              "text": "Maren land office annual publication: district forest gains 120 ha; losses 180 ha; net forest-cover change -60 ha for 2025."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_losses_hectares",
+          "value": 180,
+          "claim_id": "sha256:5a62bb8cb226331cf485f065835a43dd7c65fb5b29b01f31710b35a60c00c712",
+          "observation_id": "research_conflicting_reports:primary_publication:claim:3",
+          "evidence": [
+            {
+              "source_id": "primary_publication",
+              "start": 0,
+              "end": 123,
+              "text": "Maren land office annual publication: district forest gains 120 ha; losses 180 ha; net forest-cover change -60 ha for 2025."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dataset",
+      "source": {
+        "kind": "dataset",
+        "identifier": "https://dataset.benchmark.example/research_conflicting_reports/dataset"
+      },
+      "text": "District-boundary raster summary: 120 hectares converted to forest and 180 converted from forest during 2025, giving a net change of -60 hectares.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:dataset",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_hectares",
+          "value": -60,
+          "claim_id": "sha256:4a5f910a4e03e3d40af07ee8f53548f7e93137d8df340a7d79e1a25ea1f5432b",
+          "observation_id": "research_conflicting_reports:dataset",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 146,
+              "text": "District-boundary raster summary: 120 hectares converted to forest and 180 converted from forest during 2025, giving a net change of -60 hectares."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_additions_hectares",
+          "value": 120,
+          "claim_id": "sha256:edab0d34bb9f9b59bf0c7af93de863b338f1bf1b8cdacb6fcd0101f8c994e847",
+          "observation_id": "research_conflicting_reports:dataset:claim:2",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 146,
+              "text": "District-boundary raster summary: 120 hectares converted to forest and 180 converted from forest during 2025, giving a net change of -60 hectares."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_losses_hectares",
+          "value": 180,
+          "claim_id": "sha256:5a62bb8cb226331cf485f065835a43dd7c65fb5b29b01f31710b35a60c00c712",
+          "observation_id": "research_conflicting_reports:dataset:claim:3",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 146,
+              "text": "District-boundary raster summary: 120 hectares converted to forest and 180 converted from forest during 2025, giving a net change of -60 hectares."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "news_article",
+      "source": {
+        "kind": "news_article",
+        "identifier": "https://news-article.benchmark.example/research_conflicting_reports/news_article"
+      },
+      "text": "Maren Gazette quotes Canopy Watch: a 120-hectare forest increase in 2025.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:news_article",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "report",
+            "identifier": "https://report.benchmark.example/research_conflicting_reports/report"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_conflicting_reports:report"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_hectares",
+          "value": 120,
+          "claim_id": "sha256:19b93b3d3113837c0f8e21cd2fc3e88c6c1339016da80dd4a07437e96ca6fbd6",
+          "observation_id": "research_conflicting_reports:news_article",
+          "evidence": [
+            {
+              "source_id": "news_article",
+              "start": 0,
+              "end": 73,
+              "text": "Maren Gazette quotes Canopy Watch: a 120-hectare forest increase in 2025."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "analysis",
+      "source": {
+        "kind": "analysis",
+        "identifier": "https://analysis.benchmark.example/research_conflicting_reports/analysis"
+      },
+      "text": "Spatial lab analysis of the district raster: 120 - 180 = -60 hectares; reporting gross additions alone omits clearing.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:analysis",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "dataset",
+            "identifier": "https://dataset.benchmark.example/research_conflicting_reports/dataset"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_hectares",
+          "value": -60,
+          "claim_id": "sha256:4a5f910a4e03e3d40af07ee8f53548f7e93137d8df340a7d79e1a25ea1f5432b",
+          "observation_id": "research_conflicting_reports:analysis",
+          "evidence": [
+            {
+              "source_id": "analysis",
+              "start": 0,
+              "end": 118,
+              "text": "Spatial lab analysis of the district raster: 120 - 180 = -60 hectares; reporting gross additions alone omits clearing."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_additions_hectares",
+          "value": 120,
+          "claim_id": "sha256:edab0d34bb9f9b59bf0c7af93de863b338f1bf1b8cdacb6fcd0101f8c994e847",
+          "observation_id": "research_conflicting_reports:analysis:claim:2",
+          "evidence": [
+            {
+              "source_id": "analysis",
+              "start": 0,
+              "end": 118,
+              "text": "Spatial lab analysis of the district raster: 120 - 180 = -60 hectares; reporting gross additions alone omits clearing."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_losses_hectares",
+          "value": 180,
+          "claim_id": "sha256:5a62bb8cb226331cf485f065835a43dd7c65fb5b29b01f31710b35a60c00c712",
+          "observation_id": "research_conflicting_reports:analysis:claim:3",
+          "evidence": [
+            {
+              "source_id": "analysis",
+              "start": 0,
+              "end": 118,
+              "text": "Spatial lab analysis of the district raster: 120 - 180 = -60 hectares; reporting gross additions alone omits clearing."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_computation",
+          "value": "120 - 180 = -60",
+          "claim_id": "sha256:b52a231b85ffcbc5b3a0eec4592c90bd98dfa37c6f9e243876a181db0fab4dbf",
+          "observation_id": "research_conflicting_reports:analysis:claim:4",
+          "evidence": [
+            {
+              "source_id": "analysis",
+              "start": 0,
+              "end": 118,
+              "text": "Spatial lab analysis of the district raster: 120 - 180 = -60 hectares; reporting gross additions alone omits clearing."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "filing",
+      "source": {
+        "kind": "filing",
+        "identifier": "https://filing.benchmark.example/research_conflicting_reports/filing"
+      },
+      "text": "Land office filing annex F: net district forest change in 2025 equals -60 hectares.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:filing",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "primary_publication",
+            "identifier": "https://primary-publication.benchmark.example/research_conflicting_reports/primary_publication"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_conflicting_reports:primary_publication"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "net_change_hectares",
+          "value": -60,
+          "claim_id": "sha256:4a5f910a4e03e3d40af07ee8f53548f7e93137d8df340a7d79e1a25ea1f5432b",
+          "observation_id": "research_conflicting_reports:filing",
+          "evidence": [
+            {
+              "source_id": "filing",
+              "start": 0,
+              "end": 83,
+              "text": "Land office filing annex F: net district forest change in 2025 equals -60 hectares."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "web_page",
+      "source": {
+        "kind": "web_page",
+        "identifier": "https://web-page.benchmark.example/research_conflicting_reports/web_page"
+      },
+      "text": "Regional greening campaign webpage: Maren added 120 hectares of woodland in 2025; figure measures planted and regenerated area.",
+      "provenance": {
+        "assertion_id": "research_conflicting_reports:web_page",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_additions_hectares",
+          "value": 120,
+          "claim_id": "sha256:edab0d34bb9f9b59bf0c7af93de863b338f1bf1b8cdacb6fcd0101f8c994e847",
+          "observation_id": "research_conflicting_reports:web_page",
+          "evidence": [
+            {
+              "source_id": "web_page",
+              "start": 0,
+              "end": 127,
+              "text": "Regional greening campaign webpage: Maren added 120 hectares of woodland in 2025; figure measures planted and regenerated area."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "land_use",
+          "entity": "Maren district forest cover; 2025",
+          "attribute": "gross_addition_area_definition",
+          "value": "planted and regenerated woodland area",
+          "claim_id": "sha256:35c22832e29df087dda13390c2adfc3382d907497aa6a65bef3895ac1a4f9733",
+          "observation_id": "research_conflicting_reports:web_page:claim:2",
+          "evidence": [
+            {
+              "source_id": "web_page",
+              "start": 0,
+              "end": 127,
+              "text": "Regional greening campaign webpage: Maren added 120 hectares of woodland in 2025; figure measures planted and regenerated area."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

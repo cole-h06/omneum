@@ -1,0 +1,434 @@
+{
+  "id": "analytics_derived_metric_cycle",
+  "domain": "data_analytics_agents",
+  "question": "What is Solis daily active accounts for August 17 using distinct production account IDs with at least one session?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "derived_table",
+      "source": {
+        "kind": "derived_table",
+        "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table"
+      },
+      "text": "Derived daily_activity table: August 17 active accounts=840. Nightly repair imports the dashboard CSV when the source scan is skipped.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:derived_table",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "exported_dataset",
+            "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "daily_active_account_count",
+          "value": 840,
+          "claim_id": "sha256:2d48d8531d4edeb8390565a31699d216bc8dc56de2d6b86b9b0ff2de0ff64334",
+          "observation_id": "analytics_derived_metric_cycle:derived_table",
+          "evidence": [
+            {
+              "source_id": "derived_table",
+              "start": 0,
+              "end": 134,
+              "text": "Derived daily_activity table: August 17 active accounts=840. Nightly repair imports the dashboard CSV when the source scan is skipped."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "daily_activity repair job",
+          "attribute": "repair_input_rule",
+          "value": {
+            "condition": "source scan skipped",
+            "input": "dashboard CSV"
+          },
+          "claim_id": "sha256:825ee3d00c47db001a56cfe5f610daaabf2c968832eea1cf33a6f23f148e60dd",
+          "observation_id": "analytics_derived_metric_cycle:derived_table:claim:2",
+          "evidence": [
+            {
+              "source_id": "derived_table",
+              "start": 0,
+              "end": 134,
+              "text": "Derived daily_activity table: August 17 active accounts=840. Nightly repair imports the dashboard CSV when the source scan is skipped."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dashboard",
+      "source": {
+        "kind": "dashboard",
+        "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard"
+      },
+      "text": "Operations dashboard: August 17 daily active accounts=840, populated from daily_activity.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:dashboard",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "derived_table",
+            "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "daily_active_account_count",
+          "value": 840,
+          "claim_id": "sha256:2d48d8531d4edeb8390565a31699d216bc8dc56de2d6b86b9b0ff2de0ff64334",
+          "observation_id": "analytics_derived_metric_cycle:dashboard",
+          "evidence": [
+            {
+              "source_id": "dashboard",
+              "start": 0,
+              "end": 89,
+              "text": "Operations dashboard: August 17 daily active accounts=840, populated from daily_activity."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "operations activity dashboard",
+          "attribute": "input_dataset",
+          "value": "daily_activity",
+          "claim_id": "sha256:dc7cbae2055f8f202a4b7af5caf8fdd951cf71c00606aeb7e19f85269c918431",
+          "observation_id": "analytics_derived_metric_cycle:dashboard:claim:2",
+          "evidence": [
+            {
+              "source_id": "dashboard",
+              "start": 0,
+              "end": 89,
+              "text": "Operations dashboard: August 17 daily active accounts=840, populated from daily_activity."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "exported_dataset",
+      "source": {
+        "kind": "exported_dataset",
+        "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset"
+      },
+      "text": "Dashboard CSV export: August 17 active accounts 840. This export is reimported by the daily_activity repair job.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:exported_dataset",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "dashboard",
+            "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "daily_active_account_count",
+          "value": 840,
+          "claim_id": "sha256:2d48d8531d4edeb8390565a31699d216bc8dc56de2d6b86b9b0ff2de0ff64334",
+          "observation_id": "analytics_derived_metric_cycle:exported_dataset",
+          "evidence": [
+            {
+              "source_id": "exported_dataset",
+              "start": 0,
+              "end": 112,
+              "text": "Dashboard CSV export: August 17 active accounts 840. This export is reimported by the daily_activity repair job."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "operations activity dashboard CSV",
+          "attribute": "reimported_by",
+          "value": "daily_activity repair job",
+          "claim_id": "sha256:3307668cbbe2f93f2df6dcea47b2c326d7072dd85f5d8c75ad627dfd36cf6361",
+          "observation_id": "analytics_derived_metric_cycle:exported_dataset:claim:2",
+          "evidence": [
+            {
+              "source_id": "exported_dataset",
+              "start": 0,
+              "end": 112,
+              "text": "Dashboard CSV export: August 17 active accounts 840. This export is reimported by the daily_activity repair job."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "source_table",
+      "source": {
+        "kind": "source_table",
+        "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table"
+      },
+      "text": "Production session source table for August 17: 840 sessions belong to 612 distinct account IDs; test tenants have already been excluded.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:source_table",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "daily_active_account_count",
+          "value": 612,
+          "claim_id": "sha256:ae5a332580ff337305eb0e74ad4b041652baf579ba49dc432c951c32a00394a4",
+          "observation_id": "analytics_derived_metric_cycle:source_table",
+          "evidence": [
+            {
+              "source_id": "source_table",
+              "start": 0,
+              "end": 136,
+              "text": "Production session source table for August 17: 840 sessions belong to 612 distinct account IDs; test tenants have already been excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "session_count",
+          "value": 840,
+          "claim_id": "sha256:90a191baa1f400227f411fe0baedde4b0e2e5609d6af1c14e5a649ffa96b159a",
+          "observation_id": "analytics_derived_metric_cycle:source_table:claim:2",
+          "evidence": [
+            {
+              "source_id": "source_table",
+              "start": 0,
+              "end": 136,
+              "text": "Production session source table for August 17: 840 sessions belong to 612 distinct account IDs; test tenants have already been excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "test_tenants_excluded",
+          "value": true,
+          "claim_id": "sha256:72aa7a80c5878ce85db6e06e99f079da85ab78626c87bf1d6e013c62dede74a9",
+          "observation_id": "analytics_derived_metric_cycle:source_table:claim:3",
+          "evidence": [
+            {
+              "source_id": "source_table",
+              "start": 0,
+              "end": 136,
+              "text": "Production session source table for August 17: 840 sessions belong to 612 distinct account IDs; test tenants have already been excluded."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "source_table_2",
+      "source": {
+        "kind": "source_table",
+        "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table_2"
+      },
+      "text": "Account activity source ledger: 612 production account IDs have one or more August 17 session events.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:source_table_2",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "daily_active_account_count",
+          "value": 612,
+          "claim_id": "sha256:ae5a332580ff337305eb0e74ad4b041652baf579ba49dc432c951c32a00394a4",
+          "observation_id": "analytics_derived_metric_cycle:source_table_2",
+          "evidence": [
+            {
+              "source_id": "source_table_2",
+              "start": 0,
+              "end": 101,
+              "text": "Account activity source ledger: 612 production account IDs have one or more August 17 session events."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "account_activity_condition",
+          "value": "one or more August 17 session events",
+          "claim_id": "sha256:2812c76f5f54c106f00205fb47a0b65a5750fb3dc1bfbe6359bfaab7652aa3c8",
+          "observation_id": "analytics_derived_metric_cycle:source_table_2:claim:2",
+          "evidence": [
+            {
+              "source_id": "source_table_2",
+              "start": 0,
+              "end": 101,
+              "text": "Account activity source ledger: 612 production account IDs have one or more August 17 session events."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "metric_store",
+      "source": {
+        "kind": "metric_store",
+        "identifier": "https://metric-store.benchmark.example/analytics_derived_metric_cycle/metric_store"
+      },
+      "text": "Semantic metric definition: daily active accounts counts distinct production account IDs with at least one session; it does not count session rows.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:metric_store",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "daily_active_account_definition",
+          "value": {
+            "population": "production accounts",
+            "aggregation": "distinct account IDs",
+            "condition": "at least one session",
+            "excludes": "counting session rows"
+          },
+          "claim_id": "sha256:76cf831bcac911b63e29193b2c5773138214aea2a05062736db0c877ff218e66",
+          "observation_id": "analytics_derived_metric_cycle:metric_store",
+          "evidence": [
+            {
+              "source_id": "metric_store",
+              "start": 0,
+              "end": 147,
+              "text": "Semantic metric definition: daily active accounts counts distinct production account IDs with at least one session; it does not count session rows."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "query_result",
+      "source": {
+        "kind": "query_result",
+        "identifier": "https://query-result.benchmark.example/analytics_derived_metric_cycle/query_result"
+      },
+      "text": "Fresh query joining production sessions to accounts: COUNT(DISTINCT account_id)=612 for August 17.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:query_result",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "source_table",
+            "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table"
+          },
+          {
+            "kind": "source_table",
+            "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table_2"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Solis August 17 daily active accounts",
+          "attribute": "daily_active_account_count",
+          "value": 612,
+          "claim_id": "sha256:ae5a332580ff337305eb0e74ad4b041652baf579ba49dc432c951c32a00394a4",
+          "observation_id": "analytics_derived_metric_cycle:query_result",
+          "evidence": [
+            {
+              "source_id": "query_result",
+              "start": 0,
+              "end": 98,
+              "text": "Fresh query joining production sessions to accounts: COUNT(DISTINCT account_id)=612 for August 17."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "data_catalog",
+      "source": {
+        "kind": "data_catalog",
+        "identifier": "https://data-catalog.benchmark.example/analytics_derived_metric_cycle/data_catalog"
+      },
+      "text": "Catalog lineage: daily_activity feeds the dashboard; its CSV feeds the nightly repair input. The session source remains outside this repair path.",
+      "provenance": {
+        "assertion_id": "analytics_derived_metric_cycle:data_catalog",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "derived_table",
+            "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table"
+          },
+          {
+            "kind": "dashboard",
+            "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard"
+          },
+          {
+            "kind": "exported_dataset",
+            "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "daily_activity table",
+          "attribute": "feeds_dashboard",
+          "value": true,
+          "claim_id": "sha256:050ea6be4aa66be36a165eedbf009eddd26e4471db4da7e9a4d3fec034c965c3",
+          "observation_id": "analytics_derived_metric_cycle:data_catalog",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 145,
+              "text": "Catalog lineage: daily_activity feeds the dashboard; its CSV feeds the nightly repair input. The session source remains outside this repair path."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "dashboard CSV",
+          "attribute": "feeds_nightly_repair_input",
+          "value": true,
+          "claim_id": "sha256:ec870ac10fe3703b5d1b22eccfb48c6ed7a7485203673b68aec26d6f5021e3c3",
+          "observation_id": "analytics_derived_metric_cycle:data_catalog:claim:2",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 145,
+              "text": "Catalog lineage: daily_activity feeds the dashboard; its CSV feeds the nightly repair input. The session source remains outside this repair path."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "production session source",
+          "attribute": "source_in_repair_path",
+          "value": false,
+          "claim_id": "sha256:924fa641425ac0bd850fa713f408e28f7a2a21a565f2269deb94b0fcc787f573",
+          "observation_id": "analytics_derived_metric_cycle:data_catalog:claim:3",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 145,
+              "text": "Catalog lineage: daily_activity feeds the dashboard; its CSV feeds the nightly repair input. The session source remains outside this repair path."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

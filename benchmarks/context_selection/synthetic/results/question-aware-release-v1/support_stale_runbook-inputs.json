@@ -1,0 +1,490 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"restart gateway pods\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:old_runbook",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://old-runbook.benchmark.example/support_stale_runbook/old_runbook",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2024-09-10 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"restart gateway pods\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:kb_article",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [
+        "support_stale_runbook:old_runbook"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://kb-article.benchmark.example/support_stale_runbook/kb_article",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2024-09-15 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://old-runbook.benchmark.example/support_stale_runbook/old_runbook",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"POST /admin/keys/refresh\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:deployment_config",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-09 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"POST /admin/keys/refresh\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:incident_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://incident-record.benchmark.example/support_stale_runbook/incident_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-15 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"POST /admin/keys/refresh\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:service_state",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://service-state.benchmark.example/support_stale_runbook/service_state",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-20 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"POST /admin/keys/refresh\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:change_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://change-record.benchmark.example/support_stale_runbook/change_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-09 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"restart gateway pods\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:ticket",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "support_stale_runbook:kb_article"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://ticket.benchmark.example/support_stale_runbook/ticket",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-17 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://kb-article.benchmark.example/support_stale_runbook/kb_article",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"POST /admin/keys/refresh\"'",
+        "attribute": "credential_refresh_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224e696d627573207635206b657920726f746174696f6e225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_stale_runbook:current_runbook",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://current-runbook.benchmark.example/support_stale_runbook/current_runbook",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-10 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:old_runbook",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2024-09-10 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://old-runbook.benchmark.example/support_stale_runbook/old_runbook",
+          "kind": "old_runbook"
+        },
+        "source_id": "old_runbook",
+        "text": "Nimbus v3 runbook: after rotating signing keys, restart the gateway pods to reload credentials.",
+        "value": "restart gateway pods"
+      },
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:kb_article",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [
+            "support_stale_runbook:old_runbook"
+          ],
+          "source_modified_at": "2024-09-15 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://old-runbook.benchmark.example/support_stale_runbook/old_runbook",
+              "kind": "old_runbook"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://kb-article.benchmark.example/support_stale_runbook/kb_article",
+          "kind": "kb_article"
+        },
+        "source_id": "kb_article",
+        "text": "Knowledge base article for Nimbus v3: restart gateway pods after every signing-key rotation; keys are only read at startup.",
+        "value": "restart gateway pods"
+      },
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:deployment_config",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-09 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config",
+          "kind": "deployment_config"
+        },
+        "source_id": "deployment_config",
+        "text": "Nimbus v5 production config: key_reload_mode=watch; admin endpoint POST /admin/keys/refresh triggers immediate credential-cache refresh.",
+        "value": "POST /admin/keys/refresh"
+      },
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:incident_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-15 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://incident-record.benchmark.example/support_stale_runbook/incident_record",
+          "kind": "incident_record"
+        },
+        "source_id": "incident_record",
+        "text": "Incident N-510 on v5: key rotation left one cache behind; POST /admin/keys/refresh reloaded the current key and authentication recovered without a rollout.",
+        "value": "POST /admin/keys/refresh"
+      },
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:service_state",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-20 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://service-state.benchmark.example/support_stale_runbook/service_state",
+          "kind": "service_state"
+        },
+        "source_id": "service_state",
+        "text": "Nimbus live state: version=5.2; admin keys refresh endpoint enabled; active key mount is present; process has not restarted since deployment.",
+        "value": "POST /admin/keys/refresh"
+      },
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:change_record",
+          "cited_sources": [
+            {
+              "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config",
+              "kind": "deployment_config"
+            }
+          ],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-09 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://change-record.benchmark.example/support_stale_runbook/change_record",
+          "kind": "change_record"
+        },
+        "source_id": "change_record",
+        "text": "Change N-492 migrated production to v5 watch-mode keys. Operators may force a refresh using POST /admin/keys/refresh.",
+        "value": "POST /admin/keys/refresh"
+      },
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:ticket",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "support_stale_runbook:kb_article"
+          ],
+          "source_modified_at": "2026-08-17 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://kb-article.benchmark.example/support_stale_runbook/kb_article",
+              "kind": "kb_article"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://ticket.benchmark.example/support_stale_runbook/ticket",
+          "kind": "ticket"
+        },
+        "source_id": "ticket",
+        "text": "Support ticket template copied from the v3 KB: restart gateway pods after key rotation.",
+        "value": "restart gateway pods"
+      },
+      {
+        "attribute": "credential refresh action",
+        "entity": "Nimbus v5 key rotation",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_stale_runbook:current_runbook",
+          "cited_sources": [
+            {
+              "identifier": "https://deployment-config.benchmark.example/support_stale_runbook/deployment_config",
+              "kind": "deployment_config"
+            }
+          ],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-10 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://current-runbook.benchmark.example/support_stale_runbook/current_runbook",
+          "kind": "current_runbook"
+        },
+        "source_id": "current_runbook",
+        "text": "Nimbus v5 runbook: to refresh credentials after routine signing-key rotation, POST /admin/keys/refresh and confirm the loaded key ID.",
+        "value": "POST /admin/keys/refresh"
+      }
+    ],
+    "case_id": "support_stale_runbook",
+    "category": null,
+    "context_budget": 3,
+    "domain": "support_operations_agents",
+    "question": "For the current Nimbus v5 deployment, what action restores credential use after a routine signing-key rotation without changing the key itself?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-old_runbook",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2272657374617274206761746577617920706f6473227d"
+      ],
+      "raw_text": "Nimbus v3 runbook: after rotating signing keys, restart the gateway pods to reload credentials.",
+      "source_id": "old_runbook"
+    },
+    {
+      "chunk_id": "chunk-kb_article",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2272657374617274206761746577617920706f6473227d"
+      ],
+      "raw_text": "Knowledge base article for Nimbus v3: restart gateway pods after every signing-key rotation; keys are only read at startup.",
+      "source_id": "kb_article"
+    },
+    {
+      "chunk_id": "chunk-deployment_config",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22504f5354202f61646d696e2f6b6579732f72656672657368227d"
+      ],
+      "raw_text": "Nimbus v5 production config: key_reload_mode=watch; admin endpoint POST /admin/keys/refresh triggers immediate credential-cache refresh.",
+      "source_id": "deployment_config"
+    },
+    {
+      "chunk_id": "chunk-incident_record",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22504f5354202f61646d696e2f6b6579732f72656672657368227d"
+      ],
+      "raw_text": "Incident N-510 on v5: key rotation left one cache behind; POST /admin/keys/refresh reloaded the current key and authentication recovered without a rollout.",
+      "source_id": "incident_record"
+    },
+    {
+      "chunk_id": "chunk-service_state",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22504f5354202f61646d696e2f6b6579732f72656672657368227d"
+      ],
+      "raw_text": "Nimbus live state: version=5.2; admin keys refresh endpoint enabled; active key mount is present; process has not restarted since deployment.",
+      "source_id": "service_state"
+    },
+    {
+      "chunk_id": "chunk-change_record",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22504f5354202f61646d696e2f6b6579732f72656672657368227d"
+      ],
+      "raw_text": "Change N-492 migrated production to v5 watch-mode keys. Operators may force a refresh using POST /admin/keys/refresh.",
+      "source_id": "change_record"
+    },
+    {
+      "chunk_id": "chunk-ticket",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2272657374617274206761746577617920706f6473227d"
+      ],
+      "raw_text": "Support ticket template copied from the v3 KB: restart gateway pods after key rotation.",
+      "source_id": "ticket"
+    },
+    {
+      "chunk_id": "chunk-current_runbook",
+      "claim_ids": [
+        "7b22617474726962757465223a2263726564656e7469616c5f726566726573685f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346536393664363237353733323037363335323036623635373932303732366637343631373436393666366532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22504f5354202f61646d696e2f6b6579732f72656672657368227d"
+      ],
+      "raw_text": "Nimbus v5 runbook: to refresh credentials after routine signing-key rotation, POST /admin/keys/refresh and confirm the loaded key ID.",
+      "source_id": "current_runbook"
+    }
+  ],
+  "truth": {
+    "answer": "POST /admin/keys/refresh, then confirm the loaded key ID.",
+    "case_id": "support_stale_runbook",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "POST",
+        "admin/keys/refresh"
+      ]
+    },
+    "supporting_sources": [
+      "deployment_config",
+      "incident_record",
+      "service_state",
+      "change_record",
+      "current_runbook"
+    ]
+  }
+}

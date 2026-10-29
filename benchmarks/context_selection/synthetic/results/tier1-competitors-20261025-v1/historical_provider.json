@@ -1,0 +1,1178 @@
+[
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.19600216718390584
+  },
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 3.0534332087263465
+  },
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.80637574987486
+  },
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.8886560001410544
+  },
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.0844108751043677
+  },
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.7592348749749362
+  },
+  {
+    "case_id": "analytics_derived_metric_cycle",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.037172167096287
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.16716649988666177
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.7756177079863846
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.1499702078290284
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.7279245830141008
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.844049041159451
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.867139082867652
+  },
+  {
+    "case_id": "analytics_incomplete_lineage",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.9751812499016523
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.17959112487733364
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.3127363328821957
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.0466265003196895
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.027309583965689
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.155640000011772
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.8440065826289356
+  },
+  {
+    "case_id": "analytics_metric_definition_conflict",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.232077583204955
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.1783830001950264
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.0110043343156576
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.9438450001180172
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.9281082078814507
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.6814193753525615
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.0307003329508007
+  },
+  {
+    "case_id": "analytics_stale_dashboard",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.965107458177954
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.162945541087538
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.239454166032374
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.149831499904394
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.847603084053844
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.3426396250724792
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 3.0551868746988475
+  },
+  {
+    "case_id": "coding_api_version_change",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.900878499727696
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.18486979231238365
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.1384428329765797
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.901833708398044
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.5493745831772685
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.813523749820888
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.6307839578948915
+  },
+  {
+    "case_id": "coding_clean_dependency",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.308990875259042
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.17595375003293157
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.5989912920631468
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.5542592918500304
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.8384333327412605
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.5727009582333267
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.803705457597971
+  },
+  {
+    "case_id": "coding_config_conflict",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.998376333154738
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.1833943328820169
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.2179519589990377
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.1148941251449287
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.6788097079843283
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.9558523749001324
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.2452650838531554
+  },
+  {
+    "case_id": "coding_package_fix_lineage",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.7403828343376517
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.17734604189172387
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 3.1759395408444107
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.193841124884784
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.984512290917337
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.8858633330091834
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.243126292247325
+  },
+  {
+    "case_id": "enterprise_partial_lineage",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.8447670000605285
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.19605412473902106
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.0291828331537545
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.661254041828215
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.239621624816209
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.179012083914131
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.6345577500760555
+  },
+  {
+    "case_id": "enterprise_policy_copy_chain",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.5422934582456946
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.17458441713824868
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.84421395836398
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.839247124735266
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 3.258433416020125
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.7648836253210902
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.9713367079384625
+  },
+  {
+    "case_id": "enterprise_semantic_distractors",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.84811441693455
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.18000712478533387
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.2449302496388555
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.7385339168831706
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.6433433331549168
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.2575199999846518
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.9421241246163845
+  },
+  {
+    "case_id": "enterprise_stale_handbook",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.0153585830703378
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.16581462509930134
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.6100402502343059
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.9420891250483692
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.334693250246346
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.8831611252389848
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.352341291960329
+  },
+  {
+    "case_id": "multi_agent_feedback_loop",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.23273808369413
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.1776541662402451
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 3.1062786248512566
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.8565961248241365
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.7212704997509718
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.749756583943963
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.7390981251373887
+  },
+  {
+    "case_id": "multi_agent_independent_error",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.56916549988091
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.242251459043473
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.295501083135605
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 3.1770136668346822
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.125329041853547
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.091634958051145
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.248802375048399
+  },
+  {
+    "case_id": "multi_agent_relevant_wrong_task",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.719307541847229
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.16955841705203056
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.8665497908368707
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.840911875013262
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.4974002498202026
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.250216582790017
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.9267516662366688
+  },
+  {
+    "case_id": "multi_agent_repeated_subagent",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.2528166668489575
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.16766591602936387
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.1058733751997352
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.5557817085646093
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.0293226246722043
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.4545109998434782
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.2644433337263763
+  },
+  {
+    "case_id": "research_clean_consensus",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.244387958664447
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.1792507921345532
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.6534790000878274
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.8365769581869245
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.1367336250841618
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.7866792087443173
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.8653217502869666
+  },
+  {
+    "case_id": "research_conflicting_reports",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 3.173966375179589
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.16731762513518333
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 3.0859615420922637
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.4502954999916255
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.932879792060703
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.6309247077442706
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.0379497911781073
+  },
+  {
+    "case_id": "research_independent_false_consensus",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.892352749593556
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.1681726248934865
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 3.286824000068009
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.841239457949996
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.227372709196061
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.766341040842235
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.7731199581176043
+  },
+  {
+    "case_id": "research_syndicated_reporting",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.9153244160115719
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.15488570788875222
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.689050666987896
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.558610042091459
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.1904494161717594
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.8345808750018477
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 4.812055540736765
+  },
+  {
+    "case_id": "support_clean_resolution",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.9909227089956403
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.16614516591653228
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 2.073585500009358
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.8827213747426867
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.058598875068128
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.692424917127937
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 1.9208506252616644
+  },
+  {
+    "case_id": "support_resolution_conflict",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.7175477920100093
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.1789184999652207
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.8442762079648674
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 2.222192708402872
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.952246957924217
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.8183539998717606
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.703125082887709
+  },
+  {
+    "case_id": "support_stale_runbook",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 2.4899682919494808
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "method": "cohere",
+    "trial": 0,
+    "model": "rerank-v4.0-pro",
+    "seconds": 0.17067541601136327
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "method": "claude",
+    "trial": 1,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.3255615420639515
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "method": "gpt",
+    "trial": 1,
+    "model": "gpt-6-astra",
+    "seconds": 1.8162994589656591
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "method": "gemini",
+    "trial": 1,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.7304704999551177
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "method": "claude",
+    "trial": 2,
+    "model": "claude-sonnet-5-5",
+    "seconds": 1.4214669996872544
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "method": "gpt",
+    "trial": 2,
+    "model": "gpt-6-astra",
+    "seconds": 2.007770124822855
+  },
+  {
+    "case_id": "support_ticket_reference_loop",
+    "method": "gemini",
+    "trial": 2,
+    "model": "gemini-3.8-flash",
+    "seconds": 1.934492708183825
+  }
+]

@@ -1,0 +1,430 @@
+{
+  "id": "multi_agent_repeated_subagent",
+  "domain": "multi_agent_systems",
+  "question": "For order OR-821, what dispatch date should the orchestrator give the customer from the current fulfillment records?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "researcher_agent",
+      "source": {
+        "kind": "researcher_agent",
+        "identifier": "https://researcher-agent.benchmark.example/multi_agent_repeated_subagent/researcher_agent"
+      },
+      "text": "Researcher run r81: the order page lists a planned dispatch of August 22, 2026. I report August 22 as the dispatch date.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:researcher_agent",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "planned_dispatch_date",
+          "value": "2026-08-22",
+          "claim_id": "sha256:912fb2668955a73f8b5d055c00b3c249e63e1c754a09c98442d470e6d19f9fe6",
+          "observation_id": "multi_agent_repeated_subagent:researcher_agent",
+          "evidence": [
+            {
+              "source_id": "researcher_agent",
+              "start": 0,
+              "end": 120,
+              "text": "Researcher run r81: the order page lists a planned dispatch of August 22, 2026. I report August 22 as the dispatch date."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_date",
+          "value": "2026-08-22",
+          "claim_id": "sha256:cc75f26fbd348b85492dec725a8f409d4eec810f140cbc19ee11b792f29425bd",
+          "observation_id": "multi_agent_repeated_subagent:researcher_agent:claim:2",
+          "evidence": [
+            {
+              "source_id": "researcher_agent",
+              "start": 0,
+              "end": 120,
+              "text": "Researcher run r81: the order page lists a planned dispatch of August 22, 2026. I report August 22 as the dispatch date."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "analyst_agent",
+      "source": {
+        "kind": "analyst_agent",
+        "identifier": "https://analyst-agent.benchmark.example/multi_agent_repeated_subagent/analyst_agent"
+      },
+      "text": "Analyst run a12 consumed researcher r81: dispatch for OR-821 is August 22, 2026; add this to the customer timeline.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:analyst_agent",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "researcher_agent",
+            "identifier": "https://researcher-agent.benchmark.example/multi_agent_repeated_subagent/researcher_agent"
+          }
+        ],
+        "parent_assertion_ids": [
+          "multi_agent_repeated_subagent:researcher_agent"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_date",
+          "value": "2026-08-22",
+          "claim_id": "sha256:cc75f26fbd348b85492dec725a8f409d4eec810f140cbc19ee11b792f29425bd",
+          "observation_id": "multi_agent_repeated_subagent:analyst_agent",
+          "evidence": [
+            {
+              "source_id": "analyst_agent",
+              "start": 0,
+              "end": 115,
+              "text": "Analyst run a12 consumed researcher r81: dispatch for OR-821 is August 22, 2026; add this to the customer timeline."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "analyst_agent_2",
+      "source": {
+        "kind": "analyst_agent",
+        "identifier": "https://analyst-agent.benchmark.example/multi_agent_repeated_subagent/analyst_agent_2"
+      },
+      "text": "Analyst run a13 used researcher r81 to populate the shipping estimate: OR-821 dispatch August 22, 2026.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:analyst_agent_2",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "researcher_agent",
+            "identifier": "https://researcher-agent.benchmark.example/multi_agent_repeated_subagent/researcher_agent"
+          }
+        ],
+        "parent_assertion_ids": [
+          "multi_agent_repeated_subagent:researcher_agent"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "planned_dispatch_date",
+          "value": "2026-08-22",
+          "claim_id": "sha256:912fb2668955a73f8b5d055c00b3c249e63e1c754a09c98442d470e6d19f9fe6",
+          "observation_id": "multi_agent_repeated_subagent:analyst_agent_2",
+          "evidence": [
+            {
+              "source_id": "analyst_agent_2",
+              "start": 0,
+              "end": 103,
+              "text": "Analyst run a13 used researcher r81 to populate the shipping estimate: OR-821 dispatch August 22, 2026."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "summary_agent",
+      "source": {
+        "kind": "summary_agent",
+        "identifier": "https://summary-agent.benchmark.example/multi_agent_repeated_subagent/summary_agent"
+      },
+      "text": "Summary agent merged analyst a12 and a13: both entries give OR-821 a dispatch date of August 22, 2026.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:summary_agent",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "analyst_agent",
+            "identifier": "https://analyst-agent.benchmark.example/multi_agent_repeated_subagent/analyst_agent"
+          },
+          {
+            "kind": "analyst_agent",
+            "identifier": "https://analyst-agent.benchmark.example/multi_agent_repeated_subagent/analyst_agent_2"
+          }
+        ],
+        "parent_assertion_ids": [
+          "multi_agent_repeated_subagent:analyst_agent",
+          "multi_agent_repeated_subagent:analyst_agent_2"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_date",
+          "value": "2026-08-22",
+          "claim_id": "sha256:cc75f26fbd348b85492dec725a8f409d4eec810f140cbc19ee11b792f29425bd",
+          "observation_id": "multi_agent_repeated_subagent:summary_agent",
+          "evidence": [
+            {
+              "source_id": "summary_agent",
+              "start": 0,
+              "end": 102,
+              "text": "Summary agent merged analyst a12 and a13: both entries give OR-821 a dispatch date of August 22, 2026."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "tool_result",
+      "source": {
+        "kind": "tool_result",
+        "identifier": "https://tool-result.benchmark.example/multi_agent_repeated_subagent/tool_result"
+      },
+      "text": "Carrier scan tool: OR-821 handoff accepted at depot D4 on August 19, 2026, 16:42 UTC; tracking event type=dispatched.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:tool_result",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_date",
+          "value": "2026-08-19",
+          "claim_id": "sha256:19b0efbc8a08675808ae3ba7ce2394e9ed0abbad2bc35fff30526a61d8c63028",
+          "observation_id": "multi_agent_repeated_subagent:tool_result",
+          "evidence": [
+            {
+              "source_id": "tool_result",
+              "start": 0,
+              "end": 117,
+              "text": "Carrier scan tool: OR-821 handoff accepted at depot D4 on August 19, 2026, 16:42 UTC; tracking event type=dispatched."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "recorded_dispatch_timestamp",
+          "value": "2026-08-19T16:42:00Z",
+          "claim_id": "sha256:67a3e9165784e6e6e768a0b7ff233cf7067b8286cddeddcffab142de5e3418ec",
+          "observation_id": "multi_agent_repeated_subagent:tool_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "tool_result",
+              "start": 0,
+              "end": 117,
+              "text": "Carrier scan tool: OR-821 handoff accepted at depot D4 on August 19, 2026, 16:42 UTC; tracking event type=dispatched."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_status",
+          "value": "dispatched",
+          "claim_id": "sha256:0115538ebd2792039d20ee89b16436c55a9b9509202662b77b2c18169876f7b7",
+          "observation_id": "multi_agent_repeated_subagent:tool_result:claim:3",
+          "evidence": [
+            {
+              "source_id": "tool_result",
+              "start": 0,
+              "end": 117,
+              "text": "Carrier scan tool: OR-821 handoff accepted at depot D4 on August 19, 2026, 16:42 UTC; tracking event type=dispatched."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "handoff_depot",
+          "value": "D4",
+          "claim_id": "sha256:15677f89032c1794c08db726a3c34fc6401a640aa509dd67fd4427b80e828571",
+          "observation_id": "multi_agent_repeated_subagent:tool_result:claim:4",
+          "evidence": [
+            {
+              "source_id": "tool_result",
+              "start": 0,
+              "end": 117,
+              "text": "Carrier scan tool: OR-821 handoff accepted at depot D4 on August 19, 2026, 16:42 UTC; tracking event type=dispatched."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "database_result",
+      "source": {
+        "kind": "database_result",
+        "identifier": "https://database-result.benchmark.example/multi_agent_repeated_subagent/database_result"
+      },
+      "text": "Fulfillment database query: order OR-821, status=dispatched, dispatched_at=2026-08-19T16:42:00Z; planned_dispatch_at=2026-08-22.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:database_result",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "planned_dispatch_date",
+          "value": "2026-08-22",
+          "claim_id": "sha256:912fb2668955a73f8b5d055c00b3c249e63e1c754a09c98442d470e6d19f9fe6",
+          "observation_id": "multi_agent_repeated_subagent:database_result",
+          "evidence": [
+            {
+              "source_id": "database_result",
+              "start": 0,
+              "end": 128,
+              "text": "Fulfillment database query: order OR-821, status=dispatched, dispatched_at=2026-08-19T16:42:00Z; planned_dispatch_at=2026-08-22."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_date",
+          "value": "2026-08-19",
+          "claim_id": "sha256:19b0efbc8a08675808ae3ba7ce2394e9ed0abbad2bc35fff30526a61d8c63028",
+          "observation_id": "multi_agent_repeated_subagent:database_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "database_result",
+              "start": 0,
+              "end": 128,
+              "text": "Fulfillment database query: order OR-821, status=dispatched, dispatched_at=2026-08-19T16:42:00Z; planned_dispatch_at=2026-08-22."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "recorded_dispatch_timestamp",
+          "value": "2026-08-19T16:42:00Z",
+          "claim_id": "sha256:67a3e9165784e6e6e768a0b7ff233cf7067b8286cddeddcffab142de5e3418ec",
+          "observation_id": "multi_agent_repeated_subagent:database_result:claim:3",
+          "evidence": [
+            {
+              "source_id": "database_result",
+              "start": 0,
+              "end": 128,
+              "text": "Fulfillment database query: order OR-821, status=dispatched, dispatched_at=2026-08-19T16:42:00Z; planned_dispatch_at=2026-08-22."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_status",
+          "value": "dispatched",
+          "claim_id": "sha256:0115538ebd2792039d20ee89b16436c55a9b9509202662b77b2c18169876f7b7",
+          "observation_id": "multi_agent_repeated_subagent:database_result:claim:4",
+          "evidence": [
+            {
+              "source_id": "database_result",
+              "start": 0,
+              "end": 128,
+              "text": "Fulfillment database query: order OR-821, status=dispatched, dispatched_at=2026-08-19T16:42:00Z; planned_dispatch_at=2026-08-22."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "verifier_agent",
+      "source": {
+        "kind": "verifier_agent",
+        "identifier": "https://verifier-agent.benchmark.example/multi_agent_repeated_subagent/verifier_agent"
+      },
+      "text": "Verifier agent read the carrier scan and fulfillment row: recorded dispatch occurred August 19, 2026.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:verifier_agent",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "tool_result",
+            "identifier": "https://tool-result.benchmark.example/multi_agent_repeated_subagent/tool_result"
+          },
+          {
+            "kind": "database_result",
+            "identifier": "https://database-result.benchmark.example/multi_agent_repeated_subagent/database_result"
+          }
+        ],
+        "parent_assertion_ids": [
+          "multi_agent_repeated_subagent:tool_result",
+          "multi_agent_repeated_subagent:database_result"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_date",
+          "value": "2026-08-19",
+          "claim_id": "sha256:19b0efbc8a08675808ae3ba7ce2394e9ed0abbad2bc35fff30526a61d8c63028",
+          "observation_id": "multi_agent_repeated_subagent:verifier_agent",
+          "evidence": [
+            {
+              "source_id": "verifier_agent",
+              "start": 0,
+              "end": 101,
+              "text": "Verifier agent read the carrier scan and fulfillment row: recorded dispatch occurred August 19, 2026."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "web_result",
+      "source": {
+        "kind": "web_result",
+        "identifier": "https://web-result.benchmark.example/multi_agent_repeated_subagent/web_result"
+      },
+      "text": "Order portal cached estimate: OR-821 planned dispatch August 22, 2026. This field is the scheduling estimate.",
+      "provenance": {
+        "assertion_id": "multi_agent_repeated_subagent:web_result",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "planned_dispatch_date",
+          "value": "2026-08-22",
+          "claim_id": "sha256:912fb2668955a73f8b5d055c00b3c249e63e1c754a09c98442d470e6d19f9fe6",
+          "observation_id": "multi_agent_repeated_subagent:web_result",
+          "evidence": [
+            {
+              "source_id": "web_result",
+              "start": 0,
+              "end": 109,
+              "text": "Order portal cached estimate: OR-821 planned dispatch August 22, 2026. This field is the scheduling estimate."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "fulfillment",
+          "entity": "OR-821",
+          "attribute": "dispatch_field_kind",
+          "value": "scheduling estimate",
+          "claim_id": "sha256:6f140c32f8e4d1b297e48c74fd66948552b9b57ef894c8551fe1a3eb70bd8d1e",
+          "observation_id": "multi_agent_repeated_subagent:web_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "web_result",
+              "start": 0,
+              "end": 109,
+              "text": "Order portal cached estimate: OR-821 planned dispatch August 22, 2026. This field is the scheduling estimate."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

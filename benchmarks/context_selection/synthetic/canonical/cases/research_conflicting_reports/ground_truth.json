@@ -1,0 +1,18 @@
+{
+  "case_id": "research_conflicting_reports",
+  "answer": "The district had a net loss of 60 hectares of forest cover in 2025.",
+  "supporting_sources": [
+    "report_2",
+    "primary_publication",
+    "dataset",
+    "analysis",
+    "filing"
+  ],
+  "scoring": {
+    "required": [
+      "loss",
+      "60"
+    ],
+    "forbidden": []
+  }
+}

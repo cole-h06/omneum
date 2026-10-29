@@ -1,0 +1,14 @@
+{
+  "case_id": "coding_config_conflict",
+  "answer": "Use port 9092 for the production readiness probe.",
+  "supporting_sources": [
+    "deployment_config",
+    "test_output"
+  ],
+  "scoring": {
+    "required": [
+      "9092"
+    ],
+    "forbidden": []
+  }
+}

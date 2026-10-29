@@ -1,0 +1,143 @@
+{
+  "case_id": "coding_package_fix_lineage",
+  "method": "bge_omneum",
+  "budget": 256,
+  "arm": "original",
+  "selected": [
+    "chunk-issue_origin",
+    "chunk-issue_comment",
+    "chunk-release_notes"
+  ],
+  "context": "[chunk-issue_origin]\nA workaround for connection-pool exhaustion is to disable connection reuse.\n\n[chunk-issue_comment]\nDisabling connection reuse resolves the pool exhaustion problem.\n\n[chunk-release_notes]\nVersion 4.2 fixes pool exhaustion by bounding idle connections and evicting expired entries; connection reuse remains enabled.",
+  "tokenizer_tokens": 62,
+  "selection_order": [
+    "chunk-issue_origin",
+    "chunk-issue_comment",
+    "chunk-release_notes"
+  ],
+  "initial_eligible": [
+    "chunk-issue_origin",
+    "chunk-issue_comment",
+    "chunk-release_notes"
+  ],
+  "recovered": [],
+  "evidence_retention": 0.21875,
+  "gold_evidence_footprint": 96,
+  "retained_evidence_footprint": 21,
+  "actual_context_tokens": 58,
+  "raw_context_tokens": 168,
+  "context_reduction": 0.6547619047619048,
+  "gold_claim_coverage": null,
+  "supporting_passage_claim_coverage": 0.1,
+  "required_supporting_passage_claims": 10,
+  "retained_supporting_passage_claims": 1,
+  "independent_evidence_coverage": 0.2,
+  "annotated_gold_origins": [
+    [
+      "package_docs"
+    ],
+    [
+      "pull_request"
+    ],
+    [
+      "release_notes"
+    ],
+    [
+      "repository_code"
+    ],
+    [
+      "test_output"
+    ]
+  ],
+  "retained_gold_origins": [
+    [
+      "release_notes"
+    ]
+  ],
+  "cyclic_gold_origins": [],
+  "source_precision": 0.3333333333333333,
+  "source_recall": 0.2,
+  "estimated_api_cost_usd": 0.0,
+  "utility_trace": [
+    {
+      "selected": [],
+      "context_tokens": 0,
+      "candidates": [
+        {
+          "chunk_id": "chunk-issue_origin",
+          "marginal_gain": 0.0743421052631579,
+          "query_relevance": 1.0,
+          "utility": 0.004130116959064328,
+          "proposed_context_tokens": 18,
+          "incremental_tokens": 18,
+          "feasible": true
+        },
+        {
+          "chunk_id": "chunk-issue_comment",
+          "marginal_gain": 0.053101503759398504,
+          "query_relevance": 0.7142857142857143,
+          "utility": 0.003540100250626567,
+          "proposed_context_tokens": 15,
+          "incremental_tokens": 15,
+          "feasible": true
+        },
+        {
+          "chunk_id": "chunk-release_notes",
+          "marginal_gain": 0.0637218045112782,
+          "query_relevance": 0.8571428571428571,
+          "utility": 0.002197303603837179,
+          "proposed_context_tokens": 29,
+          "incremental_tokens": 29,
+          "feasible": true
+        }
+      ],
+      "best_feasible_chunk_id": "chunk-issue_origin"
+    },
+    {
+      "selected": [
+        "chunk-issue_origin"
+      ],
+      "context_tokens": 18,
+      "candidates": [
+        {
+          "chunk_id": "chunk-issue_comment",
+          "marginal_gain": 0.053101503759398504,
+          "query_relevance": 0.7142857142857143,
+          "utility": 0.003540100250626567,
+          "proposed_context_tokens": 33,
+          "incremental_tokens": 15,
+          "feasible": true
+        },
+        {
+          "chunk_id": "chunk-release_notes",
+          "marginal_gain": 0.0637218045112782,
+          "query_relevance": 0.8571428571428571,
+          "utility": 0.002197303603837179,
+          "proposed_context_tokens": 47,
+          "incremental_tokens": 29,
+          "feasible": true
+        }
+      ],
+      "best_feasible_chunk_id": "chunk-issue_comment"
+    },
+    {
+      "selected": [
+        "chunk-issue_origin",
+        "chunk-issue_comment"
+      ],
+      "context_tokens": 33,
+      "candidates": [
+        {
+          "chunk_id": "chunk-release_notes",
+          "marginal_gain": 0.0637218045112782,
+          "query_relevance": 0.8571428571428571,
+          "utility": 0.002197303603837179,
+          "proposed_context_tokens": 62,
+          "incremental_tokens": 29,
+          "feasible": true
+        }
+      ],
+      "best_feasible_chunk_id": "chunk-release_notes"
+    }
+  ]
+}

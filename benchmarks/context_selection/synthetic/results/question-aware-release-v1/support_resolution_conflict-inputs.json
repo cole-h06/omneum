@@ -1,0 +1,391 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"disable upstream TLS verification\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224f70616c2070726f64756374696f6e20544c5320696e636964656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_resolution_conflict:ticket",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://ticket.benchmark.example/support_resolution_conflict/ticket",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"roll back trust bundle to tb17\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224f70616c2070726f64756374696f6e20544c5320696e636964656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_resolution_conflict:ticket_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://ticket.benchmark.example/support_resolution_conflict/ticket_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"roll back trust bundle to tb17\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224f70616c2070726f64756374696f6e20544c5320696e636964656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_resolution_conflict:runbook",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://runbook.benchmark.example/support_resolution_conflict/runbook",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"roll back trust bundle to tb17\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224f70616c2070726f64756374696f6e20544c5320696e636964656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_resolution_conflict:deployment_config",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://deployment-config.benchmark.example/support_resolution_conflict/deployment_config",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"roll back trust bundle to tb17\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224f70616c2070726f64756374696f6e20544c5320696e636964656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_resolution_conflict:monitoring_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://monitoring-result.benchmark.example/support_resolution_conflict/monitoring_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"Alder-CA absent from tb18\"'",
+        "attribute": "failure_cause",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224f70616c2070726f64756374696f6e20544c5320696e636964656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_resolution_conflict:service_state",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://service-state.benchmark.example/support_resolution_conflict/service_state",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"Alder-CA removed in tb18\"'",
+        "attribute": "configuration_change",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224f70616c2070726f64756374696f6e20544c5320696e636964656e74225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_resolution_conflict:change_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://change-record.benchmark.example/support_resolution_conflict/change_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "recovery action",
+        "entity": "Opal production TLS incident",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_resolution_conflict:ticket",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://ticket.benchmark.example/support_resolution_conflict/ticket",
+          "kind": "ticket"
+        },
+        "source_id": "ticket",
+        "text": "Ticket OP-63: disable upstream TLS verification to restore requests during the incident. The suggestion has not been applied.",
+        "value": "disable upstream TLS verification"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Opal production TLS incident",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_resolution_conflict:ticket_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://ticket.benchmark.example/support_resolution_conflict/ticket_2",
+          "kind": "ticket"
+        },
+        "source_id": "ticket_2",
+        "text": "Ticket OP-64: roll back the trust bundle to revision tb17; the failures began with tb18 and the prior bundle contains the required issuer.",
+        "value": "roll back trust bundle to tb17"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Opal production TLS incident",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_resolution_conflict:runbook",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://runbook.benchmark.example/support_resolution_conflict/runbook",
+          "kind": "runbook"
+        },
+        "source_id": "runbook",
+        "text": "TLS incident runbook: when a trust-bundle deployment removes an upstream issuer, roll back to the last working trust bundle and retain certificate verification.",
+        "value": "roll back trust bundle to tb17"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Opal production TLS incident",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_resolution_conflict:deployment_config",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://deployment-config.benchmark.example/support_resolution_conflict/deployment_config",
+          "kind": "deployment_config"
+        },
+        "source_id": "deployment_config",
+        "text": "Production deployment: trust_bundle=tb18; upstream_tls_verify=true. Revision tb17 remains available for rollback and includes issuer Alder-CA.",
+        "value": "roll back trust bundle to tb17"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Opal production TLS incident",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_resolution_conflict:monitoring_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://monitoring-result.benchmark.example/support_resolution_conflict/monitoring_result",
+          "kind": "monitoring_result"
+        },
+        "source_id": "monitoring_result",
+        "text": "Monitoring replay: tb18 fails issuer validation for the upstream chain; tb17 passes the same probe with TLS verification enabled.",
+        "value": "roll back trust bundle to tb17"
+      },
+      {
+        "attribute": "failure cause",
+        "entity": "Opal production TLS incident",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_resolution_conflict:service_state",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://service-state.benchmark.example/support_resolution_conflict/service_state",
+          "kind": "service_state"
+        },
+        "source_id": "service_state",
+        "text": "Service state: upstream_tls_verify_failed; upstream certificate chain terminates at Alder-CA; the current tb18 bundle does not contain that issuer.",
+        "value": "Alder-CA absent from tb18"
+      },
+      {
+        "attribute": "configuration change",
+        "entity": "Opal production TLS incident",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_resolution_conflict:change_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://change-record.benchmark.example/support_resolution_conflict/change_record",
+          "kind": "change_record"
+        },
+        "source_id": "change_record",
+        "text": "Change OP-61 diff: tb17 -> tb18 removed Alder-CA from the upstream trust bundle; rollout coincides with the first failures.",
+        "value": "Alder-CA removed in tb18"
+      }
+    ],
+    "case_id": "support_resolution_conflict",
+    "category": null,
+    "context_budget": 2,
+    "domain": "support_operations_agents",
+    "question": "For the current Opal production incident, what action should support take when errors say upstream_tls_verify_failed immediately after the trust-bundle deployment?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-ticket",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346637303631366332303730373236663634373536333734363936663665323035343463353332303639366536333639363436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2264697361626c6520757073747265616d20544c5320766572696669636174696f6e227d"
+      ],
+      "raw_text": "Ticket OP-63: disable upstream TLS verification to restore requests during the incident. The suggestion has not been applied.",
+      "source_id": "ticket"
+    },
+    {
+      "chunk_id": "chunk-ticket_2",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346637303631366332303730373236663634373536333734363936663665323035343463353332303639366536333639363436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22726f6c6c206261636b2074727573742062756e646c6520746f2074623137227d"
+      ],
+      "raw_text": "Ticket OP-64: roll back the trust bundle to revision tb17; the failures began with tb18 and the prior bundle contains the required issuer.",
+      "source_id": "ticket_2"
+    },
+    {
+      "chunk_id": "chunk-runbook",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346637303631366332303730373236663634373536333734363936663665323035343463353332303639366536333639363436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22726f6c6c206261636b2074727573742062756e646c6520746f2074623137227d"
+      ],
+      "raw_text": "TLS incident runbook: when a trust-bundle deployment removes an upstream issuer, roll back to the last working trust bundle and retain certificate verification.",
+      "source_id": "runbook"
+    },
+    {
+      "chunk_id": "chunk-deployment_config",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346637303631366332303730373236663634373536333734363936663665323035343463353332303639366536333639363436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22726f6c6c206261636b2074727573742062756e646c6520746f2074623137227d"
+      ],
+      "raw_text": "Production deployment: trust_bundle=tb18; upstream_tls_verify=true. Revision tb17 remains available for rollback and includes issuer Alder-CA.",
+      "source_id": "deployment_config"
+    },
+    {
+      "chunk_id": "chunk-monitoring_result",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346637303631366332303730373236663634373536333734363936663665323035343463353332303639366536333639363436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22726f6c6c206261636b2074727573742062756e646c6520746f2074623137227d"
+      ],
+      "raw_text": "Monitoring replay: tb18 fails issuer validation for the upstream chain; tb17 passes the same probe with TLS verification enabled.",
+      "source_id": "monitoring_result"
+    },
+    {
+      "chunk_id": "chunk-service_state",
+      "claim_ids": [
+        "7b22617474726962757465223a226661696c7572655f6361757365222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346637303631366332303730373236663634373536333734363936663665323035343463353332303639366536333639363436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22416c6465722d434120616273656e742066726f6d2074623138227d"
+      ],
+      "raw_text": "Service state: upstream_tls_verify_failed; upstream certificate chain terminates at Alder-CA; the current tb18 bundle does not contain that issuer.",
+      "source_id": "service_state"
+    },
+    {
+      "chunk_id": "chunk-change_record",
+      "claim_ids": [
+        "7b22617474726962757465223a22636f6e66696775726174696f6e5f6368616e6765222c22656e74697479223a2268656c646f75742d656e746974792d76313a356232323666373036353732363137343639366636653733323232633232346637303631366332303730373236663634373536333734363936663665323035343463353332303639366536333639363436353665373432323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22416c6465722d43412072656d6f76656420696e2074623138227d"
+      ],
+      "raw_text": "Change OP-61 diff: tb17 -> tb18 removed Alder-CA from the upstream trust bundle; rollout coincides with the first failures.",
+      "source_id": "change_record"
+    }
+  ],
+  "truth": {
+    "answer": "Roll back the trust bundle to tb17 while keeping TLS verification enabled.",
+    "case_id": "support_resolution_conflict",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "trust bundle",
+        "tb17",
+        "verification"
+      ]
+    },
+    "supporting_sources": [
+      "ticket_2",
+      "runbook",
+      "deployment_config",
+      "monitoring_result"
+    ]
+  }
+}

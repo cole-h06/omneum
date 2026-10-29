@@ -1,0 +1,423 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"2026-06-14\"'",
+        "attribute": "public_opening_date",
+        "entity": "heldout-entity-v1:5b22696e667261737472756374757265222c224561737462616e6b207065646573747269616e20627269646765225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_clean_consensus:primary_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-06-14 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"2026-06-14\"'",
+        "attribute": "public_opening_date",
+        "entity": "heldout-entity-v1:5b22696e667261737472756374757265222c224561737462616e6b207065646573747269616e20627269646765225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_clean_consensus:report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://report.benchmark.example/research_clean_consensus/report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-06-15 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"2026-06-14\"'",
+        "attribute": "public_opening_date",
+        "entity": "heldout-entity-v1:5b22696e667261737472756374757265222c224561737462616e6b207065646573747269616e20627269646765225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_clean_consensus:report_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://report.benchmark.example/research_clean_consensus/report_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-06-15 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"2026-06-14\"'",
+        "attribute": "public_opening_date",
+        "entity": "heldout-entity-v1:5b22696e667261737472756374757265222c224561737462616e6b207065646573747269616e20627269646765225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_clean_consensus:dataset",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://dataset.benchmark.example/research_clean_consensus/dataset",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-06-16 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"2026-06-14\"'",
+        "attribute": "public_opening_date",
+        "entity": "heldout-entity-v1:5b22696e667261737472756374757265222c224561737462616e6b207065646573747269616e20627269646765225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_clean_consensus:filing",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://filing.benchmark.example/research_clean_consensus/filing",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-06-17 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"2026-06-14\"'",
+        "attribute": "public_opening_date",
+        "entity": "heldout-entity-v1:5b22696e667261737472756374757265222c224561737462616e6b207065646573747269616e20627269646765225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_clean_consensus:analysis",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://analysis.benchmark.example/research_clean_consensus/analysis",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-01 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://report.benchmark.example/research_clean_consensus/report_2",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"2026-06-14\"'",
+        "attribute": "public_opening_date",
+        "entity": "heldout-entity-v1:5b22696e667261737472756374757265222c224561737462616e6b207065646573747269616e20627269646765225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_clean_consensus:publication",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://publication.benchmark.example/research_clean_consensus/publication",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-05 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "public opening date",
+        "entity": "Eastbank pedestrian bridge",
+        "entity_namespace": "infrastructure",
+        "provenance": {
+          "assertion_id": "research_clean_consensus:primary_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-06-14 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record",
+          "kind": "primary_record"
+        },
+        "source_id": "primary_record",
+        "text": "Municipal opening certificate: Eastbank pedestrian bridge opened to public pedestrians on June 14, 2026, at 09:00.",
+        "value": "2026-06-14"
+      },
+      {
+        "attribute": "public opening date",
+        "entity": "Eastbank pedestrian bridge",
+        "entity_namespace": "infrastructure",
+        "provenance": {
+          "assertion_id": "research_clean_consensus:report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-06-15 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://report.benchmark.example/research_clean_consensus/report",
+          "kind": "report"
+        },
+        "source_id": "report",
+        "text": "Local accessibility group field report: members crossed the newly opened Eastbank pedestrian bridge on opening day, June 14, 2026.",
+        "value": "2026-06-14"
+      },
+      {
+        "attribute": "public opening date",
+        "entity": "Eastbank pedestrian bridge",
+        "entity_namespace": "infrastructure",
+        "provenance": {
+          "assertion_id": "research_clean_consensus:report_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-06-15 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://report.benchmark.example/research_clean_consensus/report_2",
+          "kind": "report"
+        },
+        "source_id": "report_2",
+        "text": "Eastbank Gazette on-site report: barriers were removed for the public opening on June 14, 2026.",
+        "value": "2026-06-14"
+      },
+      {
+        "attribute": "public opening date",
+        "entity": "Eastbank pedestrian bridge",
+        "entity_namespace": "infrastructure",
+        "provenance": {
+          "assertion_id": "research_clean_consensus:dataset",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-06-16 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record",
+              "kind": "primary_record"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://dataset.benchmark.example/research_clean_consensus/dataset",
+          "kind": "dataset"
+        },
+        "source_id": "dataset",
+        "text": "Municipal asset register: Eastbank pedestrian bridge public_open_date=2026-06-14.",
+        "value": "2026-06-14"
+      },
+      {
+        "attribute": "public opening date",
+        "entity": "Eastbank pedestrian bridge",
+        "entity_namespace": "infrastructure",
+        "provenance": {
+          "assertion_id": "research_clean_consensus:filing",
+          "cited_sources": [
+            {
+              "identifier": "https://primary-record.benchmark.example/research_clean_consensus/primary_record",
+              "kind": "primary_record"
+            }
+          ],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-06-17 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://filing.benchmark.example/research_clean_consensus/filing",
+          "kind": "filing"
+        },
+        "source_id": "filing",
+        "text": "Completion filing: public access to Eastbank pedestrian bridge began June 14, 2026.",
+        "value": "2026-06-14"
+      },
+      {
+        "attribute": "public opening date",
+        "entity": "Eastbank pedestrian bridge",
+        "entity_namespace": "infrastructure",
+        "provenance": {
+          "assertion_id": "research_clean_consensus:analysis",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-07-01 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://analysis.benchmark.example/research_clean_consensus/analysis",
+          "kind": "analysis"
+        },
+        "source_id": "analysis",
+        "text": "Independent mobility study began counting public bridge crossings at the June 14, 2026 opening.",
+        "value": "2026-06-14"
+      },
+      {
+        "attribute": "public opening date",
+        "entity": "Eastbank pedestrian bridge",
+        "entity_namespace": "infrastructure",
+        "provenance": {
+          "assertion_id": "research_clean_consensus:publication",
+          "cited_sources": [
+            {
+              "identifier": "https://report.benchmark.example/research_clean_consensus/report_2",
+              "kind": "report"
+            }
+          ],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-07-05 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://publication.benchmark.example/research_clean_consensus/publication",
+          "kind": "publication"
+        },
+        "source_id": "publication",
+        "text": "Eastbank walking guide records the pedestrian bridge opening as June 14, 2026.",
+        "value": "2026-06-14"
+      }
+    ],
+    "case_id": "research_clean_consensus",
+    "category": null,
+    "context_budget": 3,
+    "domain": "research_analysis_agents",
+    "question": "On what date did the Eastbank pedestrian bridge open to the public?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-primary_record",
+      "claim_ids": [
+        "7b22617474726962757465223a227075626c69635f6f70656e696e675f64617465222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363936653636373236313733373437323735363337343735373236353232326332323435363137333734363236313665366232303730363536343635373337343732363936313665323036323732363936343637363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323032362d30362d3134227d"
+      ],
+      "raw_text": "Municipal opening certificate: Eastbank pedestrian bridge opened to public pedestrians on June 14, 2026, at 09:00.",
+      "source_id": "primary_record"
+    },
+    {
+      "chunk_id": "chunk-report",
+      "claim_ids": [
+        "7b22617474726962757465223a227075626c69635f6f70656e696e675f64617465222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363936653636373236313733373437323735363337343735373236353232326332323435363137333734363236313665366232303730363536343635373337343732363936313665323036323732363936343637363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323032362d30362d3134227d"
+      ],
+      "raw_text": "Local accessibility group field report: members crossed the newly opened Eastbank pedestrian bridge on opening day, June 14, 2026.",
+      "source_id": "report"
+    },
+    {
+      "chunk_id": "chunk-report_2",
+      "claim_ids": [
+        "7b22617474726962757465223a227075626c69635f6f70656e696e675f64617465222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363936653636373236313733373437323735363337343735373236353232326332323435363137333734363236313665366232303730363536343635373337343732363936313665323036323732363936343637363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323032362d30362d3134227d"
+      ],
+      "raw_text": "Eastbank Gazette on-site report: barriers were removed for the public opening on June 14, 2026.",
+      "source_id": "report_2"
+    },
+    {
+      "chunk_id": "chunk-dataset",
+      "claim_ids": [
+        "7b22617474726962757465223a227075626c69635f6f70656e696e675f64617465222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363936653636373236313733373437323735363337343735373236353232326332323435363137333734363236313665366232303730363536343635373337343732363936313665323036323732363936343637363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323032362d30362d3134227d"
+      ],
+      "raw_text": "Municipal asset register: Eastbank pedestrian bridge public_open_date=2026-06-14.",
+      "source_id": "dataset"
+    },
+    {
+      "chunk_id": "chunk-filing",
+      "claim_ids": [
+        "7b22617474726962757465223a227075626c69635f6f70656e696e675f64617465222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363936653636373236313733373437323735363337343735373236353232326332323435363137333734363236313665366232303730363536343635373337343732363936313665323036323732363936343637363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323032362d30362d3134227d"
+      ],
+      "raw_text": "Completion filing: public access to Eastbank pedestrian bridge began June 14, 2026.",
+      "source_id": "filing"
+    },
+    {
+      "chunk_id": "chunk-analysis",
+      "claim_ids": [
+        "7b22617474726962757465223a227075626c69635f6f70656e696e675f64617465222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363936653636373236313733373437323735363337343735373236353232326332323435363137333734363236313665366232303730363536343635373337343732363936313665323036323732363936343637363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323032362d30362d3134227d"
+      ],
+      "raw_text": "Independent mobility study began counting public bridge crossings at the June 14, 2026 opening.",
+      "source_id": "analysis"
+    },
+    {
+      "chunk_id": "chunk-publication",
+      "claim_ids": [
+        "7b22617474726962757465223a227075626c69635f6f70656e696e675f64617465222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363936653636373236313733373437323735363337343735373236353232326332323435363137333734363236313665366232303730363536343635373337343732363936313665323036323732363936343637363532323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a22323032362d30362d3134227d"
+      ],
+      "raw_text": "Eastbank walking guide records the pedestrian bridge opening as June 14, 2026.",
+      "source_id": "publication"
+    }
+  ],
+  "truth": {
+    "answer": "The bridge opened on June 14, 2026.",
+    "case_id": "research_clean_consensus",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "June 14",
+        "2026"
+      ]
+    },
+    "supporting_sources": [
+      "primary_record",
+      "report",
+      "report_2",
+      "dataset",
+      "filing",
+      "analysis",
+      "publication"
+    ]
+  }
+}

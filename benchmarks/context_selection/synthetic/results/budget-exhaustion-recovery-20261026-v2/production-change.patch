@@ -1,0 +1,214 @@
+--- a/omneum/client.py
++++ b/omneum/client.py
+@@ -1115,8 +1115,12 @@
+         retaining full-graph evaluation. Caller chunk scores require explicit
+         score semantics. In complementary density packing they condition final
+         utility as well as discovery, even when query_conditioned_utility=False.
+-        Discovery defaults to expanded and keeps boundary ties. Missing chunk
+-        scores are errors. local_relevance explicitly enables bm25 or minilm on
++        Discovery defaults to expanded and keeps boundary ties.
++        Expanded discovery prioritizes its initial neighborhood; after its
++        positive feasible utility is exhausted, other retrieved chunks may be
++        selected at the same minimum accepted marginal utility per token.
++        Exact top_k restrictions and inferred duplicate suppression are retained.
++        Missing chunk scores are errors. local_relevance explicitly enables bm25 or minilm on
+         chunk text; without either relevance source discovery retains the full
+         structural pool. No model is loaded implicitly.
+         coverage_answer is experimental and combines normalized chunk relevance,
+@@ -1308,6 +1312,7 @@
+                              "reason": "below_normalized_threshold"}
+                             for k in plan["mapping"]["retrieval_order"] if k in filtered)
+                         diagnostics["eligible_chunk_ids"] = [k for k in plan["mapping"]["retrieval_order"] if k in eligible]
++                    plan["full_chunks"] = list(chunks)
+                     plan["chunks"] = [chunk for chunk in chunks if chunk["chunk_id"] in eligible]
+                     # Candidate restriction never changes graph initialization,
+                     # dependency estimation or the full-graph inference inputs.
+@@ -1337,6 +1342,18 @@
+                     raise ValueError("evaluation reuse requires full query evaluation")
+                 if measurements is not None:
+                     measurements.update(receipt["measurements"])
++            deferred_chunk_ids = ()
++            if (plan is not None and retriever_candidates
++                    and plan["diagnostics"].get("candidate_discovery") == "expanded"
++                    and strategy in ("coverage_support_density", "coverage_support_query")):
++                # Keep the expanded neighborhood first. Only after its positive
++                # feasible marginal utility is exhausted may packing search the
++                # rest of the original pool, with the same full-graph inference.
++                initial_ids = {chunk["chunk_id"] for chunk in chunks}
++                deferred_chunk_ids = tuple(k for k in plan["mapping"]["retrieval_order"]
++                                           if k not in initial_ids)
++                if deferred_chunk_ids:
++                    chunks = plan["full_chunks"]
+             selection_trace = [] if query_diagnostics is not None else None
+             selected = reconstruct_context(
+                 evaluation, chunks, token_budget=token_budget, strategy=strategy,
+@@ -1352,7 +1369,22 @@
+                                  for chunk in chunks} if use_chunk_query_weights else None,
+                 _allow_unmapped_claims=plan is not None,
+                 _selection_trace=selection_trace,
+-            )
++                _deferred_chunk_ids=deferred_chunk_ids,
++            )
++            considered = selected.pop("_recovery_considered_chunk_ids", [])
++            recovery_floor = selected.pop("_recovery_utility_floor", None)
++            if deferred_chunk_ids:
++                diagnostics = plan["diagnostics"]
++                diagnostics["initial_eligible_chunk_ids"] = list(diagnostics["eligible_chunk_ids"])
++                diagnostics["recovery_considered_chunk_ids"] = considered
++                diagnostics["recovery_utility_floor"] = recovery_floor
++                diagnostics["recovered_chunk_ids"] = [k for k in selected["selected_chunk_ids"]
++                                                       if k in deferred_chunk_ids]
++                eligible = set(diagnostics["eligible_chunk_ids"]) | set(considered)
++                diagnostics["eligible_chunk_ids"] = [k for k in plan["mapping"]["retrieval_order"] if k in eligible]
++                diagnostics["excluded_chunks"] = [c for c in diagnostics["excluded_chunks"] if c["chunk_id"] not in eligible]
++                if query_diagnostics is not None:
++                    query_diagnostics.update(diagnostics)
+             if plan is not None:
+                 # Input accounting covers the original retrieved pool, even
+                 # when inference or selection uses only a query neighborhood.
+--- a/omneum/context_selection.py
++++ b/omneum/context_selection.py
+@@ -147,7 +147,7 @@
+                   token_cost_exponent=None, complementary_sources=None, claim_relevance=None,
+                   claim_source_utility=None, chunk_claim_utility=None, chunk_relevance=None,
+                   selection_trace=None, covered_claim_credit=0.25,
+-                  query_cost_normalization="standalone"):
++                  query_cost_normalization="standalone", _deferred_chunk_ids=()):
+     measurements = _execution_telemetry.get()
+     selection_started = time.perf_counter() if measurements is not None else None
+     if type(token_budget) is not int or token_budget < 0:
+@@ -236,7 +236,16 @@
+     represented_properties = {}
+     selected = []
+     selection_scores = []
+-    remaining = list(mapping["retrieval_order"])
++    all_candidates = list(mapping["retrieval_order"])
++    deferred_ids = set(_deferred_chunk_ids)
++    if not deferred_ids <= set(all_candidates):
++        raise ValueError("deferred chunks must belong to the candidate pool")
++    if deferred_ids and strategy not in ("coverage_support_density", "coverage_support_query"):
++        raise ValueError("deferred discovery requires marginal support coverage")
++    deferred = [key for key in all_candidates if key in deferred_ids]
++    remaining = [key for key in all_candidates if key not in deferred_ids]
++    recovery_considered = []
++    recovery_floor = None
+     selected_sources = {claim: {} for claim in support}
+     selected_claim_groups = {claim: {} for claim in support}
+     represented_utility = {claim: 0.0 for claim in support}
+@@ -259,7 +268,7 @@
+         return standalone_tokens[identifier]
+ 
+     if attributed_query:
+-        for identifier in remaining:
++        for identifier in all_candidates:
+             attributed_terms[identifier] = tuple(
+                 (claim, 1.0 if claim_relevance is None else claim_relevance[claim], *claim_source_utility[identifier][claim])
+                 for claim in mapping["chunk_claims"][identifier]
+@@ -354,23 +363,29 @@
+ 
+     candidate_scores = {
+         identifier: sum(support[c] for c in mapping["chunk_claims"][identifier]) if coverage_strategy else score(identifier)
+-        for identifier in remaining
++        for identifier in all_candidates
+     }
+     if answer_weighted:
+         candidate_scores = {identifier: score(identifier) / max(1, standalone_usage(identifier))
+                             for identifier in remaining}
+     render_mapping = {
+         **mapping,
+-        "retrieval_order": sorted(remaining, key=lambda identifier: -candidate_scores[identifier]),
++        "retrieval_order": sorted(all_candidates, key=lambda identifier: -candidate_scores[identifier]),
+     }
+     current_context = reconstruct(render_mapping, selected)
+     current_tokens = usage(current_context)
+-    while remaining:
++    while remaining or deferred:
++        if not remaining:
++            recovery_floor = min((s["regularized_utility"] for s in selection_scores), default=0.0)
++            recovery_considered = list(deferred)
++            remaining, deferred = deferred, []
+         costs = {}
+         utilities = {}
+         proposal_contexts = {}
+         step = None if selection_trace is None else {
+             "selected": list(selected), "context_tokens": current_tokens, "candidates": []}
++        if step is not None and recovery_floor is not None:
++            step["recovery_utility_floor"] = recovery_floor
+ 
+         # ΔT(k | S) uses the complete reconstruction, including headers and
+         # separators. Tokenizer boundaries make isolated chunk costs insufficient.
+@@ -414,18 +429,27 @@
+                     # Subtract λ ΔT from plain marginal support or its
+                     # token-normalized density, using the same exact cost.
+                     utility -= token_penalty * (tokens - current_tokens)
+-                if tokens <= token_budget:
++                passes_floor = not (identifier in deferred_ids
++                                    and recovery_floor is not None and utility < recovery_floor)
++                if tokens <= token_budget and passes_floor:
+                     costs[identifier] = tokens - current_tokens
+                     utilities[identifier] = utility
+                 if selection_trace is not None:
+                     step["candidates"].append({"chunk_id": identifier, "marginal_gain": marginal_gain,
+                         "query_relevance": None if chunk_relevance is None else chunk_relevance[identifier],
+                         "utility": utility, "proposed_context_tokens": tokens,
+-                        "incremental_tokens": tokens-current_tokens, "feasible": tokens <= token_budget})
++                        "incremental_tokens": tokens-current_tokens, "feasible": tokens <= token_budget,
++                        **({"passes_recovery_floor": passes_floor} if recovery_floor is not None else {})})
+         if selection_trace is not None:
+             selection_trace.append(step)
+ 
+         if not utilities:
++            if deferred:
++                recovery_floor = min((s["regularized_utility"] for s in selection_scores), default=0.0)
++                recovery_considered = list(deferred)
++                remaining.extend(deferred)
++                deferred = []
++                continue
+             break
+         # Packed coverage prefers lower exact ΔT for equal marginal utility.
+         # Remaining ties, and the original strategies, retain retrieval order.
+@@ -439,6 +463,17 @@
+         # Check every feasible candidate before stopping: a nonpositive
+         # maximum offers no positive marginal utility, even with budget left.
+         if coverage_strategy and utilities[identifier] <= 0.0:
++            if deferred:
++                # Discovery is an initial search neighborhood, not evidence of
++                # zero utility outside it. Reuse the same covered cluster mass
++                # and exact proposal costs; do not reset or relax suppression.
++                # A larger budget is not permission to lower the initial
++                # neighborhood's weakest accepted marginal utility per token.
++                recovery_floor = min((s["regularized_utility"] for s in selection_scores), default=0.0)
++                recovery_considered = list(deferred)
++                remaining.extend(deferred)
++                deferred = []
++                continue
+             break
+         selected.append(identifier)
+         current_context = proposal_contexts[identifier]
+@@ -505,6 +540,8 @@
+         "token_usage": tokens,
+         "token_budget": token_budget,
+         "context": context,
++        **({"_recovery_considered_chunk_ids": recovery_considered,
++            "_recovery_utility_floor": recovery_floor} if deferred_ids else {}),
+     }
+ 
+ 
+@@ -525,6 +562,7 @@
+     _allow_unmapped_claims: bool = False,
+     _selection_trace: list[dict[str, Any]] | None = None,
+     _query_cost_normalization: str = "standalone",
++    _deferred_chunk_ids: Sequence[str] = (),
+ ) -> dict[str, Any]:
+     # The default budget counts Unicode word/punctuation units, including chunk headers.
+     if type(evaluation) is not ContextEvaluation:
+@@ -601,7 +639,8 @@
+                            chunk_claim_utility=chunk_claim_utility,
+                            query_cost_normalization=_query_cost_normalization,
+                            chunk_relevance=chunk_relevance if strategy in ("coverage_support_density", "coverage_support_nonlinear", "coverage_support_query") else None,
+-                           selection_trace=_selection_trace, covered_claim_credit=covered_claim_credit)
++                           selection_trace=_selection_trace, covered_claim_credit=covered_claim_credit,
++                           _deferred_chunk_ids=_deferred_chunk_ids)
+     selected = result["selected_chunk_ids"]
+     result["mapping"] = {
+         "chunk_text": {identifier: mapping["chunk_text"][identifier] for identifier in selected},

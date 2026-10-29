@@ -1,0 +1,435 @@
+{
+  "id": "enterprise_policy_copy_chain",
+  "domain": "enterprise_rag",
+  "question": "Under Larch policy TR-17, what receipt threshold applies to domestic meals for employees in August 2026?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "policy_record",
+      "source": {
+        "kind": "policy_record",
+        "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record"
+      },
+      "text": "Policy record TR-17, effective July 1: a receipt is required for domestic employee meals of $40 or more; lower amounts need a business purpose.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:policy_record",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-07-01T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 40,
+          "claim_id": "sha256:734790bc3a1f4f6e9893cff9b84a3ba4d7965fb660b054274d7ecbfb9886bcd5",
+          "observation_id": "enterprise_policy_copy_chain:policy_record",
+          "evidence": [
+            {
+              "source_id": "policy_record",
+              "start": 0,
+              "end": 143,
+              "text": "Policy record TR-17, effective July 1: a receipt is required for domestic employee meals of $40 or more; lower amounts need a business purpose."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "threshold_effective_date",
+          "value": "July 1",
+          "claim_id": "sha256:af8373af7a8a8574162ef0735df0e09f6f2ab49e0c6e05cdb717e3dae5f4c8c5",
+          "observation_id": "enterprise_policy_copy_chain:policy_record:claim:2",
+          "evidence": [
+            {
+              "source_id": "policy_record",
+              "start": 0,
+              "end": 143,
+              "text": "Policy record TR-17, effective July 1: a receipt is required for domestic employee meals of $40 or more; lower amounts need a business purpose."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "below_threshold_requirement",
+          "value": {
+            "condition": "amount below 40 USD",
+            "required": "business purpose"
+          },
+          "claim_id": "sha256:d832fca57195bbadd23a48ebe8b7cfcb6ec99d6bf989abc55dd3bf99b99d340a",
+          "observation_id": "enterprise_policy_copy_chain:policy_record:claim:3",
+          "evidence": [
+            {
+              "source_id": "policy_record",
+              "start": 0,
+              "end": 143,
+              "text": "Policy record TR-17, effective July 1: a receipt is required for domestic employee meals of $40 or more; lower amounts need a business purpose."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "confluence_page",
+      "source": {
+        "kind": "confluence_page",
+        "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page"
+      },
+      "text": "Travel Confluence FAQ: receipts are required for domestic meals at $75 or more. Published from the travel desk briefing, revision 6.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:confluence_page",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-07-03T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 75,
+          "claim_id": "sha256:531a9fb8ed2907bac940fb7170ad5626475aaf6cd96db7e4cc4e107882ca9adc",
+          "observation_id": "enterprise_policy_copy_chain:confluence_page",
+          "evidence": [
+            {
+              "source_id": "confluence_page",
+              "start": 0,
+              "end": 132,
+              "text": "Travel Confluence FAQ: receipts are required for domestic meals at $75 or more. Published from the travel desk briefing, revision 6."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "travel desk briefing",
+          "attribute": "briefing_revision",
+          "value": 6,
+          "claim_id": "sha256:746817b82c7cb70e8831b378cc6ba33a20a53e08747d0ca47c946b9c44564cea",
+          "observation_id": "enterprise_policy_copy_chain:confluence_page:claim:2",
+          "evidence": [
+            {
+              "source_id": "confluence_page",
+              "start": 0,
+              "end": 132,
+              "text": "Travel Confluence FAQ: receipts are required for domestic meals at $75 or more. Published from the travel desk briefing, revision 6."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "team_wiki",
+      "source": {
+        "kind": "team_wiki",
+        "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki"
+      },
+      "text": "Sales team travel wiki: use the travel Confluence FAQ threshold of $75 for domestic meal receipts.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:team_wiki",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-07-05T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "confluence_page",
+            "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_policy_copy_chain:confluence_page"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 75,
+          "claim_id": "sha256:531a9fb8ed2907bac940fb7170ad5626475aaf6cd96db7e4cc4e107882ca9adc",
+          "observation_id": "enterprise_policy_copy_chain:team_wiki",
+          "evidence": [
+            {
+              "source_id": "team_wiki",
+              "start": 0,
+              "end": 98,
+              "text": "Sales team travel wiki: use the travel Confluence FAQ threshold of $75 for domestic meal receipts."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "slack_message",
+      "source": {
+        "kind": "slack_message",
+        "identifier": "https://slack-message.benchmark.example/enterprise_policy_copy_chain/slack_message"
+      },
+      "text": "Slack #field-travel: Sales wiki says attach receipts for meals at $75 and above; adding that to the trip checklist.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:slack_message",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-07-06T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "team_wiki",
+            "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_policy_copy_chain:team_wiki"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 75,
+          "claim_id": "sha256:531a9fb8ed2907bac940fb7170ad5626475aaf6cd96db7e4cc4e107882ca9adc",
+          "observation_id": "enterprise_policy_copy_chain:slack_message",
+          "evidence": [
+            {
+              "source_id": "slack_message",
+              "start": 0,
+              "end": 115,
+              "text": "Slack #field-travel: Sales wiki says attach receipts for meals at $75 and above; adding that to the trip checklist."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "hr_system",
+      "source": {
+        "kind": "hr_system",
+        "identifier": "https://hr-system.benchmark.example/enterprise_policy_copy_chain/hr_system"
+      },
+      "text": "Expense system rule TR-17-US-MEAL, effective July 1: receipt_required when amount_usd >= 40 for employee domestic meals.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:hr_system",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-07-01T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "policy_record",
+            "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_policy_copy_chain:policy_record"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 40,
+          "claim_id": "sha256:734790bc3a1f4f6e9893cff9b84a3ba4d7965fb660b054274d7ecbfb9886bcd5",
+          "observation_id": "enterprise_policy_copy_chain:hr_system",
+          "evidence": [
+            {
+              "source_id": "hr_system",
+              "start": 0,
+              "end": 120,
+              "text": "Expense system rule TR-17-US-MEAL, effective July 1: receipt_required when amount_usd >= 40 for employee domestic meals."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "threshold_effective_date",
+          "value": "July 1",
+          "claim_id": "sha256:af8373af7a8a8574162ef0735df0e09f6f2ab49e0c6e05cdb717e3dae5f4c8c5",
+          "observation_id": "enterprise_policy_copy_chain:hr_system:claim:2",
+          "evidence": [
+            {
+              "source_id": "hr_system",
+              "start": 0,
+              "end": 120,
+              "text": "Expense system rule TR-17-US-MEAL, effective July 1: receipt_required when amount_usd >= 40 for employee domestic meals."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "drive_document",
+      "source": {
+        "kind": "drive_document",
+        "identifier": "https://drive-document.benchmark.example/enterprise_policy_copy_chain/drive_document"
+      },
+      "text": "Drive trip checklist, copied from Sales wiki: domestic meal receipt threshold $75.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:drive_document",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-07-07T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "team_wiki",
+            "identifier": "https://team-wiki.benchmark.example/enterprise_policy_copy_chain/team_wiki"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_policy_copy_chain:team_wiki"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 75,
+          "claim_id": "sha256:531a9fb8ed2907bac940fb7170ad5626475aaf6cd96db7e4cc4e107882ca9adc",
+          "observation_id": "enterprise_policy_copy_chain:drive_document",
+          "evidence": [
+            {
+              "source_id": "drive_document",
+              "start": 0,
+              "end": 82,
+              "text": "Drive trip checklist, copied from Sales wiki: domestic meal receipt threshold $75."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "email_summary",
+      "source": {
+        "kind": "email_summary",
+        "identifier": "https://email-summary.benchmark.example/enterprise_policy_copy_chain/email_summary"
+      },
+      "text": "Travel desk email digest reproduces the Confluence FAQ: receipts for domestic meals at $75 or more.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:email_summary",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-07-08T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "confluence_page",
+            "identifier": "https://confluence-page.benchmark.example/enterprise_policy_copy_chain/confluence_page"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_policy_copy_chain:confluence_page"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 75,
+          "claim_id": "sha256:531a9fb8ed2907bac940fb7170ad5626475aaf6cd96db7e4cc4e107882ca9adc",
+          "observation_id": "enterprise_policy_copy_chain:email_summary",
+          "evidence": [
+            {
+              "source_id": "email_summary",
+              "start": 0,
+              "end": 99,
+              "text": "Travel desk email digest reproduces the Confluence FAQ: receipts for domestic meals at $75 or more."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "manager_note",
+      "source": {
+        "kind": "manager_note",
+        "identifier": "https://manager-note.benchmark.example/enterprise_policy_copy_chain/manager_note"
+      },
+      "text": "Manager trip note combines the Slack checklist and travel desk digest: keep meal receipts at $75 and above.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:manager_note",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-07-09T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "slack_message",
+            "identifier": "https://slack-message.benchmark.example/enterprise_policy_copy_chain/slack_message"
+          },
+          {
+            "kind": "email_summary",
+            "identifier": "https://email-summary.benchmark.example/enterprise_policy_copy_chain/email_summary"
+          }
+        ],
+        "parent_assertion_ids": [
+          "enterprise_policy_copy_chain:slack_message",
+          "enterprise_policy_copy_chain:email_summary"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 75,
+          "claim_id": "sha256:531a9fb8ed2907bac940fb7170ad5626475aaf6cd96db7e4cc4e107882ca9adc",
+          "observation_id": "enterprise_policy_copy_chain:manager_note",
+          "evidence": [
+            {
+              "source_id": "manager_note",
+              "start": 0,
+              "end": 107,
+              "text": "Manager trip note combines the Slack checklist and travel desk digest: keep meal receipts at $75 and above."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "policy_changelog",
+      "source": {
+        "kind": "policy_changelog",
+        "identifier": "https://policy-changelog.benchmark.example/enterprise_policy_copy_chain/policy_changelog"
+      },
+      "text": "TR-17 change log entry signed July 1: domestic employee meal receipt threshold set to $40.",
+      "provenance": {
+        "assertion_id": "enterprise_policy_copy_chain:policy_changelog",
+        "observed_at": "2026-08-20T12:08:00Z",
+        "source_modified_at": "2026-07-01T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "policy_record",
+            "identifier": "https://policy-record.benchmark.example/enterprise_policy_copy_chain/policy_record"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "receipt_required_at_or_above_usd",
+          "value": 40,
+          "claim_id": "sha256:734790bc3a1f4f6e9893cff9b84a3ba4d7965fb660b054274d7ecbfb9886bcd5",
+          "observation_id": "enterprise_policy_copy_chain:policy_changelog",
+          "evidence": [
+            {
+              "source_id": "policy_changelog",
+              "start": 0,
+              "end": 90,
+              "text": "TR-17 change log entry signed July 1: domestic employee meal receipt threshold set to $40."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "enterprise_policy",
+          "entity": "Larch TR-17 domestic employee meals",
+          "attribute": "threshold_effective_date",
+          "value": "July 1",
+          "claim_id": "sha256:af8373af7a8a8574162ef0735df0e09f6f2ab49e0c6e05cdb717e3dae5f4c8c5",
+          "observation_id": "enterprise_policy_copy_chain:policy_changelog:claim:2",
+          "evidence": [
+            {
+              "source_id": "policy_changelog",
+              "start": 0,
+              "end": 90,
+              "text": "TR-17 change log entry signed July 1: domestic employee meal receipt threshold set to $40."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

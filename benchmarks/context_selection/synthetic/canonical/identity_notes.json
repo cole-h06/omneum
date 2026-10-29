@@ -1,0 +1,70 @@
+{
+  "rules": [
+    "Identical canonical namespace/entity/attribute/value tuples share one ID. Evidence, source identities, provenance and observations never enter a claim ID.",
+    "Assertions made by a passage are retained even when they conflict with other passages; no expected-answer or source-authority filtering is used.",
+    "Instruction, available operation, observed effect, historical incident and proposed workaround are different predicates. Scope in entities/values is used only where stated or unambiguously resolved by the case context.",
+    "Abbreviated subjects inherit the original case topic; case-level aliases do not add unstated counts, deployment states, dates, or applicability.",
+    "Partial dates retain their stated precision. Observation/publication timestamps are not substituted for the date of an asserted event.",
+    "Range membership and an aggregate count are not identical assertions; the Riverton register retains its literal vehicle ID ranges rather than inventing a count by arithmetic.",
+    "Default retention durations do not assert that exceptions expire: legal-hold exceptions are represented separately where stated.",
+    "A mislabeled or differently defined metric is preserved with its actual computation and output label, rather than silently treated as the board metric."
+  ],
+  "contextual_resolutions": [
+    {
+      "case_id": "analytics_metric_definition_conflict",
+      "sources": [
+        "dashboard",
+        "exported_report"
+      ],
+      "context_sources": [
+        "semantic_layer",
+        "transformation"
+      ],
+      "resolution": "The dashboard explicitly uses the semantic-layer field; its export copies the dashboard. Their metric includes expansion as stated by that field definition."
+    },
+    {
+      "case_id": "analytics_stale_dashboard",
+      "sources": [
+        "exported_report"
+      ],
+      "context_sources": [
+        "dashboard_snapshot"
+      ],
+      "resolution": "The export explicitly names the August 2 dashboard image. That image explicitly identifies run B02."
+    },
+    {
+      "case_id": "coding_api_version_change",
+      "sources": [
+        "test_output"
+      ],
+      "context_sources": [
+        "package_metadata",
+        "current_api_docs"
+      ],
+      "resolution": "The smoke test explicitly uses the lockfile environment; the lockfile identifies LedgerKit 3.0.0. The call is the 3.0 CSV API with its exact test arguments preserved separately."
+    },
+    {
+      "case_id": "support_stale_runbook",
+      "sources": [
+        "ticket"
+      ],
+      "context_sources": [
+        "kb_article",
+        "old_runbook"
+      ],
+      "resolution": "The ticket explicitly copies the v3 KB. Its restart instruction is scoped to v3, not relabeled as v5."
+    }
+  ],
+  "unit_normalizations": [
+    {
+      "case_id": "analytics_metric_definition_conflict",
+      "source_id": "transformation",
+      "attribute": "retention_percentage_including_expansion",
+      "source_literal": 1.12,
+      "source_unit": "dimensionless ratio",
+      "canonical_value": 112,
+      "canonical_unit": "percent",
+      "validation": "Decimal(\"1.12\") * 100 == Decimal(\"112\")"
+    }
+  ]
+}

@@ -1,0 +1,295 @@
+{
+  "schema": "canonical-multi-claim-dataset-v1",
+  "purpose": "One manually audited canonical dataset; not a benchmark result",
+  "original_cases": "benchmarks/context_evaluation/heldout/cases",
+  "frozen_reference": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1",
+  "original_case_fields_preserved": "All except four legacy single-claim fields, replaced by candidate.claims[]",
+  "claim_identity": "sha256 of UTF-8 canonical JSON (sorted keys, compact separators) of exactly entity_namespace, entity, attribute, value",
+  "observation_identity": "Original assertion_id retained by the first claim; additional claims append :claim:<one-based index>",
+  "provenance": "Candidate source/provenance unchanged; every claim occurrence inherits it. Parent assertion IDs still refer to retained original IDs.",
+  "evidence": "Exact original full-passage spans; these are source attestations, not entailment probabilities.",
+  "loader_boundary": "Benchmark loader and SDK adapter support claims[] as existing SDK observations while retaining unchanged legacy singleton behavior. Multi-claim candidates have no legacy primary projection; historical singleton-only analysis scripts remain unsupported for canonical inputs.",
+  "cases": [
+    {
+      "case_id": "analytics_derived_metric_cycle",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 16
+    },
+    {
+      "case_id": "analytics_incomplete_lineage",
+      "candidates": 9,
+      "original_claims": 9,
+      "canonical_claim_occurrences": 22
+    },
+    {
+      "case_id": "analytics_metric_definition_conflict",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 30
+    },
+    {
+      "case_id": "analytics_stale_dashboard",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 18
+    },
+    {
+      "case_id": "coding_api_version_change",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 19
+    },
+    {
+      "case_id": "coding_clean_dependency",
+      "candidates": 7,
+      "original_claims": 7,
+      "canonical_claim_occurrences": 8
+    },
+    {
+      "case_id": "coding_config_conflict",
+      "candidates": 6,
+      "original_claims": 6,
+      "canonical_claim_occurrences": 17
+    },
+    {
+      "case_id": "coding_package_fix_lineage",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 19
+    },
+    {
+      "case_id": "enterprise_partial_lineage",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 16
+    },
+    {
+      "case_id": "enterprise_policy_copy_chain",
+      "candidates": 9,
+      "original_claims": 9,
+      "canonical_claim_occurrences": 14
+    },
+    {
+      "case_id": "enterprise_semantic_distractors",
+      "candidates": 10,
+      "original_claims": 10,
+      "canonical_claim_occurrences": 11
+    },
+    {
+      "case_id": "enterprise_stale_handbook",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 15
+    },
+    {
+      "case_id": "multi_agent_feedback_loop",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 18
+    },
+    {
+      "case_id": "multi_agent_independent_error",
+      "candidates": 6,
+      "original_claims": 6,
+      "canonical_claim_occurrences": 12
+    },
+    {
+      "case_id": "multi_agent_relevant_wrong_task",
+      "candidates": 9,
+      "original_claims": 9,
+      "canonical_claim_occurrences": 13
+    },
+    {
+      "case_id": "multi_agent_repeated_subagent",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 16
+    },
+    {
+      "case_id": "research_clean_consensus",
+      "candidates": 7,
+      "original_claims": 7,
+      "canonical_claim_occurrences": 11
+    },
+    {
+      "case_id": "research_conflicting_reports",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 20
+    },
+    {
+      "case_id": "research_independent_false_consensus",
+      "candidates": 7,
+      "original_claims": 7,
+      "canonical_claim_occurrences": 19
+    },
+    {
+      "case_id": "research_syndicated_reporting",
+      "candidates": 9,
+      "original_claims": 9,
+      "canonical_claim_occurrences": 17
+    },
+    {
+      "case_id": "support_clean_resolution",
+      "candidates": 7,
+      "original_claims": 7,
+      "canonical_claim_occurrences": 17
+    },
+    {
+      "case_id": "support_resolution_conflict",
+      "candidates": 7,
+      "original_claims": 7,
+      "canonical_claim_occurrences": 15
+    },
+    {
+      "case_id": "support_stale_runbook",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 14
+    },
+    {
+      "case_id": "support_ticket_reference_loop",
+      "candidates": 8,
+      "original_claims": 8,
+      "canonical_claim_occurrences": 23
+    }
+  ],
+  "token_budgets": [
+    64,
+    96,
+    128,
+    160,
+    192,
+    256
+  ],
+  "retrieval": [
+    {
+      "path": "retrieval/analytics_derived_metric_cycle-retrieval.json",
+      "sha256": "d0721f2c0225906ddfcc35da390879d6ec68f985c71220cd16799c2d648b1e58",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/analytics_derived_metric_cycle-retrieval.json"
+    },
+    {
+      "path": "retrieval/analytics_incomplete_lineage-retrieval.json",
+      "sha256": "28d09d5184616b3fb0d46c007c8773d7187f6831a6a161ac816df95d3ceb20aa",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/analytics_incomplete_lineage-retrieval.json"
+    },
+    {
+      "path": "retrieval/analytics_metric_definition_conflict-retrieval.json",
+      "sha256": "33f3df8d0f1539a97f79806306be856d1eb71c236f4418e13aee53f7196bd87f",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/analytics_metric_definition_conflict-retrieval.json"
+    },
+    {
+      "path": "retrieval/analytics_stale_dashboard-retrieval.json",
+      "sha256": "b4833c97478e904604a4712acc831ed08e8eed68af43a488253ddb923fe46868",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/analytics_stale_dashboard-retrieval.json"
+    },
+    {
+      "path": "retrieval/coding_api_version_change-retrieval.json",
+      "sha256": "7c66aeb4cdd9ac934d5e7622c3a138fa59216ae7034847c7a0718ada6b2dd185",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/coding_api_version_change-retrieval.json"
+    },
+    {
+      "path": "retrieval/coding_clean_dependency-retrieval.json",
+      "sha256": "571dd110c870c3e1f49f7c0386fd44dcd72f9755aca4fc490fea26028a7c4863",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/coding_clean_dependency-retrieval.json"
+    },
+    {
+      "path": "retrieval/coding_config_conflict-retrieval.json",
+      "sha256": "d6bd73ad749a652760e63bc1e7b385bc9578eebf2bc7befb47b3a46db00d8d96",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/coding_config_conflict-retrieval.json"
+    },
+    {
+      "path": "retrieval/coding_package_fix_lineage-retrieval.json",
+      "sha256": "e92175618ef08c7b64053b21c145cb83db5776754e23cf14b25a800fa26eed72",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/coding_package_fix_lineage-retrieval.json"
+    },
+    {
+      "path": "retrieval/enterprise_partial_lineage-retrieval.json",
+      "sha256": "05f13e31d3aa07ec275dfa2bc7bd252b860081a2f697ee93dd01f408d50e2772",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/enterprise_partial_lineage-retrieval.json"
+    },
+    {
+      "path": "retrieval/enterprise_policy_copy_chain-retrieval.json",
+      "sha256": "dc1ffdc4123f160f02bac17263f21a7c90c62cdf5dc7f0462eb70e4221b68922",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/enterprise_policy_copy_chain-retrieval.json"
+    },
+    {
+      "path": "retrieval/enterprise_semantic_distractors-retrieval.json",
+      "sha256": "1c4d308928480691916d3f9b0fb5f610b5793fa71eb46ea3958fc629b50b22a1",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/enterprise_semantic_distractors-retrieval.json"
+    },
+    {
+      "path": "retrieval/enterprise_stale_handbook-retrieval.json",
+      "sha256": "219cdcdc86d501ac31696b330325dd376275fae2568e30619ddf3e043d844d85",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/enterprise_stale_handbook-retrieval.json"
+    },
+    {
+      "path": "retrieval/multi_agent_feedback_loop-retrieval.json",
+      "sha256": "cfba2a087947a478bc88825d0d55b25aa2e6e7dda57a4d201e2e7147815da235",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/multi_agent_feedback_loop-retrieval.json"
+    },
+    {
+      "path": "retrieval/multi_agent_independent_error-retrieval.json",
+      "sha256": "3d7b5f2097d04fdd639313fe959306ac384501a5f9ec7ca0d698aafd22157c34",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/multi_agent_independent_error-retrieval.json"
+    },
+    {
+      "path": "retrieval/multi_agent_relevant_wrong_task-retrieval.json",
+      "sha256": "a254c532481386b262e5c8a93e0b567006e0f048e12ba2117e7f8fcc2f4c78a1",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/multi_agent_relevant_wrong_task-retrieval.json"
+    },
+    {
+      "path": "retrieval/multi_agent_repeated_subagent-retrieval.json",
+      "sha256": "4cdee7a6b2d8fb1dd258017b64f32d99419c1659ef587891b43f44f2a9e16de7",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/multi_agent_repeated_subagent-retrieval.json"
+    },
+    {
+      "path": "retrieval/research_clean_consensus-retrieval.json",
+      "sha256": "887c9a0f4942993e3f424bd43a1f99997c6f3c0fe9b948383916df172ccba2b7",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/research_clean_consensus-retrieval.json"
+    },
+    {
+      "path": "retrieval/research_conflicting_reports-retrieval.json",
+      "sha256": "93db7f14c24adf30fe811ec65c3edd91fbd25ee1bd80fe63a1561c222633519c",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/research_conflicting_reports-retrieval.json"
+    },
+    {
+      "path": "retrieval/research_independent_false_consensus-retrieval.json",
+      "sha256": "a694ad009a69b17074d464a03d191f88c96e5007cbe1c634fb14d78106c5eb2f",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/research_independent_false_consensus-retrieval.json"
+    },
+    {
+      "path": "retrieval/research_syndicated_reporting-retrieval.json",
+      "sha256": "0010987bc2e2ff7fabe9358b9ddf05752db6f6168b42e32bec19fd8deb3fe2b5",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/research_syndicated_reporting-retrieval.json"
+    },
+    {
+      "path": "retrieval/support_clean_resolution-retrieval.json",
+      "sha256": "28186416ec961595542c02dae1c7a6b44d379f2527a29130ea70513bfef2491b",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/support_clean_resolution-retrieval.json"
+    },
+    {
+      "path": "retrieval/support_resolution_conflict-retrieval.json",
+      "sha256": "1fca8a3bae05b5ff75a68b6d5f28aaec0c0bd4c3ad4dd196deb3fc0e80c26268",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/support_resolution_conflict-retrieval.json"
+    },
+    {
+      "path": "retrieval/support_stale_runbook-retrieval.json",
+      "sha256": "066660af3083c5adabe7cde2b0101dcf3195b0b4517f0664f65c87e97d8234bb",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/support_stale_runbook-retrieval.json"
+    },
+    {
+      "path": "retrieval/support_ticket_reference_loop-retrieval.json",
+      "sha256": "e45d6ef6109ae2fa10a3f6d2cebaf79916e9341f52c9d33372158e7b491186d7",
+      "original": "benchmarks/context_evaluation/heldout/results/question-aware-release-v1/support_ticket_reference_loop-retrieval.json"
+    }
+  ],
+  "case_count": 24,
+  "candidate_count": 189,
+  "claim_occurrences": 400,
+  "distinct_claims": 259,
+  "benchmark_runs": 0,
+  "model_calls": 0,
+  "canonical_inference_runs": 0
+}

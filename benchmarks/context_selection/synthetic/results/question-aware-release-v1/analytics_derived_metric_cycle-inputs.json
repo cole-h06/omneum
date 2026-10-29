@@ -1,0 +1,513 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'840'",
+        "attribute": "account_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:derived_table",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'840'",
+        "attribute": "account_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:dashboard",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'840'",
+        "attribute": "account_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:exported_dataset",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'612'",
+        "attribute": "account_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:source_table",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'612'",
+        "attribute": "account_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:source_table_2",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table_2",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"distinct production account IDs\"'",
+        "attribute": "definition",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:metric_store",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://metric-store.benchmark.example/analytics_derived_metric_cycle/metric_store",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'612'",
+        "attribute": "account_count",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:query_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://query-result.benchmark.example/analytics_derived_metric_cycle/query_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table",
+          "kind": "web_document"
+        },
+        {
+          "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table_2",
+          "kind": "web_document"
+        }
+      ]
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table",
+          "kind": "web_document"
+        },
+        {
+          "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard",
+          "kind": "web_document"
+        },
+        {
+          "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"dashboard CSV repair input\"'",
+        "attribute": "repair_lineage",
+        "entity": "heldout-entity-v1:5b22616e616c7974696373222c22536f6c697320417567757374203137206461696c7920616374697665206163636f756e7473225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "analytics_derived_metric_cycle:data_catalog",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:07:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://data-catalog.benchmark.example/analytics_derived_metric_cycle/data_catalog",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "account count",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:derived_table",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset",
+              "kind": "exported_dataset"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table",
+          "kind": "derived_table"
+        },
+        "source_id": "derived_table",
+        "text": "Derived daily_activity table: August 17 active accounts=840. Nightly repair imports the dashboard CSV when the source scan is skipped.",
+        "value": 840
+      },
+      {
+        "attribute": "account count",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:dashboard",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table",
+              "kind": "derived_table"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard",
+          "kind": "dashboard"
+        },
+        "source_id": "dashboard",
+        "text": "Operations dashboard: August 17 daily active accounts=840, populated from daily_activity.",
+        "value": 840
+      },
+      {
+        "attribute": "account count",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:exported_dataset",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard",
+              "kind": "dashboard"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset",
+          "kind": "exported_dataset"
+        },
+        "source_id": "exported_dataset",
+        "text": "Dashboard CSV export: August 17 active accounts 840. This export is reimported by the daily_activity repair job.",
+        "value": 840
+      },
+      {
+        "attribute": "account count",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:source_table",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table",
+          "kind": "source_table"
+        },
+        "source_id": "source_table",
+        "text": "Production session source table for August 17: 840 sessions belong to 612 distinct account IDs; test tenants have already been excluded.",
+        "value": 612
+      },
+      {
+        "attribute": "account count",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:source_table_2",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table_2",
+          "kind": "source_table"
+        },
+        "source_id": "source_table_2",
+        "text": "Account activity source ledger: 612 production account IDs have one or more August 17 session events.",
+        "value": 612
+      },
+      {
+        "attribute": "definition",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:metric_store",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://metric-store.benchmark.example/analytics_derived_metric_cycle/metric_store",
+          "kind": "metric_store"
+        },
+        "source_id": "metric_store",
+        "text": "Semantic metric definition: daily active accounts counts distinct production account IDs with at least one session; it does not count session rows.",
+        "value": "distinct production account IDs"
+      },
+      {
+        "attribute": "account count",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:query_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table",
+              "kind": "source_table"
+            },
+            {
+              "identifier": "https://source-table.benchmark.example/analytics_derived_metric_cycle/source_table_2",
+              "kind": "source_table"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://query-result.benchmark.example/analytics_derived_metric_cycle/query_result",
+          "kind": "query_result"
+        },
+        "source_id": "query_result",
+        "text": "Fresh query joining production sessions to accounts: COUNT(DISTINCT account_id)=612 for August 17.",
+        "value": 612
+      },
+      {
+        "attribute": "repair lineage",
+        "entity": "Solis August 17 daily active accounts",
+        "entity_namespace": "analytics",
+        "provenance": {
+          "assertion_id": "analytics_derived_metric_cycle:data_catalog",
+          "cited_sources": [
+            {
+              "identifier": "https://derived-table.benchmark.example/analytics_derived_metric_cycle/derived_table",
+              "kind": "derived_table"
+            },
+            {
+              "identifier": "https://dashboard.benchmark.example/analytics_derived_metric_cycle/dashboard",
+              "kind": "dashboard"
+            },
+            {
+              "identifier": "https://exported-dataset.benchmark.example/analytics_derived_metric_cycle/exported_dataset",
+              "kind": "exported_dataset"
+            }
+          ],
+          "observed_at": "2026-08-20 12:07:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://data-catalog.benchmark.example/analytics_derived_metric_cycle/data_catalog",
+          "kind": "data_catalog"
+        },
+        "source_id": "data_catalog",
+        "text": "Catalog lineage: daily_activity feeds the dashboard; its CSV feeds the nightly repair input. The session source remains outside this repair path.",
+        "value": "dashboard CSV repair input"
+      }
+    ],
+    "case_id": "analytics_derived_metric_cycle",
+    "category": null,
+    "context_budget": 3,
+    "domain": "data_analytics_agents",
+    "question": "What is Solis daily active accounts for August 17 using distinct production account IDs with at least one session?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-derived_table",
+      "claim_ids": [
+        "7b22617474726962757465223a226163636f756e745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3834307d"
+      ],
+      "raw_text": "Derived daily_activity table: August 17 active accounts=840. Nightly repair imports the dashboard CSV when the source scan is skipped.",
+      "source_id": "derived_table"
+    },
+    {
+      "chunk_id": "chunk-dashboard",
+      "claim_ids": [
+        "7b22617474726962757465223a226163636f756e745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3834307d"
+      ],
+      "raw_text": "Operations dashboard: August 17 daily active accounts=840, populated from daily_activity.",
+      "source_id": "dashboard"
+    },
+    {
+      "chunk_id": "chunk-exported_dataset",
+      "claim_ids": [
+        "7b22617474726962757465223a226163636f756e745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3834307d"
+      ],
+      "raw_text": "Dashboard CSV export: August 17 active accounts 840. This export is reimported by the daily_activity repair job.",
+      "source_id": "exported_dataset"
+    },
+    {
+      "chunk_id": "chunk-source_table",
+      "claim_ids": [
+        "7b22617474726962757465223a226163636f756e745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3631327d"
+      ],
+      "raw_text": "Production session source table for August 17: 840 sessions belong to 612 distinct account IDs; test tenants have already been excluded.",
+      "source_id": "source_table"
+    },
+    {
+      "chunk_id": "chunk-source_table_2",
+      "claim_ids": [
+        "7b22617474726962757465223a226163636f756e745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3631327d"
+      ],
+      "raw_text": "Account activity source ledger: 612 production account IDs have one or more August 17 session events.",
+      "source_id": "source_table_2"
+    },
+    {
+      "chunk_id": "chunk-metric_store",
+      "claim_ids": [
+        "7b22617474726962757465223a22646566696e6974696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2264697374696e63742070726f64756374696f6e206163636f756e7420494473227d"
+      ],
+      "raw_text": "Semantic metric definition: daily active accounts counts distinct production account IDs with at least one session; it does not count session rows.",
+      "source_id": "metric_store"
+    },
+    {
+      "chunk_id": "chunk-query_result",
+      "claim_ids": [
+        "7b22617474726962757465223a226163636f756e745f636f756e74222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3631327d"
+      ],
+      "raw_text": "Fresh query joining production sessions to accounts: COUNT(DISTINCT account_id)=612 for August 17.",
+      "source_id": "query_result"
+    },
+    {
+      "chunk_id": "chunk-data_catalog",
+      "claim_ids": [
+        "7b22617474726962757465223a227265706169725f6c696e65616765222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363136653631366337393734363936333733323232633232353336663663363937333230343137353637373537333734323033313337323036343631363936633739323036313633373436393736363532303631363336333666373536653734373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a2264617368626f617264204353562072657061697220696e707574227d"
+      ],
+      "raw_text": "Catalog lineage: daily_activity feeds the dashboard; its CSV feeds the nightly repair input. The session source remains outside this repair path.",
+      "source_id": "data_catalog"
+    }
+  ],
+  "truth": {
+    "answer": "Solis had 612 daily active accounts on August 17.",
+    "case_id": "analytics_derived_metric_cycle",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "612"
+      ]
+    },
+    "supporting_sources": [
+      "source_table",
+      "source_table_2",
+      "query_result"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+.................FF..................................................... [ 36%]
+........................................................................ [ 72%]
+......................................................                   [100%]
+=================================== FAILURES ===================================
+______ test_no_remaining_initial_candidates_still_searches_deferred_pool _______
+
+    def test_no_remaining_initial_candidates_still_searches_deferred_pool():
+        result=select(deferred=tuple(c['chunk_id'] for c in fixture()[0]))
+>       assert set(result['selected_chunk_ids'])=={'seed','qualification','independent'}
+E       AssertionError: assert {'copy', 'ind...ualification'} == {'independent...tion', 'seed'}
+E         
+E         Extra items in the left set:
+E         'copy'
+E         Extra items in the right set:
+E         'seed'
+E         Use -v to get more diff
+
+tests/test_context_discovery_recovery.py:51: AssertionError
+______ test_zero_primary_utility_does_not_hide_positive_deferred_evidence ______
+
+    def test_zero_primary_utility_does_not_hide_positive_deferred_evidence():
+        result=select(deferred=('seed','copy','independent','qualification'))
+>       assert set(result['selected_chunk_ids'])=={'seed','qualification','independent'}
+E       AssertionError: assert {'copy', 'ind...ualification'} == {'independent...tion', 'seed'}
+E         
+E         Extra items in the left set:
+E         'copy'
+E         Extra items in the right set:
+E         'seed'
+E         Use -v to get more diff
+
+tests/test_context_discovery_recovery.py:56: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_context_discovery_recovery.py::test_no_remaining_initial_candidates_still_searches_deferred_pool
+FAILED tests/test_context_discovery_recovery.py::test_zero_primary_utility_does_not_hide_positive_deferred_evidence
+2 failed, 196 passed in 31.84s

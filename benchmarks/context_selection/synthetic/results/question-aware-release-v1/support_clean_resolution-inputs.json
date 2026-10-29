@@ -1,0 +1,402 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"marlinctl worker resume export\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224d61726c696e206578706f727420776f726b6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_clean_resolution:current_runbook",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://current-runbook.benchmark.example/support_clean_resolution/current_runbook",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"marlinctl worker resume export\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224d61726c696e206578706f727420776f726b6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_clean_resolution:deployment_config",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://deployment-config.benchmark.example/support_clean_resolution/deployment_config",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"marlinctl worker resume export\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224d61726c696e206578706f727420776f726b6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_clean_resolution:monitoring_result",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://monitoring-result.benchmark.example/support_clean_resolution/monitoring_result",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"marlinctl worker resume export\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224d61726c696e206578706f727420776f726b6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_clean_resolution:incident_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://incident-record.benchmark.example/support_clean_resolution/incident_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-07-21 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"marlinctl worker resume export\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224d61726c696e206578706f727420776f726b6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_clean_resolution:service_state",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://service-state.benchmark.example/support_clean_resolution/service_state",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'\"marlinctl worker resume export\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224d61726c696e206578706f727420776f726b6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_clean_resolution:change_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://change-record.benchmark.example/support_clean_resolution/change_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [
+        {
+          "identifier": "https://current-runbook.benchmark.example/support_clean_resolution/current_runbook",
+          "kind": "web_document"
+        }
+      ],
+      "claim": {
+        "_value_bytes": "b'\"marlinctl worker resume export\"'",
+        "attribute": "recovery_action",
+        "entity": "heldout-entity-v1:5b226f7065726174696f6e73222c224d61726c696e206578706f727420776f726b6572225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "support_clean_resolution:kb_article",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://kb-article.benchmark.example/support_clean_resolution/kb_article",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "recovery action",
+        "entity": "Marlin export worker",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_clean_resolution:current_runbook",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://current-runbook.benchmark.example/support_clean_resolution/current_runbook",
+          "kind": "current_runbook"
+        },
+        "source_id": "current_runbook",
+        "text": "Current Marlin runbook: after completed maintenance, resume the export worker with marlinctl worker resume export and check that pending exports drain.",
+        "value": "marlinctl worker resume export"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Marlin export worker",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_clean_resolution:deployment_config",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://deployment-config.benchmark.example/support_clean_resolution/deployment_config",
+          "kind": "deployment_config"
+        },
+        "source_id": "deployment_config",
+        "text": "Deployment config exposes worker resume for the export pool; maintenance pause is a durable flag cleared by marlinctl worker resume export.",
+        "value": "marlinctl worker resume export"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Marlin export worker",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_clean_resolution:monitoring_result",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://monitoring-result.benchmark.example/support_clean_resolution/monitoring_result",
+          "kind": "monitoring_result"
+        },
+        "source_id": "monitoring_result",
+        "text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs.",
+        "value": "marlinctl worker resume export"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Marlin export worker",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_clean_resolution:incident_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-07-21 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://incident-record.benchmark.example/support_clean_resolution/incident_record",
+          "kind": "incident_record"
+        },
+        "source_id": "incident_record",
+        "text": "Prior scheduled maintenance incident: marlinctl worker resume export cleared the pause and restored exports without resubmitting jobs.",
+        "value": "marlinctl worker resume export"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Marlin export worker",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_clean_resolution:service_state",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://service-state.benchmark.example/support_clean_resolution/service_state",
+          "kind": "service_state"
+        },
+        "source_id": "service_state",
+        "text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export.",
+        "value": "marlinctl worker resume export"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Marlin export worker",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_clean_resolution:change_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://change-record.benchmark.example/support_clean_resolution/change_record",
+          "kind": "change_record"
+        },
+        "source_id": "change_record",
+        "text": "Maintenance change record completed: storage checks pass; final operator step is marlinctl worker resume export.",
+        "value": "marlinctl worker resume export"
+      },
+      {
+        "attribute": "recovery action",
+        "entity": "Marlin export worker",
+        "entity_namespace": "operations",
+        "provenance": {
+          "assertion_id": "support_clean_resolution:kb_article",
+          "cited_sources": [
+            {
+              "identifier": "https://current-runbook.benchmark.example/support_clean_resolution/current_runbook",
+              "kind": "current_runbook"
+            }
+          ],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://kb-article.benchmark.example/support_clean_resolution/kb_article",
+          "kind": "kb_article"
+        },
+        "source_id": "kb_article",
+        "text": "KB worker maintenance guide: run marlinctl worker resume export when maintenance completes, then watch the export queue drain.",
+        "value": "marlinctl worker resume export"
+      }
+    ],
+    "case_id": "support_clean_resolution",
+    "category": null,
+    "context_budget": 3,
+    "domain": "support_operations_agents",
+    "question": "How should support restore the paused Marlin export worker after its scheduled maintenance is complete?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-current_runbook",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236663730363537323631373436393666366537333232326332323464363137323663363936653230363537383730366637323734323037373666373236623635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a226d61726c696e63746c20776f726b657220726573756d65206578706f7274227d"
+      ],
+      "raw_text": "Current Marlin runbook: after completed maintenance, resume the export worker with marlinctl worker resume export and check that pending exports drain.",
+      "source_id": "current_runbook"
+    },
+    {
+      "chunk_id": "chunk-deployment_config",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236663730363537323631373436393666366537333232326332323464363137323663363936653230363537383730366637323734323037373666373236623635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a226d61726c696e63746c20776f726b657220726573756d65206578706f7274227d"
+      ],
+      "raw_text": "Deployment config exposes worker resume for the export pool; maintenance pause is a durable flag cleared by marlinctl worker resume export.",
+      "source_id": "deployment_config"
+    },
+    {
+      "chunk_id": "chunk-monitoring_result",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236663730363537323631373436393666366537333232326332323464363137323663363936653230363537383730366637323734323037373666373236623635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a226d61726c696e63746c20776f726b657220726573756d65206578706f7274227d"
+      ],
+      "raw_text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs.",
+      "source_id": "monitoring_result"
+    },
+    {
+      "chunk_id": "chunk-incident_record",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236663730363537323631373436393666366537333232326332323464363137323663363936653230363537383730366637323734323037373666373236623635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a226d61726c696e63746c20776f726b657220726573756d65206578706f7274227d"
+      ],
+      "raw_text": "Prior scheduled maintenance incident: marlinctl worker resume export cleared the pause and restored exports without resubmitting jobs.",
+      "source_id": "incident_record"
+    },
+    {
+      "chunk_id": "chunk-service_state",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236663730363537323631373436393666366537333232326332323464363137323663363936653230363537383730366637323734323037373666373236623635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a226d61726c696e63746c20776f726b657220726573756d65206578706f7274227d"
+      ],
+      "raw_text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export.",
+      "source_id": "service_state"
+    },
+    {
+      "chunk_id": "chunk-change_record",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236663730363537323631373436393666366537333232326332323464363137323663363936653230363537383730366637323734323037373666373236623635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a226d61726c696e63746c20776f726b657220726573756d65206578706f7274227d"
+      ],
+      "raw_text": "Maintenance change record completed: storage checks pass; final operator step is marlinctl worker resume export.",
+      "source_id": "change_record"
+    },
+    {
+      "chunk_id": "chunk-kb_article",
+      "claim_ids": [
+        "7b22617474726962757465223a227265636f766572795f616374696f6e222c22656e74697479223a2268656c646f75742d656e746974792d76313a3562323236663730363537323631373436393666366537333232326332323464363137323663363936653230363537383730366637323734323037373666373236623635373232323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a226d61726c696e63746c20776f726b657220726573756d65206578706f7274227d"
+      ],
+      "raw_text": "KB worker maintenance guide: run marlinctl worker resume export when maintenance completes, then watch the export queue drain.",
+      "source_id": "kb_article"
+    }
+  ],
+  "truth": {
+    "answer": "Run marlinctl worker resume export, then verify that pending exports drain.",
+    "case_id": "support_clean_resolution",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "marlinctl worker resume export"
+      ]
+    },
+    "supporting_sources": [
+      "current_runbook",
+      "deployment_config",
+      "monitoring_result",
+      "incident_record",
+      "service_state",
+      "change_record",
+      "kb_article"
+    ]
+  }
+}

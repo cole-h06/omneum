@@ -1,0 +1,18 @@
+{
+  "case_id": "support_resolution_conflict",
+  "answer": "Roll back the trust bundle to tb17 while keeping TLS verification enabled.",
+  "supporting_sources": [
+    "ticket_2",
+    "runbook",
+    "deployment_config",
+    "monitoring_result"
+  ],
+  "scoring": {
+    "required": [
+      "trust bundle",
+      "tb17",
+      "verification"
+    ],
+    "forbidden": []
+  }
+}

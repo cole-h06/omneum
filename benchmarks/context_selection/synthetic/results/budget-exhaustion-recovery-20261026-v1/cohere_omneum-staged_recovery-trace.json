@@ -1,0 +1,311 @@
+{
+  "case_id": "coding_package_fix_lineage",
+  "method": "cohere_omneum",
+  "budget": 256,
+  "arm": "staged_recovery",
+  "selected": [
+    "chunk-pull_request",
+    "chunk-issue_origin",
+    "chunk-issue_comment",
+    "chunk-community_note",
+    "chunk-release_notes"
+  ],
+  "context": "[chunk-pull_request]\nThis change bounds idle pool entries and evicts expired connections to eliminate pool exhaustion without disabling reuse.\n\n[chunk-issue_origin]\nA workaround for connection-pool exhaustion is to disable connection reuse.\n\n[chunk-issue_comment]\nDisabling connection reuse resolves the pool exhaustion problem.\n\n[chunk-community_note]\nThe recommended fix is to turn off connection reuse.\n\n[chunk-release_notes]\nVersion 4.2 fixes pool exhaustion by bounding idle connections and evicting expired entries; connection reuse remains enabled.",
+  "tokenizer_tokens": 102,
+  "selection_order": [
+    "chunk-issue_comment",
+    "chunk-issue_origin",
+    "chunk-release_notes",
+    "chunk-pull_request",
+    "chunk-community_note"
+  ],
+  "initial_eligible": [
+    "chunk-issue_origin",
+    "chunk-issue_comment",
+    "chunk-release_notes"
+  ],
+  "recovered": [
+    "chunk-pull_request",
+    "chunk-community_note"
+  ],
+  "evidence_retention": 0.40625,
+  "gold_evidence_footprint": 96,
+  "retained_evidence_footprint": 39,
+  "actual_context_tokens": 96,
+  "raw_context_tokens": 168,
+  "context_reduction": 0.42857142857142855,
+  "gold_claim_coverage": null,
+  "supporting_passage_claim_coverage": 0.5,
+  "required_supporting_passage_claims": 10,
+  "retained_supporting_passage_claims": 5,
+  "independent_evidence_coverage": 0.4,
+  "annotated_gold_origins": [
+    [
+      "package_docs"
+    ],
+    [
+      "pull_request"
+    ],
+    [
+      "release_notes"
+    ],
+    [
+      "repository_code"
+    ],
+    [
+      "test_output"
+    ]
+  ],
+  "retained_gold_origins": [
+    [
+      "pull_request"
+    ],
+    [
+      "release_notes"
+    ]
+  ],
+  "cyclic_gold_origins": [],
+  "source_precision": 0.4,
+  "source_recall": 0.4,
+  "estimated_api_cost_usd": 0.0,
+  "utility_trace": [
+    {
+      "selected": [],
+      "context_tokens": 0,
+      "candidates": [
+        {
+          "chunk_id": "chunk-issue_origin",
+          "marginal_gain": 0.0743421052631579,
+          "query_relevance": 1.0,
+          "utility": 0.004130116959064328,
+          "proposed_context_tokens": 18,
+          "incremental_tokens": 18,
+          "feasible": true
+        },
+        {
+          "chunk_id": "chunk-issue_comment",
+          "marginal_gain": 0.0637218045112782,
+          "query_relevance": 0.8571428571428571,
+          "utility": 0.004248120300751879,
+          "proposed_context_tokens": 15,
+          "incremental_tokens": 15,
+          "feasible": true
+        },
+        {
+          "chunk_id": "chunk-release_notes",
+          "marginal_gain": 0.053101503759398504,
+          "query_relevance": 0.7142857142857143,
+          "utility": 0.0018310863365309828,
+          "proposed_context_tokens": 29,
+          "incremental_tokens": 29,
+          "feasible": true
+        }
+      ],
+      "best_feasible_chunk_id": "chunk-issue_comment"
+    },
+    {
+      "selected": [
+        "chunk-issue_comment"
+      ],
+      "context_tokens": 15,
+      "candidates": [
+        {
+          "chunk_id": "chunk-issue_origin",
+          "marginal_gain": 0.0743421052631579,
+          "query_relevance": 1.0,
+          "utility": 0.004130116959064328,
+          "proposed_context_tokens": 33,
+          "incremental_tokens": 18,
+          "feasible": true
+        },
+        {
+          "chunk_id": "chunk-release_notes",
+          "marginal_gain": 0.053101503759398504,
+          "query_relevance": 0.7142857142857143,
+          "utility": 0.0018310863365309828,
+          "proposed_context_tokens": 44,
+          "incremental_tokens": 29,
+          "feasible": true
+        }
+      ],
+      "best_feasible_chunk_id": "chunk-issue_origin"
+    },
+    {
+      "selected": [
+        "chunk-issue_comment",
+        "chunk-issue_origin"
+      ],
+      "context_tokens": 33,
+      "candidates": [
+        {
+          "chunk_id": "chunk-release_notes",
+          "marginal_gain": 0.053101503759398504,
+          "query_relevance": 0.7142857142857143,
+          "utility": 0.0018310863365309828,
+          "proposed_context_tokens": 62,
+          "incremental_tokens": 29,
+          "feasible": true
+        }
+      ],
+      "best_feasible_chunk_id": "chunk-release_notes"
+    },
+    {
+      "selected": [
+        "chunk-issue_comment",
+        "chunk-issue_origin",
+        "chunk-release_notes"
+      ],
+      "context_tokens": 62,
+      "candidates": [
+        {
+          "chunk_id": "chunk-community_note",
+          "marginal_gain": 0.0318609022556391,
+          "query_relevance": 0.42857142857142855,
+          "utility": 0.0021240601503759397,
+          "proposed_context_tokens": 77,
+          "incremental_tokens": 15,
+          "feasible": true,
+          "passes_recovery_floor": true
+        },
+        {
+          "chunk_id": "chunk-repository_code",
+          "marginal_gain": 0.025099561891109092,
+          "query_relevance": 0.14285714285714285,
+          "utility": 0.0010912852996134387,
+          "proposed_context_tokens": 85,
+          "incremental_tokens": 23,
+          "feasible": true,
+          "passes_recovery_floor": false
+        },
+        {
+          "chunk_id": "chunk-package_docs",
+          "marginal_gain": 0.04229323308270676,
+          "query_relevance": 0.2857142857142857,
+          "utility": 0.0016266628108733369,
+          "proposed_context_tokens": 88,
+          "incremental_tokens": 26,
+          "feasible": true,
+          "passes_recovery_floor": false
+        },
+        {
+          "chunk_id": "chunk-test_output",
+          "marginal_gain": 0.0,
+          "query_relevance": 0.0,
+          "utility": 0.0,
+          "proposed_context_tokens": 87,
+          "incremental_tokens": 25,
+          "feasible": true,
+          "passes_recovery_floor": false
+        },
+        {
+          "chunk_id": "chunk-pull_request",
+          "marginal_gain": 0.10156802579571457,
+          "query_relevance": 0.5714285714285714,
+          "utility": 0.004062721031828583,
+          "proposed_context_tokens": 87,
+          "incremental_tokens": 25,
+          "feasible": true,
+          "passes_recovery_floor": true
+        }
+      ],
+      "recovery_utility_floor": 0.0018310863365309828,
+      "best_feasible_chunk_id": "chunk-pull_request"
+    },
+    {
+      "selected": [
+        "chunk-issue_comment",
+        "chunk-issue_origin",
+        "chunk-release_notes",
+        "chunk-pull_request"
+      ],
+      "context_tokens": 87,
+      "candidates": [
+        {
+          "chunk_id": "chunk-community_note",
+          "marginal_gain": 0.0318609022556391,
+          "query_relevance": 0.42857142857142855,
+          "utility": 0.0021240601503759397,
+          "proposed_context_tokens": 102,
+          "incremental_tokens": 15,
+          "feasible": true,
+          "passes_recovery_floor": true
+        },
+        {
+          "chunk_id": "chunk-repository_code",
+          "marginal_gain": 0.025099561891109092,
+          "query_relevance": 0.14285714285714285,
+          "utility": 0.0010912852996134387,
+          "proposed_context_tokens": 110,
+          "incremental_tokens": 23,
+          "feasible": true,
+          "passes_recovery_floor": false
+        },
+        {
+          "chunk_id": "chunk-package_docs",
+          "marginal_gain": 0.04229323308270676,
+          "query_relevance": 0.2857142857142857,
+          "utility": 0.0016266628108733369,
+          "proposed_context_tokens": 113,
+          "incremental_tokens": 26,
+          "feasible": true,
+          "passes_recovery_floor": false
+        },
+        {
+          "chunk_id": "chunk-test_output",
+          "marginal_gain": 0.0,
+          "query_relevance": 0.0,
+          "utility": 0.0,
+          "proposed_context_tokens": 112,
+          "incremental_tokens": 25,
+          "feasible": true,
+          "passes_recovery_floor": false
+        }
+      ],
+      "recovery_utility_floor": 0.0018310863365309828,
+      "best_feasible_chunk_id": "chunk-community_note"
+    },
+    {
+      "selected": [
+        "chunk-issue_comment",
+        "chunk-issue_origin",
+        "chunk-release_notes",
+        "chunk-pull_request",
+        "chunk-community_note"
+      ],
+      "context_tokens": 102,
+      "candidates": [
+        {
+          "chunk_id": "chunk-repository_code",
+          "marginal_gain": 0.025099561891109092,
+          "query_relevance": 0.14285714285714285,
+          "utility": 0.0010912852996134387,
+          "proposed_context_tokens": 125,
+          "incremental_tokens": 23,
+          "feasible": true,
+          "passes_recovery_floor": false
+        },
+        {
+          "chunk_id": "chunk-package_docs",
+          "marginal_gain": 0.04229323308270676,
+          "query_relevance": 0.2857142857142857,
+          "utility": 0.0016266628108733369,
+          "proposed_context_tokens": 128,
+          "incremental_tokens": 26,
+          "feasible": true,
+          "passes_recovery_floor": false
+        },
+        {
+          "chunk_id": "chunk-test_output",
+          "marginal_gain": 0.0,
+          "query_relevance": 0.0,
+          "utility": 0.0,
+          "proposed_context_tokens": 127,
+          "incremental_tokens": 25,
+          "feasible": true,
+          "passes_recovery_floor": false
+        }
+      ],
+      "recovery_utility_floor": 0.0018310863365309828
+    }
+  ]
+}

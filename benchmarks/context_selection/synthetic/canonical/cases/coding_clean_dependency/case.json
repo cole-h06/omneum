@@ -1,0 +1,286 @@
+{
+  "id": "coding_clean_dependency",
+  "domain": "coding_agents",
+  "question": "How should the Sable event consumer make replayed event IDs idempotent while committing the balance update?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "repository_code",
+      "source": {
+        "kind": "repository_code",
+        "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code"
+      },
+      "text": "consumer.py opens one database transaction, inserts event_id into processed_events, and applies the balance update only if the insert succeeds. Both writes commit together.",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:repository_code",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Sable event consumer",
+          "attribute": "balance_transaction_rule",
+          "value": {
+            "insert": "processed_events.event_id",
+            "condition": "insert succeeds",
+            "action": "apply balance update",
+            "atomicity": "both writes commit together"
+          },
+          "claim_id": "sha256:177e5bae531917f9818e8b169ae807045cb9e045732fa915cd331b30e0524e50",
+          "observation_id": "coding_clean_dependency:repository_code",
+          "evidence": [
+            {
+              "source_id": "repository_code",
+              "start": 0,
+              "end": 172,
+              "text": "consumer.py opens one database transaction, inserts event_id into processed_events, and applies the balance update only if the insert succeeds. Both writes commit together."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "unit_test",
+      "source": {
+        "kind": "unit_test",
+        "identifier": "https://unit-test.benchmark.example/coding_clean_dependency/unit_test"
+      },
+      "text": "Unit test replays event evt_47 twice: the second processed_events insert conflicts; apply_balance is called once.",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:unit_test",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Sable event consumer",
+          "attribute": "replay_test_result",
+          "value": {
+            "event_id": "evt_47",
+            "attempts": 2,
+            "second_insert": "conflicts",
+            "apply_balance_calls": 1
+          },
+          "claim_id": "sha256:4b1ced5f266410e8a033e92acf38e3d136bd562ba7fa7bd71374968a10f69eba",
+          "observation_id": "coding_clean_dependency:unit_test",
+          "evidence": [
+            {
+              "source_id": "unit_test",
+              "start": 0,
+              "end": 113,
+              "text": "Unit test replays event evt_47 twice: the second processed_events insert conflicts; apply_balance is called once."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "integration_test",
+      "source": {
+        "kind": "integration_test",
+        "identifier": "https://integration-test.benchmark.example/coding_clean_dependency/integration_test"
+      },
+      "text": "Integration test kills the worker before commit and replays evt_47. A unique constraint on processed_events.event_id plus the shared balance transaction leaves one committed balance update.",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:integration_test",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Sable event consumer",
+          "attribute": "crash_replay_result",
+          "value": {
+            "event_id": "evt_47",
+            "crash": "before commit",
+            "unique_key": "processed_events.event_id",
+            "transaction": "shared with balance update",
+            "committed_balance_updates": 1
+          },
+          "claim_id": "sha256:504e1cda5ec443d905eba0e99c079ae76bca349b9a9082a12b39769b7ef299c0",
+          "observation_id": "coding_clean_dependency:integration_test",
+          "evidence": [
+            {
+              "source_id": "integration_test",
+              "start": 0,
+              "end": 189,
+              "text": "Integration test kills the worker before commit and replays evt_47. A unique constraint on processed_events.event_id plus the shared balance transaction leaves one committed balance update."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "current_docs",
+      "source": {
+        "kind": "current_docs",
+        "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs"
+      },
+      "text": "Consumer guide: enforce a unique event_id in processed_events and write it in the same transaction as the balance change; a duplicate skips the change.",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:current_docs",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Sable event consumer",
+          "attribute": "replay_handling_instruction",
+          "value": {
+            "unique_key": "processed_events.event_id",
+            "transaction": "same as balance change",
+            "duplicate_action": "skip balance change"
+          },
+          "claim_id": "sha256:5d2f49467f8f5b772616fad741df73b9491bf48a6318494beb2c0fe9444f2410",
+          "observation_id": "coding_clean_dependency:current_docs",
+          "evidence": [
+            {
+              "source_id": "current_docs",
+              "start": 0,
+              "end": 151,
+              "text": "Consumer guide: enforce a unique event_id in processed_events and write it in the same transaction as the balance change; a duplicate skips the change."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "release_notes",
+      "source": {
+        "kind": "release_notes",
+        "identifier": "https://release-notes.benchmark.example/coding_clean_dependency/release_notes"
+      },
+      "text": "Sable 1.8 release notes: replay handling uses a unique processed_events.event_id and an atomic balance transaction.",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:release_notes",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "repository_code",
+            "identifier": "https://repository-code.benchmark.example/coding_clean_dependency/repository_code"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Sable 1.8 event consumer",
+          "attribute": "replay_handling_design",
+          "value": {
+            "unique_key": "processed_events.event_id",
+            "transaction": "atomic balance transaction"
+          },
+          "claim_id": "sha256:b454afc62625e389ec0a360d8446661665973129fe355961dbb898870d348a08",
+          "observation_id": "coding_clean_dependency:release_notes",
+          "evidence": [
+            {
+              "source_id": "release_notes",
+              "start": 0,
+              "end": 115,
+              "text": "Sable 1.8 release notes: replay handling uses a unique processed_events.event_id and an atomic balance transaction."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "package_metadata",
+      "source": {
+        "kind": "package_metadata",
+        "identifier": "https://package-metadata.benchmark.example/coding_clean_dependency/package_metadata"
+      },
+      "text": "Package metadata: sable-consumer 1.8 targets PostgreSQL 15 or later and ships schema migrations.",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:package_metadata",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Sable consumer 1.8",
+          "attribute": "minimum_postgresql_version",
+          "value": 15,
+          "claim_id": "sha256:e005fb7ab0aa7ec317e1893f43a72fd395c7092bdacd3e0ec41968f80f86104e",
+          "observation_id": "coding_clean_dependency:package_metadata",
+          "evidence": [
+            {
+              "source_id": "package_metadata",
+              "start": 0,
+              "end": 96,
+              "text": "Package metadata: sable-consumer 1.8 targets PostgreSQL 15 or later and ships schema migrations."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Sable consumer 1.8",
+          "attribute": "ships_schema_migrations",
+          "value": true,
+          "claim_id": "sha256:c30d1512b72d74c5239b41fbe65c81e6e2412187d1579426c0d0e93c266b25d3",
+          "observation_id": "coding_clean_dependency:package_metadata:claim:2",
+          "evidence": [
+            {
+              "source_id": "package_metadata",
+              "start": 0,
+              "end": 96,
+              "text": "Package metadata: sable-consumer 1.8 targets PostgreSQL 15 or later and ships schema migrations."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "example",
+      "source": {
+        "kind": "example",
+        "identifier": "https://example.benchmark.example/coding_clean_dependency/example"
+      },
+      "text": "Example transaction: INSERT INTO processed_events(event_id) ... ON CONFLICT DO NOTHING RETURNING event_id; if a row was returned, update balances before COMMIT.",
+      "provenance": {
+        "assertion_id": "coding_clean_dependency:example",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "current_docs",
+            "identifier": "https://current-docs.benchmark.example/coding_clean_dependency/current_docs"
+          }
+        ],
+        "parent_assertion_ids": [
+          "coding_clean_dependency:current_docs"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Sable event consumer",
+          "attribute": "example_balance_transaction",
+          "value": {
+            "insert": "processed_events(event_id)",
+            "on_conflict": "DO NOTHING",
+            "returning": "event_id",
+            "condition": "a row was returned",
+            "action": "update balances",
+            "ordering": "update balances before COMMIT"
+          },
+          "claim_id": "sha256:f13528a06028a75fc3593bfc8d9df14eeb955294c77f7a10cb54ad2aed22d79d",
+          "observation_id": "coding_clean_dependency:example",
+          "evidence": [
+            {
+              "source_id": "example",
+              "start": 0,
+              "end": 160,
+              "text": "Example transaction: INSERT INTO processed_events(event_id) ... ON CONFLICT DO NOTHING RETURNING event_id; if a row was returned, update balances before COMMIT."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

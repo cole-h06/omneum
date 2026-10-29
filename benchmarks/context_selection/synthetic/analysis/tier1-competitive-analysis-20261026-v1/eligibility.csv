@@ -1,0 +1,6 @@
+method,cells,cells_with_exclusions,mean_eligible,mean_excluded
+omneum,144,0,7.875,0.0
+bm25_omneum,144,102,5.625,2.25
+embedding_omneum,144,102,5.333333333333333,2.5416666666666665
+bge_omneum,144,108,5.5,2.375
+cohere_omneum,144,108,5.291666666666667,2.5833333333333335

@@ -1,0 +1,402 @@
+{
+  "assertion_observations": [
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'240'",
+        "attribute": "occupied_homes",
+        "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_independent_false_consensus:report",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:00:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://report.benchmark.example/research_independent_false_consensus/report",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'240'",
+        "attribute": "occupied_homes",
+        "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_independent_false_consensus:publication",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:01:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'240'",
+        "attribute": "occupied_homes",
+        "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_independent_false_consensus:analysis",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:02:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'216'",
+        "attribute": "occupied_homes",
+        "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_independent_false_consensus:dataset",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:03:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'240'",
+        "attribute": "occupied_homes",
+        "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_independent_false_consensus:news_article",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:04:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://news-article.benchmark.example/research_independent_false_consensus/news_article",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'216'",
+        "attribute": "occupied_homes",
+        "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_independent_false_consensus:primary_record",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:05:00+00:00",
+      "parent_observation_ids": [],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": []
+    },
+    {
+      "cited_sources": [],
+      "claim": {
+        "_value_bytes": "b'216'",
+        "attribute": "occupied_homes",
+        "entity": "heldout-entity-v1:5b22686f7573696e67222c224e6f72746820517561792070696c6f74204175677573742063656e737573225d",
+        "entity_namespace": "service"
+      },
+      "dependency_signals": {},
+      "metadata": {},
+      "observation_id": "research_independent_false_consensus:web_page",
+      "observation_type": "assertion",
+      "observed_at": "2026-08-20 12:06:00+00:00",
+      "parent_observation_ids": [
+        "research_independent_false_consensus:primary_record"
+      ],
+      "retrievals": [],
+      "source": {
+        "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page",
+        "kind": "web_document",
+        "owner_id": null
+      },
+      "source_modified_at": "2026-08-18 09:00:00+00:00",
+      "upstream_sources": [
+        {
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record",
+          "kind": "web_document"
+        }
+      ]
+    }
+  ],
+  "case": {
+    "adversarial_category": null,
+    "candidates": [
+      {
+        "attribute": "occupied homes",
+        "entity": "North Quay pilot August census",
+        "entity_namespace": "housing",
+        "provenance": {
+          "assertion_id": "research_independent_false_consensus:report",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:00:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://report.benchmark.example/research_independent_false_consensus/report",
+          "kind": "report"
+        },
+        "source_id": "report",
+        "text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed.",
+        "value": 240
+      },
+      {
+        "attribute": "occupied homes",
+        "entity": "North Quay pilot August census",
+        "entity_namespace": "housing",
+        "provenance": {
+          "assertion_id": "research_independent_false_consensus:publication",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:01:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://publication.benchmark.example/research_independent_false_consensus/publication",
+          "kind": "publication"
+        },
+        "source_id": "publication",
+        "text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings.",
+        "value": 240
+      },
+      {
+        "attribute": "occupied homes",
+        "entity": "North Quay pilot August census",
+        "entity_namespace": "housing",
+        "provenance": {
+          "assertion_id": "research_independent_false_consensus:analysis",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:02:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://analysis.benchmark.example/research_independent_false_consensus/analysis",
+          "kind": "analysis"
+        },
+        "source_id": "analysis",
+        "text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay.",
+        "value": 240
+      },
+      {
+        "attribute": "occupied homes",
+        "entity": "North Quay pilot August census",
+        "entity_namespace": "housing",
+        "provenance": {
+          "assertion_id": "research_independent_false_consensus:dataset",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:03:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://dataset.benchmark.example/research_independent_false_consensus/dataset",
+          "kind": "dataset"
+        },
+        "source_id": "dataset",
+        "text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12.",
+        "value": 216
+      },
+      {
+        "attribute": "occupied homes",
+        "entity": "North Quay pilot August census",
+        "entity_namespace": "housing",
+        "provenance": {
+          "assertion_id": "research_independent_false_consensus:news_article",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:04:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://news-article.benchmark.example/research_independent_false_consensus/news_article",
+          "kind": "news_article"
+        },
+        "source_id": "news_article",
+        "text": "Quay Observer reporter counted door numbers during a separate site walk and described all 240 as occupied homes.",
+        "value": 240
+      },
+      {
+        "attribute": "occupied homes",
+        "entity": "North Quay pilot August census",
+        "entity_namespace": "housing",
+        "provenance": {
+          "assertion_id": "research_independent_false_consensus:primary_record",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:05:00+00:00",
+          "parent_assertion_ids": [],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": []
+        },
+        "source": {
+          "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record",
+          "kind": "primary_record"
+        },
+        "source_id": "primary_record",
+        "text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits.",
+        "value": 216
+      },
+      {
+        "attribute": "occupied homes",
+        "entity": "North Quay pilot August census",
+        "entity_namespace": "housing",
+        "provenance": {
+          "assertion_id": "research_independent_false_consensus:web_page",
+          "cited_sources": [],
+          "observed_at": "2026-08-20 12:06:00+00:00",
+          "parent_assertion_ids": [
+            "research_independent_false_consensus:primary_record"
+          ],
+          "source_modified_at": "2026-08-18 09:00:00+00:00",
+          "upstream_sources": [
+            {
+              "identifier": "https://primary-record.benchmark.example/research_independent_false_consensus/primary_record",
+              "kind": "primary_record"
+            }
+          ]
+        },
+        "source": {
+          "identifier": "https://web-page.benchmark.example/research_independent_false_consensus/web_page",
+          "kind": "web_page"
+        },
+        "source_id": "web_page",
+        "text": "Neighborhood association census summary: 216 homes occupied in the August enumeration; 24 were vacant.",
+        "value": 216
+      }
+    ],
+    "case_id": "research_independent_false_consensus",
+    "category": null,
+    "context_budget": 3,
+    "domain": "research_analysis_agents",
+    "question": "How many occupied homes were in the North Quay pilot at the August 2026 census, excluding vacant units?"
+  },
+  "chunks": [
+    {
+      "chunk_id": "chunk-report",
+      "claim_ids": [
+        "7b22617474726962757465223a226f636375706965645f686f6d6573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363836663735373336393665363732323263323234653666373237343638323035313735363137393230373036393663366637343230343137353637373537333734323036333635366537333735373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3234307d"
+      ],
+      "raw_text": "Urban Metrics independently counted 240 homes on the North Quay site map and reported 240 occupied homes. No household interviews were performed.",
+      "source_id": "report"
+    },
+    {
+      "chunk_id": "chunk-publication",
+      "claim_ids": [
+        "7b22617474726962757465223a226f636375706965645f686f6d6573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363836663735373336393665363732323263323234653666373237343638323035313735363137393230373036393663366637343230343137353637373537333734323036333635366537333735373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3234307d"
+      ],
+      "raw_text": "Housing Review publication estimates 240 occupied homes from its own facade survey of the pilot buildings.",
+      "source_id": "publication"
+    },
+    {
+      "chunk_id": "chunk-analysis",
+      "claim_ids": [
+        "7b22617474726962757465223a226f636375706965645f686f6d6573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363836663735373336393665363732323263323234653666373237343638323035313735363137393230373036393663366637343230343137353637373537333734323036333635366537333735373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3234307d"
+      ],
+      "raw_text": "Property Lab analysis uses its independently digitized parcel footprints and reports 240 occupied homes in North Quay.",
+      "source_id": "analysis"
+    },
+    {
+      "chunk_id": "chunk-dataset",
+      "claim_ids": [
+        "7b22617474726962757465223a226f636375706965645f686f6d6573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363836663735373336393665363732323263323234653666373237343638323035313735363137393230373036393663366637343230343137353637373537333734323036333635366537333735373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3231367d"
+      ],
+      "raw_text": "North Quay census microdata: 216 occupied addresses and 24 vacant addresses, covering all 240 residential units on August 12.",
+      "source_id": "dataset"
+    },
+    {
+      "chunk_id": "chunk-news_article",
+      "claim_ids": [
+        "7b22617474726962757465223a226f636375706965645f686f6d6573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363836663735373336393665363732323263323234653666373237343638323035313735363137393230373036393663366637343230343137353637373537333734323036333635366537333735373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3234307d"
+      ],
+      "raw_text": "Quay Observer reporter counted door numbers during a separate site walk and described all 240 as occupied homes.",
+      "source_id": "news_article"
+    },
+    {
+      "chunk_id": "chunk-primary_record",
+      "claim_ids": [
+        "7b22617474726962757465223a226f636375706965645f686f6d6573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363836663735373336393665363732323263323234653666373237343638323035313735363137393230373036393663366637343230343137353637373537333734323036333635366537333735373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3231367d"
+      ],
+      "raw_text": "Census signed enumeration record, August 12: 216 homes occupied; 24 vacant. Occupancy determined by household contact and follow-up visits.",
+      "source_id": "primary_record"
+    },
+    {
+      "chunk_id": "chunk-web_page",
+      "claim_ids": [
+        "7b22617474726962757465223a226f636375706965645f686f6d6573222c22656e74697479223a2268656c646f75742d656e746974792d76313a35623232363836663735373336393665363732323263323234653666373237343638323035313735363137393230373036393663366637343230343137353637373537333734323036333635366537333735373332323564222c22656e746974795f6e616d657370616365223a2273657276696365222c2276616c7565223a3231367d"
+      ],
+      "raw_text": "Neighborhood association census summary: 216 homes occupied in the August enumeration; 24 were vacant.",
+      "source_id": "web_page"
+    }
+  ],
+  "truth": {
+    "answer": "There were 216 occupied homes in the August census.",
+    "case_id": "research_independent_false_consensus",
+    "scoring": {
+      "forbidden": [],
+      "required": [
+        "216"
+      ]
+    },
+    "supporting_sources": [
+      "dataset",
+      "primary_record",
+      "web_page"
+    ]
+  }
+}

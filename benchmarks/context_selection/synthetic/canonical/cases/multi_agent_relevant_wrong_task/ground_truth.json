@@ -1,0 +1,16 @@
+{
+  "case_id": "multi_agent_relevant_wrong_task",
+  "answer": "Production unfinished multipart uploads are aborted after 48 hours.",
+  "supporting_sources": [
+    "operations_agent",
+    "tool_result",
+    "api_result",
+    "database_result"
+  ],
+  "scoring": {
+    "required": [
+      "48 hours"
+    ],
+    "forbidden": []
+  }
+}

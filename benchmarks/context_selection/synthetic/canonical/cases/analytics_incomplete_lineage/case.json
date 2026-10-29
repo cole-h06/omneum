@@ -1,0 +1,530 @@
+{
+  "id": "analytics_incomplete_lineage",
+  "domain": "data_analytics_agents",
+  "question": "How many delivered parcels belong to the Noria August 16 dispatch cohort, excluding returned parcels?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "source_table",
+      "source": {
+        "kind": "source_table",
+        "identifier": "https://source-table.benchmark.example/analytics_incomplete_lineage/source_table"
+      },
+      "text": "Dispatch source table: August 16 cohort contains 520 parcel IDs. Reconciliation records 487 delivered and 33 returned.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:source_table",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 487,
+          "claim_id": "sha256:bdb254a9eebd34fad748801d9aea53d82eb3a6fc72423762c9ab2a05ce64dbb6",
+          "observation_id": "analytics_incomplete_lineage:source_table",
+          "evidence": [
+            {
+              "source_id": "source_table",
+              "start": 0,
+              "end": 118,
+              "text": "Dispatch source table: August 16 cohort contains 520 parcel IDs. Reconciliation records 487 delivered and 33 returned."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "returned_parcel_count",
+          "value": 33,
+          "claim_id": "sha256:170cf8bad5835005c9168b3d1b79418d232926d8170676a803d22be2d9821ffe",
+          "observation_id": "analytics_incomplete_lineage:source_table:claim:2",
+          "evidence": [
+            {
+              "source_id": "source_table",
+              "start": 0,
+              "end": 118,
+              "text": "Dispatch source table: August 16 cohort contains 520 parcel IDs. Reconciliation records 487 delivered and 33 returned."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "total_parcel_id_count",
+          "value": 520,
+          "claim_id": "sha256:3217176a11be37274278195fea1232318d519ffab7df1efd0dac349b98a60c68",
+          "observation_id": "analytics_incomplete_lineage:source_table:claim:3",
+          "evidence": [
+            {
+              "source_id": "source_table",
+              "start": 0,
+              "end": 118,
+              "text": "Dispatch source table: August 16 cohort contains 520 parcel IDs. Reconciliation records 487 delivered and 33 returned."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "source_table_2",
+      "source": {
+        "kind": "source_table",
+        "identifier": "https://source-table.benchmark.example/analytics_incomplete_lineage/source_table_2"
+      },
+      "text": "Carrier receipt source table: 487 unique parcel IDs from the August 16 dispatch cohort have delivered receipts; returned status appears for 33 others.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:source_table_2",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 487,
+          "claim_id": "sha256:bdb254a9eebd34fad748801d9aea53d82eb3a6fc72423762c9ab2a05ce64dbb6",
+          "observation_id": "analytics_incomplete_lineage:source_table_2",
+          "evidence": [
+            {
+              "source_id": "source_table_2",
+              "start": 0,
+              "end": 150,
+              "text": "Carrier receipt source table: 487 unique parcel IDs from the August 16 dispatch cohort have delivered receipts; returned status appears for 33 others."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "returned_parcel_count",
+          "value": 33,
+          "claim_id": "sha256:170cf8bad5835005c9168b3d1b79418d232926d8170676a803d22be2d9821ffe",
+          "observation_id": "analytics_incomplete_lineage:source_table_2:claim:2",
+          "evidence": [
+            {
+              "source_id": "source_table_2",
+              "start": 0,
+              "end": 150,
+              "text": "Carrier receipt source table: 487 unique parcel IDs from the August 16 dispatch cohort have delivered receipts; returned status appears for 33 others."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "transformation",
+      "source": {
+        "kind": "transformation",
+        "identifier": "https://transformation.benchmark.example/analytics_incomplete_lineage/transformation"
+      },
+      "text": "Transformation fragment from a migrated job: COUNT(*) over dispatch cohort outputs 520 under label delivered_count. Input table ID was stripped during migration.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:transformation",
+        "observed_at": "2026-08-20T12:02:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 520,
+          "claim_id": "sha256:e8be71e7ad89aeaf6d6ee9b5f5bcf8ec7178c0ceae765f6bdb46b11bb630d869",
+          "observation_id": "analytics_incomplete_lineage:transformation",
+          "evidence": [
+            {
+              "source_id": "transformation",
+              "start": 0,
+              "end": 161,
+              "text": "Transformation fragment from a migrated job: COUNT(*) over dispatch cohort outputs 520 under label delivered_count. Input table ID was stripped during migration."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "migrated dispatch transformation",
+          "attribute": "calculated_dispatch_row_count",
+          "value": {
+            "aggregation": "COUNT(*)",
+            "count": 520,
+            "population": "dispatch cohort"
+          },
+          "claim_id": "sha256:15957f71e0a17877915cb3518125cfcf054c76e6dfa98d943e8860d40993fc7e",
+          "observation_id": "analytics_incomplete_lineage:transformation:claim:2",
+          "evidence": [
+            {
+              "source_id": "transformation",
+              "start": 0,
+              "end": 161,
+              "text": "Transformation fragment from a migrated job: COUNT(*) over dispatch cohort outputs 520 under label delivered_count. Input table ID was stripped during migration."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "migrated dispatch transformation",
+          "attribute": "input_table_identifier_retained",
+          "value": false,
+          "claim_id": "sha256:bf7f7ef8ae6f81309ff9678c9a6125892e365472f0f0c2cc6df3034d79c9ec13",
+          "observation_id": "analytics_incomplete_lineage:transformation:claim:3",
+          "evidence": [
+            {
+              "source_id": "transformation",
+              "start": 0,
+              "end": 161,
+              "text": "Transformation fragment from a migrated job: COUNT(*) over dispatch cohort outputs 520 under label delivered_count. Input table ID was stripped during migration."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "derived_table",
+      "source": {
+        "kind": "derived_table",
+        "identifier": "https://derived-table.benchmark.example/analytics_incomplete_lineage/derived_table"
+      },
+      "text": "Derived delivery_summary partition: cohort August 16, delivered_count=520. Catalog retains a link to the migrated transformation, but no run ID.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:derived_table",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "upstream_sources": [
+          {
+            "kind": "transformation",
+            "identifier": "https://transformation.benchmark.example/analytics_incomplete_lineage/transformation"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 520,
+          "claim_id": "sha256:e8be71e7ad89aeaf6d6ee9b5f5bcf8ec7178c0ceae765f6bdb46b11bb630d869",
+          "observation_id": "analytics_incomplete_lineage:derived_table",
+          "evidence": [
+            {
+              "source_id": "derived_table",
+              "start": 0,
+              "end": 144,
+              "text": "Derived delivery_summary partition: cohort August 16, delivered_count=520. Catalog retains a link to the migrated transformation, but no run ID."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "delivery_summary partition",
+          "attribute": "run_id_retained",
+          "value": false,
+          "claim_id": "sha256:8afef8c773d6a4aef93124a1ef8119fcf964f6fe0fb34df75c21bb2f4d766235",
+          "observation_id": "analytics_incomplete_lineage:derived_table:claim:2",
+          "evidence": [
+            {
+              "source_id": "derived_table",
+              "start": 0,
+              "end": 144,
+              "text": "Derived delivery_summary partition: cohort August 16, delivered_count=520. Catalog retains a link to the migrated transformation, but no run ID."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "delivery_summary partition",
+          "attribute": "catalog_link",
+          "value": "migrated transformation",
+          "claim_id": "sha256:2424dc21da98237472ce3d0f3715141a27297682fb1c7dda8137ff84d7663468",
+          "observation_id": "analytics_incomplete_lineage:derived_table:claim:3",
+          "evidence": [
+            {
+              "source_id": "derived_table",
+              "start": 0,
+              "end": 144,
+              "text": "Derived delivery_summary partition: cohort August 16, delivered_count=520. Catalog retains a link to the migrated transformation, but no run ID."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dashboard",
+      "source": {
+        "kind": "dashboard",
+        "identifier": "https://dashboard.benchmark.example/analytics_incomplete_lineage/dashboard"
+      },
+      "text": "Dashboard Noria delivery count: August 16 cohort delivered 520. The copied SQL attachment is no longer available.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:dashboard",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 520,
+          "claim_id": "sha256:e8be71e7ad89aeaf6d6ee9b5f5bcf8ec7178c0ceae765f6bdb46b11bb630d869",
+          "observation_id": "analytics_incomplete_lineage:dashboard",
+          "evidence": [
+            {
+              "source_id": "dashboard",
+              "start": 0,
+              "end": 113,
+              "text": "Dashboard Noria delivery count: August 16 cohort delivered 520. The copied SQL attachment is no longer available."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria delivery dashboard",
+          "attribute": "copied_sql_attachment_available",
+          "value": false,
+          "claim_id": "sha256:ceffba438bbdacbb09a03b7a3110b2fd29a0e08695091c7885231d2215a47cf2",
+          "observation_id": "analytics_incomplete_lineage:dashboard:claim:2",
+          "evidence": [
+            {
+              "source_id": "dashboard",
+              "start": 0,
+              "end": 113,
+              "text": "Dashboard Noria delivery count: August 16 cohort delivered 520. The copied SQL attachment is no longer available."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "exported_dataset",
+      "source": {
+        "kind": "exported_dataset",
+        "identifier": "https://exported-dataset.benchmark.example/analytics_incomplete_lineage/exported_dataset"
+      },
+      "text": "CSV delivered_count export: August 16, 520. Export metadata links to the dashboard snapshot.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:exported_dataset",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "dashboard",
+            "identifier": "https://dashboard.benchmark.example/analytics_incomplete_lineage/dashboard"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 520,
+          "claim_id": "sha256:e8be71e7ad89aeaf6d6ee9b5f5bcf8ec7178c0ceae765f6bdb46b11bb630d869",
+          "observation_id": "analytics_incomplete_lineage:exported_dataset",
+          "evidence": [
+            {
+              "source_id": "exported_dataset",
+              "start": 0,
+              "end": 92,
+              "text": "CSV delivered_count export: August 16, 520. Export metadata links to the dashboard snapshot."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "delivered_count CSV export",
+          "attribute": "metadata_source",
+          "value": "dashboard snapshot",
+          "claim_id": "sha256:7fc95ba041b0764c5a410eb84d244dceb3358928e75040e62121be77b2c7f86f",
+          "observation_id": "analytics_incomplete_lineage:exported_dataset:claim:2",
+          "evidence": [
+            {
+              "source_id": "exported_dataset",
+              "start": 0,
+              "end": 92,
+              "text": "CSV delivered_count export: August 16, 520. Export metadata links to the dashboard snapshot."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "metric_store",
+      "source": {
+        "kind": "metric_store",
+        "identifier": "https://metric-store.benchmark.example/analytics_incomplete_lineage/metric_store"
+      },
+      "text": "Metric store reconciled deliveries: August 16 cohort delivered_count=487; broad catalog import tag points to delivery_summary although reconciliation uses carrier receipts.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:metric_store",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "derived_table",
+            "identifier": "https://derived-table.benchmark.example/analytics_incomplete_lineage/derived_table"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 487,
+          "claim_id": "sha256:bdb254a9eebd34fad748801d9aea53d82eb3a6fc72423762c9ab2a05ce64dbb6",
+          "observation_id": "analytics_incomplete_lineage:metric_store",
+          "evidence": [
+            {
+              "source_id": "metric_store",
+              "start": 0,
+              "end": 172,
+              "text": "Metric store reconciled deliveries: August 16 cohort delivered_count=487; broad catalog import tag points to delivery_summary although reconciliation uses carrier receipts."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "reconciliation_input",
+          "value": "carrier receipts",
+          "claim_id": "sha256:4e245b32e111b75a417fa5d9a4cefd67beff51f3a74e951a10dbb39665e94d80",
+          "observation_id": "analytics_incomplete_lineage:metric_store:claim:2",
+          "evidence": [
+            {
+              "source_id": "metric_store",
+              "start": 0,
+              "end": 172,
+              "text": "Metric store reconciled deliveries: August 16 cohort delivered_count=487; broad catalog import tag points to delivery_summary although reconciliation uses carrier receipts."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "catalog_import_tag",
+          "value": "delivery_summary",
+          "claim_id": "sha256:64655378242109ee487a4d372826e64a078e7a6b4b62ed48e6283ab787b7a83a",
+          "observation_id": "analytics_incomplete_lineage:metric_store:claim:3",
+          "evidence": [
+            {
+              "source_id": "metric_store",
+              "start": 0,
+              "end": 172,
+              "text": "Metric store reconciled deliveries: August 16 cohort delivered_count=487; broad catalog import tag points to delivery_summary although reconciliation uses carrier receipts."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "data_catalog",
+      "source": {
+        "kind": "data_catalog",
+        "identifier": "https://data-catalog.benchmark.example/analytics_incomplete_lineage/data_catalog"
+      },
+      "text": "Data catalog migration note: row-count transforms and carrier reconciliation share a delivery reporting folder; job-level lineage is incomplete. Delivered excludes returned.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:data_catalog",
+        "observed_at": "2026-08-20T12:07:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_definition",
+          "value": {
+            "excludes": "returned parcels"
+          },
+          "claim_id": "sha256:afa7de30ac60cc8fb92cc11a96a9c08b524b2cc81ace2c9227c3f5168721fa1d",
+          "observation_id": "analytics_incomplete_lineage:data_catalog",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 173,
+              "text": "Data catalog migration note: row-count transforms and carrier reconciliation share a delivery reporting folder; job-level lineage is incomplete. Delivered excludes returned."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "delivery reporting folder",
+          "attribute": "job_level_lineage_complete",
+          "value": false,
+          "claim_id": "sha256:b177202f217c38c45e6572769b8ad17db368b787bdce81756651f887c5aa7182",
+          "observation_id": "analytics_incomplete_lineage:data_catalog:claim:2",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 173,
+              "text": "Data catalog migration note: row-count transforms and carrier reconciliation share a delivery reporting folder; job-level lineage is incomplete. Delivered excludes returned."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "query_result",
+      "source": {
+        "kind": "query_result",
+        "identifier": "https://query-result.benchmark.example/analytics_incomplete_lineage/query_result"
+      },
+      "text": "Ad hoc reconciliation query: join dispatch IDs to carrier receipts, filter final_status=delivered, COUNT(DISTINCT parcel_id)=487 for August 16.",
+      "provenance": {
+        "assertion_id": "analytics_incomplete_lineage:query_result",
+        "observed_at": "2026-08-20T12:08:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "source_table",
+            "identifier": "https://source-table.benchmark.example/analytics_incomplete_lineage/source_table"
+          },
+          {
+            "kind": "source_table",
+            "identifier": "https://source-table.benchmark.example/analytics_incomplete_lineage/source_table_2"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "delivered_parcel_count",
+          "value": 487,
+          "claim_id": "sha256:bdb254a9eebd34fad748801d9aea53d82eb3a6fc72423762c9ab2a05ce64dbb6",
+          "observation_id": "analytics_incomplete_lineage:query_result",
+          "evidence": [
+            {
+              "source_id": "query_result",
+              "start": 0,
+              "end": 143,
+              "text": "Ad hoc reconciliation query: join dispatch IDs to carrier receipts, filter final_status=delivered, COUNT(DISTINCT parcel_id)=487 for August 16."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Noria August 16 dispatch cohort",
+          "attribute": "reconciliation_query",
+          "value": {
+            "join": "dispatch IDs to carrier receipts",
+            "filter": "final_status=delivered",
+            "aggregation": "COUNT(DISTINCT parcel_id)"
+          },
+          "claim_id": "sha256:48fc9d1ac9da93f92fae60fd75f6d70e7a037ecf87b0a962fde2e5611ce8431b",
+          "observation_id": "analytics_incomplete_lineage:query_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "query_result",
+              "start": 0,
+              "end": 143,
+              "text": "Ad hoc reconciliation query: join dispatch IDs to carrier receipts, filter final_status=delivered, COUNT(DISTINCT parcel_id)=487 for August 16."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "case_id": "analytics_metric_definition_conflict",
+  "answer": "Gross revenue retention is 92% with expansion excluded.",
+  "supporting_sources": [
+    "warehouse_query",
+    "finance_report",
+    "metric_docs"
+  ],
+  "scoring": {
+    "required": [
+      "92"
+    ],
+    "forbidden": []
+  }
+}

@@ -1,0 +1,492 @@
+{
+  "id": "research_syndicated_reporting",
+  "domain": "research_analysis_agents",
+  "question": "As of August 18, how many battery-electric buses had Riverton accepted into passenger service under its 2026 order?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "original_report",
+      "source": {
+        "kind": "original_report",
+        "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report"
+      },
+      "text": "Transit Market Report: Riverton has accepted all 60 battery-electric buses into service. The report treats the order quantity as the fleet addition.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:original_report",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": 60,
+          "claim_id": "sha256:58d5ab4c6e4708112785ffa6efb12e7bb1d1afd5c7ff6db99cd255087d393acb",
+          "observation_id": "research_syndicated_reporting:original_report",
+          "evidence": [
+            {
+              "source_id": "original_report",
+              "start": 0,
+              "end": 148,
+              "text": "Transit Market Report: Riverton has accepted all 60 battery-electric buses into service. The report treats the order quantity as the fleet addition."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "order_quantity",
+          "value": 60,
+          "claim_id": "sha256:dd2a75a0f2e5b05fcb58af60a639b2a73964715fe35a34ff61821c9197834044",
+          "observation_id": "research_syndicated_reporting:original_report:claim:2",
+          "evidence": [
+            {
+              "source_id": "original_report",
+              "start": 0,
+              "end": 148,
+              "text": "Transit Market Report: Riverton has accepted all 60 battery-electric buses into service. The report treats the order quantity as the fleet addition."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "order_quantity_treated_as_fleet_addition",
+          "value": true,
+          "claim_id": "sha256:6b54e69edfa141293dab0a9a3efa7ea7b8ebc1591633c8fae76c278fc57a1520",
+          "observation_id": "research_syndicated_reporting:original_report:claim:3",
+          "evidence": [
+            {
+              "source_id": "original_report",
+              "start": 0,
+              "end": 148,
+              "text": "Transit Market Report: Riverton has accepted all 60 battery-electric buses into service. The report treats the order quantity as the fleet addition."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "news_article",
+      "source": {
+        "kind": "news_article",
+        "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article"
+      },
+      "text": "Metro News wire edition: Riverton adds 60 electric buses to passenger service, according to Transit Market Report.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:news_article",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "original_report",
+            "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_syndicated_reporting:original_report"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": 60,
+          "claim_id": "sha256:58d5ab4c6e4708112785ffa6efb12e7bb1d1afd5c7ff6db99cd255087d393acb",
+          "observation_id": "research_syndicated_reporting:news_article",
+          "evidence": [
+            {
+              "source_id": "news_article",
+              "start": 0,
+              "end": 114,
+              "text": "Metro News wire edition: Riverton adds 60 electric buses to passenger service, according to Transit Market Report."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "news_article_2",
+      "source": {
+        "kind": "news_article",
+        "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article_2"
+      },
+      "text": "Regional Daily republishes Metro News: the Riverton electric bus fleet gained 60 buses in service.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:news_article_2",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "news_article",
+            "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_syndicated_reporting:news_article"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": 60,
+          "claim_id": "sha256:58d5ab4c6e4708112785ffa6efb12e7bb1d1afd5c7ff6db99cd255087d393acb",
+          "observation_id": "research_syndicated_reporting:news_article_2",
+          "evidence": [
+            {
+              "source_id": "news_article_2",
+              "start": 0,
+              "end": 98,
+              "text": "Regional Daily republishes Metro News: the Riverton electric bus fleet gained 60 buses in service."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "news_article_3",
+      "source": {
+        "kind": "news_article",
+        "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article_3"
+      },
+      "text": "Transport Today roundup quotes Transit Market Report: Riverton now has 60 new electric buses operating.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:news_article_3",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "original_report",
+            "identifier": "https://original-report.benchmark.example/research_syndicated_reporting/original_report"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_syndicated_reporting:original_report"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": 60,
+          "claim_id": "sha256:58d5ab4c6e4708112785ffa6efb12e7bb1d1afd5c7ff6db99cd255087d393acb",
+          "observation_id": "research_syndicated_reporting:news_article_3",
+          "evidence": [
+            {
+              "source_id": "news_article_3",
+              "start": 0,
+              "end": 103,
+              "text": "Transport Today roundup quotes Transit Market Report: Riverton now has 60 new electric buses operating."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "primary_record",
+      "source": {
+        "kind": "primary_record",
+        "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record"
+      },
+      "text": "Riverton acceptance register dated August 18: units E001-E036 accepted for passenger service; E037-E060 awaiting acceptance.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:primary_record",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_vehicle_ids",
+          "value": {
+            "as_of": "August 18",
+            "range_start": "E001",
+            "range_end": "E036"
+          },
+          "claim_id": "sha256:0ab74831ca9234d86f3ceacef25ee6a95258001109447090e25f6d90ad04b2e6",
+          "observation_id": "research_syndicated_reporting:primary_record",
+          "evidence": [
+            {
+              "source_id": "primary_record",
+              "start": 0,
+              "end": 124,
+              "text": "Riverton acceptance register dated August 18: units E001-E036 accepted for passenger service; E037-E060 awaiting acceptance."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "pending_vehicle_ids",
+          "value": {
+            "as_of": "August 18",
+            "range_start": "E037",
+            "range_end": "E060"
+          },
+          "claim_id": "sha256:2f4a97dcb95b849c388e84109a1214d25e5afb2a6c1ae2d054e11f76a1a2e5bd",
+          "observation_id": "research_syndicated_reporting:primary_record:claim:2",
+          "evidence": [
+            {
+              "source_id": "primary_record",
+              "start": 0,
+              "end": 124,
+              "text": "Riverton acceptance register dated August 18: units E001-E036 accepted for passenger service; E037-E060 awaiting acceptance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "independent_report",
+      "source": {
+        "kind": "independent_report",
+        "identifier": "https://independent-report.benchmark.example/research_syndicated_reporting/independent_report"
+      },
+      "text": "Independent depot inspection, August 18: 36 units carry passenger-service acceptance tags; the remaining 24 are parked pending inspection.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:independent_report",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": {
+            "as_of": "August 18",
+            "count": 36
+          },
+          "claim_id": "sha256:1593ecff12fbcdab6cf3eb73998e651007def6ce53c95462d9f03851c56255cc",
+          "observation_id": "research_syndicated_reporting:independent_report",
+          "evidence": [
+            {
+              "source_id": "independent_report",
+              "start": 0,
+              "end": 138,
+              "text": "Independent depot inspection, August 18: 36 units carry passenger-service acceptance tags; the remaining 24 are parked pending inspection."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "pending_acceptance_count",
+          "value": {
+            "as_of": "August 18",
+            "count": 24
+          },
+          "claim_id": "sha256:049703cb5d226527904ea4672bc6c27481e9b2e24e5e94666a848869e3cb4495",
+          "observation_id": "research_syndicated_reporting:independent_report:claim:2",
+          "evidence": [
+            {
+              "source_id": "independent_report",
+              "start": 0,
+              "end": 138,
+              "text": "Independent depot inspection, August 18: 36 units carry passenger-service acceptance tags; the remaining 24 are parked pending inspection."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "filing",
+      "source": {
+        "kind": "filing",
+        "identifier": "https://filing.benchmark.example/research_syndicated_reporting/filing"
+      },
+      "text": "Municipal capital filing: 60 buses ordered; 36 accepted into passenger service by August 18; 24 remain on the acceptance schedule.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:filing",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "primary_record",
+            "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": {
+            "as_of": "August 18",
+            "count": 36
+          },
+          "claim_id": "sha256:1593ecff12fbcdab6cf3eb73998e651007def6ce53c95462d9f03851c56255cc",
+          "observation_id": "research_syndicated_reporting:filing",
+          "evidence": [
+            {
+              "source_id": "filing",
+              "start": 0,
+              "end": 130,
+              "text": "Municipal capital filing: 60 buses ordered; 36 accepted into passenger service by August 18; 24 remain on the acceptance schedule."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "pending_acceptance_count",
+          "value": {
+            "as_of": "August 18",
+            "count": 24
+          },
+          "claim_id": "sha256:049703cb5d226527904ea4672bc6c27481e9b2e24e5e94666a848869e3cb4495",
+          "observation_id": "research_syndicated_reporting:filing:claim:2",
+          "evidence": [
+            {
+              "source_id": "filing",
+              "start": 0,
+              "end": 130,
+              "text": "Municipal capital filing: 60 buses ordered; 36 accepted into passenger service by August 18; 24 remain on the acceptance schedule."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "order_quantity",
+          "value": 60,
+          "claim_id": "sha256:dd2a75a0f2e5b05fcb58af60a639b2a73964715fe35a34ff61821c9197834044",
+          "observation_id": "research_syndicated_reporting:filing:claim:3",
+          "evidence": [
+            {
+              "source_id": "filing",
+              "start": 0,
+              "end": 130,
+              "text": "Municipal capital filing: 60 buses ordered; 36 accepted into passenger service by August 18; 24 remain on the acceptance schedule."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "web_page",
+      "source": {
+        "kind": "web_page",
+        "identifier": "https://web-page.benchmark.example/research_syndicated_reporting/web_page"
+      },
+      "text": "City mobility landing page embeds the Metro News headline: 60 new Riverton electric buses enter service.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:web_page",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-19T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "news_article",
+            "identifier": "https://news-article.benchmark.example/research_syndicated_reporting/news_article"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_syndicated_reporting:news_article"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": 60,
+          "claim_id": "sha256:58d5ab4c6e4708112785ffa6efb12e7bb1d1afd5c7ff6db99cd255087d393acb",
+          "observation_id": "research_syndicated_reporting:web_page",
+          "evidence": [
+            {
+              "source_id": "web_page",
+              "start": 0,
+              "end": 104,
+              "text": "City mobility landing page embeds the Metro News headline: 60 new Riverton electric buses enter service."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dataset",
+      "source": {
+        "kind": "dataset",
+        "identifier": "https://dataset.benchmark.example/research_syndicated_reporting/dataset"
+      },
+      "text": "Fleet dataset export August 18: acceptance_state=passenger_service for 36 vehicle IDs in order RV-2026; 24 IDs have state=pending.",
+      "provenance": {
+        "assertion_id": "research_syndicated_reporting:dataset",
+        "observed_at": "2026-08-20T12:08:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "primary_record",
+            "identifier": "https://primary-record.benchmark.example/research_syndicated_reporting/primary_record"
+          }
+        ],
+        "parent_assertion_ids": [
+          "research_syndicated_reporting:primary_record"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "accepted_passenger_service_count",
+          "value": {
+            "as_of": "August 18",
+            "count": 36
+          },
+          "claim_id": "sha256:1593ecff12fbcdab6cf3eb73998e651007def6ce53c95462d9f03851c56255cc",
+          "observation_id": "research_syndicated_reporting:dataset",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 130,
+              "text": "Fleet dataset export August 18: acceptance_state=passenger_service for 36 vehicle IDs in order RV-2026; 24 IDs have state=pending."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "pending_acceptance_count",
+          "value": {
+            "as_of": "August 18",
+            "count": 24
+          },
+          "claim_id": "sha256:049703cb5d226527904ea4672bc6c27481e9b2e24e5e94666a848869e3cb4495",
+          "observation_id": "research_syndicated_reporting:dataset:claim:2",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 130,
+              "text": "Fleet dataset export August 18: acceptance_state=passenger_service for 36 vehicle IDs in order RV-2026; 24 IDs have state=pending."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "transport",
+          "entity": "Riverton 2026 electric bus order",
+          "attribute": "order_id",
+          "value": "RV-2026",
+          "claim_id": "sha256:7ec5df6d02f8df903790ca83f7a440e713961187281683372f32e1e470493fa8",
+          "observation_id": "research_syndicated_reporting:dataset:claim:3",
+          "evidence": [
+            {
+              "source_id": "dataset",
+              "start": 0,
+              "end": 130,
+              "text": "Fleet dataset export August 18: acceptance_state=passenger_service for 36 vehicle IDs in order RV-2026; 24 IDs have state=pending."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "metrics_recomputed": 720,
+  "timing_samples": 3600,
+  "original_artifacts_preserved": true,
+  "protected_files": 182,
+  "bootstrap_replicates": 50000,
+  "bootstrap_seed": 20261026,
+  "paired_comparison_metric_rows": 232,
+  "no_completeness_regressions_against_original": true,
+  "source_reliability_matches_frozen": true,
+  "original_selected_passages_preserved_in_every_cell": true,
+  "execution_code_hashes_unchanged": true,
+  "analysis_inputs_sha256": {
+    "selections.json": "8b7cb637e037d3fc02d16206c158966f871819b3bbc85c7a739813a94424d264",
+    "timings.csv": "accd8d8cd50748978ad8858e5c46d1f8be85d71f8ec4f5a4c7304c60ad8128f3",
+    "alternatives.json": "0b5a7b3e976dd630ec0951c7a340682f00abe1211e6b4840226c0558ca3f827a",
+    "positive-only-alternatives.json": "1d6bb6c0e1abea6eb0143a17a769b5767092bfd8eb8e45a11a2ced1c14d6f739",
+    "manifest.json": "0483dbf51744de65a315db0eb17e03afa93afdf013c39997cda4b4e656dec33e",
+    "selection-tests-verified.log": "2fb8d089e4202010cc0cbd74eec1035bd146728b77e56c63c540b0aa103c786e"
+  },
+  "task_production_files": [
+    "omneum/client.py",
+    "omneum/context_selection.py"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "supported_configurations": 14,
+  "budgeted_configurations": 13,
+  "unsupported": {
+    "bge_embeddings": "No implemented embedding adapter, model ID or cached weights.",
+    "minilm_cross_encoder": "Only all-MiniLM-L6-v2 bi-encoder is implemented; no cross-encoder adapter, model ID or cached weights."
+  },
+  "cases": 24,
+  "budgets": [
+    64,
+    96,
+    128,
+    160,
+    192,
+    256
+  ],
+  "unique_case_budget_trial_cells": 2328,
+  "measured_local_executions": 11640,
+  "new_executions": 7320,
+  "preserved_executions": 4320,
+  "fresh_graph_executions_new": 1440,
+  "fresh_graph_executions_total": 3600,
+  "warmups_new": 8,
+  "warmups_total": 14,
+  "samples_per_quality_cell": 5,
+  "budget_violations": 0,
+  "all_repeated_selections_identical": true,
+  "prior_selections_preserved_exactly": true,
+  "cached_remote_requests": {
+    "cohere": 24,
+    "claude": 48,
+    "gpt": 48,
+    "gemini": 48
+  },
+  "new_paid_api_calls": 0,
+  "downstream_generations": 0,
+  "tests_passed": 139,
+  "tests_failed": 0,
+  "summary_reproduced_exactly": true,
+  "protected_files_unchanged": 8675,
+  "markdown_files_unchanged": 284,
+  "metric_status": {
+    "answer_accuracy": "skipped",
+    "evidence_retention": "measured on exact gold-source evidence spans",
+    "actual_context_tokens": "word/punctuation footprint measured separately from tokenizer budget",
+    "accuracy_at_matched_tokens": "skipped",
+    "context_reduction": "measured with matching word/punctuation units",
+    "claim_coverage": "explicit gold-claim labels missing; supporting-passage claim coverage reported separately",
+    "independent_evidence_coverage": "annotation-derived root-origin coverage; not dependency-cluster coverage",
+    "selection_latency": "five repeated local selection executions per cell; historical remote components separate",
+    "end_to_end_latency": "skipped",
+    "api_cost": "0 new paid API cost; historical paid inference cost remains unpriced"
+  },
+  "notes": [
+    "Unfiltered raw reference is unbudgeted; it is excluded from per-budget comparisons.",
+    "Cached-rank quality is reproducible. Fresh repeated remote-provider inference latency would require paid authorization.",
+    "Remote ranking request costs were historical and are not relabeled as free.",
+    "Cohere compact rankings retain source IDs/scores; associated frozen input dumps match canonical questions and complete passages."
+  ]
+}

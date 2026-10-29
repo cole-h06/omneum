@@ -1,90 +1,99 @@
-
 # Research & Analysis Agents
 
-Context-selection benchmark for research agents. Evaluates how Omneum and frontier LLM judges select evidence under independent agreement, conflicting measurements, false consensus, and syndicated reporting.
+Research-agent evaluation for the Omneum Cross-Domain Context Curation Benchmark.
 
-**4 held-out cases · 31 candidate sources · Claude Sonnet 5.5 generator**
+Four synthetic cases test context selection for independent agreement, conflicting measurements, false consensus, and syndicated reporting.
 
-[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_evaluation/heldout/DATASET.md) | [Saved Results](context_evaluation/heldout/results/)
+**4 cases · 31 candidate passages · 6 Qwen-token budgets · 13 budgeted configurations**
+
+[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_selection/synthetic/DATASET.md) | [Saved Results](context_selection/synthetic/results/)
 
 ## Quick Start
 
 Run from the Omneum repository root.
 
 ```bash
-# Validate all 24 held-out cases, including the four research cases
-.venv/bin/python -m benchmarks.context_evaluation.heldout.validate_dataset
+# Install locked benchmark dependencies
+uv sync --locked --group benchmarks
 
 # Run offline benchmark tests
-.venv/bin/python tools/run_context_evaluation_tests.py -q
+uv run --locked --group benchmarks python \
+  tools/run_context_evaluation_tests.py -q -p no:cacheprovider
 
-# Verify saved publication metrics
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary --check
+# Inspect the final benchmark results
+cat \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
 ```
 
-These commands do not make provider calls. They validate the frozen dataset, execute offline tests, and verify the published metrics against saved benchmark artifacts.
+The offline tests cover benchmark contracts, metric calculations, and local integration. Published metrics are derived from saved selections and timing records. Inspecting the results requires no additional provider calls.
 
-To reproduce live model executions, see [Benchmark README](README.md).
+For the evaluation configuration and reproduction instructions, see [Benchmark README](README.md).
 
 ## Benchmark Overview
 
-Research agents routinely encounter evidence that agrees for different reasons:
+Research agents encounter several forms of evidence agreement:
 
-- Independent observations can support the same conclusion.
-- Reports can disagree because they measure different quantities.
-- Independent researchers can reach the same incorrect conclusion.
-- Multiple publications can repeat information originating from one report.
+- Independent observations supporting the same conclusion.
+- Reports measuring different quantities despite using similar terminology.
+- Independent researchers reaching the same incorrect conclusion.
+- Multiple publications repeating information from one original report.
 
-Omneum evaluates structural relationships between sources and assertions, including estimated dependencies and independent support, without requiring an LLM judge during context selection.
+Omneum's provenance-aware graph inference iteratively computes source reliability and claim support, accounting for shared evidence origins and dependencies between sources. The SDK maps claim support to retrieved chunks and uses question relevance and incremental claim coverage to select and reconstruct original passages within the token budget.
 
-The benchmark compares that approach with Claude Sonnet 5.5, GPT-6 Astra, and Gemini 3.8 Flash as LLM-based context judges.
+The benchmark compares production `prepare_context()` with BM25, MiniLM, BGE Reranker v2-m3, Cohere Rerank v4.0 Pro, and frontier LLM selection judges: Claude Sonnet 5.5, GPT-6 Astra, and Gemini 3.8 Flash.
 
-All configurations use Claude Sonnet 5.5 for downstream answer generation.
+The evaluated output is the reconstructed context supplied to a consuming model. This benchmark does not execute downstream answer generation.
 
 ### Cases
 
-| Case | Candidates | Budget | Evaluation objective |
-|---|---:|---:|---|
-| [`research_clean_consensus`](#research_clean_consensus) | 7 | 3 | Select evidence from sources with different provenance relationships |
-| [`research_conflicting_reports`](#research_conflicting_reports) | 8 | 3 | Distinguish net forest-cover change from gross additions |
-| [`research_independent_false_consensus`](#research_independent_false_consensus) | 7 | 3 | Distinguish independently repeated measurement errors from census evidence |
-| [`research_syndicated_reporting`](#research_syndicated_reporting) | 9 | 3 | Evaluate repeated reporting from a shared information origin |
+| Case | Candidates | Token Budgets | Evaluation objective |
+|---|---:|---|---|
+| [`research_clean_consensus`](#research_clean_consensus) | 7 | 64–256 | Select evidence from sources with different provenance relationships |
+| [`research_conflicting_reports`](#research_conflicting_reports) | 8 | 64–256 | Distinguish net forest-cover change from gross additions |
+| [`research_independent_false_consensus`](#research_independent_false_consensus) | 7 | 64–256 | Distinguish independently repeated measurement errors from census evidence |
+| [`research_syndicated_reporting`](#research_syndicated_reporting) | 9 | 64–256 | Evaluate repeated reporting from a shared information origin |
 
-Each case uses a fixed candidate pool, fixture relevance labels, and a selection budget of three sources.
+Each case uses a fixed candidate pool with supporting-source annotations, canonical claims, and provenance metadata.
+
+The six selection budgets are **64, 96, 128, 160, 192, and 256 Qwen tokens**. Budget feasibility is calculated against the reconstructed original passages.
 
 ## Recorded Results
 
-The primary comparison uses the 10-trial BGE + GPT-6 Astra pairing and its separately executed BGE + Omneum alternative.
+Final Research & Analysis results, averaged across four cases and six token budgets:
 
-| Case | GPT-6 Astra Precision | Omneum Precision | GPT-6 Astra Recall | Omneum Recall | Omneum Selection p50 |
-|---|---:|---:|---:|---:|---:|
-| Clean consensus | 100% | 100% | 42.9% | 42.9% | 0.603s |
-| Conflicting reports | 100% | 100% | 60% | 60% | 0.624s |
-| Independent false consensus | 66.7% | 0% | 66.7% | 0% | 0.630s |
-| Syndicated reporting | 33.3% | 33.3% | 25% | 25% | 0.620s |
+| Configuration | Precision ↑ | Recall ↑ | Evidence ↑ | Claims ↑ | Origins ↑ | Qwen Tokens ↓ |
+|---|---:|---:|---:|---:|---:|---:|
+| Omneum Standalone | 77.27% | **57.00%** | **59.52%** | **81.04%** | 79.51% | 129.00 |
+| BM25 + Omneum | 76.60% | 53.08% | 54.32% | **81.81%** | **81.25%** | 119.75 |
+| MiniLM + Omneum | 67.99% | 45.44% | 48.90% | 76.81% | 60.76% | **115.33** |
+| BGE + Omneum | 69.79% | 46.55% | 48.56% | 73.33% | 62.85% | 119.08 |
+| Cohere + Omneum | **79.31%** | 51.69% | 55.25% | 78.89% | 71.88% | 118.21 |
 
-**Omneum matched GPT-6 Astra's selection precision and recall in three of four research cases while recording substantially lower selection latency.**
+Cohere + Omneum achieved the highest selection precision among the five Omneum configurations at **79.31%**. Standalone Omneum retained the most annotated evidence at **59.52%**, with **57.00% recall**.
 
-The exceptions and shared weaknesses are documented in the individual case results.
+BM25 + Omneum achieved the highest claim coverage (**81.81%**) and origin coverage (**81.25%**). MiniLM + Omneum produced the smallest mean reconstructed context at **115.33 Qwen tokens**.
+
+The four hybrid configurations differ in their relevance inputs. All four execute production `prepare_context()` with the same provenance-aware graph inference and token-budgeted context selection.
 
 ### Selection Latency
 
-Median selection latency in seconds:
+Local selection begins after relevance scores and structured observations are available.
 
-| Case | GPT-6 Astra Judge | Gemini 3.8 Flash Judge | Omneum |
-|---|---:|---:|---:|
-| Clean consensus | 3.706s | 1.926s | **0.603s** |
-| Conflicting reports | 6.255s | 2.308s | **0.624s** |
-| Independent false consensus | 6.038s | 2.517s | **0.630s** |
-| Syndicated reporting | 3.453s | 2.269s | **0.620s** |
+The final aggregate Omneum timings across all six domains are:
 
-Across all four cases, Omneum completed context selection in approximately 0.60–0.63 seconds.
+| Configuration | Local Selection p50 ↓ | Local Selection p95 ↓ |
+|---|---:|---:|
+| Omneum Standalone | 194.86ms | 451.87ms |
+| BM25 + Omneum | 207.79ms | 461.25ms |
+| MiniLM + Omneum | 203.84ms | 465.36ms |
+| BGE + Omneum | 200.63ms | 430.51ms |
+| Cohere + Omneum | 206.89ms | 480.37ms |
 
-The GPT-6 Astra judge required 3.45–6.26 seconds, while Gemini required 1.93–2.52 seconds.
+These measurements cover graph evaluation, candidate discovery, token-budgeted selection, reconstruction, and SDK verification. External ranking inference and structured observation extraction are outside the measured interval.
 
-**Omneum recorded approximately 5.6–10.0× lower selection latency than GPT-6 Astra and 3.2–4.2× lower selection latency than Gemini**, comparing the reported per-case medians.
+The table reports **all-domain latency**, not Research & Analysis-specific percentiles.
 
-These are recorded benchmark timings, not universal performance guarantees.
+See [Selection Latency](leaderboard.md#selection-latency) for the timing contract and [Saved Results](#inspect-recorded-runs) for the execution artifacts.
 
 ## `research_clean_consensus`
 
@@ -99,7 +108,6 @@ open to the public?
 
 ```text
 7 candidates
-3 selected
 7 relevant
 
 primary_record       Municipal opening certificate
@@ -143,26 +151,33 @@ Date: 2026-06-14
 Time: 09:00
 ```
 
-All seven sources are labeled relevant. The relevance metric does not distinguish between independently observed evidence and records derived from the same origin.
+All seven sources are annotated as relevant. Selection precision therefore does not distinguish evidence drawn from independent observations from evidence derived from the same original record.
 
-**Expected answer:** June 14, 2026.
+**Reference answer:** June 14, 2026.
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `primary_record`, `dataset`, `filing` | 100% | 42.9% | 1/1 correct | 1.527s |
-| BGE + GPT-6 Astra Judge | 10 | `primary_record`, `filing`, `dataset` | 100% | 42.9% | 10/10 correct | 3.706s |
-| BGE + Gemini Judge | 10 | Same | 100% | 42.9% | 10/10 correct | 1.926s |
-| **BGE + Omneum** | **10** | `primary_record`, `filing`, `publication` | **100%** | **42.9%** | **10/10 correct** | **0.603s** |
-| Cohere + Claude Judge | 1 | `primary_record`, `dataset`, `filing` | 100% | 42.9% | 1/1 correct | 2.269s |
-| Cohere + Omneum | 1 | `primary_record`, `publication`, `report` | 100% | 42.9% | 1/1 correct | 0.579s |
+The benchmark evaluates the seven passages at six token budgets. All seven are supporting sources, so selection precision is 100% for any nonempty selection drawn exclusively from this pool.
+
+The available source annotations are:
+
+| Source | Evidence | Provenance |
+|---|---|---|
+| `primary_record` | Municipal opening certificate | Primary municipal record |
+| `report` | Accessibility group field observation | Independent observation |
+| `report_2` | Newspaper on-site reporting | Independent reporting |
+| `dataset` | Municipal asset register | References opening certificate |
+| `filing` | Completion filing | References opening certificate |
+| `analysis` | Mobility study | Independent study |
+| `publication` | Walking guide | Cites newspaper |
+
+The final benchmark artifacts record the actual selected source IDs and reconstructed passages for each configuration and budget.
 
 ### Comparative Analysis
 
-Every method selected three relevant sources and generated the correct date.
+The case separates source relevance from provenance composition.
 
-The BGE + LLM judges generally selected:
+A selection containing:
 
 ```text
 primary_record
@@ -170,33 +185,25 @@ dataset
 filing
 ```
 
-Both `dataset` and `filing` reference the primary opening certificate.
+retains three relevant passages, but the asset register and completion filing reference the same primary record.
 
-BGE + Omneum selected:
-
-```text
-primary_record
-filing
-publication
-```
-
-This selection includes the primary record and a walking guide that derives from a different reporting chain.
-
-Cohere + Omneum selected:
+A selection containing:
 
 ```text
 primary_record
-publication
 report
+report_2
 ```
 
-This includes the accessibility group's independent field observation.
+also retains three relevant passages, with evidence from separate observation and reporting origins.
 
-The selections demonstrate different provenance compositions, although the fixture's relevance labels score them equally.
+Both selections have identical source precision and recall under the fixture's relevance labels.
 
-**Result:** Omneum matched every LLM judge on precision, recall, and recorded answer correctness, while recording lower selection latency.
+Omneum's provenance-aware graph inference accounts for shared evidence origins and dependencies between sources when computing source reliability and claim support. The benchmark's origin-coverage metric evaluates retention of annotated root-origin units.
 
-The case establishes that Omneum can select fully relevant evidence without an LLM judge in the selection stage. It does not establish a measured advantage in source independence because the reported metrics do not score that property directly.
+**Result:** The case tests whether budgeted selection retains evidence from distinct reporting origins when all candidate passages support the same answer.
+
+The reported selection metrics measure selected source IDs, retained evidence spans, claim coverage, and origin coverage. They do not directly establish the accuracy of individual dependency estimates.
 
 ## `research_conflicting_reports`
 
@@ -212,7 +219,6 @@ accounting for both gains and losses?
 
 ```text
 8 candidates
-3 selected
 5 relevant
 
 report               Canopy Watch: +120 ha
@@ -250,46 +256,44 @@ analysis
 filing
 ```
 
-**Expected answer:** −60 hectares.
+**Reference answer:** −60 hectares.
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `primary_publication`, `dataset`, `report_2` | 100% | 60% | 1/1 correct | 2.420s |
-| BGE + GPT-6 Astra Judge | 10 | Same (6/10); `primary_publication`, `dataset`, `filing` (4/10) | 100% | 60% | 10/10 correct | 6.255s |
-| BGE + Gemini Judge | 10 | `primary_publication`, `dataset`, `report_2` | 100% | 60% | 10/10 correct | 2.308s |
-| **BGE + Omneum** | **10** | `primary_publication`, `dataset`, `report_2` | **100%** | **60%** | **10/10 correct** | **0.624s** |
-| Cohere + Claude Judge | 1 | `primary_publication`, `dataset`, `filing` | 100% | 60% | 1/1 correct | 3.434s |
-| Cohere + Omneum | 1 | `primary_publication`, `report_2`, `dataset` | 100% | 60% | 1/1 correct | 2.175s |
+The candidate pool contains five annotated supporting sources.
+
+| Source | Evidence | Relevance |
+|---|---|---|
+| `report` | Gross forest additions: +120 ha | Not supporting |
+| `report_2` | Net forest-cover change: −60 ha | Supporting |
+| `primary_publication` | Land office net-change publication | Supporting |
+| `dataset` | District raster summary | Supporting |
+| `news_article` | Repeats gross-additions figure | Not supporting |
+| `analysis` | Spatial analysis of gains and losses | Supporting |
+| `filing` | Land office annex | Supporting |
+| `web_page` | Regional gross additions | Not supporting |
+
+The saved benchmark records contain selections for each method and token budget. The evaluation scores retention of the five supporting sources and their annotated evidence.
 
 ### Comparative Analysis
 
-All configurations selected evidence supporting the correct net-change calculation.
-
-BGE + Omneum consistently selected:
+The fixture distinguishes two measurements:
 
 ```text
-primary_publication
-dataset
-report_2
+Gross additions: +120 hectares
+Gross losses:    -180 hectares
+Net change:       -60 hectares
 ```
 
-This matches the Gemini judge's selected sources and the GPT-6 Astra judge's selection in six of ten trials.
+The +120-hectare value is a valid gross-additions figure but does not answer the net-change question.
 
-GPT-6 Astra selected the land office filing instead of Land Review in four trials. Both sets were fully relevant.
+The supporting sources describe the district's net forest-cover change, including the effects of losses.
 
-The difference is execution cost.
+Selection quality depends on retaining passages that address the requested measurement. Source agreement alone does not resolve whether a passage reports gross additions or net change.
 
-| Selector | Selection p50 |
-|---|---:|
-| GPT-6 Astra Judge | 6.255s |
-| Gemini Judge | 2.308s |
-| **Omneum** | **0.624s** |
+**Result:** The case measures selection of net-change evidence from a pool containing related but incompatible quantities.
 
-**Result:** Omneum matched the frontier LLM judges' 100% precision, 60% recall, and correct recorded answers while completing selection approximately 10× faster than GPT-6 Astra and 3.7× faster than Gemini in this case.
-
-This is a strong measured result for using Omneum as a lower-latency context-selection component.
+The final benchmark evaluation scores selected source IDs and evidence retention. Downstream answer correctness is outside this benchmark.
 
 ## `research_independent_false_consensus`
 
@@ -304,7 +308,6 @@ at the August 2026 census, excluding vacant units?
 
 ```text
 7 candidates
-3 selected
 3 relevant
 
 report               Site-map count: 240
@@ -333,16 +336,16 @@ Four independently produced sources instead report 240:
 
 ```text
 Urban Metrics
-    └── Counts residential units from a site map
+   └── Counts residential units from a site map
 
 Housing Review
-    └── Estimates occupancy from building facades
+   └── Estimates occupancy from building facades
 
 Property Lab
-    └── Counts parcel footprints
+   └── Counts parcel footprints
 
 Newspaper
-    └── Counts door numbers
+   └── Counts door numbers
 ```
 
 These sources use different methods but share the same measurement problem: none establishes actual occupancy.
@@ -355,64 +358,54 @@ primary_record
 web_page
 ```
 
-**Expected answer:** 216 occupied homes.
+**Reference answer:** 216 occupied homes.
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `dataset`, `web_page`, `report` | 66.7% | 66.7% | 1/1 correct | 1.497s |
-| BGE + GPT-6 Astra Judge | 10 | `dataset`, `web_page`, `publication` (7/10); `dataset`, `web_page`, `report` (3/10) | 66.7% | 66.7% | 10/10 correct | 6.038s |
-| BGE + Gemini Judge | 10 | `analysis`, `dataset`, `web_page` | 66.7% | 66.7% | 10/10 correct | 2.517s |
-| **BGE + Omneum** | **10** | `analysis`, `report`, `publication` | **0%** | **0%** | 10/10 unscored | **0.630s** |
-| Cohere + Claude Judge | 1 | `primary_record`, `dataset`, `web_page` | 100% | 100% | 1/1 correct | 2.205s |
-| Cohere + Omneum | 1 | `analysis`, `report`, `publication` | 0% | 0% | 1/1 unscored | 0.649s |
+The candidate pool contains three census-based supporting sources and four independently produced reports using incorrect occupancy measurements.
+
+| Source | Reported Value | Relevance |
+|---|---:|---|
+| `report` | 240 | Not supporting |
+| `publication` | 240 | Not supporting |
+| `analysis` | 240 | Not supporting |
+| `dataset` | 216 | Supporting |
+| `news_article` | 240 | Not supporting |
+| `primary_record` | 216 | Supporting |
+| `web_page` | 216 | Supporting |
+
+The final benchmark results record which passages each selector retains at each token budget.
 
 ### Comparative Analysis
 
 This case distinguishes structural independence from semantic measurement validity.
 
-Omneum selected:
+The four incorrect sources use different observation methods:
 
 ```text
-analysis
-report
-publication
+Site-map count
+Facade survey
+Parcel-footprint count
+Door-number count
 ```
 
-All three report 240 occupied homes, although their underlying methods count residential units rather than verified occupancy.
+Their agreement on 240 does not establish that 240 homes were occupied. The methods count or estimate residential units without verifying the vacancy adjustment.
 
-No selected source was labeled relevant.
-
-The BGE + LLM judges performed better, selecting two relevant census sources. However, each also selected one incorrect source:
+The census evidence establishes:
 
 ```text
-GPT-6 Astra:
-  dataset       relevant
-  web_page      relevant
-  publication   irrelevant
-
-Gemini:
-  dataset       relevant
-  web_page      relevant
-  analysis      irrelevant
+Residential units: 240
+Vacant units:       24
+Occupied homes:    216
 ```
 
-The Cohere + Claude judge selected all three relevant sources.
+Source independence can identify whether multiple observations share an information origin. It cannot, by itself, establish that independently produced measurements answer the user's question.
 
-The comparison exposes a genuine distinction between the evaluated methods.
+Omneum's `prepare_context()` uses source reliability and claim support from provenance-aware graph inference alongside question relevance and incremental claim coverage to select retrieved passages. The benchmark evaluates those selections against the annotated census evidence.
 
-Omneum evaluates structural reliability and estimated independence. The LLM judges can also interpret the semantic difference between counting residential units and measuring occupied households.
+**Result:** Independent support is insufficient when multiple sources measure the wrong quantity.
 
-Independent sources can agree on an incorrect measurement without sharing upstream information.
-
-That is a limitation of structural evidence as a substitute for semantic validation, rather than evidence that the sources are structurally dependent.
-
-The recorded Omneum answers were `unscored`. They cannot be counted as correct or incorrect without additional adjudication.
-
-**Result:** The LLM judges outperformed Omneum on source relevance in this case. Omneum's 0% precision and recall identify a concrete boundary of structural context evaluation: independent support does not guarantee that sources measure the requested quantity.
-
-This result is relevant to system design because it distinguishes what structural evaluation can establish from what requires semantic or domain-specific validation.
+The case provides a concrete test of task-specific evidence selection. The domain aggregate metrics do not isolate this case's final source precision, recall, or evidence retention; those values remain in the saved case-budget records.
 
 ## `research_syndicated_reporting`
 
@@ -427,7 +420,6 @@ Riverton accepted into passenger service under its 2026 order?
 
 ```text
 9 candidates
-3 selected
 4 relevant
 
 original_report      Transit Market Report: 60
@@ -462,9 +454,9 @@ Transit Market Report (60)
 The correct evidence comes from operational acceptance records.
 
 ```text
-Order quantity:       60
-Accepted into service: 36
-Awaiting acceptance:  24
+Order quantity:         60
+Accepted into service:  36
+Awaiting acceptance:    24
 ```
 
 The four relevant sources are:
@@ -476,227 +468,216 @@ filing
 dataset
 ```
 
-**Expected answer:** 36 buses.
+**Reference answer:** 36 buses.
 
 ### Recorded Selections
 
-| Method | Trials | Selected sources | Precision | Recall | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `dataset`, `original_report`, `news_article` | 33.3% | 25% | 1/1 correct | 1.494s |
-| BGE + GPT-6 Astra Judge | 10 | Same | 33.3% | 25% | 10/10 correct | 3.453s |
-| BGE + Gemini Judge | 10 | Same | 33.3% | 25% | 10/10 correct | 2.269s |
-| **BGE + Omneum** | **10** | `original_report`, `news_article`, `dataset` | **33.3%** | **25%** | **10/10 correct** | **0.620s** |
-| Cohere + Claude Judge | 1 | `primary_record`, `dataset`, `filing` | 100% | 75% | 1/1 correct | 4.970s |
-| Cohere + Omneum | 1 | `primary_record`, `original_report`, `dataset` | 66.7% | 50% | 1/1 correct | 3.990s |
+The fixture contains four supporting operational sources and five sources reporting the ordered quantity as the accepted quantity.
+
+| Source | Reported Value | Relevance |
+|---|---:|---|
+| `original_report` | 60 | Not supporting |
+| `news_article` | 60 | Not supporting |
+| `news_article_2` | 60 | Not supporting |
+| `news_article_3` | 60 | Not supporting |
+| `primary_record` | 36 | Supporting |
+| `independent_report` | 36 | Supporting |
+| `filing` | 36 | Supporting |
+| `web_page` | 60 | Not supporting |
+| `dataset` | 36 | Supporting |
+
+The final benchmark evaluation records selected passages at six token budgets for each configuration.
 
 ### Comparative Analysis
 
-This case is particularly important because it tests a problem that structural dependency analysis is intended to address: repeated reporting from a common origin.
+This case tests repeated reporting from a shared information origin.
 
-All BGE configurations selected the same evidence set:
-
-```text
-dataset
-original_report
-news_article
-```
-
-Only the fleet dataset was relevant.
-
-The incorrect original report and its direct news derivative were both retained by:
-
-- Claude Sonnet 5.5 Judge
-- GPT-6 Astra Judge
-- Gemini 3.8 Flash Judge
-- Omneum
-
-**None of the BGE-based selectors successfully eliminated the duplicated misinformation from the selected context.**
-
-All achieved 33.3% precision and 25% recall.
-
-Despite this, the downstream generator produced correct recorded answers.
-
-The Cohere comparison shows that the initial reranker also materially affected selection quality.
-
-Cohere + Claude selected:
+The Transit Market Report supplies the incorrect 60-bus figure. Several subsequent publications repeat that figure, creating apparent agreement across multiple sources.
 
 ```text
-primary_record
-dataset
-filing
+Original report: 60
+   |
+   +--> News derivative: 60
+   +--> Regional derivative: 60
+   +--> Transport derivative: 60
 ```
 
-Cohere + Omneum selected:
+The operational acceptance evidence instead establishes:
 
 ```text
-primary_record
-original_report
-dataset
+Municipal acceptance register: 36
+Depot inspection:              36
+Capital filing:                36
+Fleet acceptance export:       36
 ```
 
-The Claude judge achieved 100% precision and 75% recall. Omneum achieved 66.7% precision and 50% recall.
+Omneum's provenance-aware graph inference accounts for shared evidence origins and dependencies between sources when computing source reliability and claim support. Repeated reports sharing an upstream origin therefore contribute differently from independent supporting sources when the corresponding dependency signals are available.
 
-**Result:** Omneum matched all three BGE + LLM judges on selection quality while recording lower latency, but the shared selections were weak.
+The benchmark evaluates the selected passages against the four annotated supporting sources.
 
-With Cohere, the Claude judge selected a better evidence set.
+**Result:** The case measures whether Omneum's provenance-aware graph inference and relevance-based context selection retain operational acceptance evidence despite repeated reporting of the incorrect ordered quantity.
 
-The case establishes that syndicated-reporting dependencies remain challenging for all evaluated BGE configurations. It does not demonstrate superior dependency handling by Omneum, and it should not be represented as a successful elimination of copied misinformation by the LLM judges either.
+A high selection score requires retaining the 36-bus evidence. The presence of dependency metadata alone does not establish that the selector eliminated the syndicated error.
 
 ## Inspect Recorded Runs
 
-Authoritative run directories:
+Authoritative benchmark execution artifacts:
 
 ```text
-benchmarks/context_evaluation/heldout/results/
-├── bge-claude-vs-bge-omneum-20261008/
-├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-low-vs-bge-omneum-20261008/
-└── cohere-claude-vs-cohere-omneum-20261008/
+benchmarks/context_selection/synthetic/
+├── results/
+│   ├── tier1-production-20261025-v1/
+│   ├── tier1-competitors-20261025-v1/
+│   └── budget-exhaustion-recovery-20261026-v2/
+└── analysis/
+    └── tier1-competitive-analysis-20261026-v1/
 ```
+
+The published evaluation uses the final Omneum hybrid selections and the preserved competitor measurements.
 
 ### Inspect Research Case Records
 
-```bash
-# List the recorded result artifacts
-ls benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/
+Inspect the final evaluation:
 
-# Find all four research cases
+```bash
+cat \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
+```
+
+Find the four research case IDs in the saved artifacts:
+
+```bash
 rg -n \
   'research_clean_consensus|research_conflicting_reports|research_independent_false_consensus|research_syndicated_reporting' \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/
 ```
 
-Extract matching JSONL records:
+The search identifies case-specific records in the final result directory.
 
-```bash
-rg \
-  'research_clean_consensus|research_conflicting_reports|research_independent_false_consensus|research_syndicated_reporting' \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl \
-  > /tmp/research-results.jsonl
-```
-
-Count the extracted records:
-
-```bash
-wc -l /tmp/research-results.jsonl
-```
-
-The number of JSONL records depends on how attempts and method comparisons are serialized. It should not be interpreted as the number of independent cases.
+To inspect the complete source selections, use the corresponding saved selection artifact identified by the result manifest. Each record is associated with its method, case, and token budget.
 
 ### Inspect All Recorded Comparisons
 
 ```bash
-for run in \
-  bge-claude-vs-bge-omneum-20261008 \
-  bge-openai-vs-bge-omneum-20261008 \
-  bge-google-low-vs-bge-omneum-20261008 \
-  cohere-claude-vs-cohere-omneum-20261008
-do
-  echo "===== $run ====="
+# Final paired comparisons
+head -n 20 \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/paired_comparisons.csv
 
-  rg -c \
-    'research_clean_consensus|research_conflicting_reports|research_independent_false_consensus|research_syndicated_reporting' \
-    "benchmarks/context_evaluation/heldout/results/$run/results.jsonl" || true
-done
+# Case-level comparisons
+head -n 20 \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/paired_cases.csv
+
+# Case-budget comparisons
+head -n 20 \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/paired_case_budget.csv
+
+# Domain-budget comparisons
+head -n 20 \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/paired_domain_budget.csv
 ```
 
-### Inspect the Published Dashboard
+These files contain paired measurements for the final hybrid selectors and their recorded comparison configurations.
+
+### Inspect the Published Results
 
 ```bash
-.venv/bin/python -m json.tool \
-  benchmarks/context_evaluation/heldout/dashboard_summary.json
+# Final evaluation report
+cat \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
+
+# Competitive analysis
+cat \
+  benchmarks/context_selection/synthetic/analysis/tier1-competitive-analysis-20261026-v1/report.md
+
+# Analysis validation
+python -m json.tool \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/analysis_validation.json
 ```
 
-Verify the dashboard:
-
-```bash
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary --check
-```
-
-Regenerate the dashboard from saved artifacts:
-
-```bash
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary
-```
-
-Regeneration does not make provider calls or reproduce the original model responses.
+The analysis uses saved source selections, reconstructed contexts, timing records, and metric inputs. Recomputing the published comparisons does not require new provider calls.
 
 ## Evaluation Notes
 
 | Setting | Value |
 |---|---|
 | Cases | 4 |
-| Candidate sources | 31 total |
-| Candidate pools | 7–9 sources per case |
-| Selection budget | 3 sources per case |
-| Generator | Claude Sonnet 5.5 |
-| Initial rerankers | BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
+| Candidate passages | 31 total |
+| Candidate pools | 7–9 passages per case |
+| Selection budgets | 64, 96, 128, 160, 192, 256 Qwen tokens |
+| Tokenizer | Qwen2.5 7B GGUF |
+| Budgeted configurations | 13 |
+| Unbudgeted reference | `raw_full` |
+| Retrieval and rerankers | BM25, MiniLM, BGE Reranker v2-m3, Cohere Rerank v4.0 Pro |
 | LLM judges | Claude Sonnet 5.5, GPT-6 Astra, Gemini 3.8 Flash |
-| BGE + GPT-6 / Gemini | 10 trials per case |
-| BGE + Omneum | 10 trials per case in each paired run |
-| Claude / Cohere comparisons | 1 trial per case |
-| Latency aggregation | Median across recorded trials |
-| Selection scoring | Fixture relevance labels |
+| Omneum entry point | `prepare_context()` |
+| Selection objective | `coverage_support_density` |
+| Complementary evidence | `complementary_evidence=True` |
+| Token cost exponent | `token_cost_exponent=1` |
+| Discovery anchors | 3 plus relevance-score ties |
+| Discovery expansion | Depth 2 |
+| Deferred candidate recovery | Enabled |
+| Conflict-aware selection | `conflict_aware=False` |
+| Selection scoring | Annotated supporting-source IDs |
+| Evidence scoring | Retained gold evidence spans |
+| Claim scoring | Canonical claims represented in supporting passages |
+| Origin scoring | Annotated root-origin units |
+| Latency aggregation | Local selection p50 and p95 |
 
-BGE + Omneum appears in multiple paired-run artifacts. The primary comparisons use its GPT-6 Astra pairing rather than treating repeated executions as additional independent cases.
+The final hybrid implementation evaluates deferred candidates after the initial discovery neighborhood exhausts positive, budget-feasible utility. Additional passages must meet the recorded marginal utility-density threshold and fit within the remaining token budget.
+
+The Research & Analysis domain showed relatively small completeness gains from this recovery. Cohere + Omneum's aggregate results were unchanged.
 
 ### Downstream Answer Results
 
-| Case | GPT-6 Astra Judge | Gemini Judge | Omneum |
-|---|---|---|---|
-| Clean consensus | 10/10 correct | 10/10 correct | 10/10 correct |
-| Conflicting reports | 10/10 correct | 10/10 correct | 10/10 correct |
-| Independent false consensus | 10/10 correct | 10/10 correct | 10/10 unscored |
-| Syndicated reporting | 10/10 correct | 10/10 correct | 10/10 correct |
+The benchmark evaluates context selection without running a downstream answer generator.
 
-Answer results reflect the fixed downstream Claude Sonnet 5.5 generator after each selection method.
+The benchmark records:
 
-The benchmark uses frozen answer-scoring criteria. An `unscored` response is not automatically an incorrect response.
+| Measurement | Included |
+|---|---|
+| Selection precision | Yes |
+| Selection recall | Yes |
+| Evidence retention | Yes |
+| Claim coverage | Yes |
+| Origin coverage | Yes |
+| Reconstructed-context token count | Yes |
+| Local selection latency | Yes |
+| Downstream answer correctness | No |
 
-Selection precision and recall measure fixture relevance, not source independence or the accuracy of dependency estimation directly.
+Selection precision and recall measure fixture relevance. Origin coverage measures retention of annotated root-origin units. These metrics do not directly measure dependency-estimation accuracy.
 
 ## Interpretation
 
-The Research & Analysis benchmark demonstrates that **Omneum can provide context-selection performance comparable to frontier LLM judges at substantially lower recorded latency**, while also identifying cases where semantic interpretation improves selection.
+The Research & Analysis results establish four findings.
 
-The results support four specific conclusions.
+**1. Cohere + Omneum achieves the highest precision among the Omneum configurations.**
 
-**1. Omneum matches frontier LLM judges on straightforward research evidence selection.**
+Cohere + Omneum recorded **79.31% precision** across the four cases and six budgets. Standalone Omneum recorded **77.27%**, BM25 + Omneum **76.60%**, BGE + Omneum **69.79%**, and MiniLM + Omneum **67.99%**.
 
-In clean consensus and conflicting reports, Omneum achieved the same precision, recall, and recorded answer correctness as Claude, GPT-6 Astra, and Gemini.
+**2. Standalone Omneum retains more annotated research evidence.**
 
-It did so without using an LLM judge in the selection stage.
+Standalone Omneum achieved **59.52% evidence retention** and **57.00% recall**. Cohere + Omneum retained **55.25%** of evidence, and BM25 + Omneum retained **54.32%**.
 
-**2. Omneum consistently reduces selection latency.**
+The hybrid configurations used smaller reconstructed contexts, with mean Qwen-token counts between **115.33** and **119.75**, compared with **129.00** for standalone Omneum.
 
-Across the four cases, Omneum recorded selection medians of 0.603–0.630 seconds, compared with 3.453–6.255 seconds for GPT-6 Astra and 1.926–2.517 seconds for Gemini.
+**3. Research evidence quality depends on the quantity being measured.**
 
-This is a measurable efficiency advantage for context-selection workflows.
+The independent-false-consensus fixture contains independently produced sources that agree on 240 residential units. The requested quantity is occupied homes, established by the census evidence as 216.
 
-**3. The LLM judges also retain misleading or dependent evidence.**
+Structural independence does not resolve this measurement mismatch by itself. Question relevance and claim coverage remain necessary to select passages addressing the requested quantity.
 
-In syndicated reporting, every BGE + LLM judge selected the same incorrect original report and its news derivative as Omneum.
+**4. Shared reporting origins remain a distinct evaluation target.**
 
-All four BGE configurations achieved only 33.3% precision and 25% recall.
+The syndicated-reporting fixture contains multiple publications repeating an incorrect 60-bus acceptance figure from one original report. The supporting operational records establish 36 accepted buses.
 
-The presence of an LLM judge did not eliminate that failure.
-
-**4. Structural independence alone cannot resolve every semantic measurement error.**
-
-In independent false consensus, Omneum selected independently produced but incorrect evidence, while the LLM judges identified more of the census sources.
-
-This distinguishes structural reliability evaluation from semantic task interpretation.
+Omneum's provenance-aware graph inference accounts for shared evidence origins and dependencies between sources when computing source reliability and claim support. The final selection metrics measure whether the corresponding operational evidence survives the token budget.
 
 ### Overall Result
 
-**Omneum matched GPT-6 Astra and Gemini on source-selection precision and recall in three of four research cases, with substantially lower recorded selection latency.**
+Across the Research & Analysis cases, **Cohere + Omneum achieved 79.31% selection precision**, while **standalone Omneum retained the most annotated evidence at 59.52%**.
 
-Its principal weakness in this subset was independent false consensus, where the task required recognizing that multiple independent sources measured the wrong quantity.
+The results reflect different tradeoffs between selection precision, evidence retention, and reconstructed-context size. The final recovery produced limited additional completeness in this domain.
 
-The syndicated-reporting case exposed a shared weakness across all BGE-based configurations, including the frontier LLM judges.
+The benchmark uses fixed synthetic candidate pools with supplied structured `Observation` objects. It evaluates context selection and reconstruction, without downstream answer generation or live retrieval across research repositories.
 
-These results support Omneum's value as a fast, structural context-evaluation component. They do not establish that structural evaluation replaces semantic reasoning or that the measured performance generalizes to all research workflows.
-
-The benchmark uses synthetic fixtures with fixed candidate pools and relevance labels. It does not evaluate open-ended retrieval across live research repositories.
-
-For complete methodology, live execution requirements, and aggregate results, see [Benchmark README](README.md) and [Leaderboard](leaderboard.md).
+For the complete evaluation methodology and aggregate comparisons, see [Benchmark README](README.md) and [Leaderboard](leaderboard.md).

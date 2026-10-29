@@ -1,52 +1,57 @@
-
 # Coding Agents
 
-Context-selection benchmark for software-engineering agents. Tests version-specific APIs, repository evidence, deployment configuration, and source lineage.
+Coding-agent evaluation for the Omneum Cross-Domain Context Curation Benchmark.
 
-**4 held-out cases · 29 candidate sources · Claude Sonnet 5.5 generator**
+Four synthetic cases test context selection for version-specific APIs, transactional replay handling, deployment configuration, and source lineage.
 
-[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_evaluation/heldout/DATASET.md) | [Saved Results](context_evaluation/heldout/results/)
+**4 cases · 29 candidate passages · 6 Qwen-token budgets · 13 budgeted configurations**
+
+[Leaderboard](leaderboard.md) | [Benchmark README](README.md) | [Dataset](context_selection/synthetic/DATASET.md) | [Saved Results](context_selection/synthetic/results/)
 
 ## Quick Start
 
 Run from the Omneum repository root.
 
 ```bash
-# Validate all 24 held-out cases, including the four coding cases
-.venv/bin/python -m benchmarks.context_evaluation.heldout.validate_dataset
+# Inspect the original competitor results
+cat benchmarks/context_selection/synthetic/results/tier1-competitors-20261025-v1/aggregate.csv
 
-# Run offline benchmark tests
-.venv/bin/python tools/run_context_evaluation_tests.py -q
+# Inspect the completed budget-exhaustion recovery
+cat benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/report.md
 
-# Verify saved publication metrics
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary --check
+# Inspect the coding-domain results
+rg '^domain,coding_agents,' \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/domain_budget_case_levels.csv
 ```
 
-No provider calls. These commands verify the frozen dataset, benchmark tests, and saved dashboard; they do not generate new model responses.
+The original benchmark run and completed recovery use the same frozen 24-case dataset.
 
 ## Cases
 
-| Case | Candidates | Budget | Expected behavior |
-|---|---:|---:|---|
-| [`coding_api_version_change`](#coding_api_version_change) | 8 | 3 | Use the installed API, not obsolete examples |
-| [`coding_clean_dependency`](#coding_clean_dependency) | 7 | 3 | Select atomic replay-handling evidence |
-| [`coding_config_conflict`](#coding_config_conflict) | 6 | 2 | Prefer production configuration over local defaults |
-| [`coding_package_fix_lineage`](#coding_package_fix_lineage) | 8 | 3 | Discount repeated obsolete workaround advice |
+| Case | Candidates | Token budgets | Expected behavior |
+|---|---:|---|---|
+| [`coding_api_version_change`](#coding_api_version_change) | 8 | 64–256 | Retain the installed API signature and version evidence |
+| [`coding_clean_dependency`](#coding_clean_dependency) | 7 | 64–256 | Retain transactional replay-handling evidence |
+| [`coding_config_conflict`](#coding_config_conflict) | 6 | 64–256 | Resolve the production port from the deployment manifest |
+| [`coding_package_fix_lineage`](#coding_package_fix_lineage) | 8 | 64–256 | Prefer current implementation evidence over repeated obsolete advice |
 
-Each case uses a fixed candidate pool, relevance labels, and selection budget.
+Each case uses a frozen candidate pool with canonical claim annotations and supporting-source labels. Selection is evaluated at `64`, `96`, `128`, `160`, `192`, and `256` Qwen tokens.
 
 ## Recorded Results
 
-BGE + Omneum results below use the 10-trial GPT-6 Astra pairing. Claude and Cohere comparisons use one trial per case.
+The table reports the completed coding-domain evaluation, averaged across four cases and six token budgets. Corrected hybrid rows come from `budget-exhaustion-recovery-20261026-v2/domain_budget_case_levels.csv`.
 
-| Case | BGE + Omneum Precision | Recall | Answer | Selection p50 |
-|---|---:|---:|---|---:|
-| API version change | 100% | 60% | 10/10 correct | 0.757s |
-| Clean dependency | 100% | 50% | 10/10 correct | 0.611s |
-| Configuration conflict | 50% | 50% | 10/10 correct | 0.623s |
-| Package fix lineage | 100% | 60% | 10/10 unscored | 0.593s |
+| Configuration | Precision | Recall | Evidence Retention | Claim Coverage | Origin Coverage | Qwen Tokens |
+|---|---:|---:|---:|---:|---:|---:|
+| Omneum | 51.597% | 52.222% | 51.142% | 58.157% | 63.472% | 132.000 |
+| BM25 + Omneum | 44.395% | 30.278% | 29.145% | 38.308% | 41.111% | 101.292 |
+| MiniLM + Omneum | 57.986% | 43.472% | 42.164% | 47.955% | 61.875% | 103.083 |
+| BGE + Omneum | 66.131% | 50.417% | 51.223% | 56.641% | 65.625% | 110.833 |
+| Cohere + Omneum | 67.867% | 50.278% | 51.527% | 54.646% | 64.722% | 108.042 |
 
-`unscored` is a separate recorded status, not an incorrect-answer verdict. Selection precision and recall use fixture relevance labels.
+`source_precision` and `source_recall` use annotated supporting-source IDs. Evidence retention measures the retained gold evidence-span footprint. Claim coverage counts canonical claims represented in supporting passages; origin coverage follows the dataset's annotated root-origin units.
+
+The corrected BGE hybrid increases coding evidence retention by **10.720 percentage points**, claim coverage by **17.462 points**, and origin coverage by **11.667 points** relative to its original restricted-discovery run.
 
 ## `coding_api_version_change`
 
@@ -61,7 +66,6 @@ How should the export job submit a CSV export using that installed API?
 
 ```text
 8 candidates
-3 selected
 
 old_api_docs         LedgerKit 2.6 reference
 old_example          Example pinned to ledgerkit==2.6
@@ -96,16 +100,19 @@ Exports.create(self, *, account_id, format)
 
 ### Recorded selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `current_api_docs`, `repository_code`, `changelog` | 100% | 60% | 1/1 correct | 2.450s |
-| BGE + GPT-6 Astra Judge | 10 | Same | 100% | 60% | 10/10 correct | 3.005s |
-| BGE + Gemini Judge | 10 | Same | 100% | 60% | 10/10 correct | 2.623s |
-| **BGE + Omneum** | **10** | Same | **100%** | **60%** | **10/10 correct** | **0.757s** |
-| Cohere + Claude Judge | 1 | `current_api_docs`, `repository_code`, `package_metadata` | 67% | 40% | 1/1 correct | 1.703s |
-| Cohere + Omneum | 1 | `package_metadata`, `current_api_docs`, `repository_code` | 67% | 40% | 1/1 correct | 0.637s |
+The current evaluation ranks the eight passages under six Qwen-token budgets. The gold source annotations identify the installed `LedgerKit 3.0` implementation and migration evidence.
 
-**Result:** Omneum matched the BGE + judge selections at lower selection latency. Both Cohere configurations included `package_metadata` instead of `changelog`, reducing scored relevance without changing answer correctness.
+| Source | Evidence |
+|---|---|
+| `current_api_docs` | `client.exports.create()` signature |
+| `repository_code` | Installed `ledgerkit/exports.py` implementation |
+| `package_metadata` | `uv.lock` version resolution |
+| `changelog` | LedgerKit 3.0 breaking changes |
+| `migration_guide` | 2.x-to-3.0 API migration |
+| `old_api_docs` | Obsolete 2.6 API |
+| `old_example` | Example pinned to `ledgerkit==2.6` |
+
+**Result:** The case measures whether budgeted selection retains the installed API contract while competing with obsolete references. The exact per-budget selections are recorded in `tier1-competitors-20261025-v1/selections.json` and the corrected recovery's `selections.json`.
 
 ## `coding_clean_dependency`
 
@@ -120,7 +127,6 @@ idempotent while committing the balance update?
 
 ```text
 7 candidates
-3 selected
 
 repository_code      consumer.py transaction implementation
 unit_test            Duplicate event replay
@@ -147,22 +153,20 @@ RETURNING event_id;
 COMMIT;
 ```
 
-A unique constraint on `processed_events.event_id` prevents a committed event from being applied twice. The balance update and event insertion must be atomic.
+A unique constraint on `processed_events.event_id` prevents a committed event from being applied twice. The balance update and event insertion must commit atomically.
 
 ### Recorded selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `current_docs`, `repository_code`, `example` | 100% | 50% | 1/1 correct | 1.501s |
-| BGE + GPT-6 Astra Judge | 10 | `current_docs`, `repository_code`, `integration_test` | 100% | 50% | 10/10 correct | 3.063s |
-| BGE + Gemini Judge | 10 | `current_docs`, `repository_code`, `example` | 100% | 50% | 10/10 correct | 2.183s |
-| **BGE + Omneum** | **10** | `integration_test`, `repository_code`, `release_notes` | **100%** | **50%** | **10/10 correct** | **0.611s** |
-| Cohere + Claude Judge | 1 | `current_docs`, `repository_code`, `example` | 100% | 50% | 1/1 correct | 4.487s |
-| Cohere + Omneum | 1 | `current_docs`, `release_notes`, `repository_code` | 100% | 50% | 1/1 correct | 2.974s |
+| Source | Evidence |
+|---|---|
+| `repository_code` | `consumer.py` transaction boundary |
+| `unit_test` | Duplicate event replay |
+| `integration_test` | Worker termination before commit |
+| `current_docs` | Consumer transaction semantics |
+| `release_notes` | Sable 1.8 replay behavior |
+| `example` | Transaction implementation example |
 
-Some GPT-6 and Gemini trials vary source ordering.
-
-**Result:** All methods selected three relevant sources and generated correct answers. Omneum preferred implementation, integration-test, and release-note evidence, with the lowest BGE-based selection latency.
+**Result:** The case measures retention of the transaction boundary and replay guard under constrained context budgets. `repository_code` supplies the implementation path; `integration_test` exercises the commit-failure condition. The saved selection records identify the passages retained by each method and budget.
 
 ## `coding_config_conflict`
 
@@ -177,7 +181,6 @@ which TCP port must the readiness probe use?
 
 ```text
 6 candidates
-2 selected
 
 readme               Local quick start: 8080
 deployment_config    deploy/prod.yaml: 9092
@@ -207,22 +210,20 @@ Application default:
 listen_port = int(os.environ.get("APP_PORT", "8080"))
 ```
 
-The production manifest overrides the default. Expected answer: **9092**.
+The production manifest overrides the application default. Expected port: **9092**.
 
 ### Recorded selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `deployment_config`, `test_output` | 100% | 100% | 1/1 correct | 1.979s |
-| BGE + GPT-6 Astra Judge | 10 | Same | 100% | 100% | 10/10 correct | 2.097s |
-| BGE + Gemini Judge | 10 | Same | 100% | 100% | 10/10 correct | 1.956s |
-| **BGE + Omneum** | **10** | `readme`, `deployment_config` | 50% | 50% | 10/10 correct | **0.623s** |
-| Cohere + Claude Judge | 1 | `deployment_config`, `readme` | 50% | 50% | 1/1 correct | 36.949s |
-| Cohere + Omneum | 1 | `example_config`, `ci_config` | 0% | 0% | 1/1 unscored | 35.866s |
+| Source | Configuration evidence |
+|---|---|
+| `deployment_config` | Production `APP_PORT=9092` and readiness probe |
+| `test_output` | Production manifest integration test |
+| `source_code` | `APP_PORT` environment override with `8080` fallback |
+| `readme` | Local development port `8080` |
+| `ci_config` | Unit-test port `8080` |
+| `example_config` | `examples/local.env` port `8080` |
 
-**Result:** Omneum included the relevant production manifest but missed the integration-test evidence. The generator still answered `9092` correctly. Cohere + Omneum selected only local-environment evidence and produced an unscored response.
-
-This case separates correct answer generation from correct evidence selection.
+**Result:** The case tests selection under conflicting environment-specific configuration values. `deploy/prod.yaml` contains the production override and readiness-probe target. The local `8080` references compete for context space at every token budget.
 
 ## `coding_package_fix_lineage`
 
@@ -236,7 +237,6 @@ How should the client fix the connection-pool exhaustion issue?
 
 ```text
 8 candidates
-3 selected
 
 issue_origin         Disable connection reuse
 issue_comment        Repeats the workaround
@@ -262,75 +262,103 @@ Bound idle connections.
 Evict expired pool entries.
 ```
 
-Three candidate sources repeat the same outdated recommendation. Their apparent agreement does not establish independent support.
+The obsolete recommendation appears in three related candidate sources. Omneum's provenance-aware graph inference accounts for their shared evidence origins when computing source reliability and claim support, rather than treating each repeated assertion as independent support.
 
 ### Recorded selections
 
-| Method | Trials | Selected sources | P | R | Answer | Selection p50 |
-|---|---:|---|---:|---:|---|---:|
-| BGE + Claude Judge | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | 1.632s |
-| BGE + GPT-6 Astra Judge | 10 | `release_notes`, `package_docs`, `pull_request` | 100% | 60% | 10/10 unscored | 2.944s |
-| BGE + Gemini Judge | 10 | Same | 100% | 60% | 10/10 unscored | 2.726s |
-| **BGE + Omneum** | **10** | Same | **100%** | **60%** | 10/10 unscored | **0.593s** |
-| Cohere + Claude Judge | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | 2.209s |
-| Cohere + Omneum | 1 | `release_notes`, `pull_request`, `package_docs` | 100% | 60% | 1/1 unscored | 1.285s |
+The corrected recovery increases retained evidence for the BGE hybrid in this case.
 
-**Result:** All recorded configurations selected current-fix evidence rather than the repeated obsolete workaround. Omneum matched the BGE + judge selection quality with lower selection latency.
+| Metric | Original | Corrected |
+|---|---:|---:|
+| Selection precision | 33.333% | 60.000% |
+| Evidence retention | 21.875% | 63.542% |
+| Origin coverage | 20.000% | 60.000% |
+| Qwen tokens | 62 | 113 |
+
+The correction extends discovery beyond the initial expanded neighborhood after its feasible utility is exhausted. Deferred passages must meet the marginal utility-density threshold established by the initial selection.
+
+**Result:** BGE + Omneum increases evidence retention by **41.667 percentage points** and origin coverage by **40 points** in the recorded recovery comparison. The selected context expands from 62 to 113 Qwen tokens while precision increases from 33.333% to 60%.
+
+The recovery preserves the initial selection and admits additional supporting evidence. Remaining exclusions follow the selector's relevance and marginal-utility constraints.
 
 ## Inspect Recorded Runs
 
 Authoritative run directories:
 
 ```text
-benchmarks/context_evaluation/heldout/results/
-├── bge-claude-vs-bge-omneum-20261008/
-├── bge-openai-vs-bge-omneum-20261008/
-├── bge-google-low-vs-bge-omneum-20261008/
-└── cohere-claude-vs-cohere-omneum-20261008/
+benchmarks/context_selection/synthetic/
+├── results/
+│   ├── tier1-production-20261025-v1/
+│   ├── tier1-competitors-20261025-v1/
+│   └── budget-exhaustion-recovery-20261026-v2/
+└── analysis/
+    └── tier1-competitive-analysis-20261026-v1/
 ```
 
-Inspect the recorded JSONL results:
+Inspect the recorded selection results:
 
 ```bash
-# List available result artifacts
-ls benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/
+# Original competitor selections
+rg -n '"case_id": "coding_' \
+  benchmarks/context_selection/synthetic/results/tier1-competitors-20261025-v1/selections.json
 
-# Find the four coding case records
-rg -n 'coding_api_version_change|coding_clean_dependency|coding_config_conflict|coding_package_fix_lineage' \
-  benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl
+# Corrected Omneum selections
+rg -n '"case_id": "coding_' \
+  benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/selections.json
+
+# Corrected domain and budget aggregates
+cat benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/domain_budget_case_levels.csv
 ```
 
-Inspect the published aggregate:
+Inspect the aggregate comparison:
 
 ```bash
-.venv/bin/python -m json.tool \
-  benchmarks/context_evaluation/heldout/dashboard_summary.json
+cat benchmarks/context_selection/synthetic/results/tier1-competitors-20261025-v1/aggregate.csv
+
+cat benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/aggregate.csv
 ```
 
-Regenerate it from saved evidence:
+Inspect the recovery validation:
 
 ```bash
-.venv/bin/python -m benchmarks.context_evaluation.heldout.build_dashboard_summary
+cat benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/analysis_validation.json
+
+cat benchmarks/context_selection/synthetic/results/budget-exhaustion-recovery-20261026-v2/improvement_coverage.csv
 ```
 
-Regeneration does not make provider calls or reproduce the original model responses.
+The corrected evaluation preserves the original passages in all 720 Omneum selection cells. The saved audit reproduces selection-quality metrics and checks the corrected outputs against their frozen annotations.
 
 ## Evaluation Notes
 
 | Setting | Value |
 |---|---|
-| Cases | 4 |
-| Candidate pools | 6–8 sources |
-| Selection budgets | 2–3 sources |
-| Generator | Claude Sonnet 5.5 |
-| BGE + GPT-6 / Gemini | 10 trials per case |
-| BGE + Omneum | 10 trials per case in each paired run |
-| Claude / Cohere extracts | 1 trial per case |
-| Latency aggregation | Median across recorded trials |
-| Selection scoring | Fixture relevance labels |
+| Cases | 4 coding cases |
+| Candidate pools | 6–8 passages |
+| Token budgets | 64, 96, 128, 160, 192, 256 |
+| Tokenizer | Qwen2.5 7B GGUF |
+| Configurations | 13 budgeted methods plus `raw_full` |
+| Ranking trials | 2 saved trials per case |
+| Selection entry point | `prepare_context(question=...)` |
+| Standalone Omneum relevance | Default lexical relevance |
+| Hybrid selection policy | `coverage_support_density` |
+| Complementary evidence | `True` |
+| Token cost exponent | `1` |
+| Discovery anchors | 3 plus score ties |
+| Expansion depth | 2 |
+| Conflict-aware selection | `False` |
+| Source scoring | Annotated supporting-source IDs |
+| Evidence scoring | Retained gold evidence-span footprint |
+| Claim scoring | Canonical claims represented in supporting passages |
+| Origin scoring | Annotated root-origin units |
+| Latency | Local post-ranking selection |
+| Source revision | `6d430d4efd28559a262212e9f88aba63c080238a` |
 
-BGE + Omneum appears in three BGE paired-run files. The tables use its GPT-6 Astra pairing rather than combining repeated records into additional cases.
+The corrected hybrid selector uses staged budget-exhaustion recovery. Original selected passages remain present, and deferred candidates are admitted subject to the recorded utility-density floor. Recovery increases coding-domain completeness for MiniLM and BGE while changing the selected context footprint.
 
-**Known dataset issue:** `coding_package_fix_lineage` has a documented candidate-type mismatch: matrix slot 3 is labeled `issue_comment`, while the preserved canonical candidate is a community note. The validator reports this issue without changing the frozen fixture.
+The benchmark uses `tokenizer_tokens` to enforce Qwen budgets. `actual_context_tokens` records the word/punctuation footprint, including rendered passage headers. The two fields have different counting semantics.
 
-These are synthetic software-engineering fixtures, not documentation for real external packages. See [Benchmark Methodology](README.md) for the complete evaluation contract.
+Local selection timing begins after relevance scores and structured observations are available. The measured local interval includes graph evaluation, candidate discovery, packing, reconstruction, and SDK verification. Provider ranking latency and extraction are recorded separately.
+
+**Known dataset issue:** `coding_package_fix_lineage` preserves a candidate-type mismatch: matrix slot 3 is labeled `issue_comment`, while the canonical candidate is a community note. The frozen fixture remains unchanged.
+
+These four cases use synthetic software-engineering packages and repositories. The full 24-case evaluation and paired confidence intervals are recorded in [Leaderboard](leaderboard.md) and the [Benchmark README](README.md).

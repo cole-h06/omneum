@@ -1,0 +1,26 @@
+{
+  "cases": 24,
+  "candidates": 189,
+  "claim_occurrences": 400,
+  "distinct_claim_identities": 259,
+  "replacements": 189,
+  "additional_atomic_claims": 211,
+  "identities_shared_by_multiple_sources": 69,
+  "conflicting_properties_retained": 9,
+  "source_passages_and_nonclaim_fields_unchanged": true,
+  "labels_byte_identical": true,
+  "retrieval_files_byte_identical": 24,
+  "protected_original_files_verified": 293,
+  "original_observation_ids_retained": 189,
+  "test_result": "154 passed in 2.66s",
+  "canonical_benchmark_runs": 0,
+  "canonical_inference_runs": 0,
+  "model_calls": 0,
+  "changed_adapter_files": [
+    "schema.py",
+    "loader.py",
+    "sdk_adapter.py",
+    "prepare_benchmark.py::mapped_chunks",
+    "query_benchmark.py::inputs"
+  ]
+}

@@ -1,0 +1,410 @@
+{
+  "id": "support_clean_resolution",
+  "domain": "support_operations_agents",
+  "question": "How should support restore the paused Marlin export worker after its scheduled maintenance is complete?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "current_runbook",
+      "source": {
+        "kind": "current_runbook",
+        "identifier": "https://current-runbook.benchmark.example/support_clean_resolution/current_runbook"
+      },
+      "text": "Current Marlin runbook: after completed maintenance, resume the export worker with marlinctl worker resume export and check that pending exports drain.",
+      "provenance": {
+        "assertion_id": "support_clean_resolution:current_runbook",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "maintenance_recovery_instruction",
+          "value": {
+            "condition": "maintenance complete",
+            "action": "marlinctl worker resume export",
+            "verification": "pending export queue drains"
+          },
+          "claim_id": "sha256:e666079e1ec76b3289f6122803800786269bd134a0be05defcfe843798765273",
+          "observation_id": "support_clean_resolution:current_runbook",
+          "evidence": [
+            {
+              "source_id": "current_runbook",
+              "start": 0,
+              "end": 151,
+              "text": "Current Marlin runbook: after completed maintenance, resume the export worker with marlinctl worker resume export and check that pending exports drain."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "deployment_config",
+      "source": {
+        "kind": "deployment_config",
+        "identifier": "https://deployment-config.benchmark.example/support_clean_resolution/deployment_config"
+      },
+      "text": "Deployment config exposes worker resume for the export pool; maintenance pause is a durable flag cleared by marlinctl worker resume export.",
+      "provenance": {
+        "assertion_id": "support_clean_resolution:deployment_config",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "available_resume_command",
+          "value": "marlinctl worker resume export",
+          "claim_id": "sha256:d56c7d5dd4e371b2091827cddc8b0123ef6d724e21ae922965650b4e3bcf6e1d",
+          "observation_id": "support_clean_resolution:deployment_config",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 139,
+              "text": "Deployment config exposes worker resume for the export pool; maintenance pause is a durable flag cleared by marlinctl worker resume export."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "maintenance_pause_durable",
+          "value": true,
+          "claim_id": "sha256:37fca0d166e5880c15ca14330f39f052ce3482f06b773747038d062e06ae4647",
+          "observation_id": "support_clean_resolution:deployment_config:claim:2",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 139,
+              "text": "Deployment config exposes worker resume for the export pool; maintenance pause is a durable flag cleared by marlinctl worker resume export."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "resume_command_clears_pause",
+          "value": true,
+          "claim_id": "sha256:6d8e3f40a3a37fe4ddf3cbfc0487ea611aff47ab60a75aae7d996f066b70a08e",
+          "observation_id": "support_clean_resolution:deployment_config:claim:3",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 139,
+              "text": "Deployment config exposes worker resume for the export pool; maintenance pause is a durable flag cleared by marlinctl worker resume export."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "monitoring_result",
+      "source": {
+        "kind": "monitoring_result",
+        "identifier": "https://monitoring-result.benchmark.example/support_clean_resolution/monitoring_result"
+      },
+      "text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs.",
+      "provenance": {
+        "assertion_id": "support_clean_resolution:monitoring_result",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "maintenance_checks_passed",
+          "value": true,
+          "claim_id": "sha256:5aed0d333fb40113a0e629a88f2f21f8c822df32489c58c993a409f35e480c71",
+          "observation_id": "support_clean_resolution:monitoring_result",
+          "evidence": [
+            {
+              "source_id": "monitoring_result",
+              "start": 0,
+              "end": 147,
+              "text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "export_pool_healthy",
+          "value": true,
+          "claim_id": "sha256:25032a99258adaa0948f79334587045de588b358dc8e7ccb2ba79a803fe36b25",
+          "observation_id": "support_clean_resolution:monitoring_result:claim:2",
+          "evidence": [
+            {
+              "source_id": "monitoring_result",
+              "start": 0,
+              "end": 147,
+              "text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "worker_paused",
+          "value": true,
+          "claim_id": "sha256:ab1f79c4d35b940ab43b4e32847bae0d7007ebaaa0d926bdbca1a51876853784",
+          "observation_id": "support_clean_resolution:monitoring_result:claim:3",
+          "evidence": [
+            {
+              "source_id": "monitoring_result",
+              "start": 0,
+              "end": 147,
+              "text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "canary_recovery_result",
+          "value": {
+            "command": "marlinctl worker resume export",
+            "effect": "queued jobs drained"
+          },
+          "claim_id": "sha256:b0b962d64e839bf8a37ad6b6d6a3f7e4da47d8678dd9397d9d25e975f2ae5f02",
+          "observation_id": "support_clean_resolution:monitoring_result:claim:4",
+          "evidence": [
+            {
+              "source_id": "monitoring_result",
+              "start": 0,
+              "end": 147,
+              "text": "Monitoring: maintenance checks passed; export pool is healthy but paused. Canary recovery using marlinctl worker resume export drained queued jobs."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "incident_record",
+      "source": {
+        "kind": "incident_record",
+        "identifier": "https://incident-record.benchmark.example/support_clean_resolution/incident_record"
+      },
+      "text": "Prior scheduled maintenance incident: marlinctl worker resume export cleared the pause and restored exports without resubmitting jobs.",
+      "provenance": {
+        "assertion_id": "support_clean_resolution:incident_record",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-07-21T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "historical_recovery_result",
+          "value": {
+            "context": "prior scheduled maintenance",
+            "command": "marlinctl worker resume export",
+            "effects": [
+              "pause cleared",
+              "exports restored"
+            ],
+            "jobs_resubmitted": false
+          },
+          "claim_id": "sha256:e7886be6b8d4d4f0d194a389ab68392c429ad82d73f8f73f06e4ec364a84c36f",
+          "observation_id": "support_clean_resolution:incident_record",
+          "evidence": [
+            {
+              "source_id": "incident_record",
+              "start": 0,
+              "end": 134,
+              "text": "Prior scheduled maintenance incident: marlinctl worker resume export cleared the pause and restored exports without resubmitting jobs."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "service_state",
+      "source": {
+        "kind": "service_state",
+        "identifier": "https://service-state.benchmark.example/support_clean_resolution/service_state"
+      },
+      "text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export.",
+      "provenance": {
+        "assertion_id": "support_clean_resolution:service_state",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "worker_paused",
+          "value": true,
+          "claim_id": "sha256:ab1f79c4d35b940ab43b4e32847bae0d7007ebaaa0d926bdbca1a51876853784",
+          "observation_id": "support_clean_resolution:service_state",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 133,
+              "text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "maintenance_complete",
+          "value": true,
+          "claim_id": "sha256:2fb96a2f2c2f61baeaf83002d3a9d870a36d26fb801599e32485806d0723d981",
+          "observation_id": "support_clean_resolution:service_state:claim:2",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 133,
+              "text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "failed_jobs",
+          "value": 0,
+          "claim_id": "sha256:fc641af20a7f499cb6f05706cfb1d0eda607db94bf89107b5273f02f15849162",
+          "observation_id": "support_clean_resolution:service_state:claim:3",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 133,
+              "text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "available_resume_command",
+          "value": "marlinctl worker resume export",
+          "claim_id": "sha256:d56c7d5dd4e371b2091827cddc8b0123ef6d724e21ae922965650b4e3bcf6e1d",
+          "observation_id": "support_clean_resolution:service_state:claim:4",
+          "evidence": [
+            {
+              "source_id": "service_state",
+              "start": 0,
+              "end": 133,
+              "text": "Service state: export worker paused=true, maintenance_complete=true, failed_jobs=0; resume command is marlinctl worker resume export."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "change_record",
+      "source": {
+        "kind": "change_record",
+        "identifier": "https://change-record.benchmark.example/support_clean_resolution/change_record"
+      },
+      "text": "Maintenance change record completed: storage checks pass; final operator step is marlinctl worker resume export.",
+      "provenance": {
+        "assertion_id": "support_clean_resolution:change_record",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "maintenance_complete",
+          "value": true,
+          "claim_id": "sha256:2fb96a2f2c2f61baeaf83002d3a9d870a36d26fb801599e32485806d0723d981",
+          "observation_id": "support_clean_resolution:change_record",
+          "evidence": [
+            {
+              "source_id": "change_record",
+              "start": 0,
+              "end": 112,
+              "text": "Maintenance change record completed: storage checks pass; final operator step is marlinctl worker resume export."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "storage_checks_passed",
+          "value": true,
+          "claim_id": "sha256:b7b0f529e91cc4d84e6283220c088898a5f1914eb23f877a653d2f0906ac0dfc",
+          "observation_id": "support_clean_resolution:change_record:claim:2",
+          "evidence": [
+            {
+              "source_id": "change_record",
+              "start": 0,
+              "end": 112,
+              "text": "Maintenance change record completed: storage checks pass; final operator step is marlinctl worker resume export."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "final_operator_step",
+          "value": "marlinctl worker resume export",
+          "claim_id": "sha256:eab5e15ea5f1925b0bbf9afc02fbb46abfcedafff1543fe2696211d2063dbfd7",
+          "observation_id": "support_clean_resolution:change_record:claim:3",
+          "evidence": [
+            {
+              "source_id": "change_record",
+              "start": 0,
+              "end": 112,
+              "text": "Maintenance change record completed: storage checks pass; final operator step is marlinctl worker resume export."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "kb_article",
+      "source": {
+        "kind": "kb_article",
+        "identifier": "https://kb-article.benchmark.example/support_clean_resolution/kb_article"
+      },
+      "text": "KB worker maintenance guide: run marlinctl worker resume export when maintenance completes, then watch the export queue drain.",
+      "provenance": {
+        "assertion_id": "support_clean_resolution:kb_article",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "current_runbook",
+            "identifier": "https://current-runbook.benchmark.example/support_clean_resolution/current_runbook"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "operations",
+          "entity": "Marlin export worker",
+          "attribute": "maintenance_recovery_instruction",
+          "value": {
+            "condition": "maintenance complete",
+            "action": "marlinctl worker resume export",
+            "verification": "pending export queue drains"
+          },
+          "claim_id": "sha256:e666079e1ec76b3289f6122803800786269bd134a0be05defcfe843798765273",
+          "observation_id": "support_clean_resolution:kb_article",
+          "evidence": [
+            {
+              "source_id": "kb_article",
+              "start": 0,
+              "end": 126,
+              "text": "KB worker maintenance guide: run marlinctl worker resume export when maintenance completes, then watch the export queue drain."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

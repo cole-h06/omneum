@@ -1,0 +1,49 @@
+Exact original Qwen counts verified: 2328 contexts; prewarmed 7706
+Completed 144 of 3600
+  + Exception Group Traceback (most recent call last):
+  |   File "<frozen runpy>", line 203, in _run_module_as_main
+  |   File "<frozen runpy>", line 88, in _run_code
+  |   File "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/experiments/budget_recovery.py", line 190, in <module>
+  |     asyncio.run(run(p.parse_args()))
+  |     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 196, in run
+  |     return runner.run(main)
+  |            ~~~~~~~~~~^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 119, in run
+  |     return self._loop.run_until_complete(task)
+  |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 726, in run_until_complete
+  |     return future.result()
+  |            ~~~~~~~~~~~~~^^
+  |   File "/Users/colehoke/Development/omneum/benchmarks/context_selection/synthetic/experiments/budget_recovery.py", line 126, in run
+  |     async with open_stdio_client(config,server,local_persistence=None) as client:
+  |                ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/colehoke/Development/omneum/omneum/client.py", line 2307, in open_stdio_client
+  |     async with stdio_client(server) as (
+  |                ~~~~~~~~~~~~^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/colehoke/Development/omneum/omneum/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/_core/_tasks.py", line 275, in _run_coro
+    |     retval = await self._coro
+    |              ^^^^^^^^^^^^^^^^
+    |   File "/Users/colehoke/Development/omneum/omneum/mcp/client/stdio/__init__.py", line 162, in stdout_reader
+    |     await read_stream_writer.send(session_message)
+    |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/streams/memory.py", line 250, in send
+    |     self.send_nowait(item)
+    |     ~~~~~~~~~~~~~~~~^^^^^^
+    |   File "/Users/colehoke/Development/omneum/.venv/lib/python3.13/site-packages/anyio/streams/memory.py", line 221, in send_nowait
+    |     raise BrokenResourceError
+    | anyio.BrokenResourceError
+    +------------------------------------

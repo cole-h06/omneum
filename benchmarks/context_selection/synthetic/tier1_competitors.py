@@ -1,0 +1,259 @@
+"""Complete local Tier 1 competitors and replay exact cached provider rankings."""
+import argparse
+from .execution_safety import DEFAULT_TRACE
+import asyncio
+import csv
+import inspect
+import itertools
+import json
+from pathlib import Path
+import random
+from statistics import mean
+import time
+from unittest.mock import patch
+
+import httpx
+
+from omneum import open_stdio_client
+from omneum.query_context import discover_chunks, expand_claims
+from benchmarks.context_selection import deployment
+from benchmarks.context_selection.config import estimator_config
+from .loader import load_ground_truth
+from .tier1_benchmark import (BASE, write, sha, snapshot, integrity, environment,
+                             load_trace, prepare_cases)
+from .tier1_metrics import measure, distribution
+
+MODELS = {'cohere':'rerank-v4.0-pro','claude':'claude-sonnet-5-5',
+          'gpt':'gpt-6-astra','gemini':'gemini-3.8-flash'}
+FIELDS = ('evidence_retention','actual_context_tokens','context_reduction',
+          'supporting_passage_claim_coverage','independent_evidence_coverage',
+          'source_precision','source_recall','tokenizer_tokens')
+BUDGETS = (64,96,128,160,192,256)
+
+
+def provider_ranks(directory):
+    records = [json.loads(line) for line in (directory/'provider_results.jsonl').open()]
+    ranks = {}
+    for r in records:
+        assert r['model'] == MODELS[r['method']]
+        case = json.loads((BASE/'canonical/cases'/r['case_id']/'case.json').read_text())
+        old = json.loads((directory/(r['case_id']+'-inputs.json')).read_text())
+        assert case['question'] == old['case']['question']
+        passages = {'chunk-'+c['source_id']:c['text'] for c in case['candidates']}
+        assert list(passages.items()) == [(c['chunk_id'],c['raw_text']) for c in old['chunks']]
+        if r['method']=='cohere':
+            order = [c['source'] for c in r['selected']]
+            scores = {c['source']:c['reranker_score'] for c in r['selected']}
+        else:
+            dump = '\n\n'.join(f'[{k}]\n{text}' for k,text in passages.items())
+            assert r['prompt'].endswith('Question:\n'+case['question']+'\n\nPassages:\n'+dump)
+            order = r['ranking'];scores = None
+            assert json.loads(r['raw_output'])['selected_ids']==order
+        assert len(order)==len(passages) and set(order)==set(passages)
+        key = r['case_id'],r['method'],r['trial']
+        assert key not in ranks
+        ranks[key] = dict(order=order,scores=scores,model=r['model'],
+            seconds=r['latency_seconds'] if r['method']=='cohere' else r['seconds'])
+    for method in MODELS:
+        assert len([k for k in ranks if k[1]==method]) == (24 if method=='cohere' else 48)
+    return ranks
+
+
+def aggregate(cells,runs,history):
+    result = {}
+    for method in sorted({r['method'] for r in cells}):
+        selected = [r for r in cells if r['method']==method]
+        samples = [r for r in runs if r['method']==method]
+        value = {k:mean(r[k] for r in selected) for k in FIELDS}
+        value.update(cells=len(selected),case_budget_pairs=len({(r['case_id'],r['budget']) for r in selected}),
+                     executions=len(samples),gold_claim_coverage=None,new_api_cost_usd=0.0,
+                     answer_accuracy=None,accuracy_at_matched_tokens=None,end_to_end_latency=None)
+        for field in ('selection_ms','graph_ms','packing_ms','reconstruction_ms','discovery_ms'):
+            value[field] = distribution([float(r[field]) for r in samples if r.get(field) not in (None,'')])
+        request_method = 'cohere' if method=='cohere_omneum' else method
+        remote = [r['seconds'] for r in history if r['method']==request_method]
+        value['historical_provider_seconds'] = distribution(remote)
+        value['historical_provider_cost_usd'] = None
+        result[method] = value
+    return result
+
+
+def report(out):
+    cells = json.loads((out/'selections.json').read_text())
+    with (out/'timings.csv').open() as stream:
+        runs = list(csv.DictReader(stream))
+    for r in runs:
+        r['budget'] = int(r['budget']) if r['budget'] else None
+    history = json.loads((out/'historical_provider.json').read_text())
+    return dict(aggregate=aggregate(cells,runs,history),
+                per_budget={str(b):aggregate([r for r in cells if r['budget']==b],
+                           [r for r in runs if r['budget']==b],history) for b in BUDGETS})
+
+
+def export(out,summary):
+    fields = ['budget','method',*FIELDS,'local_p50_ms','local_p95_ms','historical_provider_p50_s',
+              'historical_provider_p95_s','cells','executions','new_api_cost_usd','gold_claim_coverage']
+    for name,groups in [('aggregate.csv',[('all',summary['aggregate'])]),
+                        ('per_budget.csv',list(summary['per_budget'].items()))]:
+        with (out/name).open('x',newline='') as stream:
+            writer = csv.DictWriter(stream,fieldnames=fields);writer.writeheader()
+            for budget,group in groups:
+                for method,r in group.items():
+                    values = {k:r.get(k) for k in fields}
+                    values.update(budget=budget,method=method,local_p50_ms=r['selection_ms']['p50'],
+                        local_p95_ms=r['selection_ms']['p95'],
+                        historical_provider_p50_s=r['historical_provider_seconds']['p50'],
+                        historical_provider_p95_s=r['historical_provider_seconds']['p95'])
+                    writer.writerow(values)
+
+
+async def run(args):
+    from . import prepare_benchmark as base
+    out = args.output.resolve();out.mkdir()
+    snapshot(out)
+    for function in (discover_chunks,expand_claims):
+        assert inspect.signature(function).parameters['conflict_aware'].default is False
+    _,_,graphs = load_trace(args.trace)
+    cases = prepare_cases(graphs)
+    ranks = provider_ranks(args.providers)
+    history = [dict(case_id=c,method=m,trial=t,model=r['model'],seconds=r['seconds'])
+               for (c,m,t),r in ranks.items()]
+    write(out/'historical_provider.json',history)
+    manifest = dict(cases=24,budgets=BUDGETS,repeats=args.repeats,seed=42,conflict_aware=False,
+        previous_results=str(args.previous),provider_results=str(args.providers/'provider_results.jsonl'),
+        provider_sha256=sha(args.providers/'provider_results.jsonl'),exact_models=MODELS,
+        environment=environment(),budget_unit='Original Qwen2.5 tokenizer; word/punctuation footprint separate',
+        daemon_sha256=sha(args.daemon),tokenizer=args.tokenizer,
+        code_sha256={str(Path(__file__)):sha(Path(__file__))},
+        unsupported={'bge_embeddings':'No implemented embedding adapter, model ID or cached weights.',
+                     'minilm_cross_encoder':'Only all-MiniLM-L6-v2 bi-encoder is implemented; no cross-encoder adapter, model ID or cached weights.'},
+        definitions=dict(raw_budget='Original retrieval order, whole-passage first-fit under the identical token budget.',
+            raw_full='Unfiltered unbudgeted reference, 24 cases; excluded from budgeted aggregate rankings.',
+            omneum='Exact production prepare_context(question=...), default lexical passage relevance, full graph. No embeddings or scorer substitutions.',
+            cohere_omneum='Production complementary density configuration with cached raw Cohere reranker scores, top3 plus ties, depth2.',
+            cached_provider_latency='Historical request samples, n=24 Cohere and n=48 per frontier judge; not repeated fresh API evaluations.',
+            local_latency='Post-supplied-ranking wall time; includes fresh SDK graph for Omneum. Standalone intrinsic lexical relevance is included. Model initialization/daemon startup/loading excluded.',
+            quality='Same tier1_metrics.measure definitions and canonical annotations as the completed local run. Strict gold-claim labels are absent; supporting-passage claim coverage is explicitly separate.',
+            cost='No new paid API calls. Historical inference costs remain unknown, not zero; historical pricing is not invented.'))
+    write(out/'manifest.json',manifest)
+    cells = json.loads((args.previous/'selections.json').read_text())
+    with (args.previous/'timings.csv').open() as stream:
+        old_runs = list(csv.DictReader(stream))
+    for r in old_runs:
+        r['budget'] = int(r['budget'])
+    counts = {}
+    with httpx.Client(trust_env=False,timeout=60) as http:
+        def count(text):
+            if text not in counts:
+                data = http.post(args.tokenizer+'/tokenize',json={'content':text,'add_special':False,'parse_special':True}).raise_for_status().json()
+                counts[text] = len(data['tokens'])
+            return counts[text]
+        for cid,data in cases.items():
+            by_id = {c['chunk_id']:c for c in data['chunks']}
+            orders = [data['chunks'],data['order']]
+            orders.extend([by_id[k] for k in r['order']] for (c,m,t),r in ranks.items() if c==cid)
+            for order in orders:
+                for size in range(len(order)+1):
+                    for subset in itertools.combinations(order,size):
+                        count(base.render(subset))
+        truth = {cid:load_ground_truth(BASE/'canonical/cases'/cid/'ground_truth.json') for cid in cases}
+        raw = {cid:json.loads((BASE/'canonical/cases'/cid/'case.json').read_text()) for cid in cases}
+        seen = {}
+        timings = []
+        with patch.object(deployment,'_build_daemon',return_value=args.daemon.resolve()):
+            with deployment.benchmark_deployment() as (config,server):
+                async with open_stdio_client(config,server,local_persistence=None) as client:
+                    async def select(job):
+                        cid,method,budget,trial,repeat = job
+                        data = cases[cid];chunks = data['chunks'];by_id = {c['chunk_id']:c for c in chunks}
+                        entry = ranks.get((cid,'cohere' if method=='cohere_omneum' else method,trial))
+                        diagnostics = {};stages = dict(graph_ms=None,packing_ms=None,reconstruction_ms=None,discovery_ms=None)
+                        start = time.perf_counter()
+                        if method in ('omneum','cohere_omneum'):
+                            options = dict(question=data['case'].question) if method=='omneum' else dict(
+                                strategy='coverage_support_density',complementary_evidence=True,token_cost_exponent=1,
+                                user_query=data['case'].question,chunk_relevance=entry['scores'],relevance_score_type='reranker_score',
+                                candidate_discovery='expanded',candidate_count=3,expansion_depth=2,query_evaluation='full')
+                            result = await client.prepare_context(data['graph'],chunks,estimator=estimator_config(),
+                                token_budget=budget,count_tokens=count,query_diagnostics=diagnostics,include_telemetry=True,**options)
+                            elapsed = (time.perf_counter()-start)*1000
+                            selected,context,tokens = result['packed_chunk_ids'],result['context'],result['selection']['selected_tokens']
+                            t = result['telemetry'];stages.update(graph_ms=t['graph_evaluation_latency_ms'],
+                                packing_ms=t['chunk_selection_latency_ms'],reconstruction_ms=t['context_reconstruction_latency_ms'],
+                                discovery_ms=diagnostics.get('candidate_discovery_latency_ms'))
+                        else:
+                            ranked = [by_id[k] for k in entry['order']] if entry else chunks
+                            packed = time.perf_counter()
+                            chosen = ranked if method=='raw_full' else base.pack(ranked,budget,count)
+                            stages['packing_ms'] = (time.perf_counter()-packed)*1000
+                            rendered = time.perf_counter();context = base.render(chosen)
+                            stages['reconstruction_ms'] = (time.perf_counter()-rendered)*1000
+                            elapsed = (time.perf_counter()-start)*1000
+                            selected,tokens = [c['chunk_id'] for c in chosen],count(context)
+                        assert count(context)==tokens
+                        if budget is not None:
+                            assert tokens<=budget
+                        return selected,context,tokens,elapsed,stages,diagnostics
+                    methods = ['raw_full','raw_budget','cohere','claude','gpt','gemini','omneum','cohere_omneum']
+                    for method in methods:
+                        trial = 1 if method in ('claude','gpt','gemini') else 0
+                        await select((next(iter(cases)),method,None if method=='raw_full' else 128,trial,-1))
+                    jobs = []
+                    for cid in cases:
+                        for method in methods:
+                            trials = (1,2) if method in ('claude','gpt','gemini') else (0,)
+                            for budget in ((None,) if method=='raw_full' else BUDGETS):
+                                for trial in trials:
+                                    jobs.extend((cid,method,budget,trial,r) for r in range(args.repeats))
+                    random.Random(42).shuffle(jobs)
+                    for index,job in enumerate(jobs,1):
+                        selected,context,tokens,elapsed,stages,diagnostics = await select(job)
+                        cid,method,budget,trial,repeat = job;key = (cid,method,budget,trial)
+                        if key in seen:
+                            assert seen[key]==(selected,context,tokens)
+                        else:
+                            seen[key]=(selected,context,tokens)
+                            cells.append(dict(case_id=cid,method=method,budget=budget,trial=trial,
+                                selected=selected,context=context,tokenizer_tokens=tokens,
+                                origin='new production execution' if method in ('omneum','cohere_omneum') else 'local cached-rank replay' if method in MODELS else 'new raw reference',
+                                eligible=diagnostics.get('eligible_chunk_ids',list(c['chunk_id'] for c in cases[cid]['chunks'])),
+                                excluded=diagnostics.get('excluded_chunks',[]),diagnostics=diagnostics,
+                                **measure(raw[cid],truth[cid],selected,context)))
+                        timings.append(dict(case_id=cid,method=method,budget=budget,trial=trial,repeat=repeat,
+                            selection_ms=elapsed,selected=json.dumps(selected),tokenizer_tokens=tokens,**stages))
+                        if index%240==0:
+                            print('Completed',index,'of',len(jobs),'new local executions',flush=True)
+        write(out/'selections.json',cells)
+        all_runs = [*old_runs,*timings]
+        columns = ['case_id','method','budget','trial','repeat','selection_ms','graph_ms','packing_ms',
+                   'reconstruction_ms','discovery_ms','selected','tokenizer_tokens']
+        with (out/'timings.csv').open('x',newline='') as stream:
+            writer=csv.DictWriter(stream,fieldnames=columns,extrasaction='ignore');writer.writeheader();writer.writerows(all_runs)
+        write(out/'execution.json',dict(new_executions=len(timings),reused_executions=len(old_runs),
+              new_quality_cells=len(seen),reused_quality_cells=864,warmups=8,budget_violations=0,
+              repeated_selections_identical=True,paid_api_calls=0,downstream_generations=0,tokenizer_contexts=len(counts)))
+    summary = report(out);write(out/'summary.json',summary);export(out,summary);integrity(out)
+    print('Complete:',out,flush=True)
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--previous',type=Path,default=BASE/'results/tier1-production-20261025-v1')
+    parser.add_argument('--providers',type=Path,default=BASE/'results/question-aware-release-v1')
+    parser.add_argument('--trace',type=Path,default=DEFAULT_TRACE)
+    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--tokenizer',required=True)
+    parser.add_argument('--daemon',type=Path,default=Path('target/test-daemon/debug/omneumd'))
+    parser.add_argument('--repeats',type=int,default=5)
+    parser.add_argument('--verify',action='store_true')
+    args=parser.parse_args()
+    if args.verify:
+        assert report(args.output)==json.loads((args.output/'summary.json').read_text())
+        print('Consolidated summary reproduced exactly')
+    else:
+        assert args.repeats>=2
+        asyncio.run(run(args))
+
+
+if __name__=='__main__':
+    main()

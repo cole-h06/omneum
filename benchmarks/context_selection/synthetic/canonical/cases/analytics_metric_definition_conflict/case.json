@@ -1,0 +1,654 @@
+{
+  "id": "analytics_metric_definition_conflict",
+  "domain": "data_analytics_agents",
+  "question": "For the Atlas July board pack, what gross revenue retention percentage follows the finance definition that excludes expansion?",
+  "context_budget": 3,
+  "candidates": [
+    {
+      "source_id": "warehouse_query",
+      "source": {
+        "kind": "warehouse_query",
+        "identifier": "https://warehouse-query.benchmark.example/analytics_metric_definition_conflict/warehouse_query"
+      },
+      "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:warehouse_query",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_percentage_excluding_expansion",
+          "value": 92,
+          "claim_id": "sha256:cfe1cc581096ea2c586d87848cd126fbddcfc73d5ddb4e0735a664446b3ec0c9",
+          "observation_id": "analytics_metric_definition_conflict:warehouse_query",
+          "evidence": [
+            {
+              "source_id": "warehouse_query",
+              "start": 0,
+              "end": 159,
+              "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "opening_recurring_revenue",
+          "value": 100000,
+          "claim_id": "sha256:8fd0bab19f17cfc6dc1ad7c20ad045a608005f60e540723751cc56e1957ce388",
+          "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:2",
+          "evidence": [
+            {
+              "source_id": "warehouse_query",
+              "start": 0,
+              "end": 159,
+              "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "churn_revenue",
+          "value": 5000,
+          "claim_id": "sha256:cd4ddcb1bb36db7c8b414961a8fb3089055b535ccdfa164f8d5039d2b55bfd9c",
+          "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:3",
+          "evidence": [
+            {
+              "source_id": "warehouse_query",
+              "start": 0,
+              "end": 159,
+              "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "contraction_revenue",
+          "value": 3000,
+          "claim_id": "sha256:ab6b2f11b421fa3c8a28dfa1707ce12853a5e458c083591b071fc52f82ad6f69",
+          "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:4",
+          "evidence": [
+            {
+              "source_id": "warehouse_query",
+              "start": 0,
+              "end": 159,
+              "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "expansion_revenue",
+          "value": 20000,
+          "claim_id": "sha256:400311e1447f7014a1d9afd354fc2a1ebb4f9bf6557e9ab64f3578a08a6e525b",
+          "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:5",
+          "evidence": [
+            {
+              "source_id": "warehouse_query",
+              "start": 0,
+              "end": 159,
+              "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retained_revenue_excluding_expansion",
+          "value": 92000,
+          "claim_id": "sha256:a343fce79421d4cfaa29b948235f10f4887c35f984d2515fada7bc24b544145f",
+          "observation_id": "analytics_metric_definition_conflict:warehouse_query:claim:6",
+          "evidence": [
+            {
+              "source_id": "warehouse_query",
+              "start": 0,
+              "end": 159,
+              "text": "Warehouse cohort query: opening recurring revenue 100000, churn 5000, contraction 3000, expansion 20000. Retained revenue excluding expansion is 92000, or 92%."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "semantic_layer",
+      "source": {
+        "kind": "semantic_layer",
+        "identifier": "https://semantic-layer.benchmark.example/analytics_metric_definition_conflict/semantic_layer"
+      },
+      "text": "Semantic layer field labeled gross_revenue_retention uses (opening - churn - contraction + expansion) / opening and returns 112% for July.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:semantic_layer",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "transformation",
+            "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_percentage_including_expansion",
+          "value": 112,
+          "claim_id": "sha256:b5a9614f259588e376782efb7c1680388d90e60e29d72f38083746035cf0935c",
+          "observation_id": "analytics_metric_definition_conflict:semantic_layer",
+          "evidence": [
+            {
+              "source_id": "semantic_layer",
+              "start": 0,
+              "end": 138,
+              "text": "Semantic layer field labeled gross_revenue_retention uses (opening - churn - contraction + expansion) / opening and returns 112% for July."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_formula_including_expansion",
+          "value": "(opening - churn - contraction + expansion) / opening",
+          "claim_id": "sha256:2a91e28871f877dd3fa672fb975127726618eef3e6397f1e010675a2734e4447",
+          "observation_id": "analytics_metric_definition_conflict:semantic_layer:claim:2",
+          "evidence": [
+            {
+              "source_id": "semantic_layer",
+              "start": 0,
+              "end": 138,
+              "text": "Semantic layer field labeled gross_revenue_retention uses (opening - churn - contraction + expansion) / opening and returns 112% for July."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "sales retention model",
+          "attribute": "output_label",
+          "value": "gross_revenue_retention",
+          "claim_id": "sha256:49eece98ff9d245e04cf1d072b6e14c93c33f445ba01a7e60e0589faffc31c47",
+          "observation_id": "analytics_metric_definition_conflict:semantic_layer:claim:3",
+          "evidence": [
+            {
+              "source_id": "semantic_layer",
+              "start": 0,
+              "end": 138,
+              "text": "Semantic layer field labeled gross_revenue_retention uses (opening - churn - contraction + expansion) / opening and returns 112% for July."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dashboard",
+      "source": {
+        "kind": "dashboard",
+        "identifier": "https://dashboard.benchmark.example/analytics_metric_definition_conflict/dashboard"
+      },
+      "text": "Sales dashboard: July gross revenue retention 112%, sourced from the semantic layer gross_revenue_retention field.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:dashboard",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "semantic_layer",
+            "identifier": "https://semantic-layer.benchmark.example/analytics_metric_definition_conflict/semantic_layer"
+          }
+        ],
+        "parent_assertion_ids": [
+          "analytics_metric_definition_conflict:semantic_layer"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_percentage_including_expansion",
+          "value": 112,
+          "claim_id": "sha256:b5a9614f259588e376782efb7c1680388d90e60e29d72f38083746035cf0935c",
+          "observation_id": "analytics_metric_definition_conflict:dashboard",
+          "evidence": [
+            {
+              "source_id": "dashboard",
+              "start": 0,
+              "end": 114,
+              "text": "Sales dashboard: July gross revenue retention 112%, sourced from the semantic layer gross_revenue_retention field."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "sales retention dashboard",
+          "attribute": "source_field",
+          "value": "semantic layer gross_revenue_retention",
+          "claim_id": "sha256:15c438d4f2ecbf199e444946d213e48c492b8b59e0ffd2c29e3ecf3c7ccc4857",
+          "observation_id": "analytics_metric_definition_conflict:dashboard:claim:2",
+          "evidence": [
+            {
+              "source_id": "dashboard",
+              "start": 0,
+              "end": 114,
+              "text": "Sales dashboard: July gross revenue retention 112%, sourced from the semantic layer gross_revenue_retention field."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "finance_report",
+      "source": {
+        "kind": "finance_report",
+        "identifier": "https://finance-report.benchmark.example/analytics_metric_definition_conflict/finance_report"
+      },
+      "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:finance_report",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "warehouse_query",
+            "identifier": "https://warehouse-query.benchmark.example/analytics_metric_definition_conflict/warehouse_query"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_percentage_excluding_expansion",
+          "value": 92,
+          "claim_id": "sha256:cfe1cc581096ea2c586d87848cd126fbddcfc73d5ddb4e0735a664446b3ec0c9",
+          "observation_id": "analytics_metric_definition_conflict:finance_report",
+          "evidence": [
+            {
+              "source_id": "finance_report",
+              "start": 0,
+              "end": 135,
+              "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "opening_recurring_revenue",
+          "value": 100000,
+          "claim_id": "sha256:8fd0bab19f17cfc6dc1ad7c20ad045a608005f60e540723751cc56e1957ce388",
+          "observation_id": "analytics_metric_definition_conflict:finance_report:claim:2",
+          "evidence": [
+            {
+              "source_id": "finance_report",
+              "start": 0,
+              "end": 135,
+              "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "churn_revenue",
+          "value": 5000,
+          "claim_id": "sha256:cd4ddcb1bb36db7c8b414961a8fb3089055b535ccdfa164f8d5039d2b55bfd9c",
+          "observation_id": "analytics_metric_definition_conflict:finance_report:claim:3",
+          "evidence": [
+            {
+              "source_id": "finance_report",
+              "start": 0,
+              "end": 135,
+              "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "contraction_revenue",
+          "value": 3000,
+          "claim_id": "sha256:ab6b2f11b421fa3c8a28dfa1707ce12853a5e458c083591b071fc52f82ad6f69",
+          "observation_id": "analytics_metric_definition_conflict:finance_report:claim:4",
+          "evidence": [
+            {
+              "source_id": "finance_report",
+              "start": 0,
+              "end": 135,
+              "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "board_gross_retention_definition",
+          "value": {
+            "expansion": "excluded"
+          },
+          "claim_id": "sha256:f5aa7c59651ae3e07277163d996c0afc1c5670a59fd91cc2549732955a5f5af5",
+          "observation_id": "analytics_metric_definition_conflict:finance_report:claim:5",
+          "evidence": [
+            {
+              "source_id": "finance_report",
+              "start": 0,
+              "end": 135,
+              "text": "Finance July board report: gross revenue retention 92%; opening cohort 100000 less 5000 churn and 3000 contraction; expansion excluded."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "metric_docs",
+      "source": {
+        "kind": "metric_docs",
+        "identifier": "https://metric-docs.benchmark.example/analytics_metric_definition_conflict/metric_docs"
+      },
+      "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:metric_docs",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_percentage_excluding_expansion",
+          "value": 92,
+          "claim_id": "sha256:cfe1cc581096ea2c586d87848cd126fbddcfc73d5ddb4e0735a664446b3ec0c9",
+          "observation_id": "analytics_metric_definition_conflict:metric_docs",
+          "evidence": [
+            {
+              "source_id": "metric_docs",
+              "start": 0,
+              "end": 126,
+              "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "opening_recurring_revenue",
+          "value": 100000,
+          "claim_id": "sha256:8fd0bab19f17cfc6dc1ad7c20ad045a608005f60e540723751cc56e1957ce388",
+          "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:2",
+          "evidence": [
+            {
+              "source_id": "metric_docs",
+              "start": 0,
+              "end": 126,
+              "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "churn_revenue",
+          "value": 5000,
+          "claim_id": "sha256:cd4ddcb1bb36db7c8b414961a8fb3089055b535ccdfa164f8d5039d2b55bfd9c",
+          "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:3",
+          "evidence": [
+            {
+              "source_id": "metric_docs",
+              "start": 0,
+              "end": 126,
+              "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "contraction_revenue",
+          "value": 3000,
+          "claim_id": "sha256:ab6b2f11b421fa3c8a28dfa1707ce12853a5e458c083591b071fc52f82ad6f69",
+          "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:4",
+          "evidence": [
+            {
+              "source_id": "metric_docs",
+              "start": 0,
+              "end": 126,
+              "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "board_gross_retention_definition",
+          "value": {
+            "expansion": "excluded"
+          },
+          "claim_id": "sha256:f5aa7c59651ae3e07277163d996c0afc1c5670a59fd91cc2549732955a5f5af5",
+          "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:5",
+          "evidence": [
+            {
+              "source_id": "metric_docs",
+              "start": 0,
+              "end": 126,
+              "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "board_retention_formula",
+          "value": "(opening - churn - contraction) / opening",
+          "claim_id": "sha256:81005f23407a9fda4ef3e5c8bdec53d78a2ae45e09496eefc6ff7e21faff2769",
+          "observation_id": "analytics_metric_definition_conflict:metric_docs:claim:6",
+          "evidence": [
+            {
+              "source_id": "metric_docs",
+              "start": 0,
+              "end": 126,
+              "text": "Board metric specification: gross revenue retention excludes expansion; July example is (100000 - 5000 - 3000) / 100000 = 92%."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "transformation",
+      "source": {
+        "kind": "transformation",
+        "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation"
+      },
+      "text": "dbt retention model computes (opening - churn - contraction + expansion) / opening as gross_revenue_retention; July output is 1.12.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:transformation",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_formula_including_expansion",
+          "value": "(opening - churn - contraction + expansion) / opening",
+          "claim_id": "sha256:2a91e28871f877dd3fa672fb975127726618eef3e6397f1e010675a2734e4447",
+          "observation_id": "analytics_metric_definition_conflict:transformation",
+          "evidence": [
+            {
+              "source_id": "transformation",
+              "start": 0,
+              "end": 131,
+              "text": "dbt retention model computes (opening - churn - contraction + expansion) / opening as gross_revenue_retention; July output is 1.12."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "sales retention model",
+          "attribute": "output_label",
+          "value": "gross_revenue_retention",
+          "claim_id": "sha256:49eece98ff9d245e04cf1d072b6e14c93c33f445ba01a7e60e0589faffc31c47",
+          "observation_id": "analytics_metric_definition_conflict:transformation:claim:2",
+          "evidence": [
+            {
+              "source_id": "transformation",
+              "start": 0,
+              "end": 131,
+              "text": "dbt retention model computes (opening - churn - contraction + expansion) / opening as gross_revenue_retention; July output is 1.12."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_percentage_including_expansion",
+          "value": 112,
+          "claim_id": "sha256:b5a9614f259588e376782efb7c1680388d90e60e29d72f38083746035cf0935c",
+          "observation_id": "analytics_metric_definition_conflict:transformation:claim:3",
+          "evidence": [
+            {
+              "source_id": "transformation",
+              "start": 0,
+              "end": 131,
+              "text": "dbt retention model computes (opening - churn - contraction + expansion) / opening as gross_revenue_retention; July output is 1.12."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "data_catalog",
+      "source": {
+        "kind": "data_catalog",
+        "identifier": "https://data-catalog.benchmark.example/analytics_metric_definition_conflict/data_catalog"
+      },
+      "text": "Catalog entry: board gross retention excludes expansion; the sales model currently includes expansion. Finance metric owner publishes board values.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:data_catalog",
+        "observed_at": "2026-08-20T12:06:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "cited_sources": [
+          {
+            "kind": "metric_docs",
+            "identifier": "https://metric-docs.benchmark.example/analytics_metric_definition_conflict/metric_docs"
+          },
+          {
+            "kind": "transformation",
+            "identifier": "https://transformation.benchmark.example/analytics_metric_definition_conflict/transformation"
+          }
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "board_gross_retention_definition",
+          "value": {
+            "expansion": "excluded"
+          },
+          "claim_id": "sha256:f5aa7c59651ae3e07277163d996c0afc1c5670a59fd91cc2549732955a5f5af5",
+          "observation_id": "analytics_metric_definition_conflict:data_catalog",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 147,
+              "text": "Catalog entry: board gross retention excludes expansion; the sales model currently includes expansion. Finance metric owner publishes board values."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "sales_retention_includes_expansion",
+          "value": true,
+          "claim_id": "sha256:4fdbcba5e82b5dd8a98d63b3a5f3fa57abd216745a100faa92cf29bab949ef23",
+          "observation_id": "analytics_metric_definition_conflict:data_catalog:claim:2",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 147,
+              "text": "Catalog entry: board gross retention excludes expansion; the sales model currently includes expansion. Finance metric owner publishes board values."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "board_metric_owner",
+          "value": "Finance",
+          "claim_id": "sha256:6b0785760e82c03e5874364567fbb5c0494330218c43fbfe3e61b98f4b618e7d",
+          "observation_id": "analytics_metric_definition_conflict:data_catalog:claim:3",
+          "evidence": [
+            {
+              "source_id": "data_catalog",
+              "start": 0,
+              "end": 147,
+              "text": "Catalog entry: board gross retention excludes expansion; the sales model currently includes expansion. Finance metric owner publishes board values."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "exported_report",
+      "source": {
+        "kind": "exported_report",
+        "identifier": "https://exported-report.benchmark.example/analytics_metric_definition_conflict/exported_report"
+      },
+      "text": "Exported sales report: gross revenue retention July 112%, copied from the dashboard.",
+      "provenance": {
+        "assertion_id": "analytics_metric_definition_conflict:exported_report",
+        "observed_at": "2026-08-20T12:07:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "dashboard",
+            "identifier": "https://dashboard.benchmark.example/analytics_metric_definition_conflict/dashboard"
+          }
+        ],
+        "parent_assertion_ids": [
+          "analytics_metric_definition_conflict:dashboard"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "analytics",
+          "entity": "Atlas July revenue retention",
+          "attribute": "retention_percentage_including_expansion",
+          "value": 112,
+          "claim_id": "sha256:b5a9614f259588e376782efb7c1680388d90e60e29d72f38083746035cf0935c",
+          "observation_id": "analytics_metric_definition_conflict:exported_report",
+          "evidence": [
+            {
+              "source_id": "exported_report",
+              "start": 0,
+              "end": 84,
+              "text": "Exported sales report: gross revenue retention July 112%, copied from the dashboard."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "analytics",
+          "entity": "exported sales retention report",
+          "attribute": "source_artifact",
+          "value": "sales dashboard",
+          "claim_id": "sha256:68acf4da9d33c3672119b169ab5aab8baad112e7271a949416bcaf5c0c7eaa8c",
+          "observation_id": "analytics_metric_definition_conflict:exported_report:claim:2",
+          "evidence": [
+            {
+              "source_id": "exported_report",
+              "start": 0,
+              "end": 84,
+              "text": "Exported sales report: gross revenue retention July 112%, copied from the dashboard."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

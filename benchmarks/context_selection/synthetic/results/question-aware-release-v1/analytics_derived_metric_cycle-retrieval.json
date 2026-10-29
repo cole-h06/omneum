@@ -1,0 +1,74 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 2.6499104173853993,
+    "ranking": [
+      "chunk-dashboard",
+      "chunk-source_table_2",
+      "chunk-derived_table",
+      "chunk-source_table",
+      "chunk-query_result",
+      "chunk-exported_dataset",
+      "chunk-metric_store",
+      "chunk-data_catalog"
+    ],
+    "raw_scores": {
+      "chunk-dashboard": 0.9879085421562195,
+      "chunk-data_catalog": 0.00447813281789422,
+      "chunk-derived_table": 0.9793621301651001,
+      "chunk-exported_dataset": 0.8593694567680359,
+      "chunk-metric_store": 0.7925768494606018,
+      "chunk-query_result": 0.9308289289474487,
+      "chunk-source_table": 0.9719088077545166,
+      "chunk-source_table_2": 0.9857660531997681
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 0.0007162499241530895,
+    "ranking": [
+      "chunk-metric_store",
+      "chunk-source_table_2",
+      "chunk-source_table",
+      "chunk-query_result",
+      "chunk-dashboard",
+      "chunk-exported_dataset",
+      "chunk-derived_table",
+      "chunk-data_catalog"
+    ],
+    "raw_scores": {
+      "chunk-dashboard": 3.761012135109996,
+      "chunk-data_catalog": 0.6403832117079521,
+      "chunk-derived_table": 2.9491747388570717,
+      "chunk-exported_dataset": 3.177825759529408,
+      "chunk-metric_store": 12.33839802325983,
+      "chunk-query_result": 4.488596706286749,
+      "chunk-source_table": 5.6831946156426465,
+      "chunk-source_table_2": 5.853814307233846
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.11395712476223707,
+    "ranking": [
+      "chunk-query_result",
+      "chunk-source_table_2",
+      "chunk-source_table",
+      "chunk-dashboard",
+      "chunk-metric_store",
+      "chunk-derived_table",
+      "chunk-exported_dataset",
+      "chunk-data_catalog"
+    ],
+    "raw_scores": {
+      "chunk-dashboard": 0.5869085788726807,
+      "chunk-data_catalog": 0.3262684643268585,
+      "chunk-derived_table": 0.47382521629333496,
+      "chunk-exported_dataset": 0.45402246713638306,
+      "chunk-metric_store": 0.5793188214302063,
+      "chunk-query_result": 0.6784139275550842,
+      "chunk-source_table": 0.638933539390564,
+      "chunk-source_table_2": 0.6766059398651123
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

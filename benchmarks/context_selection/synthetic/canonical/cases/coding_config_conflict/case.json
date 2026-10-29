@@ -1,0 +1,389 @@
+{
+  "id": "coding_config_conflict",
+  "domain": "coding_agents",
+  "question": "For the checked-in production deployment of Harbor API, which TCP port must the readiness probe use?",
+  "context_budget": 2,
+  "candidates": [
+    {
+      "source_id": "readme",
+      "source": {
+        "kind": "readme",
+        "identifier": "https://readme.benchmark.example/coding_config_conflict/readme"
+      },
+      "text": "README quick start: Harbor API listens on port 8080; configure the readiness probe for 8080. This example runs the binary directly.",
+      "provenance": {
+        "assertion_id": "coding_config_conflict:readme",
+        "observed_at": "2026-08-20T12:00:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API direct-binary quick-start example",
+          "attribute": "listener_port",
+          "value": 8080,
+          "claim_id": "sha256:b32b04e0245b1155e93e7e04768b3b05c3357a506ccef95dab16b7076bed200e",
+          "observation_id": "coding_config_conflict:readme",
+          "evidence": [
+            {
+              "source_id": "readme",
+              "start": 0,
+              "end": 131,
+              "text": "README quick start: Harbor API listens on port 8080; configure the readiness probe for 8080. This example runs the binary directly."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API direct-binary quick-start example",
+          "attribute": "readiness_probe_port_instruction",
+          "value": 8080,
+          "claim_id": "sha256:2ced9f4bb2079d62027986fd3ef3dae0ccfe72b829c335646465ca8b33745699",
+          "observation_id": "coding_config_conflict:readme:claim:2",
+          "evidence": [
+            {
+              "source_id": "readme",
+              "start": 0,
+              "end": 131,
+              "text": "README quick start: Harbor API listens on port 8080; configure the readiness probe for 8080. This example runs the binary directly."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "deployment_config",
+      "source": {
+        "kind": "deployment_config",
+        "identifier": "https://deployment-config.benchmark.example/coding_config_conflict/deployment_config"
+      },
+      "text": "deploy/prod.yaml: container env APP_PORT=\"9092\"; readinessProbe.httpGet.path=/ready; readinessProbe.httpGet.port=9092. No port remapping is present.",
+      "provenance": {
+        "assertion_id": "coding_config_conflict:deployment_config",
+        "observed_at": "2026-08-20T12:01:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml deployment",
+          "attribute": "readiness_port",
+          "value": 9092,
+          "claim_id": "sha256:b5404d45d5f00b8a262076f8e6d0d2a8ca51f0c2c4c524637b3d7378aa84ea8d",
+          "observation_id": "coding_config_conflict:deployment_config",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 148,
+              "text": "deploy/prod.yaml: container env APP_PORT=\"9092\"; readinessProbe.httpGet.path=/ready; readinessProbe.httpGet.port=9092. No port remapping is present."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml deployment",
+          "attribute": "APP_PORT",
+          "value": 9092,
+          "claim_id": "sha256:9c2fb2a0691a9cb0726bece308de19118eb5682dcc5aee49ef99697e7a0b4423",
+          "observation_id": "coding_config_conflict:deployment_config:claim:2",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 148,
+              "text": "deploy/prod.yaml: container env APP_PORT=\"9092\"; readinessProbe.httpGet.path=/ready; readinessProbe.httpGet.port=9092. No port remapping is present."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml deployment",
+          "attribute": "readiness_path",
+          "value": "/ready",
+          "claim_id": "sha256:7fcdbcd8f97e9f5b363bf5f9e43a13f1aad7f69e4b3df06ec251d1d6d4f2b503",
+          "observation_id": "coding_config_conflict:deployment_config:claim:3",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 148,
+              "text": "deploy/prod.yaml: container env APP_PORT=\"9092\"; readinessProbe.httpGet.path=/ready; readinessProbe.httpGet.port=9092. No port remapping is present."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml deployment",
+          "attribute": "port_remapping_present",
+          "value": false,
+          "claim_id": "sha256:89e97bb1c7f46c6715824bbef5bfa2c7b4659b6acee5c454994b9d1a732b1508",
+          "observation_id": "coding_config_conflict:deployment_config:claim:4",
+          "evidence": [
+            {
+              "source_id": "deployment_config",
+              "start": 0,
+              "end": 148,
+              "text": "deploy/prod.yaml: container env APP_PORT=\"9092\"; readinessProbe.httpGet.path=/ready; readinessProbe.httpGet.port=9092. No port remapping is present."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "source_code",
+      "source": {
+        "kind": "source_code",
+        "identifier": "https://source-code.benchmark.example/coding_config_conflict/source_code"
+      },
+      "text": "server.py: listen_port = int(os.environ.get(\"APP_PORT\", \"8080\")); /ready is served on listen_port.",
+      "provenance": {
+        "assertion_id": "coding_config_conflict:source_code",
+        "observed_at": "2026-08-20T12:02:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API server",
+          "attribute": "listener_port_rule",
+          "value": {
+            "environment_variable": "APP_PORT",
+            "conversion": "int",
+            "default_when_unset": 8080
+          },
+          "claim_id": "sha256:f89863cc8bc794a77ecd8133ba15779d12ddd4b4907f4fca6d9f040f4127a5a4",
+          "observation_id": "coding_config_conflict:source_code",
+          "evidence": [
+            {
+              "source_id": "source_code",
+              "start": 0,
+              "end": 98,
+              "text": "server.py: listen_port = int(os.environ.get(\"APP_PORT\", \"8080\")); /ready is served on listen_port."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API server",
+          "attribute": "readiness_listener_rule",
+          "value": {
+            "path": "/ready",
+            "port": "listen_port"
+          },
+          "claim_id": "sha256:ee13ac17126f228a66e0a2e4a27115fa4d108e00c8e5ac718b38f30eda4def12",
+          "observation_id": "coding_config_conflict:source_code:claim:2",
+          "evidence": [
+            {
+              "source_id": "source_code",
+              "start": 0,
+              "end": 98,
+              "text": "server.py: listen_port = int(os.environ.get(\"APP_PORT\", \"8080\")); /ready is served on listen_port."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "ci_config",
+      "source": {
+        "kind": "ci_config",
+        "identifier": "https://ci-config.benchmark.example/coding_config_conflict/ci_config"
+      },
+      "text": "CI unit job unsets APP_PORT and checks /ready on 8080. The production manifest is not used in this job.",
+      "provenance": {
+        "assertion_id": "coding_config_conflict:ci_config",
+        "observed_at": "2026-08-20T12:03:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API CI unit job",
+          "attribute": "readiness_port",
+          "value": 8080,
+          "claim_id": "sha256:02e19b145ae1feb2da441c84fa4b54afdc1e1625ba1c9974f7eb3f465fc2dc06",
+          "observation_id": "coding_config_conflict:ci_config",
+          "evidence": [
+            {
+              "source_id": "ci_config",
+              "start": 0,
+              "end": 103,
+              "text": "CI unit job unsets APP_PORT and checks /ready on 8080. The production manifest is not used in this job."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API CI unit job",
+          "attribute": "APP_PORT_set",
+          "value": false,
+          "claim_id": "sha256:243c4ec6004116da76b36f651121a9ef527dd75c128d514ced9e2c56a540b16c",
+          "observation_id": "coding_config_conflict:ci_config:claim:2",
+          "evidence": [
+            {
+              "source_id": "ci_config",
+              "start": 0,
+              "end": 103,
+              "text": "CI unit job unsets APP_PORT and checks /ready on 8080. The production manifest is not used in this job."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API CI unit job",
+          "attribute": "production_manifest_used",
+          "value": false,
+          "claim_id": "sha256:c569bb20446268592641f4177d7ef6cc4d7ae97267f704e7fa637987de16dad6",
+          "observation_id": "coding_config_conflict:ci_config:claim:3",
+          "evidence": [
+            {
+              "source_id": "ci_config",
+              "start": 0,
+              "end": 103,
+              "text": "CI unit job unsets APP_PORT and checks /ready on 8080. The production manifest is not used in this job."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "test_output",
+      "source": {
+        "kind": "test_output",
+        "identifier": "https://test-output.benchmark.example/coding_config_conflict/test_output"
+      },
+      "text": "Manifest integration run: applied deploy/prod.yaml; APP_PORT=9092; GET localhost:9092/ready -> 200; localhost:8080 -> connection refused.",
+      "provenance": {
+        "assertion_id": "coding_config_conflict:test_output",
+        "observed_at": "2026-08-20T12:04:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z",
+        "upstream_sources": [
+          {
+            "kind": "deployment_config",
+            "identifier": "https://deployment-config.benchmark.example/coding_config_conflict/deployment_config"
+          }
+        ],
+        "parent_assertion_ids": [
+          "coding_config_conflict:deployment_config"
+        ]
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml deployment",
+          "attribute": "readiness_port",
+          "value": 9092,
+          "claim_id": "sha256:b5404d45d5f00b8a262076f8e6d0d2a8ca51f0c2c4c524637b3d7378aa84ea8d",
+          "observation_id": "coding_config_conflict:test_output",
+          "evidence": [
+            {
+              "source_id": "test_output",
+              "start": 0,
+              "end": 137,
+              "text": "Manifest integration run: applied deploy/prod.yaml; APP_PORT=9092; GET localhost:9092/ready -> 200; localhost:8080 -> connection refused."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml deployment",
+          "attribute": "APP_PORT",
+          "value": 9092,
+          "claim_id": "sha256:9c2fb2a0691a9cb0726bece308de19118eb5682dcc5aee49ef99697e7a0b4423",
+          "observation_id": "coding_config_conflict:test_output:claim:2",
+          "evidence": [
+            {
+              "source_id": "test_output",
+              "start": 0,
+              "end": 137,
+              "text": "Manifest integration run: applied deploy/prod.yaml; APP_PORT=9092; GET localhost:9092/ready -> 200; localhost:8080 -> connection refused."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml integration run",
+          "attribute": "readiness_http_test",
+          "value": {
+            "request": "GET localhost:9092/ready",
+            "response_status": 200
+          },
+          "claim_id": "sha256:f419a2eb106763a2ebc20ab717321a38d77f259bcc318c2e722fa8aae464a87f",
+          "observation_id": "coding_config_conflict:test_output:claim:3",
+          "evidence": [
+            {
+              "source_id": "test_output",
+              "start": 0,
+              "end": 137,
+              "text": "Manifest integration run: applied deploy/prod.yaml; APP_PORT=9092; GET localhost:9092/ready -> 200; localhost:8080 -> connection refused."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API deploy/prod.yaml integration run",
+          "attribute": "port_8080_result",
+          "value": "connection refused",
+          "claim_id": "sha256:e19644ae0f4b1e4c8e44b2ef98f7e04bee0f4d81fb7cbcc5295593d16184f61f",
+          "observation_id": "coding_config_conflict:test_output:claim:4",
+          "evidence": [
+            {
+              "source_id": "test_output",
+              "start": 0,
+              "end": 137,
+              "text": "Manifest integration run: applied deploy/prod.yaml; APP_PORT=9092; GET localhost:9092/ready -> 200; localhost:8080 -> connection refused."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "example_config",
+      "source": {
+        "kind": "example_config",
+        "identifier": "https://example-config.benchmark.example/coding_config_conflict/example_config"
+      },
+      "text": "examples/local.env sets APP_PORT=8080 for a laptop deployment and uses the same listener for readiness.",
+      "provenance": {
+        "assertion_id": "coding_config_conflict:example_config",
+        "observed_at": "2026-08-20T12:05:00Z",
+        "source_modified_at": "2026-08-18T09:00:00Z"
+      },
+      "claims": [
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API laptop deployment",
+          "attribute": "APP_PORT",
+          "value": 8080,
+          "claim_id": "sha256:d5293edb94811733558228aa5dac03473e7c16b2cdd8b7e4d71745b89cc77752",
+          "observation_id": "coding_config_conflict:example_config",
+          "evidence": [
+            {
+              "source_id": "example_config",
+              "start": 0,
+              "end": 103,
+              "text": "examples/local.env sets APP_PORT=8080 for a laptop deployment and uses the same listener for readiness."
+            }
+          ]
+        },
+        {
+          "entity_namespace": "software",
+          "entity": "Harbor API laptop deployment",
+          "attribute": "readiness_uses_same_listener",
+          "value": true,
+          "claim_id": "sha256:d24e11e8c52d2c857061606e04bdf4a8a4c8189a81d2b2cab18e34a492f678ea",
+          "observation_id": "coding_config_conflict:example_config:claim:2",
+          "evidence": [
+            {
+              "source_id": "example_config",
+              "start": 0,
+              "end": 103,
+              "text": "examples/local.env sets APP_PORT=8080 for a laptop deployment and uses the same listener for readiness."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

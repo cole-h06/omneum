@@ -1,0 +1,68 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.1792603749781847,
+    "ranking": [
+      "chunk-dataset",
+      "chunk-analysis",
+      "chunk-report",
+      "chunk-publication",
+      "chunk-web_page",
+      "chunk-news_article",
+      "chunk-primary_record"
+    ],
+    "raw_scores": {
+      "chunk-analysis": 0.9757828712463379,
+      "chunk-dataset": 0.9885224103927612,
+      "chunk-news_article": 0.5554459691047668,
+      "chunk-primary_record": 0.5377137660980225,
+      "chunk-publication": 0.754477322101593,
+      "chunk-report": 0.9729679822921753,
+      "chunk-web_page": 0.6921604871749878
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 7.091695442795753e-05,
+    "ranking": [
+      "chunk-web_page",
+      "chunk-dataset",
+      "chunk-report",
+      "chunk-publication",
+      "chunk-analysis",
+      "chunk-primary_record",
+      "chunk-news_article"
+    ],
+    "raw_scores": {
+      "chunk-analysis": 2.9101245269841294,
+      "chunk-dataset": 5.483505748634805,
+      "chunk-news_article": 0.8475420308193775,
+      "chunk-primary_record": 2.62115581473259,
+      "chunk-publication": 3.7889594377436033,
+      "chunk-report": 4.170569936734827,
+      "chunk-web_page": 7.479858190499463
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.017308624926954508,
+    "ranking": [
+      "chunk-dataset",
+      "chunk-report",
+      "chunk-primary_record",
+      "chunk-news_article",
+      "chunk-publication",
+      "chunk-web_page",
+      "chunk-analysis"
+    ],
+    "raw_scores": {
+      "chunk-analysis": 0.5165577530860901,
+      "chunk-dataset": 0.7747337222099304,
+      "chunk-news_article": 0.5764970183372498,
+      "chunk-primary_record": 0.5843648910522461,
+      "chunk-publication": 0.566849410533905,
+      "chunk-report": 0.6815588474273682,
+      "chunk-web_page": 0.564184308052063
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

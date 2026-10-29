@@ -1,0 +1,4022 @@
+{
+  "$schema": "dashboard_summary.schema.json",
+  "schema_version": "2.0.0",
+  "benchmark_id": "heldout-completed-runs",
+  "measurement_date": "2026-10-09",
+  "selector_version": "Preserved execution-time selectors per run; excludes experimental conflict-policy trials",
+  "units": {
+    "rates": "fraction",
+    "latency": "seconds",
+    "api_tokens": "provider_tokens",
+    "cost": "USD"
+  },
+  "supported_method_families": [
+    "semantic_reranker",
+    "frontier_llm_judge",
+    "standalone_omneum",
+    "semantic_retriever"
+  ],
+  "definitions": {
+    "outcomes": "Rates are fractions [0,1], counts divided by all attempts including refusals. Correct means complete semantic answer; incomplete and substantive errors remain distinct. Semantic outcomes are null without preserved adjudications; recorded substring accuracy is separate. Unanswered, unadjudicated and other failures are explicitly tracked.",
+    "selection": "Source-label precision=TP/(TP+FP), recall=TP/(TP+FN), F1=2TP/(2TP+FP+FN). Macro averages per-attempt metrics (equal case weights here); micro pools counts. Zero-denominator selection metrics are 0; absent measurements are null. Older runs may cover only scored attempts; measurement_coverage states the denominator.",
+    "latency": "Seconds, all attempts; p50/p95 linearly interpolate at (n-1)q. Selection includes BGE and integration; end-to-end includes generation. Missing top-level end-to-end values are reconstructed only when both measured stage durations are present, matching the preserved summaries. Publication-only cached Cohere correction uses its original shared response records.",
+    "tokens": "Reported API tokens summed across all attempts and provider tokenizers. Output includes Gemini thinking exactly once plus reported Claude output. Reasoning is null when not separately reported; null does not mean zero. Local token usage is unavailable. OpenAI output already includes reasoning; Cohere's absent token telemetry makes whole-pipeline totals null.",
+    "cost": "USD estimated API cost at frozen reported rates, not invoices; per answer divides by attempts including refusals. Excludes local compute/hosting, credits, discounts, and unlogged retries. All estimates normalize measured usage to the October 8 snapshot; Cohere's illustrative rate is never used.",
+    "configuration": "Configurations are identified by run and method, with no pooling across runs. Baseline is the within-run comparator; augmentation_target and optional baseline_configuration_id identify the actual preceding method. Replacement selectors are not mislabeled as augmentations. Family tags describe recorded components, with standalone Omneum shown as a reference in both views."
+  },
+  "pairing": {
+    "methods": [
+      "bge",
+      "bge_anthropic",
+      "bge_google",
+      "bge_omneum",
+      "bge_openai",
+      "cohere",
+      "cohere_anthropic",
+      "cohere_omneum"
+    ],
+    "pair_count": null,
+    "keys": [
+      "run_id",
+      "case_id",
+      "trial"
+    ],
+    "identical_bge_shortlists": null,
+    "identical_context_budgets": null,
+    "shared_generator": "claude-sonnet-5-5"
+  },
+  "pricing": {
+    "anthropic_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "basis": "standard paid tier; Gemini introductory rates through 2026-12-31; normalized October 8 comparison rates for all measured runs; not historical invoices",
+    "date_checked": "2026-10-08",
+    "google_source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "usd_per_million": {
+      "gemini_input": 0.75,
+      "gemini_visible_plus_thinking_output": 3.75,
+      "sonnet_input": 2,
+      "sonnet_output": 10,
+      "astra_input": 10,
+      "astra_output": 50
+    },
+    "openai_source": "https://developers.openai.com/api/docs/models/gpt-6-astra"
+  },
+  "source_file_sha256": {
+    "benchmarks/context_evaluation/heldout/EVIDENCE.md": "a9891ebc9c605fa79803749eabbaf5e1d1638b72414a2e6744d6a401e994b11d",
+    "benchmarks/context_evaluation/heldout/LATENCY_ANALYSIS.md": "433a2beac00f78f1b34db3a6dfaa9734aceea5f1488fd63b4acb8444e95d19d2",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/answer_audit.json": "ee68511d9748a32690ff16150fa88d0e7ebecdbed34629b48d917a4593346697",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/comparison.json": "3e329c7d6509a78997cb0a5de681ea6a589d85092d63813dbbf3fd66234cfe9b",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/report.md": "0b78a70ac82f4afffb8795f7f5170302c18fe2880dfbc9296b975974782bd5f5",
+    "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/reproducibility.md": "992dc68121a602e9be0ffd213f839f3bab01eb96ec2b7354d95338ca73913c58",
+    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py": "03f82212da02a21dc0b46b400734fdf3cf33eb9db77546cfebd272646ec0b445",
+    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/answer_audit.json": "9b8eff56272384556f5ed7fefe9cdd23ab37caa580ea2a67087ffb693536e8e7",
+    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/comparison.json": "4da961caa5eeb0f157a19a54289b22d34e7067f425556c51a40e946e353ee0d5",
+    "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/report.md": "2773abef1c74a73d9021d60f1545cfdbfb5e27299afc7fc24e147c729a73efdc",
+    "benchmarks/context_evaluation/heldout/cases/analytics_derived_metric_cycle/case.json": "5e54f50db313feab8b95fbdc54c1ffeaea537901c586a7546626c2a9d4f7e32f",
+    "benchmarks/context_evaluation/heldout/cases/analytics_derived_metric_cycle/ground_truth.json": "edf2ced18b0c593549d158c47b06fcca7d4fcaf7693ab4ed7e6a7d33d8c78256",
+    "benchmarks/context_evaluation/heldout/cases/analytics_incomplete_lineage/case.json": "38727829924c44ea87408fb23ea360353adabc39e77ed16bfc09eb5e60e19618",
+    "benchmarks/context_evaluation/heldout/cases/analytics_incomplete_lineage/ground_truth.json": "729605db48078ee9c6702bf72b8a271f28d9df64b475f1f64fbc81715ed4168f",
+    "benchmarks/context_evaluation/heldout/cases/analytics_metric_definition_conflict/case.json": "5ab33268aed65fcc98384f19c41d974e8b2dd72087b1d586e821c82ba1ac6950",
+    "benchmarks/context_evaluation/heldout/cases/analytics_metric_definition_conflict/ground_truth.json": "b5157322a805be084a945d7054338b797fe906a2f482162b9f6c74e9455fe4dd",
+    "benchmarks/context_evaluation/heldout/cases/analytics_stale_dashboard/case.json": "d1708a3d99926004e1662f5986dc7bc39fa7c92b2a8ee75ee79540bc9f96522e",
+    "benchmarks/context_evaluation/heldout/cases/analytics_stale_dashboard/ground_truth.json": "0f5335e1b94e04a9cd46e21e58a0a72731f7ca50afc8a5170774761cfe2e6b87",
+    "benchmarks/context_evaluation/heldout/cases/coding_api_version_change/case.json": "19c88401760843ec0f7ee9eac8145c68efdac951d2f0d0893ff04ea3909e6de3",
+    "benchmarks/context_evaluation/heldout/cases/coding_api_version_change/ground_truth.json": "49163680e3fb2b7ffa29061e533a28108d14e3e3ebf74d9c43d577210573ed6f",
+    "benchmarks/context_evaluation/heldout/cases/coding_clean_dependency/case.json": "22c5690c59b2d844c9dc70fc0c0f252e8d508de91be9e510e11c8a072e5b78df",
+    "benchmarks/context_evaluation/heldout/cases/coding_clean_dependency/ground_truth.json": "ebc8b31854570d9501d92e6c02d49906e9e4a8b86c08a2cb8623142a806123f9",
+    "benchmarks/context_evaluation/heldout/cases/coding_config_conflict/case.json": "c90a19805ba7ead6675041f109b8ee66367b7892d61e003ee3eb1e3e07c9d6c9",
+    "benchmarks/context_evaluation/heldout/cases/coding_config_conflict/ground_truth.json": "cf83de7c6d1b1fa0b0b5f578e545dd65e90249d6ae64fec94efe38650ebb00b5",
+    "benchmarks/context_evaluation/heldout/cases/coding_package_fix_lineage/case.json": "b90f6a1ca49d64888029eb21f2356e23f4f211fdeb1da3c5385ec3190833c248",
+    "benchmarks/context_evaluation/heldout/cases/coding_package_fix_lineage/ground_truth.json": "567adef95dada2de266a7c340259f69efcd102e40a9e1d4153a5102c2979973f",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_partial_lineage/case.json": "100b250c701f3c1ce82a220e7f3aa183d0b06b33a751ff17d9f4c31daf3e2e58",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_partial_lineage/ground_truth.json": "d9c64d9de26639269b2b755bf768918d6c1d5ab109d70722f87f7b574ed199ad",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_policy_copy_chain/case.json": "40e35764a6b9c844d58af48e4b8c35d9f1c0235a5244e88db2f7a10809ad42ce",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_policy_copy_chain/ground_truth.json": "0d261457f011ae0437b7f6dbfe87cb71c998417d9074f0bccae7ac64e3369286",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_semantic_distractors/case.json": "640de286172859bb428d6d1cb7680c6e489dc56b99dea719f56b085832da165f",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_semantic_distractors/ground_truth.json": "6df65cd6662dfe11c20b3c126c83799d12c9877d5f9f071c25ac9163520cc3a0",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_stale_handbook/case.json": "4c659eb40256078d40f229126ec762883c605bacfc85da86f671676156a14b45",
+    "benchmarks/context_evaluation/heldout/cases/enterprise_stale_handbook/ground_truth.json": "777af9d1e1b186f9266d5f3d96dc69924b7f799572dd7c7b0806471414844a0e",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_feedback_loop/case.json": "19fe348f70e08f2c94b469f6292ef831d73137adc9ee5722b9fe2e1c540b6bad",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_feedback_loop/ground_truth.json": "7d9bc787769eed93379caa7b7ac21f04ce13a1e82419ed07115e5d3d4708aa23",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_independent_error/case.json": "79acbf5c5e91c1b85521e9c14bad2669b4e66e613f922e97e60ece08118dab65",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_independent_error/ground_truth.json": "d493a02472a1e07403b75c7ecf706fcd571f3890cba29bf35dfa595c8bfeef05",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_relevant_wrong_task/case.json": "65141ee94e06756f5f68673306048a2aa26c49ebcf383bb10734609a576a00cc",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_relevant_wrong_task/ground_truth.json": "8b688fab36f1f5813073ca56bf136e45a66962fb469548abd114165a1b2de0bd",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_repeated_subagent/case.json": "d5f6d9625d7ba150267d65f84c7c007f39f163a0ca641bfe75e29c0bfbe8433c",
+    "benchmarks/context_evaluation/heldout/cases/multi_agent_repeated_subagent/ground_truth.json": "856c643c9e380db0ac3475a0cd648f2377cbab1a3f67918943b18daeaaec522b",
+    "benchmarks/context_evaluation/heldout/cases/research_clean_consensus/case.json": "95f346883f5c79af0e2eed9fa5f27a9408e428927d857aeea114b98736ae472d",
+    "benchmarks/context_evaluation/heldout/cases/research_clean_consensus/ground_truth.json": "3b0d045f1ebae1bf53d27a0519fce4ebb3b3e6d89498f425a7b62ff0b5708af1",
+    "benchmarks/context_evaluation/heldout/cases/research_conflicting_reports/case.json": "ac13326263e0e8460f49f35de3806a47d8dbded8ff84f0469f931ab581b95630",
+    "benchmarks/context_evaluation/heldout/cases/research_conflicting_reports/ground_truth.json": "a3e3950f0b3280c8f98a4e703814b6a801b47a035e5be28783e6f87527da4476",
+    "benchmarks/context_evaluation/heldout/cases/research_independent_false_consensus/case.json": "497fcf9e5b1104160fefb3daf512cf79769089de81f60c0919db8b6365f5d7bd",
+    "benchmarks/context_evaluation/heldout/cases/research_independent_false_consensus/ground_truth.json": "91c1f06c387ada2b63a3468051e1e80ed8e981a108012c2a461113d2f1ee1430",
+    "benchmarks/context_evaluation/heldout/cases/research_syndicated_reporting/case.json": "a67831e0baf8f9934872a4f66b42099b13a253fa814ed1814bbb4348053b4b9f",
+    "benchmarks/context_evaluation/heldout/cases/research_syndicated_reporting/ground_truth.json": "52fb1f81ec19a1a10546c4975dee9ee154f8ba74cbaba12f7d78a45e5e0fd299",
+    "benchmarks/context_evaluation/heldout/cases/support_clean_resolution/case.json": "e22fa399937733f6416ec08f4188f7730b9faeef888663f7a25ba8a8cb6bcc42",
+    "benchmarks/context_evaluation/heldout/cases/support_clean_resolution/ground_truth.json": "98049d4b8998a6a0cb6dee533118739add73d225212fccc2256b28a57e9eb71c",
+    "benchmarks/context_evaluation/heldout/cases/support_resolution_conflict/case.json": "3e7c8152c9a9e4b005195c5f3c70f5b98d1f4697b1120e599afaf8721769d8e3",
+    "benchmarks/context_evaluation/heldout/cases/support_resolution_conflict/ground_truth.json": "09a92b92e243b1425d0a50886dd9563ba41cd6e63376e83a34dbe95400479d39",
+    "benchmarks/context_evaluation/heldout/cases/support_stale_runbook/case.json": "b064c3e5656193aa699486b7157f60bffda5f50ffdb74aa71439078397933839",
+    "benchmarks/context_evaluation/heldout/cases/support_stale_runbook/ground_truth.json": "7d1bd2b1fbec17023cf110ac73d403bc9f4bd73b66bc0c0e8a637494538368ff",
+    "benchmarks/context_evaluation/heldout/cases/support_ticket_reference_loop/case.json": "455dce63a25875ab36c6babb6cabc977451989375185cd13e0660207e67d4b74",
+    "benchmarks/context_evaluation/heldout/cases/support_ticket_reference_loop/ground_truth.json": "902b2755f922eea55108f3ca8fa28157fb2f02a68884a5f02b9b621a2ce74a8c",
+    "benchmarks/context_evaluation/heldout/checkpoint.py": "30d3e60266b58ce0879c31f454964985006c46b87f88d0a9095594b23dfd73d5",
+    "benchmarks/context_evaluation/heldout/latency_analysis.py": "8f57984962a83fa58c99cbfd32aaf795d13bae79d3e0f17a6dd8bd4c0aa902ab",
+    "benchmarks/context_evaluation/heldout/results/20261008T014713Z/cohere_responses.jsonl": "dc62bf5ae4a2e0b3363b7baf647aa70ea5205a03d85cc9790157ec81ea6c1482",
+    "benchmarks/context_evaluation/heldout/results/20261008T014713Z/manifest.public-v1.json": "d66afc871c40e73d591d6e011aab47458e03f294a3a13fe2859e5c86e4622ed7",
+    "benchmarks/context_evaluation/heldout/results/20261008T014713Z/results.jsonl": "3e2b50be74094d863e22810bf1118d66ec5221a552970d36e99a1797f07bd762",
+    "benchmarks/context_evaluation/heldout/results/20261008T014713Z/summary.json": "5807c23c4e40f22f24d8b8e9814a3f1394dbee5f3760b4cef1b8aa9e78260df6",
+    "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/comparison.json": "5f94cc905bc9b6d8cb78d1c88662ce8a2412aa3f524ce3e3c93d53510a735348",
+    "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/manifest.public-v1.json": "8014daafbf905a4dc51b23f1b612c4221664e92951fac558d7e4dc8302ab817c",
+    "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/report.md": "6735d2b3662eaec026d5c28cd9c221ec509c2654d3d6e503585c35890f0f3bb0",
+    "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/results.jsonl": "8e039f88ce8c946b15263b7fda82f9df09cf1849478d98e8ec063d517932fbf5",
+    "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/summary.json": "b7c67192a09c5f0d677e82acee889b64b12069b7e5991475f82fdf06c9c0d249",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.public-v1.json": "ab31e2874bcd1aac11f78b8616148239a64da4f1b7b5d3555aa79d3469da5ece",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/results.jsonl": "111b1abbcb7ef0f9cc6e567babe901bbe777e524fbdbfb93af4a2bb3c46130d0",
+    "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/summary.json": "d483ae816745f0674487f2c20f8bf5258bb534efc3660afd7e9ce5f665ed6b6b",
+    "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/manifest.public-v1.json": "4b76aa050efedbc20e6346f4adc250a89446b445cbb76dddcb5f428d71c592b6",
+    "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/results.jsonl": "4bba4175ba45bd75b86283c75ee59c837bc17439fdc8bf2b6bef6ddb10063b98",
+    "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/summary.json": "72ccd16c76f95143930eacaac0b553ff976b974cb0db5b3592b735f64e6f8ac6",
+    "benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/manifest.public-v1.json": "52c65a93377022dfdfad61ae274dc5a3adbe1f588bd5a4f844588c9b377760a9",
+    "benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl": "ecd99f2707e8511d8b3637a0a7aff94b32bc7ef1ada364b45312552dca5f6196",
+    "benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/summary.json": "834eb789b6d1c5b50d8c8beda10de202675414334564ca24c63062a4aadab202",
+    "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/comparison.json": "deff6d822806c76ef188be67608286dad1fd01d65bc676447cf84d180f89f1b6",
+    "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/manifest.public-v1.json": "0cddd802ce99b6937d678f81d1bd7f24ed340423ecae1caca960acaef6c487f6",
+    "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/report.md": "c59377227eee33f8adcfcde2dad6cbe4d21dd1b1c47cf05beac15308e725ba8b",
+    "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/results.jsonl": "f4386fd83efb2ab50657a32772c2e614f72ece66a3d1c71267d3b2e1963123b4",
+    "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/summary.json": "033ba19a2339dc9521e5ba9062ac82bd8a0fe8ee024fd6158a086196f18d8c67",
+    "benchmarks/context_evaluation/heldout/results/diagnostic-tied-maxima-selection-only-20261007/selection_only_diagnostic.public-v1.json": "51279c9920252b1adbd697bebd949835b4963535373b4760bd073ca53ebd4855"
+  },
+  "implementation": {
+    "manifest": null,
+    "checkout_before_analysis": null
+  },
+  "limitations": [
+    "24 fixed synthetic cases with clustered repeats, not 240 independent tasks.",
+    "Selectors receive different information; original selection and recovered generation measurements are from different dates, with reconstructed E2E stage sums.",
+    "Independent incorrect estimates displaced census evidence in all ten false-consensus trials.",
+    "Every Gemini answer was reviewed against the frozen reference and selected evidence; baseline adjudications were preserved. Review was not blinded.",
+    "Dirty execution checkout has no verified source snapshot; preserved metrics are reproducible offline."
+  ],
+  "unmeasured_configurations": [
+    "Standalone Gemini + Omneum",
+    "Standalone GPT + Omneum"
+  ],
+  "configurations": [
+    {
+      "id": "bge-omneum-tied-maxima-20261007:bge",
+      "run_id": "bge-omneum-tied-maxima-20261007",
+      "method_id": "bge",
+      "label": "BGE",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "baseline",
+      "execution_shape": "standalone",
+      "baseline_configuration_id": null,
+      "augmentation_target": null,
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": null,
+          "rate": null
+        },
+        "incorrect": {
+          "count": null,
+          "rate": null
+        },
+        "incomplete": {
+          "count": null,
+          "rate": null
+        },
+        "generator_refusal": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unanswered": {
+          "count": null,
+          "rate": null
+        },
+        "unadjudicated": {
+          "count": 24,
+          "rate": 1.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "unavailable; frozen substring scores provided separately",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 22,
+          "incorrect": 1,
+          "unscored": 1
+        },
+        "accuracy": 0.9166666666666666,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.6944444444444444,
+          "recall": 0.4746031746031746,
+          "f1": 0.5545634920634921
+        },
+        "micro": {
+          "precision": 0.6956521739130435,
+          "recall": 0.46153846153846156,
+          "f1": 0.5549132947976878
+        },
+        "counts": {
+          "true_positive": 48,
+          "false_positive": 21,
+          "false_negative": 56
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 24,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 0.20073631242848933,
+          "p95": 0.27521912765223533
+        },
+        "end_to_end": {
+          "p50": 2.4674748753895983,
+          "p95": 4.098417739337309
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        },
+        "generation": {
+          "input": 5599,
+          "output": 6342,
+          "total": 11941,
+          "reasoning": null
+        },
+        "total": {
+          "input": 5599,
+          "output": 6342,
+          "total": 11941,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": 0.074618,
+        "estimated_api_per_answer": 0.0031090833333333335,
+        "selection": 0.0,
+        "generation": 0.074618,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-omneum-tied-maxima-20261007",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "9100693cb980ccc2abda152277495eeb25b87be0184ef73418e15e6b83067b1d"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "bge-omneum-tied-maxima-20261007:bge_omneum",
+      "run_id": "bge-omneum-tied-maxima-20261007",
+      "method_id": "bge_omneum",
+      "label": "BGE + Omneum",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "omneum_augmented",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": "bge-omneum-tied-maxima-20261007:bge",
+      "augmentation_target": "bge",
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "context_selector",
+          "method": "omneum",
+          "model": "Omneum"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": null,
+          "rate": null
+        },
+        "incorrect": {
+          "count": null,
+          "rate": null
+        },
+        "incomplete": {
+          "count": null,
+          "rate": null
+        },
+        "generator_refusal": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "unanswered": {
+          "count": null,
+          "rate": null
+        },
+        "unadjudicated": {
+          "count": 23,
+          "rate": 0.9583333333333334
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "unavailable; frozen substring scores provided separately",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 21,
+          "unscored": 2,
+          "generation_failure": 1
+        },
+        "accuracy": 0.875,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.855072463768116,
+          "recall": 0.593064182194617,
+          "f1": 0.6889233954451346
+        },
+        "micro": {
+          "precision": 0.8636363636363636,
+          "recall": 0.5757575757575758,
+          "f1": 0.6909090909090909
+        },
+        "counts": {
+          "true_positive": 57,
+          "false_positive": 9,
+          "false_negative": 42
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 23,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 0.6602013958618045,
+          "p95": 0.7336221144883893
+        },
+        "end_to_end": {
+          "p50": 3.0204223120817915,
+          "p95": 4.560757108870893
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        },
+        "generation": {
+          "input": 5661,
+          "output": 5934,
+          "total": 11595,
+          "reasoning": null
+        },
+        "total": {
+          "input": 5661,
+          "output": 5934,
+          "total": 11595,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": 0.070662,
+        "estimated_api_per_answer": 0.0029442500000000003,
+        "selection": 0.0,
+        "generation": 0.070662,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-omneum-tied-maxima-20261007",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "9100693cb980ccc2abda152277495eeb25b87be0184ef73418e15e6b83067b1d"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "20261008T014713Z:cohere",
+      "run_id": "20261008T014713Z",
+      "method_id": "cohere",
+      "label": "Cohere",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "baseline",
+      "execution_shape": "standalone",
+      "baseline_configuration_id": null,
+      "augmentation_target": null,
+      "components": [
+        {
+          "role": "reranker",
+          "method": "cohere",
+          "model": "rerank-v4.0-pro"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": null,
+          "rate": null
+        },
+        "incorrect": {
+          "count": null,
+          "rate": null
+        },
+        "incomplete": {
+          "count": null,
+          "rate": null
+        },
+        "generator_refusal": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unanswered": {
+          "count": null,
+          "rate": null
+        },
+        "unadjudicated": {
+          "count": 24,
+          "rate": 1.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "unavailable; frozen substring scores provided separately",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 21,
+          "incorrect": 1,
+          "unscored": 2
+        },
+        "accuracy": 0.875,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.7777777777777778,
+          "recall": 0.5398809523809524,
+          "f1": 0.626984126984127
+        },
+        "micro": {
+          "precision": 0.782608695652174,
+          "recall": 0.5192307692307693,
+          "f1": 0.6242774566473989
+        },
+        "counts": {
+          "true_positive": 54,
+          "false_positive": 15,
+          "false_negative": 50
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 24,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 0.1511604165425524,
+          "p95": 2.901376101642377
+        },
+        "end_to_end": {
+          "p50": 2.634260832797736,
+          "p95": 5.814986528665756
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "generation": {
+          "input": 5566,
+          "output": 6011,
+          "total": 11577,
+          "reasoning": null
+        },
+        "total": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "selection_judge_only": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": null,
+        "estimated_api_per_answer": null,
+        "selection": null,
+        "generation": 0.071242,
+        "invoiced_api_total": null,
+        "local_compute_total": null,
+        "known_api_subtotal": 0.071242
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "20261008T014713Z",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "e5401a2a38510a6fe7ba7a248ef2396b9e7fc37c15d5915ee232786f1fc31e51"
+      },
+      "cohere_billed_search_units": null,
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "20261008T014713Z:cohere_omneum",
+      "run_id": "20261008T014713Z",
+      "method_id": "cohere_omneum",
+      "label": "Cohere + Omneum",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "omneum_augmented",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": "20261008T014713Z:cohere",
+      "augmentation_target": "cohere",
+      "components": [
+        {
+          "role": "reranker",
+          "method": "cohere",
+          "model": "rerank-v4.0-pro"
+        },
+        {
+          "role": "context_selector",
+          "method": "omneum",
+          "model": "Omneum"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": null,
+          "rate": null
+        },
+        "incorrect": {
+          "count": null,
+          "rate": null
+        },
+        "incomplete": {
+          "count": null,
+          "rate": null
+        },
+        "generator_refusal": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unanswered": {
+          "count": null,
+          "rate": null
+        },
+        "unadjudicated": {
+          "count": 24,
+          "rate": 1.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "unavailable; frozen substring scores provided separately",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 19,
+          "unscored": 5
+        },
+        "accuracy": 0.7916666666666666,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.8263888888888888,
+          "recall": 0.5572420634920635,
+          "f1": 0.65625
+        },
+        "micro": {
+          "precision": 0.8405797101449275,
+          "recall": 0.5576923076923077,
+          "f1": 0.6705202312138728
+        },
+        "counts": {
+          "true_positive": 58,
+          "false_positive": 11,
+          "false_negative": 46
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 24,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 0.4453322705812752,
+          "p95": 0.5352801957167684
+        },
+        "end_to_end": {
+          "p50": 2.80647739500273,
+          "p95": 3.9227044554078017
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "generation": {
+          "input": 5587,
+          "output": 5948,
+          "total": 11535,
+          "reasoning": null
+        },
+        "total": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "selection_judge_only": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": null,
+        "estimated_api_per_answer": null,
+        "selection": null,
+        "generation": 0.070654,
+        "invoiced_api_total": null,
+        "local_compute_total": null,
+        "known_api_subtotal": 0.070654
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "20261008T014713Z",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "e5401a2a38510a6fe7ba7a248ef2396b9e7fc37c15d5915ee232786f1fc31e51"
+      },
+      "cohere_billed_search_units": null,
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "bge-claude-vs-bge-omneum-20261008:bge_anthropic",
+      "run_id": "bge-claude-vs-bge-omneum-20261008",
+      "method_id": "bge_anthropic",
+      "label": "BGE + Claude",
+      "method_families": [
+        "semantic_reranker",
+        "frontier_llm_judge"
+      ],
+      "configuration_kind": "baseline",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": null,
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "context_selector",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 23,
+          "rate": 0.9583333333333334
+        },
+        "incorrect": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "incomplete": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "generator_refusal": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unanswered": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved aggregate semantic review",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 21,
+          "unscored": 3
+        },
+        "accuracy": 0.875,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.9236111111111112,
+          "recall": 0.6523809523809524,
+          "f1": 0.751984126984127
+        },
+        "micro": {
+          "precision": 0.927536231884058,
+          "recall": 0.6153846153846154,
+          "f1": 0.7398843930635838
+        },
+        "counts": {
+          "true_positive": 64,
+          "false_positive": 5,
+          "false_negative": 40
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 24,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 1.83078133338131,
+          "p95": 2.4459510231390595
+        },
+        "end_to_end": {
+          "p50": 4.1649019790347666,
+          "p95": 5.465388260607141
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 15802,
+          "output": 702,
+          "total": 16504,
+          "reasoning": null
+        },
+        "generation": {
+          "input": 5669,
+          "output": 5687,
+          "total": 11356,
+          "reasoning": null
+        },
+        "total": {
+          "input": 21471,
+          "output": 6389,
+          "total": 27860,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": 0.10683200000000001,
+        "estimated_api_per_answer": 0.004451333333333334,
+        "selection": 0.038624,
+        "generation": 0.068208,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-claude-vs-bge-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "bfcf7f59bedc16bab83ed19bf6ecdf910b739897daaf5cc2cc5fc163fed5fb9a"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "bge-claude-vs-bge-omneum-20261008:bge_omneum",
+      "run_id": "bge-claude-vs-bge-omneum-20261008",
+      "method_id": "bge_omneum",
+      "label": "BGE + Omneum",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "omneum_augmented",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": "bge",
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "context_selector",
+          "method": "omneum",
+          "model": "Omneum"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 22,
+          "rate": 0.9166666666666666
+        },
+        "incorrect": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "incomplete": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generator_refusal": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "unanswered": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved aggregate semantic review",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 21,
+          "unscored": 2,
+          "generation_failure": 1
+        },
+        "accuracy": 0.875,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.8611111111111112,
+          "recall": 0.5933531746031746,
+          "f1": 0.691468253968254
+        },
+        "micro": {
+          "precision": 0.8695652173913043,
+          "recall": 0.5769230769230769,
+          "f1": 0.6936416184971098
+        },
+        "counts": {
+          "true_positive": 60,
+          "false_positive": 9,
+          "false_negative": 44
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 24,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 0.6969067085301504,
+          "p95": 0.9806655972497533
+        },
+        "end_to_end": {
+          "p50": 3.141172770410776,
+          "p95": 4.721795706171542
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        },
+        "generation": {
+          "input": 5661,
+          "output": 6150,
+          "total": 11811,
+          "reasoning": null
+        },
+        "total": {
+          "input": 5661,
+          "output": 6150,
+          "total": 11811,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": 0.072822,
+        "estimated_api_per_answer": 0.00303425,
+        "selection": 0.0,
+        "generation": 0.072822,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-claude-vs-bge-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "bfcf7f59bedc16bab83ed19bf6ecdf910b739897daaf5cc2cc5fc163fed5fb9a"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "bge-openai-vs-bge-omneum-20261008:bge_openai",
+      "run_id": "bge-openai-vs-bge-omneum-20261008",
+      "method_id": "bge_openai",
+      "label": "BGE + GPT (Astra)",
+      "method_families": [
+        "semantic_reranker",
+        "frontier_llm_judge"
+      ],
+      "configuration_kind": "baseline",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": null,
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "context_selector",
+          "method": "openai",
+          "model": "gpt-6-astra"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 240,
+      "case_count": 24,
+      "trials_per_case": 10,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 222,
+          "rate": 0.925
+        },
+        "incorrect": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "incomplete": {
+          "count": 8,
+          "rate": 0.03333333333333333
+        },
+        "generator_refusal": {
+          "count": 10,
+          "rate": 0.041666666666666664
+        },
+        "unanswered": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved per-answer semantic adjudications",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 209,
+          "unscored": 21,
+          "generation_failure": 10
+        },
+        "accuracy": 0.8708333333333333,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.9277777777777778,
+          "recall": 0.6544642857142857,
+          "f1": 0.7547619047619047
+        },
+        "micro": {
+          "precision": 0.9304347826086956,
+          "recall": 0.6173076923076923,
+          "f1": 0.7421965317919075
+        },
+        "counts": {
+          "true_positive": 642,
+          "false_positive": 48,
+          "false_negative": 398
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 240,
+        "selection_latency": 240,
+        "end_to_end_latency": 240
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 3.4206158330198377,
+          "p95": 7.791302339546382
+        },
+        "end_to_end": {
+          "p50": 5.848733686492778,
+          "p95": 10.4612256694003
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 71610,
+          "output": 14699,
+          "total": 86309,
+          "reasoning": 9194
+        },
+        "generation": {
+          "input": 56684,
+          "output": 54563,
+          "total": 111247,
+          "reasoning": null
+        },
+        "total": {
+          "input": 128294,
+          "output": 69262,
+          "total": 197556,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": 2.110048,
+        "estimated_api_per_answer": 0.008791866666666667,
+        "selection": 1.45105,
+        "generation": 0.658998,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-openai-vs-bge-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "cefc953e9e029ef8a8e58994e887de8eac2923062abbf6c2c4aef456b91a6394"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "bge-openai-vs-bge-omneum-20261008:bge_omneum",
+      "run_id": "bge-openai-vs-bge-omneum-20261008",
+      "method_id": "bge_omneum",
+      "label": "BGE + Omneum",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "omneum_augmented",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": "bge",
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "context_selector",
+          "method": "omneum",
+          "model": "Omneum"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 240,
+      "case_count": 24,
+      "trials_per_case": 10,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 220,
+          "rate": 0.9166666666666666
+        },
+        "incorrect": {
+          "count": 10,
+          "rate": 0.041666666666666664
+        },
+        "incomplete": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generator_refusal": {
+          "count": 10,
+          "rate": 0.041666666666666664
+        },
+        "unanswered": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved per-answer semantic adjudications",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 209,
+          "unscored": 21,
+          "generation_failure": 10
+        },
+        "accuracy": 0.8708333333333333,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.8611111111111112,
+          "recall": 0.5933531746031746,
+          "f1": 0.691468253968254
+        },
+        "micro": {
+          "precision": 0.8695652173913043,
+          "recall": 0.5769230769230769,
+          "f1": 0.6936416184971098
+        },
+        "counts": {
+          "true_positive": 600,
+          "false_positive": 90,
+          "false_negative": 440
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 240,
+        "selection_latency": 240,
+        "end_to_end_latency": 240
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 0.6408890000311658,
+          "p95": 0.8515603499254212
+        },
+        "end_to_end": {
+          "p50": 2.982994396588765,
+          "p95": 4.717016681446694
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        },
+        "generation": {
+          "input": 56610,
+          "output": 58509,
+          "total": 115119,
+          "reasoning": null
+        },
+        "total": {
+          "input": 56610,
+          "output": 58509,
+          "total": 115119,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": 0.69831,
+        "estimated_api_per_answer": 0.002909625,
+        "selection": 0.0,
+        "generation": 0.69831,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-openai-vs-bge-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "cefc953e9e029ef8a8e58994e887de8eac2923062abbf6c2c4aef456b91a6394"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "bge_google",
+      "run_id": "bge-google-low-vs-bge-omneum-20261008",
+      "method_id": "bge_google",
+      "label": "BGE + Gemini",
+      "method_families": [
+        "semantic_reranker",
+        "frontier_llm_judge"
+      ],
+      "configuration_kind": "baseline",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": null,
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "context_selector",
+          "method": "gemini",
+          "model": "gemini-3.8-flash"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "shortlist text and source IDs",
+      "attempts": 240,
+      "case_count": 24,
+      "trials_per_case": 10,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 230,
+          "rate": 0.9583333333333334
+        },
+        "incorrect": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "incomplete": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generator_refusal": {
+          "count": 10,
+          "rate": 0.041666666666666664
+        },
+        "unanswered": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved per-answer semantic adjudications",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 220,
+          "unscored": 10,
+          "generation_failure": 10
+        },
+        "accuracy": 0.9166666666666666,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.9444444444444444,
+          "recall": 0.662797619047619,
+          "f1": 0.7658730158730158
+        },
+        "micro": {
+          "precision": 0.9420289855072463,
+          "recall": 0.625,
+          "f1": 0.7514450867052023
+        },
+        "counts": {
+          "true_positive": 650,
+          "false_positive": 40,
+          "false_negative": 390
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 240,
+        "selection_latency": 240,
+        "end_to_end_latency": 240
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 2.48713827051688,
+          "p95": 6.033517924090841
+        },
+        "end_to_end": {
+          "p50": 4.9241187502630055,
+          "p95": 8.697292894637204
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 73170,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "generation": {
+          "input": 56948,
+          "output": 57302,
+          "total": 114250,
+          "reasoning": null
+        },
+        "total": {
+          "input": 130118,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": null,
+        "estimated_api_per_answer": null,
+        "selection": null,
+        "generation": 0.686916,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-google-low-vs-bge-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "bge_omneum",
+      "run_id": "bge-google-low-vs-bge-omneum-20261008",
+      "method_id": "bge_omneum",
+      "label": "BGE + Omneum",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "omneum_augmented",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": "bge",
+      "components": [
+        {
+          "role": "reranker",
+          "method": "bge",
+          "model": "BAAI/bge-reranker-v2-m3"
+        },
+        {
+          "role": "context_selector",
+          "method": "omneum",
+          "model": "Omneum"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "structured claims, provenance, and dependency observations",
+      "attempts": 240,
+      "case_count": 24,
+      "trials_per_case": 10,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 220,
+          "rate": 0.9166666666666666
+        },
+        "incorrect": {
+          "count": 10,
+          "rate": 0.041666666666666664
+        },
+        "incomplete": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generator_refusal": {
+          "count": 10,
+          "rate": 0.041666666666666664
+        },
+        "unanswered": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved per-answer semantic adjudications",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 210,
+          "unscored": 20,
+          "generation_failure": 10
+        },
+        "accuracy": 0.875,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.8611111111111112,
+          "recall": 0.5933531746031746,
+          "f1": 0.691468253968254
+        },
+        "micro": {
+          "precision": 0.8695652173913043,
+          "recall": 0.5769230769230769,
+          "f1": 0.6936416184971098
+        },
+        "counts": {
+          "true_positive": 600,
+          "false_positive": 90,
+          "false_negative": 440
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 240,
+        "selection_latency": 240,
+        "end_to_end_latency": 240
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 0.6389743338804692,
+          "p95": 0.8535917482106012
+        },
+        "end_to_end": {
+          "p50": 3.1304506664164364,
+          "p95": 4.832068977190647
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        },
+        "generation": {
+          "input": 56610,
+          "output": 58925,
+          "total": 115535,
+          "reasoning": null
+        },
+        "total": {
+          "input": 56610,
+          "output": 58925,
+          "total": 115535,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": 0.70247,
+        "estimated_api_per_answer": 0.0029269583333333335,
+        "selection": 0.0,
+        "generation": 0.70247,
+        "invoiced_api_total": null,
+        "local_compute_total": null
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "bge-google-low-vs-bge-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd"
+      },
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "cohere-claude-vs-cohere-omneum-20261008:cohere_anthropic",
+      "run_id": "cohere-claude-vs-cohere-omneum-20261008",
+      "method_id": "cohere_anthropic",
+      "label": "Cohere + Claude",
+      "method_families": [
+        "semantic_reranker",
+        "frontier_llm_judge"
+      ],
+      "configuration_kind": "baseline",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": null,
+      "components": [
+        {
+          "role": "reranker",
+          "method": "cohere",
+          "model": "rerank-v4.0-pro"
+        },
+        {
+          "role": "context_selector",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 23,
+          "rate": 0.9583333333333334
+        },
+        "incorrect": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "incomplete": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "generator_refusal": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unanswered": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved aggregate semantic review",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 22,
+          "unscored": 2
+        },
+        "accuracy": 0.9166666666666666,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.9166666666666666,
+          "recall": 0.644047619047619,
+          "f1": 0.7445436507936508
+        },
+        "micro": {
+          "precision": 0.927536231884058,
+          "recall": 0.6153846153846154,
+          "f1": 0.7398843930635838
+        },
+        "counts": {
+          "true_positive": 64,
+          "false_positive": 5,
+          "false_negative": 40
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 24,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 2.3575172916753218,
+          "p95": 10.15732783122221
+        },
+        "end_to_end": {
+          "p50": 4.897191729396582,
+          "p95": 13.040529639180747
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "generation": {
+          "input": 5680,
+          "output": 5954,
+          "total": 11634,
+          "reasoning": null
+        },
+        "total": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "selection_judge_only": {
+          "input": 15818,
+          "output": 709,
+          "total": 16527,
+          "reasoning": null
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": null,
+        "estimated_api_per_answer": null,
+        "selection": null,
+        "generation": 0.0709,
+        "invoiced_api_total": null,
+        "local_compute_total": null,
+        "known_api_subtotal": 0.109626
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "cohere-claude-vs-cohere-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "740694dcacd0c9141f3c874dda9199ab516bd3cfcc0bce81cfa032a353e17186"
+      },
+      "cohere_billed_search_units": 24.0,
+      "publication_status": "authoritative"
+    },
+    {
+      "id": "cohere-claude-vs-cohere-omneum-20261008:cohere_omneum",
+      "run_id": "cohere-claude-vs-cohere-omneum-20261008",
+      "method_id": "cohere_omneum",
+      "label": "Cohere + Omneum",
+      "method_families": [
+        "semantic_reranker"
+      ],
+      "configuration_kind": "omneum_augmented",
+      "execution_shape": "pipeline",
+      "baseline_configuration_id": null,
+      "augmentation_target": "cohere",
+      "components": [
+        {
+          "role": "reranker",
+          "method": "cohere",
+          "model": "rerank-v4.0-pro"
+        },
+        {
+          "role": "context_selector",
+          "method": "omneum",
+          "model": "Omneum"
+        },
+        {
+          "role": "answer_generator",
+          "method": "anthropic",
+          "model": "claude-sonnet-5-5"
+        }
+      ],
+      "selector_inputs": "See preserved run manifest; selector information differs by method",
+      "attempts": 24,
+      "case_count": 24,
+      "trials_per_case": 1,
+      "outcomes": {
+        "complete_answer_accuracy": {
+          "count": 21,
+          "rate": 0.875
+        },
+        "incorrect": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "incomplete": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "generator_refusal": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "unanswered": {
+          "count": 1,
+          "rate": 0.041666666666666664
+        },
+        "unadjudicated": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "other_failure": {
+          "count": 0,
+          "rate": 0.0
+        }
+      },
+      "accuracy_basis": "preserved aggregate semantic review",
+      "recorded_answer_scores": {
+        "counts": {
+          "correct": 20,
+          "unscored": 4
+        },
+        "accuracy": 0.8333333333333334,
+        "definition": "Frozen substring correct / all attempts; not complete semantic accuracy"
+      },
+      "selection": {
+        "macro": {
+          "precision": 0.8263888888888888,
+          "recall": 0.5572420634920635,
+          "f1": 0.65625
+        },
+        "micro": {
+          "precision": 0.8405797101449275,
+          "recall": 0.5576923076923077,
+          "f1": 0.6705202312138728
+        },
+        "counts": {
+          "true_positive": 58,
+          "false_positive": 11,
+          "false_negative": 46
+        }
+      },
+      "measurement_coverage": {
+        "selection_scores": 24,
+        "selection_latency": 24,
+        "end_to_end_latency": 24
+      },
+      "latency_seconds": {
+        "selection": {
+          "p50": 1.0026268963702023,
+          "p95": 9.488698892737737
+        },
+        "end_to_end": {
+          "p50": 4.326459333417006,
+          "p95": 12.539038128370882
+        }
+      },
+      "api_tokens": {
+        "selection": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "generation": {
+          "input": 5587,
+          "output": 6055,
+          "total": 11642,
+          "reasoning": null
+        },
+        "total": {
+          "input": null,
+          "output": null,
+          "total": null,
+          "reasoning": null
+        },
+        "selection_judge_only": {
+          "input": 0,
+          "output": 0,
+          "total": 0,
+          "reasoning": 0
+        }
+      },
+      "cost_usd": {
+        "estimated_api_total": null,
+        "estimated_api_per_answer": null,
+        "selection": null,
+        "generation": 0.071724,
+        "invoiced_api_total": null,
+        "local_compute_total": null,
+        "known_api_subtotal": 0.071724
+      },
+      "local_reranker_tokens": null,
+      "comparison_scope": "cohere-claude-vs-cohere-omneum-20261008",
+      "lineage": {
+        "reused_baseline_run": null,
+        "implementation": "740694dcacd0c9141f3c874dda9199ab516bd3cfcc0bce81cfa032a353e17186"
+      },
+      "cohere_billed_search_units": 24.0,
+      "publication_status": "authoritative"
+    }
+  ],
+  "runs": [
+    {
+      "id": "20261008T014713Z",
+      "status": "completed",
+      "records": 48,
+      "configuration_ids": [
+        "20261008T014713Z:cohere",
+        "20261008T014713Z:cohere_omneum"
+      ],
+      "issues": [
+        "Cohere response cache reused across arms; cached timing and actual request billing differ from fresh rerank runs",
+        "Same case/trial/budget controls verified; identical shared shortlist not established for this run",
+        "Complete-answer accuracy and incorrect/incomplete rates unavailable without semantic adjudication; substring accuracy is separate",
+        "Cohere token telemetry and verified rerank pricing unavailable; total API tokens/cost are null"
+      ],
+      "verification": {
+        "checkpoint": true,
+        "fixture_hashes": 48,
+        "unique_records": true,
+        "expected_records": 48,
+        "missing_records": 0,
+        "saved_summary_common_fields_match": true
+      },
+      "dataset_sha256": "fe7a9cf228cd4d2a85fca9937ff8224ab72cf2ebdbaa52bbcba827a1e9822803",
+      "implementation": "e5401a2a38510a6fe7ba7a248ef2396b9e7fc37c15d5915ee232786f1fc31e51",
+      "trials_per_case": 1,
+      "timestamp_utc": "2026-10-08T01:47:13.248163+00:00",
+      "pairing": {
+        "case_trial_pairs": 24,
+        "shared_shortlist_verified": null,
+        "context_budgets_verified": true,
+        "generator_model_verified": true
+      },
+      "publication_status": "authoritative",
+      "publication_reason": "Only complete dedicated Cohere-only pairing after the source-dependency commit, verified against shared request hashes and response records. Later Cohere + Claude uses a different baseline; it cannot replace Cohere-only measurements. Cached-arm latency requires the preserved within-run correction.",
+      "source_paths": [
+        "benchmarks/context_evaluation/heldout/results/20261008T014713Z/cohere_responses.jsonl",
+        "benchmarks/context_evaluation/heldout/results/20261008T014713Z/manifest.public-v1.json",
+        "benchmarks/context_evaluation/heldout/results/20261008T014713Z/results.jsonl",
+        "benchmarks/context_evaluation/heldout/results/20261008T014713Z/summary.json"
+      ],
+      "recorded_evaluation_metrics": {
+        "cohere": {
+          "accuracy": 0.875,
+          "attempted": 24,
+          "correct": 21,
+          "evaluable_accuracy": 0.9545454545454546,
+          "failures": 0,
+          "generation_failure_types": {},
+          "generation_failures": 0,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5566
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 6011
+            },
+            "token_efficiency": {
+              "correct_answers": 21,
+              "correct_per_1000_tokens": 1.8139414356050791,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11577
+            }
+          },
+          "incorrect": 1,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.634260832797736,
+              "p95": 5.814986528665756
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.382457436993718,
+              "p95": 3.5416266561718652
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.1511604165425524,
+              "p95": 2.901376101642377
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.7777777777777778,
+          "selection_recall": 0.5398809523809524,
+          "unscored": 2
+        },
+        "cohere_omneum": {
+          "accuracy": 0.7916666666666666,
+          "attempted": 24,
+          "correct": 19,
+          "evaluable_accuracy": 1.0,
+          "failures": 0,
+          "generation_failure_types": {},
+          "generation_failures": 0,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5587
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 5948
+            },
+            "token_efficiency": {
+              "correct_answers": 19,
+              "correct_per_1000_tokens": 1.64716081491114,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11535
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.80647739500273,
+              "p95": 3.9227044554078017
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.230015332926996,
+              "p95": 3.47968553918181
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.029660166474059224,
+              "p95": 0.036827233771327884
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.4169024162692949,
+              "p95": 0.4998045985819771
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.4453322705812752,
+              "p95": 0.5352801957167684
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.8263888888888888,
+          "selection_recall": 0.5572420634920635,
+          "unscored": 5
+        }
+      },
+      "git": {
+        "commit": "0d50f2e75e1faf6635e2a43cff9d1942dca964c5",
+        "dirty": true
+      },
+      "dependency_estimator": {
+        "assertion_lineage_weight": 20.0,
+        "citation_weight": 20.0,
+        "dependency_cluster_threshold": 0.3,
+        "estimator_version": "dependency-estimator-v4",
+        "graph_weight": 15.0,
+        "ownership_weight": 10.0,
+        "retrieval_weight": 0.0,
+        "temporal_weight": 10.0,
+        "temporal_window_seconds": 172800.0,
+        "upstream_weight": 25.0
+      },
+      "models": {
+        "cohere": "rerank-v4.0-pro",
+        "cohere_omneum": "rerank-v4.0-pro",
+        "generator": "claude-sonnet-5-5"
+      },
+      "method_names": [
+        "cohere",
+        "cohere_omneum"
+      ],
+      "case_count": 24,
+      "implementation_lineage": {
+        "manifest_fingerprint": "e5401a2a38510a6fe7ba7a248ef2396b9e7fc37c15d5915ee232786f1fc31e51",
+        "commit_snapshot": {
+          "revision": "0d50f2e75e1faf6635e2a43cff9d1942dca964c5",
+          "timestamp_utc": "2026-10-08T01:33:13+00:00",
+          "subject": "fix(core): correct source dependency inference",
+          "braid_version": "braid-1.1.0",
+          "committed_selector_policy": "relevance/structural blend",
+          "source_file_sha256": {
+            "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+            "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+            "omneum/dependency.py": "b045abbf1b0ebedb3a90b218fba4cdc028453f092e47b551c204c43144743c02",
+            "benchmarks/financial_dependency_suite/omneum_rag.py": "3e4f4f3fd7953ad217bab57a1364c768247fbe1a3abdebaa3de27ad09202351c"
+          },
+          "committed_implementation_sha256": "a33ddd8d4e949d20b026830deeaabe78f0c5a8dbab435a09bd114d6e1d3e0db0",
+          "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+        },
+        "fingerprint_matches_committed_tree": false,
+        "execution_braid_version": null,
+        "execution_selector_version": null,
+        "confidence": "Dirty execution checkout: committed algorithm declaration is a reference, not proof of exact executed source",
+        "preceded_fix_commit_by_timestamp": []
+      },
+      "versions": {
+        "declared_braid_at_git_revision": "braid-1.1.0",
+        "dependency_estimator": "dependency-estimator-v4",
+        "selector_execution_version": null
+      }
+    },
+    {
+      "id": "bge-claude-vs-bge-omneum-20261008",
+      "status": "completed",
+      "records": 48,
+      "configuration_ids": [
+        "bge-claude-vs-bge-omneum-20261008:bge_anthropic",
+        "bge-claude-vs-bge-omneum-20261008:bge_omneum"
+      ],
+      "issues": [],
+      "verification": {
+        "checkpoint": true,
+        "fixture_hashes": 48,
+        "unique_records": true,
+        "expected_records": 48,
+        "missing_records": 0,
+        "saved_summary_common_fields_match": true
+      },
+      "dataset_sha256": "fe7a9cf228cd4d2a85fca9937ff8224ab72cf2ebdbaa52bbcba827a1e9822803",
+      "implementation": "bfcf7f59bedc16bab83ed19bf6ecdf910b739897daaf5cc2cc5fc163fed5fb9a",
+      "trials_per_case": 1,
+      "timestamp_utc": "2026-10-08T14:51:39.431904+00:00",
+      "pairing": {
+        "case_trial_pairs": 24,
+        "shared_shortlist_verified": true,
+        "context_budgets_verified": true,
+        "generator_model_verified": true
+      },
+      "publication_status": "authoritative",
+      "publication_reason": "Final preserved dedicated shared-BGE Claude-judge replacement experiment with complete paired coverage and saved semantic review.",
+      "source_paths": [
+        "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/comparison.json",
+        "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/manifest.public-v1.json",
+        "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/report.md",
+        "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/results.jsonl",
+        "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/summary.json"
+      ],
+      "recorded_evaluation_metrics": {
+        "bge_anthropic": {
+          "accuracy": 0.875,
+          "attempted": 24,
+          "correct": 21,
+          "evaluable_accuracy": 1.0,
+          "failures": 0,
+          "generation_failure_types": {},
+          "generation_failures": 0,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5669
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 5687
+            },
+            "token_efficiency": {
+              "correct_answers": 21,
+              "correct_per_1000_tokens": 1.8492426910884114,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11356
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 4.1649019790347666,
+              "p95": 5.465388260607141
+            },
+            "evaluator_input_tokens": {
+              "n": 24,
+              "sum": 15802
+            },
+            "evaluator_output_tokens": {
+              "n": 24,
+              "sum": 702
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.1956192910438403,
+              "p95": 3.3072754107648503
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 1.83078133338131,
+              "p95": 2.4459510231390595
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.9236111111111112,
+          "selection_recall": 0.6523809523809524,
+          "unscored": 3
+        },
+        "bge_omneum": {
+          "accuracy": 0.875,
+          "attempted": 24,
+          "correct": 21,
+          "evaluable_accuracy": 1.0,
+          "failures": 1,
+          "generation_failure_types": {
+            "refusal": 1
+          },
+          "generation_failures": 1,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5661
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 6150
+            },
+            "token_efficiency": {
+              "correct_answers": 21,
+              "correct_per_1000_tokens": 1.778003556007112,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11811
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 3.141172770410776,
+              "p95": 4.721795706171542
+            },
+            "evaluator_input_tokens": {
+              "n": 24,
+              "sum": 0
+            },
+            "evaluator_output_tokens": {
+              "n": 24,
+              "sum": 0
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.2780734373955056,
+              "p95": 4.013630581332836
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.029782583471387625,
+              "p95": 0.03659516253974288
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.44497716648038477,
+              "p95": 0.5616381455096415
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.6969067085301504,
+              "p95": 0.9806655972497533
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.8611111111111112,
+          "selection_recall": 0.5933531746031746,
+          "unscored": 2
+        }
+      },
+      "git": {
+        "commit": "cf3b5ce94218a5f86876353aa42b626216595209",
+        "dirty": true
+      },
+      "dependency_estimator": {
+        "assertion_lineage_weight": 20.0,
+        "citation_weight": 20.0,
+        "dependency_cluster_threshold": 0.3,
+        "estimator_version": "dependency-estimator-v4",
+        "graph_weight": 15.0,
+        "ownership_weight": 10.0,
+        "retrieval_weight": 0.0,
+        "temporal_weight": 10.0,
+        "temporal_window_seconds": 172800.0,
+        "upstream_weight": 25.0
+      },
+      "models": {
+        "bge_anthropic": "claude-sonnet-5-5",
+        "bge_omneum": "Omneum",
+        "generator": "claude-sonnet-5-5"
+      },
+      "method_names": [
+        "bge_anthropic",
+        "bge_omneum"
+      ],
+      "case_count": 24,
+      "implementation_lineage": {
+        "manifest_fingerprint": "bfcf7f59bedc16bab83ed19bf6ecdf910b739897daaf5cc2cc5fc163fed5fb9a",
+        "commit_snapshot": {
+          "revision": "cf3b5ce94218a5f86876353aa42b626216595209",
+          "timestamp_utc": "2026-10-08T03:16:06+00:00",
+          "subject": "feat(bench): add Cohere Omneum evaluation",
+          "braid_version": "braid-1.1.0",
+          "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+          "source_file_sha256": {
+            "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+            "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+            "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+            "benchmarks/financial_dependency_suite/omneum_rag.py": "2c53d76006cd10e45bb60d5282d1bf6b002d2129d16a4e356981c5d3edcb6623"
+          },
+          "committed_implementation_sha256": "4b34934aff3123cc0bffb1cb5ffc4ad4ff2e1cb4b24e450d133cef5503b5c7ee",
+          "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+        },
+        "fingerprint_matches_committed_tree": false,
+        "execution_braid_version": null,
+        "execution_selector_version": null,
+        "confidence": "Dirty execution checkout: committed algorithm declaration is a reference, not proof of exact executed source",
+        "preceded_fix_commit_by_timestamp": []
+      },
+      "versions": {
+        "declared_braid_at_git_revision": "braid-1.1.0",
+        "dependency_estimator": "dependency-estimator-v4",
+        "selector_execution_version": null
+      }
+    },
+    {
+      "id": "bge-google-low-vs-bge-omneum-20261008",
+      "status": "completed",
+      "records": 480,
+      "configuration_ids": [
+        "bge_google",
+        "bge_omneum"
+      ],
+      "issues": [],
+      "verification": {
+        "checkpoint": true,
+        "fixture_hashes": 48,
+        "unique_records": true,
+        "expected_records": 480,
+        "missing_records": 0,
+        "saved_summary_common_fields_match": true
+      },
+      "dataset_sha256": "fe7a9cf228cd4d2a85fca9937ff8224ab72cf2ebdbaa52bbcba827a1e9822803",
+      "implementation": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd",
+      "trials_per_case": 10,
+      "timestamp_utc": "2026-10-09T15:37:50.875707+00:00",
+      "pairing": {
+        "case_trial_pairs": 240,
+        "shared_shortlist_verified": true,
+        "context_budgets_verified": true,
+        "generator_model_verified": true
+      },
+      "publication_status": "authoritative",
+      "publication_reason": "Completed low-thinking Gemini replay with generator-only recovery; original selections, successful generations and historical Omneum baseline are preserved and all final answers adjudicated.",
+      "source_paths": [
+        "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/manifest.public-v1.json",
+        "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/results.jsonl",
+        "benchmarks/context_evaluation/heldout/results/bge-google-low-vs-bge-omneum-20261008/summary.json"
+      ],
+      "recorded_evaluation_metrics": {
+        "bge_google": {
+          "accuracy": 0.9166666666666666,
+          "attempted": 240,
+          "correct": 220,
+          "evaluable_accuracy": 1.0,
+          "failures": 10,
+          "generation_failure_types": {
+            "refusal": 10
+          },
+          "generation_failures": 10,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 240,
+              "sum": 56948
+            },
+            "output_tokens": {
+              "n": 240,
+              "sum": 57302
+            },
+            "token_efficiency": {
+              "correct_answers": 220,
+              "correct_per_1000_tokens": 1.925601750547046,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 240
+            },
+            "total_tokens": {
+              "n": 240,
+              "sum": 114250
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 4.9241187502630055,
+              "p95": 8.697292894637204
+            },
+            "evaluator_input_tokens": {
+              "n": 240,
+              "sum": 73170
+            },
+            "evaluator_output_tokens": {
+              "n": 240,
+              "sum": 4652
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 2.2223531249910593,
+              "p95": 4.082662039727436
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 2.48713827051688,
+              "p95": 6.033517924090841
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.9444444444444444,
+          "selection_recall": 0.662797619047619,
+          "unscored": 10
+        },
+        "bge_omneum": {
+          "accuracy": 0.875,
+          "attempted": 240,
+          "correct": 210,
+          "evaluable_accuracy": 1.0,
+          "failures": 10,
+          "generation_failure_types": {
+            "refusal": 10
+          },
+          "generation_failures": 10,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 240,
+              "sum": 56610
+            },
+            "output_tokens": {
+              "n": 240,
+              "sum": 58925
+            },
+            "token_efficiency": {
+              "correct_answers": 210,
+              "correct_per_1000_tokens": 1.8176310209027566,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 240
+            },
+            "total_tokens": {
+              "n": 240,
+              "sum": 115535
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 3.1304506664164364,
+              "p95": 4.832068977190647
+            },
+            "evaluator_input_tokens": {
+              "n": 240,
+              "sum": 0
+            },
+            "evaluator_output_tokens": {
+              "n": 240,
+              "sum": 0
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 2.4783986874390393,
+              "p95": 4.205028495716396
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 0.02918891655281186,
+              "p95": 0.0369009168120101
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 0.4109722083667293,
+              "p95": 0.5512210795539431
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 0.6389743338804692,
+              "p95": 0.8535917482106012
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.861111111111111,
+          "selection_recall": 0.5933531746031746,
+          "unscored": 20
+        }
+      },
+      "git": {
+        "commit": "a8c6e3e4e7a1107da9b06ed0edf935c891125615",
+        "dirty": true
+      },
+      "dependency_estimator": {
+        "assertion_lineage_weight": 20.0,
+        "citation_weight": 20.0,
+        "dependency_cluster_threshold": 0.3,
+        "estimator_version": "dependency-estimator-v4",
+        "graph_weight": 15.0,
+        "ownership_weight": 10.0,
+        "retrieval_weight": 0.0,
+        "temporal_weight": 10.0,
+        "temporal_window_seconds": 172800.0,
+        "upstream_weight": 25.0
+      },
+      "models": {
+        "bge_google": "gemini-3.8-flash",
+        "bge_omneum": "Omneum",
+        "generator": "claude-sonnet-5-5"
+      },
+      "method_names": [
+        "bge_google",
+        "bge_omneum"
+      ],
+      "case_count": 24,
+      "implementation_lineage": {
+        "manifest_fingerprint": "30d70320745d821b847d15abf45bdaed6f4ed4ad2fc2fff2555ca2c35bbd4bbd",
+        "commit_snapshot": {
+          "revision": "a8c6e3e4e7a1107da9b06ed0edf935c891125615",
+          "timestamp_utc": "2026-10-08T18:40:18+00:00",
+          "subject": "bench: preserve BGE Astra vs Omneum evaluation",
+          "braid_version": "braid-1.1.0",
+          "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+          "source_file_sha256": {
+            "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+            "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+            "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+            "benchmarks/financial_dependency_suite/omneum_rag.py": "c2c2d58e3ff78550b77930a389653b7b91d886b838927b27bdbc6416f152174b"
+          },
+          "committed_implementation_sha256": "029076e8eb60ffa8d6b1b15a47bc81d5f45350b260d4cd15814e93774c1ce862",
+          "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+        },
+        "fingerprint_matches_committed_tree": false,
+        "execution_braid_version": null,
+        "execution_selector_version": null,
+        "confidence": "Dirty execution checkout: committed algorithm declaration is a reference, not proof of exact executed source",
+        "preceded_fix_commit_by_timestamp": []
+      },
+      "versions": {
+        "declared_braid_at_git_revision": "braid-1.1.0",
+        "dependency_estimator": "dependency-estimator-v4",
+        "selector_execution_version": null
+      }
+    },
+    {
+      "id": "bge-omneum-tied-maxima-20261007",
+      "status": "completed",
+      "records": 48,
+      "configuration_ids": [
+        "bge-omneum-tied-maxima-20261007:bge",
+        "bge-omneum-tied-maxima-20261007:bge_omneum"
+      ],
+      "issues": [
+        "Same case/trial/budget controls verified; identical shared shortlist not established for this run",
+        "Complete-answer accuracy and incorrect/incomplete rates unavailable without semantic adjudication; substring accuracy is separate",
+        "Selection metrics cover only recorded scored attempts; failure selections were not silently rescored"
+      ],
+      "verification": {
+        "checkpoint": true,
+        "fixture_hashes": 48,
+        "unique_records": true,
+        "expected_records": 48,
+        "missing_records": 0,
+        "saved_summary_common_fields_match": true
+      },
+      "dataset_sha256": "fe7a9cf228cd4d2a85fca9937ff8224ab72cf2ebdbaa52bbcba827a1e9822803",
+      "implementation": "9100693cb980ccc2abda152277495eeb25b87be0184ef73418e15e6b83067b1d",
+      "trials_per_case": 1,
+      "timestamp_utc": "2026-10-08T00:11:45.251413+00:00",
+      "pairing": {
+        "case_trial_pairs": 24,
+        "shared_shortlist_verified": null,
+        "context_budgets_verified": true,
+        "generator_model_verified": true
+      },
+      "publication_status": "authoritative",
+      "publication_reason": "Last preserved complete BGE-only pairing; the tied-maxima diagnostic documents recovery of coding_config_conflict and research_syndicated_reporting relative to the earlier smoke. All 24 Omneum selected sets match later BGE judge experiments; generated measurements remain separate.",
+      "source_paths": [
+        "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/manifest.public-v1.json",
+        "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/results.jsonl",
+        "benchmarks/context_evaluation/heldout/results/bge-omneum-tied-maxima-20261007/summary.json"
+      ],
+      "recorded_evaluation_metrics": {
+        "bge": {
+          "accuracy": 0.9166666666666666,
+          "attempted": 24,
+          "correct": 22,
+          "evaluable_accuracy": 0.9565217391304348,
+          "failures": 0,
+          "generation_failure_types": {},
+          "generation_failures": 0,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5599
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 6342
+            },
+            "token_efficiency": {
+              "correct_answers": 22,
+              "correct_per_1000_tokens": 1.8423917594841304,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11941
+            }
+          },
+          "incorrect": 1,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "braid_evaluator_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "braid_integration_overhead_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.4674748753895983,
+              "p95": 4.098417739337309
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.252991062356159,
+              "p95": 3.8796414000447834
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.20073631242848933,
+              "p95": 0.27521912765223533
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.6944444444444445,
+          "selection_recall": 0.47460317460317464,
+          "unscored": 1
+        },
+        "bge_omneum": {
+          "accuracy": 0.875,
+          "attempted": 24,
+          "correct": 21,
+          "evaluable_accuracy": 1.0,
+          "failures": 1,
+          "generation_failure_types": {
+            "refusal": 1
+          },
+          "generation_failures": 1,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5661
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 5934
+            },
+            "token_efficiency": {
+              "correct_answers": 21,
+              "correct_per_1000_tokens": 1.8111254851228977,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11595
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "braid_evaluator_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.03209925000555813,
+              "p95": 0.04572883759392424
+            },
+            "braid_integration_overhead_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.6248087293934077,
+              "p95": 0.70551448155893
+            },
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 3.0204223120817915,
+              "p95": 4.560757108870893
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.2731535204220563,
+              "p95": 3.8862564267590636
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.6602013958618045,
+              "p95": 0.7336221144883893
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.855072463768116,
+          "selection_recall": 0.593064182194617,
+          "unscored": 2
+        }
+      },
+      "git": {
+        "commit": "6f34ddc30e13ffe787ea9f9dd5f6cef08a958be1",
+        "dirty": true
+      },
+      "dependency_estimator": {
+        "assertion_lineage_weight": 20.0,
+        "citation_weight": 20.0,
+        "dependency_cluster_threshold": 0.3,
+        "estimator_version": "dependency-estimator-v4",
+        "graph_weight": 15.0,
+        "ownership_weight": 10.0,
+        "retrieval_weight": 0.0,
+        "temporal_weight": 10.0,
+        "temporal_window_seconds": 172800.0,
+        "upstream_weight": 25.0
+      },
+      "models": {
+        "bge_omneum": "Omneum",
+        "generator": "claude-sonnet-5-5"
+      },
+      "method_names": [
+        "bge",
+        "bge_omneum"
+      ],
+      "case_count": 24,
+      "implementation_lineage": {
+        "manifest_fingerprint": "9100693cb980ccc2abda152277495eeb25b87be0184ef73418e15e6b83067b1d",
+        "commit_snapshot": {
+          "revision": "6f34ddc30e13ffe787ea9f9dd5f6cef08a958be1",
+          "timestamp_utc": "2026-10-06T17:44:31+00:00",
+          "subject": "bench: freeze definitive baseline results",
+          "braid_version": "braid-1.1.0",
+          "committed_selector_policy": null,
+          "source_file_sha256": {
+            "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+            "omneum/inference.py": "954f97c02d1677bebebc9d1265cc8581242326159e87c631b7bdfc2e9bd1aba6",
+            "omneum/dependency.py": "f497844574ebf87cd3cb5736f2dcce24dd1d651d66b19d466bd9ff2464c6bf66",
+            "benchmarks/financial_dependency_suite/omneum_rag.py": null
+          },
+          "committed_implementation_sha256": "05b32bfb5cc9ac8147756c0b8208f31dc158f49c712f0b9724ebbc6f39d36af8",
+          "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+        },
+        "fingerprint_matches_committed_tree": false,
+        "execution_braid_version": null,
+        "execution_selector_version": null,
+        "confidence": "Dirty execution checkout: committed algorithm declaration is a reference, not proof of exact executed source",
+        "preceded_fix_commit_by_timestamp": [
+          "0d50f2e75e1faf6635e2a43cff9d1942dca964c5"
+        ]
+      },
+      "versions": {
+        "declared_braid_at_git_revision": "braid-1.1.0",
+        "dependency_estimator": "dependency-estimator-v4",
+        "selector_execution_version": null
+      }
+    },
+    {
+      "id": "bge-openai-vs-bge-omneum-20261008",
+      "status": "completed",
+      "records": 480,
+      "configuration_ids": [
+        "bge-openai-vs-bge-omneum-20261008:bge_openai",
+        "bge-openai-vs-bge-omneum-20261008:bge_omneum"
+      ],
+      "issues": [],
+      "verification": {
+        "checkpoint": true,
+        "fixture_hashes": 48,
+        "unique_records": true,
+        "expected_records": 480,
+        "missing_records": 0,
+        "saved_summary_common_fields_match": true
+      },
+      "dataset_sha256": "fe7a9cf228cd4d2a85fca9937ff8224ab72cf2ebdbaa52bbcba827a1e9822803",
+      "implementation": "cefc953e9e029ef8a8e58994e887de8eac2923062abbf6c2c4aef456b91a6394",
+      "trials_per_case": 10,
+      "timestamp_utc": "2026-10-08T17:28:06.446059+00:00",
+      "pairing": {
+        "case_trial_pairs": 240,
+        "shared_shortlist_verified": true,
+        "context_budgets_verified": true,
+        "generator_model_verified": true
+      },
+      "publication_status": "authoritative",
+      "publication_reason": "Complete dedicated shared-BGE Astra replacement experiment; per-answer semantic adjudications and immutable source hashes verify both original arms.",
+      "source_paths": [
+        "benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/manifest.public-v1.json",
+        "benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/results.jsonl",
+        "benchmarks/context_evaluation/heldout/results/bge-openai-vs-bge-omneum-20261008/summary.json"
+      ],
+      "recorded_evaluation_metrics": {
+        "bge_omneum": {
+          "accuracy": 0.8708333333333333,
+          "attempted": 240,
+          "correct": 209,
+          "evaluable_accuracy": 1.0,
+          "failures": 10,
+          "generation_failure_types": {
+            "refusal": 10
+          },
+          "generation_failures": 10,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 240,
+              "sum": 56610
+            },
+            "output_tokens": {
+              "n": 240,
+              "sum": 58509
+            },
+            "token_efficiency": {
+              "correct_answers": 209,
+              "correct_per_1000_tokens": 1.815512643438529,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 240
+            },
+            "total_tokens": {
+              "n": 240,
+              "sum": 115119
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 2.982994396588765,
+              "p95": 4.717016681446694
+            },
+            "evaluator_input_tokens": {
+              "n": 240,
+              "sum": 0
+            },
+            "evaluator_output_tokens": {
+              "n": 240,
+              "sum": 0
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 2.298065562499687,
+              "p95": 4.036354158737231
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 0.030660666525363922,
+              "p95": 0.03924297305056825
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 0.41637485404498875,
+              "p95": 0.5531738443532959
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 0.6408890000311658,
+              "p95": 0.8515603499254212
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.861111111111111,
+          "selection_recall": 0.5933531746031746,
+          "unscored": 21
+        },
+        "bge_openai": {
+          "accuracy": 0.8708333333333333,
+          "attempted": 240,
+          "correct": 209,
+          "evaluable_accuracy": 1.0,
+          "failures": 10,
+          "generation_failure_types": {
+            "refusal": 10
+          },
+          "generation_failures": 10,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 240,
+              "sum": 56684
+            },
+            "output_tokens": {
+              "n": 240,
+              "sum": 54563
+            },
+            "token_efficiency": {
+              "correct_answers": 209,
+              "correct_per_1000_tokens": 1.8787023470295827,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 240
+            },
+            "total_tokens": {
+              "n": 240,
+              "sum": 111247
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 5.848733686492778,
+              "p95": 10.4612256694003
+            },
+            "evaluator_input_tokens": {
+              "n": 240,
+              "sum": 71610
+            },
+            "evaluator_output_tokens": {
+              "n": 240,
+              "sum": 14699
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 2.2581505209673196,
+              "p95": 3.88950343405595
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 240,
+              "p50": 3.4206158330198377,
+              "p95": 7.791302339546382
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.9277777777777777,
+          "selection_recall": 0.6544642857142856,
+          "unscored": 21
+        }
+      },
+      "git": {
+        "commit": "66f9b5552d13943193f3b92b66ddb348b84eb25a",
+        "dirty": true
+      },
+      "dependency_estimator": {
+        "assertion_lineage_weight": 20.0,
+        "citation_weight": 20.0,
+        "dependency_cluster_threshold": 0.3,
+        "estimator_version": "dependency-estimator-v4",
+        "graph_weight": 15.0,
+        "ownership_weight": 10.0,
+        "retrieval_weight": 0.0,
+        "temporal_weight": 10.0,
+        "temporal_window_seconds": 172800.0,
+        "upstream_weight": 25.0
+      },
+      "models": {
+        "bge_omneum": "Omneum",
+        "bge_openai": "gpt-6-astra",
+        "generator": "claude-sonnet-5-5"
+      },
+      "method_names": [
+        "bge_openai",
+        "bge_omneum"
+      ],
+      "case_count": 24,
+      "implementation_lineage": {
+        "manifest_fingerprint": "cefc953e9e029ef8a8e58994e887de8eac2923062abbf6c2c4aef456b91a6394",
+        "commit_snapshot": {
+          "revision": "66f9b5552d13943193f3b92b66ddb348b84eb25a",
+          "timestamp_utc": "2026-10-08T17:01:21+00:00",
+          "subject": "merge: consolidate Omneum context graph and benchmark work",
+          "braid_version": "braid-1.1.0",
+          "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+          "source_file_sha256": {
+            "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+            "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+            "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+            "benchmarks/financial_dependency_suite/omneum_rag.py": "c2c2d58e3ff78550b77930a389653b7b91d886b838927b27bdbc6416f152174b"
+          },
+          "committed_implementation_sha256": "87d488b7531e4bebe550bd48eabd49e4d395ae3858a339248c6eea6acc419128",
+          "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+        },
+        "fingerprint_matches_committed_tree": false,
+        "execution_braid_version": null,
+        "execution_selector_version": null,
+        "confidence": "Dirty execution checkout: committed algorithm declaration is a reference, not proof of exact executed source",
+        "preceded_fix_commit_by_timestamp": []
+      },
+      "versions": {
+        "declared_braid_at_git_revision": "braid-1.1.0",
+        "dependency_estimator": "dependency-estimator-v4",
+        "selector_execution_version": null
+      }
+    },
+    {
+      "id": "cohere-claude-vs-cohere-omneum-20261008",
+      "status": "completed",
+      "records": 48,
+      "configuration_ids": [
+        "cohere-claude-vs-cohere-omneum-20261008:cohere_anthropic",
+        "cohere-claude-vs-cohere-omneum-20261008:cohere_omneum"
+      ],
+      "issues": [
+        "Cohere token telemetry and verified rerank pricing unavailable; total API tokens/cost are null"
+      ],
+      "verification": {
+        "checkpoint": true,
+        "fixture_hashes": 48,
+        "unique_records": true,
+        "expected_records": 48,
+        "missing_records": 0,
+        "saved_summary_common_fields_match": true
+      },
+      "dataset_sha256": "fe7a9cf228cd4d2a85fca9937ff8224ab72cf2ebdbaa52bbcba827a1e9822803",
+      "implementation": "740694dcacd0c9141f3c874dda9199ab516bd3cfcc0bce81cfa032a353e17186",
+      "trials_per_case": 1,
+      "timestamp_utc": "2026-10-08T15:08:58.374603+00:00",
+      "pairing": {
+        "case_trial_pairs": 24,
+        "shared_shortlist_verified": true,
+        "context_budgets_verified": true,
+        "generator_model_verified": true
+      },
+      "publication_status": "authoritative",
+      "publication_reason": "Additional final dedicated Cohere + Claude replacement experiment with identical shared reranks and saved all-answer semantic review; not a Cohere-only baseline.",
+      "source_paths": [
+        "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/comparison.json",
+        "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/manifest.public-v1.json",
+        "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/report.md",
+        "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/results.jsonl",
+        "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/summary.json"
+      ],
+      "recorded_evaluation_metrics": {
+        "cohere_anthropic": {
+          "accuracy": 0.9166666666666666,
+          "attempted": 24,
+          "correct": 22,
+          "evaluable_accuracy": 1.0,
+          "failures": 0,
+          "generation_failure_types": {},
+          "generation_failures": 0,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5680
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 5954
+            },
+            "token_efficiency": {
+              "correct_answers": 22,
+              "correct_per_1000_tokens": 1.8910091112257177,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11634
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 4.897191729396582,
+              "p95": 13.040529639180747
+            },
+            "evaluator_input_tokens": {
+              "n": 24,
+              "sum": 15818
+            },
+            "evaluator_output_tokens": {
+              "n": 24,
+              "sum": 709
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.2927316040731966,
+              "p95": 3.9768053188105106
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 0.0,
+              "n": 0,
+              "p50": null,
+              "p95": null
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.3575172916753218,
+              "p95": 10.15732783122221
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.9166666666666666,
+          "selection_recall": 0.6440476190476191,
+          "unscored": 2
+        },
+        "cohere_omneum": {
+          "accuracy": 0.8333333333333334,
+          "attempted": 24,
+          "correct": 20,
+          "evaluable_accuracy": 1.0,
+          "failures": 0,
+          "generation_failure_types": {},
+          "generation_failures": 0,
+          "generator_usage": {
+            "input_tokens": {
+              "n": 24,
+              "sum": 5587
+            },
+            "output_tokens": {
+              "n": 24,
+              "sum": 6055
+            },
+            "token_efficiency": {
+              "correct_answers": 20,
+              "correct_per_1000_tokens": 1.7179178835251674,
+              "definition": "correct answers among records with complete generator usage per 1,000 downstream generator input-plus-output tokens",
+              "usage_covered_records": 24
+            },
+            "total_tokens": {
+              "n": 24,
+              "sum": 11642
+            }
+          },
+          "incorrect": 0,
+          "inference_cost": {
+            "availability": "no_pricing_defined",
+            "usd": null
+          },
+          "latency": {
+            "end_to_end_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 4.326459333417006,
+              "p95": 12.539038128370882
+            },
+            "evaluator_input_tokens": {
+              "n": 24,
+              "sum": 0
+            },
+            "evaluator_output_tokens": {
+              "n": 24,
+              "sum": 0
+            },
+            "generation_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 2.40679337491747,
+              "p95": 3.8010630893055337
+            },
+            "omneum_evaluator_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.030163249582983553,
+              "p95": 0.037156214169226584
+            },
+            "omneum_integration_overhead_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 0.4595820209942758,
+              "p95": 0.5383374604629353
+            },
+            "percentile_method": "linear interpolation at (n - 1) * q; unavailable values excluded",
+            "selection_seconds": {
+              "coverage": 1.0,
+              "n": 24,
+              "p50": 1.0026268963702023,
+              "p95": 9.488698892737737
+            }
+          },
+          "selection_failures": 0,
+          "selection_precision": 0.8263888888888888,
+          "selection_recall": 0.5572420634920635,
+          "unscored": 4
+        }
+      },
+      "git": {
+        "commit": "57774229353caaf03688df05ad483dbf1261f685",
+        "dirty": true
+      },
+      "dependency_estimator": {
+        "assertion_lineage_weight": 20.0,
+        "citation_weight": 20.0,
+        "dependency_cluster_threshold": 0.3,
+        "estimator_version": "dependency-estimator-v4",
+        "graph_weight": 15.0,
+        "ownership_weight": 10.0,
+        "retrieval_weight": 0.0,
+        "temporal_weight": 10.0,
+        "temporal_window_seconds": 172800.0,
+        "upstream_weight": 25.0
+      },
+      "models": {
+        "cohere_anthropic": "claude-sonnet-5-5",
+        "cohere_omneum": "rerank-v4.0-pro",
+        "generator": "claude-sonnet-5-5"
+      },
+      "method_names": [
+        "cohere_anthropic",
+        "cohere_omneum"
+      ],
+      "case_count": 24,
+      "implementation_lineage": {
+        "manifest_fingerprint": "740694dcacd0c9141f3c874dda9199ab516bd3cfcc0bce81cfa032a353e17186",
+        "commit_snapshot": {
+          "revision": "57774229353caaf03688df05ad483dbf1261f685",
+          "timestamp_utc": "2026-10-08T15:07:46+00:00",
+          "subject": "docs: add external evaluation results",
+          "braid_version": "braid-1.1.0",
+          "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+          "source_file_sha256": {
+            "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+            "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+            "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+            "benchmarks/financial_dependency_suite/omneum_rag.py": "2c53d76006cd10e45bb60d5282d1bf6b002d2129d16a4e356981c5d3edcb6623"
+          },
+          "committed_implementation_sha256": "4b34934aff3123cc0bffb1cb5ffc4ad4ff2e1cb4b24e450d133cef5503b5c7ee",
+          "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+        },
+        "fingerprint_matches_committed_tree": false,
+        "execution_braid_version": null,
+        "execution_selector_version": null,
+        "confidence": "Dirty execution checkout: committed algorithm declaration is a reference, not proof of exact executed source",
+        "preceded_fix_commit_by_timestamp": []
+      },
+      "versions": {
+        "declared_braid_at_git_revision": "braid-1.1.0",
+        "dependency_estimator": "dependency-estimator-v4",
+        "selector_execution_version": null
+      }
+    },
+    {
+      "id": "diagnostic-tied-maxima-selection-only-20261007",
+      "status": "diagnostic_only",
+      "records": 0,
+      "configuration_ids": [],
+      "issues": [
+        "No trial records; diagnostic traces are not benchmark answers"
+      ],
+      "verification": {},
+      "publication_status": "diagnostic",
+      "publication_reason": "No complete benchmark schedule",
+      "source_paths": [
+        "benchmarks/context_evaluation/heldout/results/diagnostic-tied-maxima-selection-only-20261007/selection_only_diagnostic.public-v1.json"
+      ],
+      "recorded_evaluation_metrics": null,
+      "git": null,
+      "versions": null,
+      "implementation_lineage": null,
+      "component_manifests": []
+    }
+  ],
+  "analyses": [
+    {
+      "id": "bge-google-low-vs-bge-omneum-20261008",
+      "trial_run": "bge-google-low-vs-bge-omneum-20261008",
+      "files": [
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/answer_audit.json",
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/comparison.json",
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/report.md",
+        "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/reproducibility.md"
+      ],
+      "status": "preserved trial analysis"
+    },
+    {
+      "id": "bge-openai-vs-bge-omneum-20261008",
+      "trial_run": "bge-openai-vs-bge-omneum-20261008",
+      "files": [
+        "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/analyze_saved.py",
+        "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/answer_audit.json",
+        "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/comparison.json",
+        "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/report.md"
+      ],
+      "status": "preserved trial analysis"
+    }
+  ],
+  "comparability": {
+    "policy": "Main views contain only declared authoritative matched experiments. Compare each pair within its run and declared accuracy/coverage/latency basis; historical records and reused baselines are never pooled.",
+    "cross_run_blockers": [
+      "Different trial counts, execution dates, selector implementation fingerprints and tuning/validation stages.",
+      "Substring scores are not semantic complete-answer accuracy.",
+      "Cohere pricing is illustrative and token telemetry absent; whole-pipeline cost/tokens cannot be compared.",
+      "Some old metrics exclude failure selections or have partial telemetry; coverage is explicit.",
+      "Only the six reviewed complete runs are publication authority; incomplete schedules cannot replace them."
+    ]
+  },
+  "leaderboards": {
+    "semantic_rerankers": {
+      "configuration_ids": [
+        "bge-omneum-tied-maxima-20261007:bge",
+        "bge-omneum-tied-maxima-20261007:bge_omneum",
+        "20261008T014713Z:cohere",
+        "20261008T014713Z:cohere_omneum"
+      ],
+      "comparator_configuration_ids": [
+        "bge-omneum-tied-maxima-20261007:bge_omneum",
+        "20261008T014713Z:cohere_omneum"
+      ],
+      "reference_configuration_ids": []
+    },
+    "frontier_llm_judges": {
+      "configuration_ids": [
+        "bge-claude-vs-bge-omneum-20261008:bge_anthropic",
+        "bge-claude-vs-bge-omneum-20261008:bge_omneum",
+        "bge-openai-vs-bge-omneum-20261008:bge_openai",
+        "bge-openai-vs-bge-omneum-20261008:bge_omneum",
+        "bge_google",
+        "bge_omneum",
+        "cohere-claude-vs-cohere-omneum-20261008:cohere_anthropic",
+        "cohere-claude-vs-cohere-omneum-20261008:cohere_omneum"
+      ],
+      "comparator_configuration_ids": [
+        "bge-claude-vs-bge-omneum-20261008:bge_omneum",
+        "bge-openai-vs-bge-omneum-20261008:bge_omneum",
+        "bge_omneum",
+        "cohere-claude-vs-cohere-omneum-20261008:cohere_omneum"
+      ],
+      "reference_configuration_ids": []
+    }
+  },
+  "publication": {
+    "authority_scope": "Best preserved matched evidence for the declared publication configurations, not a validation of today's default selector or an exact dirty execution snapshot",
+    "selection_policy": "Explicit evidence-reviewed pair allowlist; never first entry, newest timestamp alone, or highest score",
+    "pairs": [
+      {
+        "run_id": "bge-omneum-tied-maxima-20261007",
+        "configuration_ids": [
+          "bge-omneum-tied-maxima-20261007:bge",
+          "bge-omneum-tied-maxima-20261007:bge_omneum"
+        ],
+        "family": "semantic_rerankers",
+        "reason": "Last preserved complete BGE-only pairing; the tied-maxima diagnostic documents recovery of coding_config_conflict and research_syndicated_reporting relative to the earlier smoke. All 24 Omneum selected sets match later BGE judge experiments; generated measurements remain separate.",
+        "evidence_paths": [
+          "benchmarks/context_evaluation/heldout/results/diagnostic-tied-maxima-selection-only-20261007/selection_only_diagnostic.public-v1.json",
+          "benchmarks/context_evaluation/heldout/EVIDENCE.md"
+        ]
+      },
+      {
+        "run_id": "20261008T014713Z",
+        "configuration_ids": [
+          "20261008T014713Z:cohere",
+          "20261008T014713Z:cohere_omneum"
+        ],
+        "family": "semantic_rerankers",
+        "reason": "Only complete dedicated Cohere-only pairing after the source-dependency commit, verified against shared request hashes and response records. Later Cohere + Claude uses a different baseline; it cannot replace Cohere-only measurements. Cached-arm latency requires the preserved within-run correction.",
+        "evidence_paths": [
+          "benchmarks/context_evaluation/heldout/LATENCY_ANALYSIS.md",
+          "benchmarks/context_evaluation/heldout/EVIDENCE.md"
+        ]
+      },
+      {
+        "run_id": "bge-claude-vs-bge-omneum-20261008",
+        "configuration_ids": [
+          "bge-claude-vs-bge-omneum-20261008:bge_anthropic",
+          "bge-claude-vs-bge-omneum-20261008:bge_omneum"
+        ],
+        "family": "frontier_llm_judges",
+        "reason": "Final preserved dedicated shared-BGE Claude-judge replacement experiment with complete paired coverage and saved semantic review.",
+        "evidence_paths": [
+          "benchmarks/context_evaluation/heldout/results/bge-claude-vs-bge-omneum-20261008/report.md",
+          "benchmarks/context_evaluation/heldout/EVIDENCE.md"
+        ]
+      },
+      {
+        "run_id": "bge-openai-vs-bge-omneum-20261008",
+        "configuration_ids": [
+          "bge-openai-vs-bge-omneum-20261008:bge_openai",
+          "bge-openai-vs-bge-omneum-20261008:bge_omneum"
+        ],
+        "family": "frontier_llm_judges",
+        "reason": "Complete dedicated shared-BGE Astra replacement experiment; per-answer semantic adjudications and immutable source hashes verify both original arms.",
+        "evidence_paths": [
+          "benchmarks/context_evaluation/heldout/analysis/bge-openai-vs-bge-omneum-20261008/report.md"
+        ]
+      },
+      {
+        "run_id": "bge-google-low-vs-bge-omneum-20261008",
+        "configuration_ids": [
+          "bge_google",
+          "bge_omneum"
+        ],
+        "family": "frontier_llm_judges",
+        "reason": "Completed low-thinking Gemini replay with generator-only recovery; original selections, successful generations and historical Omneum baseline are preserved and all final answers adjudicated.",
+        "evidence_paths": [
+          "benchmarks/context_evaluation/heldout/analysis/bge-google-low-vs-bge-omneum-20261008/report.md"
+        ]
+      },
+      {
+        "run_id": "cohere-claude-vs-cohere-omneum-20261008",
+        "configuration_ids": [
+          "cohere-claude-vs-cohere-omneum-20261008:cohere_anthropic",
+          "cohere-claude-vs-cohere-omneum-20261008:cohere_omneum"
+        ],
+        "family": "frontier_llm_judges",
+        "reason": "Additional final dedicated Cohere + Claude replacement experiment with identical shared reranks and saved all-answer semantic review; not a Cohere-only baseline.",
+        "evidence_paths": [
+          "benchmarks/context_evaluation/heldout/results/cohere-claude-vs-cohere-omneum-20261008/report.md",
+          "benchmarks/context_evaluation/heldout/EVIDENCE.md"
+        ]
+      }
+    ],
+    "tables": {
+      "semantic_rerankers": [
+        {
+          "configuration_id": "bge-omneum-tied-maxima-20261007:bge",
+          "label": "BGE",
+          "source_run": "bge-omneum-tied-maxima-20261007",
+          "attempts": 24,
+          "accuracy": 0.9166666666666666,
+          "accuracy_basis": "recorded substring accuracy; semantic accuracy unavailable",
+          "precision": 0.6944444444444444,
+          "recall": 0.4746031746031746,
+          "selection_scored_attempts": 24,
+          "selection_p50_seconds": 0.20073631242848933,
+          "selection_p95_seconds": 0.27521912765223533,
+          "end_to_end_p50_seconds": 2.4674748753895983,
+          "end_to_end_p95_seconds": 4.098417739337309,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": 11941,
+          "estimated_api_cost_usd": 0.074618
+        },
+        {
+          "configuration_id": "bge-omneum-tied-maxima-20261007:bge_omneum",
+          "label": "BGE + Omneum",
+          "source_run": "bge-omneum-tied-maxima-20261007",
+          "attempts": 24,
+          "accuracy": 0.875,
+          "accuracy_basis": "recorded substring accuracy; semantic accuracy unavailable",
+          "precision": 0.855072463768116,
+          "recall": 0.593064182194617,
+          "selection_scored_attempts": 23,
+          "selection_p50_seconds": 0.6602013958618045,
+          "selection_p95_seconds": 0.7336221144883893,
+          "end_to_end_p50_seconds": 3.0204223120817915,
+          "end_to_end_p95_seconds": 4.560757108870893,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": 11595,
+          "estimated_api_cost_usd": 0.070662
+        },
+        {
+          "configuration_id": "20261008T014713Z:cohere",
+          "label": "Cohere",
+          "source_run": "20261008T014713Z",
+          "attempts": 24,
+          "accuracy": 0.875,
+          "accuracy_basis": "recorded substring accuracy; semantic accuracy unavailable",
+          "precision": 0.7777777777777778,
+          "recall": 0.5398809523809524,
+          "selection_scored_attempts": 24,
+          "selection_p50_seconds": 0.1511604165425524,
+          "selection_p95_seconds": 2.901376101642377,
+          "end_to_end_p50_seconds": 2.634260832797736,
+          "end_to_end_p95_seconds": 5.814986528665756,
+          "latency_basis": "Preserved within-run shared-response correction (LATENCY_ANALYSIS.md); not new timing measurements",
+          "api_tokens": null,
+          "estimated_api_cost_usd": null
+        },
+        {
+          "configuration_id": "20261008T014713Z:cohere_omneum",
+          "label": "Cohere + Omneum",
+          "source_run": "20261008T014713Z",
+          "attempts": 24,
+          "accuracy": 0.7916666666666666,
+          "accuracy_basis": "recorded substring accuracy; semantic accuracy unavailable",
+          "precision": 0.8263888888888888,
+          "recall": 0.5572420634920635,
+          "selection_scored_attempts": 24,
+          "selection_p50_seconds": 0.6240527710178867,
+          "selection_p95_seconds": 3.4117625349201237,
+          "end_to_end_p50_seconds": 3.176462979055941,
+          "end_to_end_p95_seconds": 6.022029978758651,
+          "latency_basis": "Preserved within-run shared-response correction (LATENCY_ANALYSIS.md); not new timing measurements",
+          "api_tokens": null,
+          "estimated_api_cost_usd": null
+        }
+      ],
+      "frontier_llm_judges": [
+        {
+          "configuration_id": "bge-claude-vs-bge-omneum-20261008:bge_anthropic",
+          "label": "BGE + Claude",
+          "source_run": "bge-claude-vs-bge-omneum-20261008",
+          "attempts": 24,
+          "accuracy": 0.9583333333333334,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.9236111111111112,
+          "recall": 0.6523809523809524,
+          "selection_scored_attempts": 24,
+          "selection_p50_seconds": 1.83078133338131,
+          "selection_p95_seconds": 2.4459510231390595,
+          "end_to_end_p50_seconds": 4.1649019790347666,
+          "end_to_end_p95_seconds": 5.465388260607141,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": 27860,
+          "estimated_api_cost_usd": 0.10683200000000001
+        },
+        {
+          "configuration_id": "bge-claude-vs-bge-omneum-20261008:bge_omneum",
+          "label": "BGE + Omneum",
+          "source_run": "bge-claude-vs-bge-omneum-20261008",
+          "attempts": 24,
+          "accuracy": 0.9166666666666666,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.8611111111111112,
+          "recall": 0.5933531746031746,
+          "selection_scored_attempts": 24,
+          "selection_p50_seconds": 0.6969067085301504,
+          "selection_p95_seconds": 0.9806655972497533,
+          "end_to_end_p50_seconds": 3.141172770410776,
+          "end_to_end_p95_seconds": 4.721795706171542,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": 11811,
+          "estimated_api_cost_usd": 0.072822
+        },
+        {
+          "configuration_id": "bge-openai-vs-bge-omneum-20261008:bge_openai",
+          "label": "BGE + GPT (Astra)",
+          "source_run": "bge-openai-vs-bge-omneum-20261008",
+          "attempts": 240,
+          "accuracy": 0.925,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.9277777777777778,
+          "recall": 0.6544642857142857,
+          "selection_scored_attempts": 240,
+          "selection_p50_seconds": 3.4206158330198377,
+          "selection_p95_seconds": 7.791302339546382,
+          "end_to_end_p50_seconds": 5.848733686492778,
+          "end_to_end_p95_seconds": 10.4612256694003,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": 197556,
+          "estimated_api_cost_usd": 2.110048
+        },
+        {
+          "configuration_id": "bge-openai-vs-bge-omneum-20261008:bge_omneum",
+          "label": "BGE + Omneum",
+          "source_run": "bge-openai-vs-bge-omneum-20261008",
+          "attempts": 240,
+          "accuracy": 0.9166666666666666,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.8611111111111112,
+          "recall": 0.5933531746031746,
+          "selection_scored_attempts": 240,
+          "selection_p50_seconds": 0.6408890000311658,
+          "selection_p95_seconds": 0.8515603499254212,
+          "end_to_end_p50_seconds": 2.982994396588765,
+          "end_to_end_p95_seconds": 4.717016681446694,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": 115119,
+          "estimated_api_cost_usd": 0.69831
+        },
+        {
+          "configuration_id": "bge_google",
+          "label": "BGE + Gemini",
+          "source_run": "bge-google-low-vs-bge-omneum-20261008",
+          "attempts": 240,
+          "accuracy": 0.9583333333333334,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.9444444444444444,
+          "recall": 0.662797619047619,
+          "selection_scored_attempts": 240,
+          "selection_p50_seconds": 2.48713827051688,
+          "selection_p95_seconds": 6.033517924090841,
+          "end_to_end_p50_seconds": 4.9241187502630055,
+          "end_to_end_p95_seconds": 8.697292894637204,
+          "latency_basis": "original selection plus recovered generation stage durations, including refusals; non-contemporaneous E2E sums",
+          "api_tokens": null,
+          "estimated_api_cost_usd": null
+        },
+        {
+          "configuration_id": "bge_omneum",
+          "label": "BGE + Omneum",
+          "source_run": "bge-google-low-vs-bge-omneum-20261008",
+          "attempts": 240,
+          "accuracy": 0.9166666666666666,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.8611111111111112,
+          "recall": 0.5933531746031746,
+          "selection_scored_attempts": 240,
+          "selection_p50_seconds": 0.6389743338804692,
+          "selection_p95_seconds": 0.8535917482106012,
+          "end_to_end_p50_seconds": 3.1304506664164364,
+          "end_to_end_p95_seconds": 4.832068977190647,
+          "latency_basis": "original selection plus recovered generation stage durations, including refusals; non-contemporaneous E2E sums",
+          "api_tokens": 115535,
+          "estimated_api_cost_usd": 0.70247
+        },
+        {
+          "configuration_id": "cohere-claude-vs-cohere-omneum-20261008:cohere_anthropic",
+          "label": "Cohere + Claude",
+          "source_run": "cohere-claude-vs-cohere-omneum-20261008",
+          "attempts": 24,
+          "accuracy": 0.9583333333333334,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.9166666666666666,
+          "recall": 0.644047619047619,
+          "selection_scored_attempts": 24,
+          "selection_p50_seconds": 2.3575172916753218,
+          "selection_p95_seconds": 10.15732783122221,
+          "end_to_end_p50_seconds": 4.897191729396582,
+          "end_to_end_p95_seconds": 13.040529639180747,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": null,
+          "estimated_api_cost_usd": null
+        },
+        {
+          "configuration_id": "cohere-claude-vs-cohere-omneum-20261008:cohere_omneum",
+          "label": "Cohere + Omneum",
+          "source_run": "cohere-claude-vs-cohere-omneum-20261008",
+          "attempts": 24,
+          "accuracy": 0.875,
+          "accuracy_basis": "manual complete-answer adjudication",
+          "precision": 0.8263888888888888,
+          "recall": 0.5572420634920635,
+          "selection_scored_attempts": 24,
+          "selection_p50_seconds": 1.0026268963702023,
+          "selection_p95_seconds": 9.488698892737737,
+          "end_to_end_p50_seconds": 4.326459333417006,
+          "end_to_end_p95_seconds": 12.539038128370882,
+          "latency_basis": "recorded full selection; end-to-end is measured selection + generation, including refusals",
+          "api_tokens": null,
+          "estimated_api_cost_usd": null
+        }
+      ]
+    },
+    "unverified_claims": [
+      "No preserved final BGE-only pairing establishes higher Omneum answer accuracy: tied-maxima substring correct is 21/24 versus BGE 22/24. Semantic complete-answer accuracy is unavailable for that run."
+    ]
+  },
+  "lineage_audit": {
+    "git_snapshots": [
+      {
+        "revision": "09fed729d4079abe77e3956376622dd127c679f1",
+        "timestamp_utc": "2026-10-03T22:43:29+00:00",
+        "subject": "Rename context evaluation operation",
+        "braid_version": "braid-1.0.0",
+        "committed_selector_policy": null,
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "a46d0e581902b9f283604fb214b17faf2abb46351095d7eff9e9168da5876bc8",
+          "omneum/inference.py": "f5bd4a1427184c66eb81ad61de660bfe275d158a86bb1d53c962a9d8de01065e",
+          "omneum/dependency.py": "f497844574ebf87cd3cb5736f2dcce24dd1d651d66b19d466bd9ff2464c6bf66",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": null
+        },
+        "committed_implementation_sha256": "7a7cda25f11ddb9f25a19430110132cbe5727df146984fefcf1f355e2181c8d7",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "b6450c05d9324bb0452aa26087ac2f4c3281a700",
+        "timestamp_utc": "2026-10-06T16:48:57+00:00",
+        "subject": "fix: sync BRAID 1.1 inference",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": null,
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "954f97c02d1677bebebc9d1265cc8581242326159e87c631b7bdfc2e9bd1aba6",
+          "omneum/dependency.py": "f497844574ebf87cd3cb5736f2dcce24dd1d651d66b19d466bd9ff2464c6bf66",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": null
+        },
+        "committed_implementation_sha256": "05b32bfb5cc9ac8147756c0b8208f31dc158f49c712f0b9724ebbc6f39d36af8",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "6f34ddc30e13ffe787ea9f9dd5f6cef08a958be1",
+        "timestamp_utc": "2026-10-06T17:44:31+00:00",
+        "subject": "bench: freeze definitive baseline results",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": null,
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "954f97c02d1677bebebc9d1265cc8581242326159e87c631b7bdfc2e9bd1aba6",
+          "omneum/dependency.py": "f497844574ebf87cd3cb5736f2dcce24dd1d651d66b19d466bd9ff2464c6bf66",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": null
+        },
+        "committed_implementation_sha256": "05b32bfb5cc9ac8147756c0b8208f31dc158f49c712f0b9724ebbc6f39d36af8",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "09d8dd0a0ca6b990e2074edf2f3e6fb8b5482a06",
+        "timestamp_utc": "2026-10-08T01:17:28+00:00",
+        "subject": "feat(benchmarks): standardize Omneum evaluation framework",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "relevance/structural blend",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "954f97c02d1677bebebc9d1265cc8581242326159e87c631b7bdfc2e9bd1aba6",
+          "omneum/dependency.py": "f497844574ebf87cd3cb5736f2dcce24dd1d651d66b19d466bd9ff2464c6bf66",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "3e4f4f3fd7953ad217bab57a1364c768247fbe1a3abdebaa3de27ad09202351c"
+        },
+        "committed_implementation_sha256": "583608c350196365eef9ae611d2850534fb5b6f21169a3df1671ebe19e27ec34",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "0d50f2e75e1faf6635e2a43cff9d1942dca964c5",
+        "timestamp_utc": "2026-10-08T01:33:13+00:00",
+        "subject": "fix(core): correct source dependency inference",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "relevance/structural blend",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "b045abbf1b0ebedb3a90b218fba4cdc028453f092e47b551c204c43144743c02",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "3e4f4f3fd7953ad217bab57a1364c768247fbe1a3abdebaa3de27ad09202351c"
+        },
+        "committed_implementation_sha256": "a33ddd8d4e949d20b026830deeaabe78f0c5a8dbab435a09bd114d6e1d3e0db0",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "1b6b18c59a5669fefca94619a87eba2d377e12d0",
+        "timestamp_utc": "2026-10-08T02:23:45+00:00",
+        "subject": "chore: checkpoint main work",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "b045abbf1b0ebedb3a90b218fba4cdc028453f092e47b551c204c43144743c02",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "d4bc1ae725e3cd400237fa294eb95f630b2750a47ab68b2858ce7010e1a67a4c"
+        },
+        "committed_implementation_sha256": "578622813d3b6ef0f69b605c3f8bbb3ec21a286bc5b4392064db983275d00305",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "be85125110bd2cc31cd8dc42e25c883a4dd9deb0",
+        "timestamp_utc": "2026-10-08T03:11:25+00:00",
+        "subject": "feat(bench): add evaluation infrastructure",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "2c53d76006cd10e45bb60d5282d1bf6b002d2129d16a4e356981c5d3edcb6623"
+        },
+        "committed_implementation_sha256": "182f9d60e9834ab0fdb309f60713d34c8e521b42065ed1b5221c0666b0dc5d47",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "cf3b5ce94218a5f86876353aa42b626216595209",
+        "timestamp_utc": "2026-10-08T03:16:06+00:00",
+        "subject": "feat(bench): add Cohere Omneum evaluation",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "2c53d76006cd10e45bb60d5282d1bf6b002d2129d16a4e356981c5d3edcb6623"
+        },
+        "committed_implementation_sha256": "4b34934aff3123cc0bffb1cb5ffc4ad4ff2e1cb4b24e450d133cef5503b5c7ee",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "57774229353caaf03688df05ad483dbf1261f685",
+        "timestamp_utc": "2026-10-08T15:07:46+00:00",
+        "subject": "docs: add external evaluation results",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "2c53d76006cd10e45bb60d5282d1bf6b002d2129d16a4e356981c5d3edcb6623"
+        },
+        "committed_implementation_sha256": "4b34934aff3123cc0bffb1cb5ffc4ad4ff2e1cb4b24e450d133cef5503b5c7ee",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "eba4214d9ba3fd716994169d0d5ef4b01566ddd5",
+        "timestamp_utc": "2026-10-08T16:18:51+00:00",
+        "subject": "feat(bench): add paired judge replacement evaluations",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "5b72eeccb3ef67350ce2ad32d4897ebf24c3d1e86c77fb289ce417292416f088"
+        },
+        "committed_implementation_sha256": "9ba0bbaee58e41b1103ee7754c240745dc3ed2128187738560aab21c3518272b",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "66f9b5552d13943193f3b92b66ddb348b84eb25a",
+        "timestamp_utc": "2026-10-08T17:01:21+00:00",
+        "subject": "merge: consolidate Omneum context graph and benchmark work",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "c2c2d58e3ff78550b77930a389653b7b91d886b838927b27bdbc6416f152174b"
+        },
+        "committed_implementation_sha256": "87d488b7531e4bebe550bd48eabd49e4d395ae3858a339248c6eea6acc419128",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      },
+      {
+        "revision": "a8c6e3e4e7a1107da9b06ed0edf935c891125615",
+        "timestamp_utc": "2026-10-08T18:40:18+00:00",
+        "subject": "bench: preserve BGE Astra vs Omneum evaluation",
+        "braid_version": "braid-1.1.0",
+        "committed_selector_policy": "tied maximum-support gate, relevance times reliability",
+        "source_file_sha256": {
+          "omneum/algorithm_compatibility.json": "1fff24d4d8b9a635238a7e8b540a9fed822a726254b27fd88ab909ef935ca306",
+          "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+          "omneum/dependency.py": "7c079bbd9ace30562f5dd850311ee5ea69264ee7011624fbaeb74a19ac20fbb5",
+          "benchmarks/financial_dependency_suite/omneum_rag.py": "c2c2d58e3ff78550b77930a389653b7b91d886b838927b27bdbc6416f152174b"
+        },
+        "committed_implementation_sha256": "029076e8eb60ffa8d6b1b15a47bc81d5f45350b260d4cd15814e93774c1ce862",
+        "fingerprint_definition": "checkpoint.py implementation_hash path/content framing; excludes tests, includes unrelated source and dependency-lock changes"
+      }
+    ],
+    "events": [
+      {
+        "event": "BRAID 1.1 synchronization",
+        "revision": "b6450c05d9324bb0452aa26087ac2f4c3281a700",
+        "evidence": "Git diff changes inference update and conformance vectors; pre-October-6 commit snapshots declare BRAID 1.0. Dirty execution version remains uncertain."
+      },
+      {
+        "event": "Source dependency/inference correction",
+        "revision": "0d50f2e75e1faf6635e2a43cff9d1942dca964c5",
+        "evidence": "Git diff adds transitive/shared parent ancestry and explicit equivalence/inference corrections. Tied diagnostic core hashes match this source before its later commit; timestamp or parent revision alone cannot attribute fixes to paid runs."
+      },
+      {
+        "event": "Tied maximum-support eligibility",
+        "revision": "1b6b18c59a5669fefca94619a87eba2d377e12d0",
+        "evidence": "Committed selector keeps every tied maximum claim eligible and ranks by relevance times reliability. Saved diagnostic reports two recovered cases relative to smoke; paid tied-maxima selections corroborate those changes."
+      },
+      {
+        "event": "Later conflict policies",
+        "revision": null,
+        "evidence": "Existing conflict-coverage/selective reports are offline selection-only analyses with no new generated answers, tokens, cost, or paid timing trials; none replace these publication measurements."
+      }
+    ],
+    "tied_diagnostic": {
+      "path": "benchmarks/context_evaluation/heldout/results/diagnostic-tied-maxima-selection-only-20261007/selection_only_diagnostic.public-v1.json",
+      "timestamp_utc": "2026-10-07T23:57:34.432627+00:00",
+      "preserved_core_hashes": {
+        "omneum/inference.py": "b761028eeba7d63bc47350e7c9863c8d4aa827b0493bc3bdd3525715fbd136b0",
+        "omneum/dependency.py": "b045abbf1b0ebedb3a90b218fba4cdc028453f092e47b551c204c43144743c02"
+      },
+      "matching_git_revisions": {
+        "omneum/inference.py": [
+          "0d50f2e75e1faf6635e2a43cff9d1942dca964c5",
+          "1b6b18c59a5669fefca94619a87eba2d377e12d0",
+          "be85125110bd2cc31cd8dc42e25c883a4dd9deb0",
+          "cf3b5ce94218a5f86876353aa42b626216595209",
+          "57774229353caaf03688df05ad483dbf1261f685",
+          "eba4214d9ba3fd716994169d0d5ef4b01566ddd5",
+          "66f9b5552d13943193f3b92b66ddb348b84eb25a",
+          "a8c6e3e4e7a1107da9b06ed0edf935c891125615"
+        ],
+        "omneum/dependency.py": [
+          "0d50f2e75e1faf6635e2a43cff9d1942dca964c5",
+          "1b6b18c59a5669fefca94619a87eba2d377e12d0"
+        ]
+      },
+      "paid_tied_memberships_verified": 24,
+      "later_run_membership_matches": {
+        "bge-claude-vs-bge-omneum-20261008": {
+          "matching_selected_sets": 24,
+          "attempts": 24
+        },
+        "bge-openai-vs-bge-omneum-20261008": {
+          "matching_selected_sets": 240,
+          "attempts": 240
+        },
+        "bge-google-low-vs-bge-omneum-20261008": {
+          "matching_selected_sets": 240,
+          "attempts": 240
+        }
+      },
+      "attribution_limit": "Equal selected evidence is a behavioral check, not identical execution code or interchangeable answer, timing, usage and cost measurements"
+    },
+    "uncertainty": "Every manifested run records a dirty checkout. Broad implementation fingerprints prove byte-set differences, not which algorithm or selector component changed. Exact executed source versions are null unless independently preserved; committed snapshots and behavioral matches are separate evidence."
+  },
+  "publication_contract": {
+    "version": 1,
+    "path": "benchmarks/context_evaluation/publication_manifest_v1.json",
+    "scope": "six authoritative matched runs, with the completed low-thinking Gemini generation recovery replacing the original Gemini comparison; canonical 24 cases, adjudications and necessary evidence",
+    "original_dashboard_sha256": "8168275a9bce02c9ad6421c4ca865476239c93ca68ce8e294ed0b00ed66115ba",
+    "verification_limit": "Public manifest projections are verified against their own hashes. Original manifest bytes and absolute identifiers remain private; their recorded hashes and execution fingerprints are retained, not reconstructed from public projections. Git lineage snapshots are preserved reference metadata, not exact dirty execution source."
+  }
+}

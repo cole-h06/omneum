@@ -1,0 +1,62 @@
+{
+  "bge": {
+    "fresh_retrieval_seconds": 0.22310608392581344,
+    "ranking": [
+      "chunk-readme",
+      "chunk-deployment_config",
+      "chunk-ci_config",
+      "chunk-test_output",
+      "chunk-example_config",
+      "chunk-source_code"
+    ],
+    "raw_scores": {
+      "chunk-ci_config": 0.05302022024989128,
+      "chunk-deployment_config": 0.807946503162384,
+      "chunk-example_config": 0.019326260313391685,
+      "chunk-readme": 0.9917866587638855,
+      "chunk-source_code": 0.0010635098442435265,
+      "chunk-test_output": 0.024326058104634285
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "bm25": {
+    "fresh_retrieval_seconds": 7.433304563164711e-05,
+    "ranking": [
+      "chunk-readme",
+      "chunk-example_config",
+      "chunk-ci_config",
+      "chunk-deployment_config",
+      "chunk-source_code",
+      "chunk-test_output"
+    ],
+    "raw_scores": {
+      "chunk-ci_config": 4.376836892481318,
+      "chunk-deployment_config": 1.424671741958061,
+      "chunk-example_config": 5.575983608660791,
+      "chunk-readme": 9.090432126382868,
+      "chunk-source_code": 0.0,
+      "chunk-test_output": 0.0
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  },
+  "embedding": {
+    "fresh_retrieval_seconds": 0.02225987520068884,
+    "ranking": [
+      "chunk-readme",
+      "chunk-example_config",
+      "chunk-deployment_config",
+      "chunk-ci_config",
+      "chunk-source_code",
+      "chunk-test_output"
+    ],
+    "raw_scores": {
+      "chunk-ci_config": 0.4731276035308838,
+      "chunk-deployment_config": 0.5130490064620972,
+      "chunk-example_config": 0.5504202246665955,
+      "chunk-readme": 0.6924617290496826,
+      "chunk-source_code": 0.3919990062713623,
+      "chunk-test_output": 0.37669041752815247
+    },
+    "scope": "One actual scoring computation on the complete case pool; shared across budgets, trials and arms."
+  }
+}

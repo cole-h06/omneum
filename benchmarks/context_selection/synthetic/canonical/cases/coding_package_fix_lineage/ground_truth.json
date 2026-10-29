@@ -1,0 +1,21 @@
+{
+  "case_id": "coding_package_fix_lineage",
+  "answer": "Bound idle connections and evict expired entries while keeping connection reuse enabled.",
+  "supporting_sources": [
+    "repository_code",
+    "release_notes",
+    "package_docs",
+    "test_output",
+    "pull_request"
+  ],
+  "scoring": {
+    "required": [
+      "bound idle connections",
+      "evict expired"
+    ],
+    "forbidden": [
+      "disable connection reuse",
+      "turn off connection reuse"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "path": "d19860c5b0a22c3bc762e1f72a42ffe6537b71e8de9400ced90f686994f7b4c3.jsonl",
+  "sha256": "d19860c5b0a22c3bc762e1f72a42ffe6537b71e8de9400ced90f686994f7b4c3",
+  "original_path": "/tmp/omneum-conflict-heldout-1792958991711192000.jsonl",
+  "purpose": "Frozen input trace for the Cross-Domain Context Curation Benchmark",
+  "unavailable_historical_source_snapshots": {
+    "omneum/_extraction_verification.py": "2dd8f080c6c41c1038aaefc36a0f0b1b03c454926a42c069dbe5ade2f4701845",
+    "omneum/extraction.py": "4c3fc41cbc87d031e0dfd8f5761c1f2159e399ec4776d3038514818cce81ae48",
+    "omneum/_numeric.py": "829c5792a0763751bd17260973853846b96039283aa4b74e765484b1400758b2",
+    "omneum/normalization.py": "45dd4435938b65656d517a3d292bd072b037e1b9539e5f04b865c3dfbb181436"
+  },
+  "limitation": "The trace bytes are intact. Exact historical SDK source verification remains unavailable for the listed snapshots; their recorded hashes have not been changed."
+}
