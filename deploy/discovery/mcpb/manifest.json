@@ -1,0 +1,33 @@
+{
+  "manifest_version": "0.3",
+  "name": "omneum-local",
+  "display_name": "Omneum Local Connector",
+  "version": "1.0.3",
+  "description": "Connect to an installed Omneum local stdio server; requires pip install omneum and omneum install first.",
+  "long_description": "Omneum evaluates opaque assertions using provenance and source-dependency metadata. This connector launches an existing local Omneum 1.0.3 installation. It does not install Python, the package, the privileged evaluator daemon, or system services. First run pip install omneum and omneum install from your normal login account on supported macOS or Ubuntu. Then select the absolute omneum-server executable reported by command -v omneum-server. No API key or remote MCP endpoint is required. Windows local serving is unsupported.",
+  "author": {"name": "Cole Hoke", "url": "https://github.com/cole-h06"},
+  "repository": {"type": "git", "url": "https://github.com/cole-h06/omneum"},
+  "homepage": "https://github.com/cole-h06/omneum",
+  "documentation": "https://github.com/cole-h06/omneum/blob/main/docs/guides/installation.md",
+  "support": "https://github.com/cole-h06/omneum/issues",
+  "license": "MIT",
+  "keywords": ["context", "provenance", "local", "stdio"],
+  "tools_generated": true,
+  "server": {
+    "type": "node",
+    "entry_point": "server/launch.cjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/launch.cjs", "${user_config.server_path}"]
+    }
+  },
+  "compatibility": {"platforms": ["darwin", "linux"], "runtimes": {"node": ">=18"}},
+  "user_config": {
+    "server_path": {
+      "type": "file",
+      "title": "Installed omneum-server executable",
+      "description": "After pip install omneum and omneum install, select the absolute executable printed by command -v omneum-server. Use the same login account that completed installation.",
+      "required": true
+    }
+  }
+}
