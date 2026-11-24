@@ -20,6 +20,9 @@
   <a href="https://github.com/cole-h06/omneum/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
   </a>
+  <a href="https://glama.ai/mcp/servers/cole-h06/omneum">
+    <img src="https://glama.ai/mcp/servers/cole-h06/omneum/badges/score.svg" alt="Omneum MCP server">
+  </a>
 </p>
 
 Omneum is an open-source context control plane for AI agents, built to optimize the evidence entering an LLM's context window.
